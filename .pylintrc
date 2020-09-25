@@ -136,7 +136,8 @@ disable=print-statement,
         exception-escape,
         comprehension-escape,
         arguments-differ,
-        dangerous-default-value
+        dangerous-default-value,
+        logging-fstring-interpolation
 
 # Enable the message, report, category or checker with the given id(s). You can
 # either give multiple identifier separated by comma (,) or put this option
@@ -186,7 +187,7 @@ never-returning-functions=sys.exit
 
 # Format style used to check logging format string. `old` means using %
 # formatting, while `new` is for `{}` formatting.
-logging-format-style=fstr
+logging-format-style=new
 
 # Logging modules to check that the string format arguments are in logging
 # function parameter format.
