@@ -6,7 +6,7 @@ on:
   pull_request:
   workflow_dispatch:
 jobs:
-  build:
+  setup:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@master
@@ -26,16 +26,27 @@ jobs:
       - name: Install package
         run: make install_test install
 
+  lint:
+    needs: setup
+    runs-on: ubuntu-latest
+    steps:
       - name: Run flake8 lint tests
         run: make flake8
 
       - name: Run pylint lint tests
         run: make pylint
 
+  unit:
+    needs: setup
+    runs-on: ubuntu-latest
       - name: Run unittests
         run: make unittest
         env:
           GOOGLE_APPLICATION_CREDENTIALS: tests/unit/fixtures/fake_credentials.json
 
+  coverage:
+    needs: setup
+    runs-on: ubuntu-latest
+    steps:
       - name: Run coverage report
         run: make coverage_report
