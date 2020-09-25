@@ -1,4 +1,4 @@
-name: run-all-tests
+name: local
 on: push
 jobs:
   build:
