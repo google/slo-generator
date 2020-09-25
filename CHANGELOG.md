@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.1.0 (08-21-2020)
+
+### Fixes
+* Partition table for BigQuery database.
+
 ## 1.0.1 (07-20-2020)
 
 ### Fixes
