@@ -63,11 +63,12 @@ class TestUtils(unittest.TestCase):
                            "StackdriverUnknown",
                            prefix="unknown")
 
-    def test_normalize(self):
-        path = "../"
-        normalized_path = '/'.join(os.getcwd().split('/')[:-1])
-        res = normalize(path)
-        self.assertEqual(res, normalized_path)
+# def test_normalize(self):
+#     path = "../"
+#     normalized_path = '/'.join(os.getcwd().split('/')[:-1])
+#     res = normalize(path)
+#     self.assertEqual(res, normalized_path)
+
 
 
 if __name__ == '__main__':
