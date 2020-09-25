@@ -16,6 +16,7 @@ on:
    branches:
      - master
 name: release-please
+author: slo-generator-bot@google.com
 jobs:
  release-please:
    runs-on: ubuntu-latest
