@@ -20,7 +20,7 @@ jobs:
  release-please:
    runs-on: ubuntu-latest
    steps:
-     - uses: GoogleCloudPlatform/release-please-action@v6.2.0
+     - uses: GoogleCloudPlatform/release-please-action@v2.4.1
        with:
          token: ${{ secrets.GITHUB_TOKEN }}
          release-type: python
