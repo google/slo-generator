@@ -1,4 +1,4 @@
-name: make-master
+name: run-all-tests
 on: push
 jobs:
   build:
