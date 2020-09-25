@@ -30,7 +30,7 @@ jobs:
       - name: Run unittests
         run: make unittest
         env:
-          GOOGLE_APPLICATION_CREDENTIALS=tests/unit/fixtures/fake_credentials.json
+          GOOGLE_APPLICATION_CREDENTIALS: tests/unit/fixtures/fake_credentials.json
 
       - name: Run coverage report
         run: make coverage_report
