@@ -34,7 +34,6 @@ jobs:
           GOOGLE_APPLICATION_CREDENTIALS: tests/unit/fixtures/fake_credentials.json
 
   coverage:
-    needs: setup
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@master
