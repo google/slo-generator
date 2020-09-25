@@ -1,4 +1,4 @@
-name: local
+name: tests-local
 on: push
 jobs:
   build:
