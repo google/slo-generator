@@ -8,13 +8,12 @@ jobs:
         with:
           fetch-depth: 1
 
-      - name: Run lint tests
-        run: make install_test flake8 pylint
+      - name: Install deps
+        run: >
+          sudo apt-get install gcc libpq-dev -y
+          sudo apt-get install python-dev python-pip -y
+          sudo apt-get install python3-dev python3-pip python3-venv python3-wheel -y
+          pip3 install wheel
 
-      - name: Run unittests
-        env:
-          GOOOGLE_APPLICATION_CREDENTIALS: tests/unit/fixtures/fake_credentials.json
-        run: make install_test unittest
-
-      - name: Run converage
-        run: make install_test coverage_report
+      - name: Run all
+        run: make all
