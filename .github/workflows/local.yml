@@ -14,11 +14,11 @@ jobs:
           python-version: '3.x'
           architecture: 'x64'
 
-      - name: Run flake8 lint tests
-        run: make install_test flake8
+      - name: Install dependencies
+        run: make install_test install
 
-      - name: Run pylint lint tests
-        run: make install_test pylint
+      - name: Run lint test
+        run: make flake8 pylint
 
   unit:
     runs-on: ubuntu-latest
