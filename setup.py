@@ -49,7 +49,7 @@ setup(name='slo-generator',
       keywords='slo sli generator gcp',
       install_requires=[
           'google-api-python-client', 'oauth2client',
-          'google-cloud-monitoring', 'google-cloud-pubsub',
+          'google-cloud-monitoring', 'google-cloud-pubsub==1.7.0',
           'google-cloud-bigquery', 'prometheus-http-client',
           'prometheus-client', 'pyyaml', 'opencensus', 'elasticsearch', 'pytz'
       ],
