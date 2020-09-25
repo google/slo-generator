@@ -15,9 +15,9 @@
 
 NAME = "slo_generator"
 
-PIP=pip
+PIP=pip3
 
-PYTHON=python
+PYTHON=python3
 TWINE=twine
 COVERAGE=coverage
 NOSE_OPTS = --with-coverage --cover-package=$(NAME)
