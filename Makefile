@@ -29,7 +29,7 @@ FLAKE8_IGNORE = E302,E203,E261
 
 ########################################################
 
-all: clean install_test tests
+all: clean install install_test tests
 
 flake8:
 	flake8 --ignore=$(FLAKE8_IGNORE) $(NAME)/ --max-line-length=80
