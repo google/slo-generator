@@ -102,8 +102,8 @@ To prepare for development, you need to fork this repository and work on your ow
 
 Once you have forked the repo on GitHub, clone it locally and install the `slo-generator` in a Python virtual environment:
 ```
-git clone <FORK_URL>
-cd professional-services/tools/slo-generator
+git clone github.com/google/slo-generator
+cd slo-generator
 python3 -m venv venv/
 source venv/bin/activate
 ```

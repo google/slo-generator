@@ -34,7 +34,7 @@ setup(name='slo-generator',
       long_description=long_description,
       long_description_content_type='text/markdown',
       author='Google Inc.',
-      author_email='brunoreboul@google.com,ocervello@google.com',
+      author_email='ocervello@google.com',
       packages=find_packages(exclude=['contrib', 'docs', 'tests']),
       classifiers=[
           'Development Status :: 3 - Alpha',
