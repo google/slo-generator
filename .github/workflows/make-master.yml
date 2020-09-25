@@ -8,16 +8,13 @@ jobs:
         with:
           fetch-depth: 1
 
-      - name: Install test pip packages
-        run: make install_test
-
       - name: Run lint tests
-        run: make flake8 pylint
+        run: make install_test flake8 pylint
 
       - name: Run unittests
         env:
           GOOOGLE_APPLICATION_CREDENTIALS: tests/unit/fixtures/fake_credentials.json
-        run: make unittest
+        run: make install_test unittest
 
       - name: Run converage
-        run: make coverage_report
+        run: make install_test coverage_report
