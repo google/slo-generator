@@ -13,6 +13,14 @@
 # limitations under the License.
 
 FROM python:3-slim
+RUN apt-get update && \
+    apt-get install -y \
+        build-essential \
+        make \
+        gcc \
+        locales \
+        libgdal20 \
+        libgdal-dev
 ADD . /app
 WORKDIR /app
 RUN pip install -U setuptools
