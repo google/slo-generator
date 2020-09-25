@@ -1,0 +1,23 @@
+name: make-master
+on: push
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+        with:
+          fetch-depth: 1
+
+      - name: Install test pip packages
+        run: make install_test
+
+      - name: Run lint tests
+        run: make flake8 pylint
+
+      - name: Run unittests
+        env:
+          GOOOGLE_APPLICATION_CREDENTIALS: tests/unit/fixtures/fake_credentials.json
+        run: make unittest
+
+      - name: Run converage
+        run: make coverage_report
