@@ -13,10 +13,11 @@
 # limitations under the License.
 ---
 steps:
-
-# Install generation script to Docker
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['build', '-t', 'gcr.io/{_PROJECT_NAME}/slo-generator', '.']
-
+  id:   'Build SLO generator'
+  args: ['build', '-t', 'gcr.io/$PROJECT_ID/slo-generator', '.']
+- name: 'gcr.io/$PROJECT_ID/make'
+  id:   'Run all tests'
+  args: []
 images:
-- 'gcr.io/${_PROJECT_NAME}/slo-generator'
+- 'gcr.io/$PROJECT_ID/slo-generator'
