@@ -24,35 +24,48 @@ from io import open
 
 here = path.abspath(path.dirname(__file__))
 
+# Package metadata.
+name = "slo-generator"
+description = "SLO Generator"
+version = "1.1.0"
+# Should be one of:
+# 'Development Status :: 3 - Alpha'
+# 'Development Status :: 4 - Beta'
+# 'Development Status :: 5 - Production/Stable'
+release_status = "Development Status :: 3 - Alpha"
+dependencies = [
+    'google-api-python-client', 'oauth2client', 'google-cloud-monitoring',
+    'google-cloud-pubsub==1.7.0', 'google-cloud-bigquery',
+    'prometheus-http-client', 'prometheus-client', 'pyyaml', 'opencensus',
+    'elasticsearch', 'pytz'
+]
+extras = {}
+
 # Get the long description from the README file
 with open(path.join(here, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
-setup(name='slo-generator',
-      version='1.1.0',
-      description='SLO generator',
+setup(name=name,
+      version=version,
+      description=description,
       long_description=long_description,
       long_description_content_type='text/markdown',
       author='Google Inc.',
       author_email='ocervello@google.com',
+      license='Apache 2.0',
       packages=find_packages(exclude=['contrib', 'docs', 'tests']),
       classifiers=[
-          'Development Status :: 3 - Alpha',
+          release_status,
           'Intended Audience :: Developers',
           'Topic :: Software Development :: Build Tools',
-          'License :: OSI Approved :: MIT License',
-          'Programming Language :: Python :: 3',
-          'Programming Language :: Python :: 3.4',
-          'Programming Language :: Python :: 3.5',
+          'License :: OSI Approved :: Apache Software License',
+          'Programming Language :: Python',
           'Programming Language :: Python :: 3.6',
+          'Programming Language :: Python :: 3.7',
+          'Programming Language :: Python :: 3.8',
       ],
       keywords='slo sli generator gcp',
-      install_requires=[
-          'google-api-python-client', 'oauth2client',
-          'google-cloud-monitoring', 'google-cloud-pubsub',
-          'google-cloud-bigquery', 'prometheus-http-client',
-          'prometheus-client', 'pyyaml', 'opencensus', 'elasticsearch', 'pytz'
-      ],
+      install_requires=dependencies,
       entry_points={
           'console_scripts': ['slo-generator=slo_generator.cli:main'],
       },
