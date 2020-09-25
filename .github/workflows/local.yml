@@ -39,6 +39,7 @@ jobs:
   unit:
     needs: setup
     runs-on: ubuntu-latest
+    steps:
       - name: Run unittests
         run: make unittest
         env:
