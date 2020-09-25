@@ -94,6 +94,15 @@ The **Error Budget policy** (JSON or YAML) is a list of multiple error budgets, 
 ==> An example Error Budget policy is available [here](samples/error_budget_policy.yaml).
 
 
+## Reporting on SLO achievements
+
+The [PUBLIC SLO achievements report template](https://datastudio.google.com/reporting/964e185c-6ca0-4ed8-809d-425e22568aa0) can be cloned following instructions on the report page named README. It provide a basic dashboard with:
+
+1. `Morning snapshot`: last error budget and SLI achievement, support decisions agreed in the Error Budget Policy
+2. `Trends`: SLI vs SLO by service/feature over a period of time
+3. `Alerting on burnrate`: visualize when alerting engage and fade off by sliding window sizes
+
+
 ## Extending the SLO generator
 
 The `slo-generator` tool is designed to add more backends and exporters as it moves forward. Users, customers and Google folks should be able to easily add the metrics backend or the exporter of their choosing.
