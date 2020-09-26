@@ -3,7 +3,7 @@ on:
   push:
     branches:
       - master
-  pull_request:
+      - release-*
 jobs:
   cloudbuild:
     runs-on: ubuntu-latest
