@@ -20,6 +20,7 @@ import json
 import logging
 import os
 import pprint
+
 from prometheus_http_client import Prometheus
 
 LOGGER = logging.getLogger(__name__)

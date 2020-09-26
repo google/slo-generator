@@ -20,7 +20,7 @@ import os
 
 from google.cloud.monitoring_v3.proto import metric_service_pb2
 
-from slo_generator.utils import parse_config, list_slo_configs
+from slo_generator.utils import list_slo_configs, parse_config
 
 TEST_DIR = os.path.dirname(os.path.abspath(__file__))
 SAMPLE_DIR = os.path.join(os.path.dirname(os.path.dirname(TEST_DIR)),

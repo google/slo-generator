@@ -17,12 +17,14 @@ import warnings
 
 from elasticsearch import Elasticsearch
 from google.auth._default import _CLOUD_SDK_CREDENTIALS_WARNING
-from mock import patch, MagicMock
+from mock import MagicMock, patch
 from prometheus_http_client import Prometheus
-from slo_generator.exporters.bigquery import BigQueryError
+
 from slo_generator.compute import compute, export
+from slo_generator.exporters.bigquery import BigQueryError
+
 from .test_stubs import (CTX, load_fixture, load_sample, load_slo_samples,
-                         mock_sd, mock_prom, mock_es, mock_ssm_client)
+                         mock_es, mock_prom, mock_sd, mock_ssm_client)
 
 warnings.filterwarnings("ignore", message=_CLOUD_SDK_CREDENTIALS_WARNING)
 

@@ -14,8 +14,8 @@
 
 import unittest
 
-from slo_generator.utils import (get_human_time, get_backend_cls,
-                                 get_exporter_cls, import_dynamic)
+from slo_generator.utils import (get_backend_cls, get_exporter_cls,
+                                 get_human_time, import_dynamic)
 
 
 class TestUtils(unittest.TestCase):

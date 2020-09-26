@@ -17,7 +17,8 @@ Report utilities.
 """
 
 import logging
-from dataclasses import dataclass, asdict, fields
+from dataclasses import asdict, dataclass, fields
+
 from slo_generator import utils
 
 LOGGER = logging.getLogger(__name__)

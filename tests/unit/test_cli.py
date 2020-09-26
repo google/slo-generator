@@ -16,7 +16,9 @@ import os
 import unittest
 
 from mock import patch
-from slo_generator.cli import parse_args, cli
+
+from slo_generator.cli import cli, parse_args
+
 from .test_stubs import CTX, mock_sd
 
 cwd = os.path.dirname(os.path.abspath(__file__))

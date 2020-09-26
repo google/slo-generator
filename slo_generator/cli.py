@@ -20,8 +20,8 @@ import argparse
 import logging
 import sys
 
-from slo_generator.compute import compute
 import slo_generator.utils as utils
+from slo_generator.compute import compute
 
 LOGGER = logging.getLogger(__name__)
 
