@@ -1,4 +1,4 @@
-name: tests-local
+name: build
 on:
   push:
     branches:
