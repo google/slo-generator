@@ -16,6 +16,7 @@
 Stackdriver Monitoring exporter class.
 """
 import logging
+
 import google.api_core.exceptions
 from google.cloud import monitoring_v3
 

@@ -16,6 +16,7 @@
 Pubsub exporter class.
 """
 import json
+
 from google.cloud import pubsub_v1
 
 

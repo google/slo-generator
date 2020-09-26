@@ -17,6 +17,7 @@ BigQuery exporter class.
 """
 import json
 import logging
+
 import google.api_core
 from google.cloud import bigquery
 

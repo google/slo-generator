@@ -15,10 +15,10 @@
 `stackdriver.py`
 Stackdriver Monitoring backend implementation.
 """
-from collections import OrderedDict
 import logging
 import pprint
 import warnings
+from collections import OrderedDict
 
 from google.cloud import monitoring_v3
 

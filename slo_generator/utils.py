@@ -15,7 +15,6 @@
 `utils.py`
 Utility functions.
 """
-from datetime import datetime
 import argparse
 import collections
 import glob
@@ -26,10 +25,10 @@ import pprint
 import re
 import sys
 import warnings
-import yaml
+from datetime import datetime
 
 import pytz
-
+import yaml
 from google.auth._default import _CLOUD_SDK_CREDENTIALS_WARNING
 
 LOGGER = logging.getLogger(__name__)
