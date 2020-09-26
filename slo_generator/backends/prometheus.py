@@ -27,7 +27,6 @@ LOGGER = logging.getLogger(__name__)
 
 class PrometheusBackend:
     """Backend for querying metrics from Prometheus."""
-
     def __init__(self, client=None, url=None, headers=None):
         self.client = client
         if not self.client:
@@ -76,32 +75,21 @@ class PrometheusBackend:
             At least one of `filter_bad` or `filter_valid` is required.
 
         Returns:
-            tuple: A tuple of (good_count, bad_count).
+            float: SLI value.
         """
         conf = slo_config['backend']
         filter_good = conf['measurement']['filter_good']
         filter_bad = conf['measurement'].get('filter_bad')
         filter_valid = conf['measurement'].get('filter_valid')
-
-        # Replace window by its value in the error budget policy step
-        expr_good = filter_good.replace('[window', f'[{window}s')
-        res_good = self.query(expr_good)
-        good_count = PrometheusBackend.count(res_good)
-
-        if filter_bad:
-            expr_bad = filter_bad.replace('[window', f'[{window}s')
-            res_bad = self.query(expr_bad, timestamp)
-            bad_count = PrometheusBackend.count(res_bad)
-        elif filter_valid:
-            expr_valid = filter_valid.replace('[window', f'[{window}s')
-            res_valid = self.query(expr_valid, timestamp)
-            bad_count = PrometheusBackend.count(res_valid) - good_count
-        else:
-            raise Exception("`filter_bad` or `filter_valid` is required.")
-
-        LOGGER.debug(f'Good events: {good_count} | ' f'Bad events: {bad_count}')
-
-        return (good_count, bad_count)
+        query = f'sum(rate({filter_good}))'
+        if filter_valid:
+            query += f' / sum(rate({filter_valid}))'
+        elif filter_bad:
+            query += f' / (sum(rate({filter_good})) + sum(rate({filter_bad})))'
+        query = query.replace('[window', f'[{window}s')
+        LOGGER.debug(f'Prometheus query: {query}')
+        result = self.query(query)
+        return float(result['data']['result'][0]['value'][1])
 
     def query(self, filter, timestamp=None):  # pylint: disable=unused-argument
         """Query Prometheus server.
@@ -117,22 +105,3 @@ class PrometheusBackend:
         response = json.loads(response)
         LOGGER.debug(pprint.pformat(response))
         return response
-
-    @staticmethod
-    def count(response):
-        """Count events in Prometheus response.
-
-        Args:
-            response (dict): Prometheus query response.
-
-        Returns:
-            int: Event count.
-        """
-        # Note: this function could be replaced by using the `count_over_time`
-        # function that Prometheus provides.
-        try:
-            return len(response['data']['result'][0]['values'])
-        except (IndexError, KeyError) as exception:
-            LOGGER.warning("Couldn't find any values in timeseries response")
-            LOGGER.debug(exception, exc_info=True)
-            return 0  # no events in timeseries
