@@ -15,9 +15,9 @@
 
 NAME = "slo_generator"
 
-PIP=pip
+PIP=pip3
 
-PYTHON=python
+PYTHON=python3
 TWINE=twine
 COVERAGE=coverage
 NOSE_OPTS = --with-coverage --cover-package=$(NAME)
@@ -29,7 +29,7 @@ FLAKE8_IGNORE = E302,E203,E261
 
 ########################################################
 
-all: clean install_test tests
+all: clean install install_test tests
 
 flake8:
 	flake8 --ignore=$(FLAKE8_IGNORE) $(NAME)/ --max-line-length=80
@@ -66,7 +66,7 @@ install: clean
 	$(PYTHON) setup.py install
 
 install_test:
-	$(PIP) install flake8 mock coverage nose pylint
+	$(PIP) install wheel flake8 mock coverage nose pylint
 
 tests: flake8 pylint unittest coverage_report
 

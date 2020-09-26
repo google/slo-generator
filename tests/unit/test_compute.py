@@ -21,8 +21,8 @@ from mock import patch, MagicMock
 from prometheus_http_client import Prometheus
 from slo_generator.exporters.bigquery import BigQueryError
 from slo_generator.compute import compute, export
-from test_stubs import (CTX, load_fixture, load_sample, load_slo_samples,
-                        mock_sd, mock_prom, mock_es, mock_ssm_client)
+from .test_stubs import (CTX, load_fixture, load_sample, load_slo_samples,
+                         mock_sd, mock_prom, mock_es, mock_ssm_client)
 
 warnings.filterwarnings("ignore", message=_CLOUD_SDK_CREDENTIALS_WARNING)
 
@@ -51,7 +51,6 @@ SSM_MOCKS = [
 
 
 class TestCompute(unittest.TestCase):
-
     @patch('google.api_core.grpc_helpers.create_channel',
            return_value=mock_sd(2 * STEPS * len(SLO_CONFIGS_SD)))
     def test_compute_stackdriver(self, mock):
