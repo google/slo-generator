@@ -17,14 +17,13 @@ import unittest
 
 from mock import patch
 from slo_generator.cli import parse_args, cli
-from test_stubs import CTX, mock_sd
+from .test_stubs import CTX, mock_sd
 
 cwd = os.path.dirname(os.path.abspath(__file__))
 root = os.path.dirname(os.path.dirname(cwd))
 
 
 class TestCLI(unittest.TestCase):
-
     def setUp(self):
         for k, v in CTX.items():
             os.environ[k] = v
