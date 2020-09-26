@@ -50,4 +50,4 @@ jobs:
         run: make install_test install
 
       - name: Run coverage report
-        run: make coverage_report
+        run: make unittest coverage_report
