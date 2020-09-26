@@ -1,12 +1,11 @@
-name: tests-cloudbuild
+name: cloudbuild
 on:
   push:
     branches:
       - master
   pull_request:
-  workflow_dispatch:
 jobs:
-  build:
+  cloudbuild:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@master

@@ -4,33 +4,33 @@ on:
     branches:
       - master
   pull_request:
-  workflow_dispatch:
 jobs:
-  build:
+  lint:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@master
-        with:
-          fetch-depth: 1
       - uses: actions/setup-python@v2
         with:
-          python-version: '3.x' # Version range or exact version of a Python version to use, using SemVer's version range syntax
-          architecture: 'x64' # optional x64 or x86. Defaults to x64 if not specified
-      - name: Install deps
-        run: >
-          sudo apt-get install gcc libpq-dev -y &&
-          sudo apt-get install python-dev python-pip -y &&
-          sudo apt-get install python3-dev python3-pip python3-venv python3-wheel -y &&
-          pip3 install -U wheel setuptools
+          python-version: '3.x'
+          architecture: 'x64'
 
-      - name: Install package
+      - name: Install dependencies
         run: make install_test install
 
-      - name: Run flake8 lint tests
-        run: make flake8
+      - name: Run lint test
+        run: make flake8 pylint
 
-      - name: Run pylint lint tests
-        run: make pylint
+  unit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+      - uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
+          architecture: 'x64'
+
+      - name: Install dependencies
+        run: make install_test install
 
       - name: Run unittests
         run: make unittest
