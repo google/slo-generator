@@ -2,8 +2,10 @@ name: cloudbuild
 on:
   push:
     branches:
-      - release-*
+      - master
   pull_request:
+    branches:
+      - release-*
 jobs:
   cloudbuild:
     runs-on: ubuntu-latest
