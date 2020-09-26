@@ -37,17 +37,5 @@ jobs:
         env:
           GOOGLE_APPLICATION_CREDENTIALS: tests/unit/fixtures/fake_credentials.json
 
-  coverage:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@master
-      - uses: actions/setup-python@v2
-        with:
-          python-version: '3.x'
-          architecture: 'x64'
-
-      - name: Install dependencies
-        run: make install_test install
-
       - name: Run coverage report
-        run: make unittest coverage_report
+        run: make coverage_report
