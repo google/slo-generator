@@ -87,7 +87,7 @@ class BigqueryExporter:
         pyschema = [bigquery.SchemaField(row['name'],
                                          row['type'],
                                          mode=row['mode'])
-                                         for row in schema]
+                    for row in schema]
 
         table_name = f"{project_id}.{dataset_id}.{table_id}"
         LOGGER.info(f"Creating table {table_name}", table_name)
