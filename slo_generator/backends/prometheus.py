@@ -87,7 +87,7 @@ class PrometheusBackend:
         expr_good = filter_good.replace('[window', f'[{window}s')
         query_good = f'sum(rate({expr_good}))'
         res_good = self.query(query_good)
-        good_count = float(res_good['data']['result'][0]['value'][1])
+        good_count = PrometheusBackend.count(res_good)
 
         if filter_bad:
             expr_bad = filter_bad.replace('[window', f'[{window}s')
