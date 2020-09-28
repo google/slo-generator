@@ -94,6 +94,7 @@ class PrometheusBackend:
 
         return (good_count, bad_count)
 
+    # pylint: disable=unused-argument
     def distribution_cut(self, timestamp, window, slo_config):
         """Query events for distributions (histograms).
 
@@ -108,8 +109,6 @@ class PrometheusBackend:
         conf = slo_config['backend']
         measurement = conf['measurement']
         expr = measurement['expression']
-        # TODO: Need bucketization details to implement the following.
-        # good_below_threshold = measurement['good_below_threshold']
         threshold_bucket = measurement['threshold_bucket']
         labels = {"le": threshold_bucket}
         res_good = self.query(expr,
@@ -128,6 +127,8 @@ class PrometheusBackend:
                                operators=['increase', 'sum'])
         valid_count = PrometheusBackend.count(res_valid)
         bad_count = valid_count - good_count
+        LOGGER.debug(f'Good events: {good_count} | '
+                     f'Bad events: {bad_count}')
         return (good_count, bad_count)
 
     # pylint: disable=unused-argument
@@ -144,38 +145,13 @@ class PrometheusBackend:
         Returns:
             dict: Response.
         """
-        filter = self._fmt_query(filter, window, operators, labels)
+        filter = PrometheusBackend._fmt_query(filter, window, operators,
+                                              labels)
         LOGGER.debug(f'Query: {filter}')
         response = self.client.query(metric=filter)
         response = json.loads(response)
         LOGGER.debug(pprint.pformat(response))
         return response
-
-    def _fmt_query(self, query, window, operators=[], labels={}):
-        """Format Prometheus query.
-
-        If the PromQL expression has a `window` placeholder, keep it. Otherwise,
-        add it to the expression.
-
-        Args:
-            query (str): Original query in YAML config.
-            window (int): Query window (in seconds).
-            operators (list): Operators to wrap query with.
-            labels (dict): Labels dict to add to existing query.
-
-        Returns:
-            str: Formatted query.
-        """
-        query = query.strip()
-        if '[window' in query:
-            query = query.replace('[window', f'[{window}s')
-        else:
-            query += f'[{window}s]'
-        for op in operators:
-            query = f'{op}({query})'
-        for key, value in labels.items():
-            query = query.replace('}', f', {key}="{value}"}}')
-        return query
 
     @staticmethod
     def count(response):
@@ -193,3 +169,35 @@ class PrometheusBackend:
             LOGGER.warning("Couldn't find any values in timeseries response.")
             LOGGER.debug(exception, exc_info=True)
             return 0  # no events in timeseries
+
+    @staticmethod
+    def _fmt_query(query, window, operators=[], labels={}):
+        """Format Prometheus query:
+
+        * If the PromQL expression has a `window` placeholder, replace it by the
+        current window. Otherwise, append it to the expression.
+
+        * If operators are defined, apply them to the metric in sequential
+        order.
+
+        * If labels are defined, append them to existing labels.
+
+        Args:
+            query (str): Original query in YAML config.
+            window (int): Query window (in seconds).
+            operators (list): Operators to wrap query with.
+            labels (dict): Labels dict to add to existing query.
+
+        Returns:
+            str: Formatted query.
+        """
+        query = query.strip()
+        if '[window' in query:
+            query = query.replace('[window', f'[{window}s')
+        else:
+            query += f'[{window}s]'
+        for operator in operators:
+            query = f'{operator}({query})'
+        for key, value in labels.items():
+            query = query.replace('}', f', {key}="{value}"}}')
+        return query
