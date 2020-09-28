@@ -12,8 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ---
-service_name:    gke
-feature_name:    flask
+service_name:    prom
+feature_name:    metrics
 slo_description: 99.99% of Prometheus requests return in less than 250ms
 slo_name:        latency
 slo_target:      0.9999
