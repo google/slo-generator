@@ -15,6 +15,7 @@
 `utils.py`
 Utility functions.
 """
+from datetime import datetime
 import argparse
 import collections
 import glob
@@ -25,10 +26,10 @@ import pprint
 import re
 import sys
 import warnings
-from datetime import datetime
-
-import pytz
 import yaml
+
+from dateutil import tz
+
 from google.auth._default import _CLOUD_SDK_CREDENTIALS_WARNING
 
 LOGGER = logging.getLogger(__name__)
@@ -85,8 +86,7 @@ def parse_config(path, ctx=os.environ):
                 except KeyError as exception:
                     LOGGER.error(
                         f'Environment variable "{var}" should be set.',
-                        exc_info=True
-                    )
+                        exc_info=True)
                     raise exception
             content = full_value
         return content
@@ -118,18 +118,27 @@ def setup_logging():
     warnings.filterwarnings("ignore", message=_CLOUD_SDK_CREDENTIALS_WARNING)
 
 
-def get_human_time(timestamp, timezone="Europe/Paris"):
-    """Get human-readable timestamp from UNIX timestamp.
+def get_human_time(timestamp, timezone=None):
+    """Get human-readable timestamp from UNIX UTC timestamp.
 
     Args:
-        timestamp (int): UNIX timestamp.
+        timestamp (int): UNIX UTC timestamp.
+        timezone (optional): Explicit timezone (e.g: "America/Chicago").
 
     Returns:
-        str: Formatted timestamp in ISO format.
+        str: Formatted human-readable date in ISO format, localized.
     """
-    date = datetime.fromtimestamp(timestamp, pytz.timezone(timezone))
+    if timezone is not None:  # get timezone from arg
+        from_zone = tz.gettz('UTC')
+        to_zone = tz.gettz(timezone)
+    else:  # auto-detect locale
+        from_zone = tz.tzutc()
+        to_zone = tz.tzlocal()
+    dt_utc = datetime.utcfromtimestamp(timestamp)
+    dt_utc = dt_utc.replace(tzinfo=from_zone)
+    dt_tz = dt_utc.astimezone(to_zone)
     timeformat = '%Y-%m-%dT%H:%M:%S.%fZ'
-    return datetime.strftime(date, timeformat)
+    return datetime.strftime(dt_tz, timeformat)
 
 
 def normalize(path):
@@ -205,7 +214,6 @@ def dict_snake_to_caml(data):
     Returns:
         dict: Output dictionary.
     """
-
     def snake_to_caml(word):
         return re.sub('_.', lambda x: x.group()[1].upper(), word)
 
