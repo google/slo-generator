@@ -34,8 +34,9 @@ backend:
   #   Content-Type: application/json
   #   Authorization: Basic b2s6cGFzcW==
   measurement:
-    filter_good: prometheus_http_requests_total{code=~"2..", handler="/metrics"}[window]
-    filter_valid: prometheus_http_requests_total{handler="/metrics"}[window]
+    filter_good: http_requests_total{handler="/metrics", code=~"2.."}[window]
+    filter_valid: http_requests_total{handler="/metrics"}[window]
+    # operators: ['sum', 'rate']
 ```
 * The `window` placeholder is needed in the query and will be replaced by the
 corresponding `window` field set in each step of the Error Budget Policy.
@@ -43,7 +44,12 @@ corresponding `window` field set in each step of the Error Budget Policy.
 * The `headers` section (commented) allows to specify Basic Authentication
 credentials if needed.
 
-**&rightarrow; [Full SLO config](../samples/prometheus/slo_prom_metrics_availability_good_bad.yaml)**
+* The `operators` section defines which PromQL functions to apply on the
+timeseries. The default is to compute `sum(increase([METRIC_NAME][window]))` to
+get an accurate count of good and bad events. Be aware that changing will likely
+result in good / bad counts that do not accurately reflect actual load.
+
+**&rightarrow; [Full SLO config](../samples/prometheus/slo_prom_metrics_availability_ratio.yaml)**
 
 
 ### Query SLI
@@ -68,9 +74,9 @@ backend:
   #   Authorization: Basic b2s6cGFzcW==
   measurement:
     expression:  >
-      sum(rate(prometheus_http_requests_total{code=~"2..", handler="/metrics"}[window]))
+      sum(rate(http_requests_total{handler="/metrics", code=~"2.."}[window]))
       /
-      sum(rate(prometheus_http_requests_total{handler="/metrics"}[window]))
+      sum(rate(http_requests_total{handler="/metrics"}[window]))
 ```
 * The `window` placeholder is needed in the query and will be replaced by the
 corresponding `window` field set in each step of the Error Budget Policy.
@@ -78,7 +84,55 @@ corresponding `window` field set in each step of the Error Budget Policy.
 * The `headers` section (commented) allows to specify Basic Authentication
 credentials if needed.
 
-**&rightarrow; [Full SLO config](../samples/prometheus/slo_prom_metrics_availability_query_sli.yaml)**
+**&rightarrow; [Full SLO config (availability)](../samples/prometheus/slo_prom_metrics_availability_query_sli.yaml)**
+
+**&rightarrow; [Full SLO config (latency)](../samples/prometheus/slo_prom_metrics_latency_query_sli.yaml)**
+
+### Distribution cut
+
+The `distribution_cut` method is used for Prometheus distribution-type metrics (histograms), which are usually used for latency metrics.
+
+A distribution metric records the **statistical distribution of the extracted
+values** in **histogram buckets**. The extracted values are not recorded
+individually, but their distribution across the configured buckets are recorded.
+Prometheus creates 3 separate metrics `<metric>_count`, `<metric>_bucket`,
+and `<metric>_sum` metrics.
+
+When computing SLOs on histograms, we're usually interested in
+taking the ratio of the number of events that are located in particular buckets
+(considered 'good', e.g: all requests in the `le=0.25` bucket) over the total
+count of valid events.
+
+The resulting PromQL expression would be similar to:
+```
+increase(
+  <metric>_bucket{le="0.25"}[window]
+)
+ / ignoring (le)
+increase(
+  <metric>_count[window]
+)
+```
+which you can very well use directly with the method `query_sli`.
+
+The `distribution_cut` method does this calculus under the hood - while
+additionally gathering exact good / bad counts - and proposes a simpler way of
+expressing it, as shown in the config example below.
+
+**Config example:**
+```yaml
+backend:
+  class: Prometheus
+  project_id: ${STACKDRIVER_HOST_PROJECT_ID}
+  method: distribution_cut
+  measurement:
+    expression: http_requests_duration_bucket{path='/', code=~"2.."}
+    threshold_bucket: 0.25 # corresponds to 'le' attribute in Prometheus histograms
+```
+**&rightarrow; [Full SLO config](../samples/prometheus/slo_prom_metrics_latency_distribution_cut.yaml)**
+
+The `threshold_bucket` allowed  will depend on how the buckets boundaries are
+set for your metric. Learn more in the [Prometheus docs](https://prometheus.io/docs/concepts/metric_types/#histogram).
 
 
 ## Exporter

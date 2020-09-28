@@ -15,7 +15,7 @@
 service_name:    prom
 feature_name:    metrics
 slo_name:        availability
-slo_description: Valid HTTP code for > 99.9% of HTTP requests
+slo_description: 99.9% of Prometheus requests return a good HTTP code
 slo_target:      0.999
 backend:
   class:         Prometheus
@@ -27,7 +27,7 @@ backend:
   #   Authorization: Basic b2s6cGFzcW==  # username:password base64-encoded
   measurement:
     expression:  >
-      sum(rate(prometheus_http_requests_total{code=~"2..", handler="/metrics"}[window]))
+      sum(rate(prometheus_http_requests_total{handler="/metrics", code=~"2.."}[window]))
       /
       sum(rate(prometheus_http_requests_total{handler="/metrics"}[window]))
 exporters:
