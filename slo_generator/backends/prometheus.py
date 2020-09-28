@@ -88,18 +88,21 @@ class PrometheusBackend:
         query_good = f'sum(rate({expr_good}))'
         res_good = self.query(query_good)
         good_count = PrometheusBackend.count(res_good)
+        LOGGER.debug(f'Good query: {query_good} | Result: {res_good}')
 
         if filter_bad:
             expr_bad = filter_bad.replace('[window', f'[{window}s')
             query_bad = f'sum(rate({expr_bad}))'
             res_bad = self.query(query_bad, timestamp)
             bad_count = PrometheusBackend.count(res_bad)
+            LOGGER.debug(f'Bad query: {query_bad} | Result: {res_bad}')
         elif filter_valid:
             expr_valid = filter_valid.replace('[window', f'[{window}s')
             query_valid = f'sum(rate({expr_valid}))'
             res_valid = self.query(query_valid, timestamp)
             valid_count = PrometheusBackend.count(res_valid)
             bad_count = valid_count - good_count
+            LOGGER.debug(f'Valid query: {query_valid} | Result: {res_valid}')
         else:
             raise Exception("`filter_bad` or `filter_valid` is required.")
 
