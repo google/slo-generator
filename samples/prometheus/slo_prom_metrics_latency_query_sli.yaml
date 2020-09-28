@@ -1,10 +1,10 @@
-# Copyright 2019 Google Inc.
+# Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
 #
-#            http://www.apache.org/licenses/LICENSE-2.0
+#     https://www.apache.org/licenses/LICENSE-2.0
 #
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,22 +14,26 @@
 ---
 service_name:    prom
 feature_name:    metrics
-slo_name:        availability
-slo_description: 99.9% of Prometheus requests return a good HTTP code
-slo_target:      0.999
+slo_description: 99.99% of Prometheus requests return in less than 250ms
+slo_name:        latency
+slo_target:      0.9999
 backend:
   class:         Prometheus
-  method:        query_sli
   url:           ${PROMETHEUS_URL}
-  # Basic auth example:
-  # headers:
-  #   Content-Type: application/json
-  #   Authorization: Basic b2s6cGFzcW==  # username:password base64-encoded
+  method:        query_sli
   measurement:
     expression:  >
-      sum(rate(prometheus_http_requests_total{handler="/metrics", code=~"2.."}[window]))
-      /
-      sum(rate(prometheus_http_requests_total{handler="/metrics"}[window]))
+      increase(
+        http_request_duration_seconds_bucket{handler="/metrics", code=~"2..",le="0.25"}[window]
+      )
+       / ignoring (le)
+      increase(
+        http_request_duration_seconds_count{handler="/metrics", code=~"2.."}[window]
+      )
 exporters:
-- class:         Prometheus
-  url:           ${PROMETHEUS_PUSHGATEWAY_URL}
+  - class:       Bigquery
+    project_id:  rnm-shared-monitoring
+    dataset_id:  slos
+    table_id:    reports
+  - class:       Stackdriver
+    project_id:  rnm-shared-monitoring
