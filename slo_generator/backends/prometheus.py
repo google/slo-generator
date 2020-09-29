@@ -20,6 +20,7 @@ import json
 import logging
 import os
 import pprint
+
 from prometheus_http_client import Prometheus
 
 LOGGER = logging.getLogger(__name__)
@@ -27,7 +28,6 @@ LOGGER = logging.getLogger(__name__)
 
 class PrometheusBackend:
     """Backend for querying metrics from Prometheus."""
-
     def __init__(self, client=None, url=None, headers=None):
         self.client = client
         if not self.client:
@@ -35,8 +35,6 @@ class PrometheusBackend:
                 os.environ['PROMETHEUS_URL'] = url
             if headers:
                 os.environ['PROMETHEUS_HEAD'] = json.dumps(headers)
-            LOGGER.debug(f'Prometheus URL: {url}')
-            LOGGER.debug(f'Prometheus headers: {headers}')
             self.client = Prometheus()
 
     def query_sli(self, timestamp, window, slo_config):
@@ -53,14 +51,8 @@ class PrometheusBackend:
         conf = slo_config['backend']
         measurement = conf['measurement']
         expr = measurement['expression']
-        expression = expr.replace("[window]", f"[{window}s]")
-        data = self.query(expression, timestamp)
-        LOGGER.debug(
-            f"Expression: {expression} | Result: {pprint.pformat(data)}")
-        try:
-            sli_value = float(data['data']['result'][0]['value'][1])
-        except IndexError:
-            sli_value = 0
+        response = self.query(expr, window, timestamp, operators=[])
+        sli_value = PrometheusBackend.count(response)
         LOGGER.debug(f"SLI value: {sli_value}")
         return sli_value
 
@@ -79,40 +71,84 @@ class PrometheusBackend:
             tuple: A tuple of (good_count, bad_count).
         """
         conf = slo_config['backend']
-        filter_good = conf['measurement']['filter_good']
-        filter_bad = conf['measurement'].get('filter_bad')
-        filter_valid = conf['measurement'].get('filter_valid')
+        good = conf['measurement']['filter_good']
+        bad = conf['measurement'].get('filter_bad')
+        valid = conf['measurement'].get('filter_valid')
+        operators = conf['measurement'].get('operators', ['increase', 'sum'])
 
         # Replace window by its value in the error budget policy step
-        expr_good = filter_good.replace('[window]', f'[{window}s]')
-        res_good = self.query(expr_good)
-        good_count = PrometheusBackend.count(res_good)
+        res = self.query(good, window, timestamp, operators)
+        good_count = PrometheusBackend.count(res)
 
-        if filter_bad:
-            expr_bad = filter_bad.replace('[window]', f'[{window}s]')
-            res_bad = self.query(expr_bad, timestamp)
-            bad_count = PrometheusBackend.count(res_bad)
-        elif filter_valid:
-            expr_valid = filter_valid.replace('[window]', f'[{window}s]')
-            res_valid = self.query(expr_valid, timestamp)
-            bad_count = PrometheusBackend.count(res_valid) - good_count
+        if bad:
+            res = self.query(bad, window, timestamp, operators)
+            bad_count = PrometheusBackend.count(res)
+        elif valid:
+            res = self.query(valid, window, timestamp, operators)
+            valid_count = PrometheusBackend.count(res)
+            bad_count = valid_count - good_count
         else:
             raise Exception("`filter_bad` or `filter_valid` is required.")
 
-        LOGGER.debug(f'Good events: {good_count} | ' f'Bad events: {bad_count}')
+        LOGGER.debug(f'Good events: {good_count} | '
+                     f'Bad events: {bad_count}')
 
         return (good_count, bad_count)
 
-    def query(self, filter, timestamp=None):  # pylint: disable=unused-argument
+    # pylint: disable=unused-argument
+    def distribution_cut(self, timestamp, window, slo_config):
+        """Query events for distributions (histograms).
+
+        Args:
+            timestamp (int): UNIX timestamp.
+            window (int): Window (in seconds).
+            slo_config (dict): SLO configuration.
+
+        Returns:
+            float: SLI value.
+        """
+        conf = slo_config['backend']
+        measurement = conf['measurement']
+        expr = measurement['expression']
+        threshold_bucket = measurement['threshold_bucket']
+        labels = {"le": threshold_bucket}
+        res_good = self.query(expr,
+                              window,
+                              operators=['increase', 'sum'],
+                              labels=labels)
+        good_count = PrometheusBackend.count(res_good)
+
+        # We use the _count metric to figure out the 'valid count'.
+        # Trying to get the valid count from the _bucket metric query is hard
+        # due to Prometheus 'le' syntax that doesn't have the alternative 'ge'
+        # See https://github.com/prometheus/prometheus/issues/2018.
+        expr_count = expr.replace('_bucket', '_count')
+        res_valid = self.query(expr_count,
+                               window,
+                               operators=['increase', 'sum'])
+        valid_count = PrometheusBackend.count(res_valid)
+        bad_count = valid_count - good_count
+        LOGGER.debug(f'Good events: {good_count} | '
+                     f'Bad events: {bad_count}')
+        return (good_count, bad_count)
+
+    # pylint: disable=unused-argument
+    def query(self, filter, window, timestamp=None, operators=[], labels={}):
         """Query Prometheus server.
 
         Args:
             filter (str): Query filter.
+            window (int): Window (in seconds).
             timestamp (int): UNIX timestamp.
+            operators (list): List of PromQL operators to apply on query.
+            labels (dict): Labels dict to add to existing query.
 
         Returns:
             dict: Response.
         """
+        filter = PrometheusBackend._fmt_query(filter, window, operators,
+                                              labels)
+        LOGGER.debug(f'Query: {filter}')
         response = self.client.query(metric=filter)
         response = json.loads(response)
         LOGGER.debug(pprint.pformat(response))
@@ -121,18 +157,48 @@ class PrometheusBackend:
     @staticmethod
     def count(response):
         """Count events in Prometheus response.
-
         Args:
             response (dict): Prometheus query response.
-
         Returns:
             int: Event count.
         """
         # Note: this function could be replaced by using the `count_over_time`
         # function that Prometheus provides.
         try:
-            return len(response['data']['result'][0]['values'])
+            return float(response['data']['result'][0]['value'][1])
         except (IndexError, KeyError) as exception:
-            LOGGER.warning("Couldn't find any values in timeseries response")
-            LOGGER.debug(exception)
+            LOGGER.warning("Couldn't find any values in timeseries response.")
+            LOGGER.debug(exception, exc_info=True)
             return 0  # no events in timeseries
+
+    @staticmethod
+    def _fmt_query(query, window, operators=[], labels={}):
+        """Format Prometheus query:
+
+        * If the PromQL expression has a `window` placeholder, replace it by the
+        current window. Otherwise, append it to the expression.
+
+        * If operators are defined, apply them to the metric in sequential
+        order.
+
+        * If labels are defined, append them to existing labels.
+
+        Args:
+            query (str): Original query in YAML config.
+            window (int): Query window (in seconds).
+            operators (list): Operators to wrap query with.
+            labels (dict): Labels dict to add to existing query.
+
+        Returns:
+            str: Formatted query.
+        """
+        query = query.strip()
+        if '[window' in query:
+            query = query.replace('[window', f'[{window}s')
+        else:
+            query += f'[{window}s]'
+        for operator in operators:
+            query = f'{operator}({query})'
+        for key, value in labels.items():
+            query = query.replace('}', f', {key}="{value}"}}')
+        return query

@@ -13,14 +13,12 @@
 # limitations under the License.
 
 import unittest
-import os
 
-from slo_generator.utils import (get_human_time, get_backend_cls,
-                                 get_exporter_cls, import_dynamic, normalize)
+from slo_generator.utils import (get_backend_cls, get_exporter_cls,
+                                 get_human_time, import_dynamic)
 
 
 class TestUtils(unittest.TestCase):
-
     def test_get_human_time(self):
         timestamp = 1565092435
         human_time = "2019-08-06T13:53:55.000000Z"
@@ -62,12 +60,6 @@ class TestUtils(unittest.TestCase):
             import_dynamic("slo_generator.backends.unknown",
                            "StackdriverUnknown",
                            prefix="unknown")
-
-    def test_normalize(self):
-        path = "../"
-        normalized_path = '/'.join(os.getcwd().split('/')[:-1])
-        res = normalize(path)
-        self.assertEqual(res, normalized_path)
 
 
 if __name__ == '__main__':

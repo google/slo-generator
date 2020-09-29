@@ -1,4 +1,4 @@
-# Copyright 2019 Google Inc.
+# Copyright 2020 Google Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -11,18 +11,3 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
----
-service_name:     gae
-feature_name:     app
-slo_description:  Availability of App Engine app
-slo_name:         availability
-slo_target:       0.98
-backend:
-  class:          StackdriverServiceMonitoring
-  method:         basic
-  project_id:     ${STACKDRIVER_HOST_PROJECT_ID}
-  measurement:
-    app_engine:
-      project_id: ${GAE_PROJECT_ID}
-      module_id:  ${GAE_MODULE_ID}
-    availability: {}

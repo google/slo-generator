@@ -1,5 +1,8 @@
 # SLO Generator
 
+![build](https://github.com/google/slo-generator/workflows/build/badge.svg)
+![cloudbuild](https://github.com/google/slo-generator/workflows/cloudbuild/badge.svg)
+
 `slo-generator` is a tool to compute and export **Service Level Objectives** ([SLOs](https://landing.google.com/sre/sre-book/chapters/service-level-objectives/)),
 **Error Budgets** and **Burn Rates**, using policies written in JSON or YAML format.
 
@@ -95,6 +98,15 @@ The **Error Budget policy** (JSON or YAML) is a list of multiple error budgets, 
 ==> An example Error Budget policy is available [here](samples/error_budget_policy.yaml).
 
 
+## Reporting on SLO achievements
+
+The [PUBLIC SLO achievements report template](https://datastudio.google.com/reporting/964e185c-6ca0-4ed8-809d-425e22568aa0) can be cloned following instructions on the report page named README. It provide a basic dashboard with:
+
+1. `Morning snapshot`: last error budget and SLI achievement, support decisions agreed in the Error Budget Policy
+2. `Trends`: SLI vs SLO by service/feature over a period of time
+3. `Alerting on burnrate`: visualize when alerting engage and fade off by sliding window sizes
+
+
 ## Extending the SLO generator
 
 The `slo-generator` tool is designed to add more backends and exporters as it moves forward. Users, customers and Google folks should be able to easily add the metrics backend or the exporter of their choosing.
@@ -103,8 +115,8 @@ To prepare for development, you need to fork this repository and work on your ow
 
 Once you have forked the repo on GitHub, clone it locally and install the `slo-generator` in a Python virtual environment:
 ```
-git clone <FORK_URL>
-cd professional-services/tools/slo-generator
+git clone github.com/google/slo-generator
+cd slo-generator
 python3 -m venv venv/
 source venv/bin/activate
 ```

@@ -17,6 +17,7 @@ BigQuery exporter class.
 """
 import json
 import logging
+
 import google.api_core
 from google.cloud import bigquery
 
@@ -82,14 +83,13 @@ class BigqueryExporter:
             table_id (str): Table id to create.
             schema (dict): BigQuery table schema in JSON format.
         """
-        pyschema = []
         if schema is not None:
             schema = TABLE_SCHEMA
-        for row in schema:
-            field = bigquery.SchemaField(row['name'],
+        pyschema = [bigquery.SchemaField(row['name'],
                                          row['type'],
                                          mode=row['mode'])
-            pyschema.append(field)
+                    for row in schema]
+
         table_name = f"{project_id}.{dataset_id}.{table_id}"
         LOGGER.info(f"Creating table {table_name}", table_name)
         table = bigquery.Table(table_name, schema=pyschema)

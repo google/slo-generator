@@ -1,0 +1,19 @@
+name: cloudbuild
+on:
+  push:
+    branches:
+      - master
+      - release-*
+jobs:
+  cloudbuild:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+        with:
+          fetch-depth: 1
+      - uses: actions-hub/gcloud@master
+        env:
+          PROJECT_ID: ${{ secrets.PROJECT_ID }}
+          APPLICATION_CREDENTIALS: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
+        with:
+          args: builds submit .
