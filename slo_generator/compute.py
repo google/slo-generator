@@ -56,7 +56,7 @@ def compute(slo_config,
                            client=client,
                            delete=delete)
 
-        if report.is_empty():  # report is empty
+        if not report.valid:
             continue
 
         if delete:  # delete mode is enabled
