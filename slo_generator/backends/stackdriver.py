@@ -22,6 +22,8 @@ from collections import OrderedDict
 
 from google.cloud import monitoring_v3
 
+from slo_generator.constants import NO_DATA
+
 LOGGER = logging.getLogger(__name__)
 
 
@@ -34,7 +36,6 @@ class StackdriverBackend:
             Existing Stackdriver Service Monitoring client. Initialize a new
             client if omitted.
     """
-
     def __init__(self, project_id, client=None):
         self.client = client
         if client is None:
@@ -80,7 +81,8 @@ class StackdriverBackend:
             valid_ts = list(valid_ts)
             bad_event_count = SD.count(valid_ts) - good_event_count
         else:
-            raise Exception("Oneof `filter_bad` or `filter_valid` is required.")
+            raise Exception(
+                "Oneof `filter_bad` or `filter_valid` is required.")
 
         LOGGER.debug(f'Good events: {good_event_count} | '
                      f'Bad events: {bad_event_count}')
@@ -111,7 +113,7 @@ class StackdriverBackend:
         series = list(series)
 
         if not series:
-            return (0, 0)  # no timeseries
+            return (NO_DATA, NO_DATA)  # no timeseries
 
         distribution_value = series[0].points[0].value.distribution_value
         # bucket_options = distribution_value.bucket_options
@@ -207,7 +209,7 @@ class StackdriverBackend:
         except (IndexError, AttributeError) as exception:
             LOGGER.warning("Couldn't find any values in timeseries response")
             LOGGER.debug(exception, exc_info=True)
-            return 0  # no events in timeseries
+            return NO_DATA  # no events in timeseries
 
     @staticmethod
     def get_window(timestamp, window):
