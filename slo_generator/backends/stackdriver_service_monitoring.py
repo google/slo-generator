@@ -32,7 +32,7 @@ LOGGER = logging.getLogger(__name__)
 SID_GAE = 'gae:{project_id}_{module_id}'
 SID_CLOUD_ENDPOINT = 'ist:{project_id}-{service}'
 SID_CLUSTER_ISTIO = (
-    'ist:{project_id}-zone-{location}-{cluster_name}-{service_namespace}-'
+    'ist:{project_id}-location-{location}-{cluster_name}-{service_namespace}-'
     '{service_name}')
 SID_MESH_ISTIO = ('ist:{mesh_uid}-{service_namespace}-{service_name}')
 
