@@ -20,6 +20,7 @@ import logging
 from dataclasses import asdict, dataclass, fields
 
 from slo_generator import utils
+from slo_generator.constants import NO_DATA, MIN_VALID_EVENTS, COLORED_OUTPUT
 
 LOGGER = logging.getLogger(__name__)
 
@@ -272,5 +273,12 @@ class SLOReport:
         result_str = (
             "BR: {error_budget_burn_rate:<2} / "
             "{alerting_burn_rate_threshold} | "
-            "Alert: {alert} | Timestamp: {timestamp}").format_map(report)
-        return f'{info} | {sli_str} | {result_str}'
+            "Alert: {alert:<1} | Good: {good_events_count:<8} | Bad: {bad_events_count:<8}"
+        ).format_map(report)
+        full_str = f'{info} | {sli_str} | {result_str}'
+        if COLORED_OUTPUT == 1:
+            if self.alert:
+                full_str = utils.bcolors.FAIL + full_str + utils.bcolors.ENDC
+            else:
+                full_str = utils.bcolors.OKGREEN + full_str + utils.bcolors.ENDC
+        return full_str
