@@ -46,14 +46,16 @@ CTX = {
     'BIGQUERY_PROJECT_ID': 'fake',
     'BIGQUERY_TABLE_ID': 'fake',
     'BIGQUERY_DATASET_ID': 'fake',
-    'BIGQUERY_TABLE_NAME': 'fake'
+    'BIGQUERY_TABLE_NAME': 'fake',
+    'DATADOG_API_KEY': 'fake',
+    'DATADOG_APP_KEY': 'fake',
+    'DATADOG_SLO_ID': 'fake'
 }
 
 
 # pylint: disable=too-few-public-methods
 class MultiCallableStub:
     """Stub for the grpc.UnaryUnaryMultiCallable interface."""
-
     def __init__(self, method, channel_stub):
         self.method = method
         self.channel_stub = channel_stub
@@ -76,7 +78,6 @@ class MultiCallableStub:
 # pylint: disable=R0903
 class ChannelStub:
     """Stub for the grpc.Channel interface."""
-
     def __init__(self, responses=[]):
         self.responses = responses
         self.requests = []
@@ -181,7 +182,6 @@ def dotize(data):
 
 class mock_ssm_client:
     """Fake Service Monitoring API client."""
-
     def __init__(self):
         self.services = [dotize(s) for s in load_fixture('ssm_services.json')]
         self.service_level_objectives = [

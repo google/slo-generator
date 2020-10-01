@@ -34,6 +34,7 @@ SLO_CONFIGS_SD = load_slo_samples('stackdriver', **CTX)
 SLO_CONFIGS_SDSM = load_slo_samples('stackdriver_service_monitoring', **CTX)
 SLO_CONFIGS_PROM = load_slo_samples('prometheus', **CTX)
 SLO_CONFIGS_ES = load_slo_samples('elasticsearch', **CTX)
+SLO_CONFIGS_DD = load_slo_samples('datadog', **CTX)
 SLO_REPORT = load_fixture('slo_report.json')
 EXPORTERS = load_fixture('exporters.yaml', **CTX)
 BQ_ERROR = load_fixture('bq_error.json')
@@ -94,6 +95,11 @@ class TestCompute(unittest.TestCase):
     @patch.object(Elasticsearch, 'search', mock_es)
     def test_compute_elasticsearch(self):
         for config in SLO_CONFIGS_ES:
+            with self.subTest(config=config):
+                compute(config, ERROR_BUDGET_POLICY)
+
+    def test_compute_datadog(self):
+        for config in SLO_CONFIGS_DD:
             with self.subTest(config=config):
                 compute(config, ERROR_BUDGET_POLICY)
 

@@ -25,16 +25,60 @@ logging.getLogger('datadog.api').setLevel(logging.ERROR)
 
 
 class DatadogBackend:
-    """Backend for querying metrics from Datadog."""
-    def __init__(self, client=None, url=None, api_key=None, app_key=None):
+    """Backend for querying metrics from Datadog.
+
+    Args:
+        client (obj, optional): Existing Datadog client to pass.
+        api_key (str): Datadog API key.
+        app_key (str): Datadog APP key.
+        kwargs (dict): Extra arguments to pass to initialize function.
+    """
+    def __init__(self, client=None, api_key=None, app_key=None, **kwargs):
         self.client = client
         if not self.client:
             options = {'api_key': api_key, 'app_key': app_key}
+            options.update(kwargs)
             datadog.initialize(**options)
             self.client = datadog.api
 
+    def distribution_cut(self, timestamp, window, slo_config):
+        """Query SLI value from a Datadog distribution (a.k.a histogram).
+
+        Args:
+            timestamp (int): UNIX timestamp.
+            window (int): Window (in seconds).
+            slo_config (dict): SLO configuration.
+
+        Returns:
+            tuple: Good event count, Bad event count.
+        """
+        conf = slo_config['backend']
+        percentile = slo_config['slo_target'] * 100
+        measurement = conf['measurement']
+        start = timestamp - window
+        end = timestamp
+
+        # Good query is all events corresponding to percentile identified by
+        # our SLO target. E.g: slo_target = 0.95 corresponds to 95th percentile.
+        query_good = measurement['query_valid'] + f'.{percentile}p'
+        query_good = self._fmt_query(query_good, window, operator='sum')
+        response_good = self.client.Metric.query(start=start,
+                                                 end=end,
+                                                 query=query_good)
+        good_event_count = DatadogBackend.count(response_good)
+
+        # Valid query is all events (use .count metric)
+        query_valid = measurement['query_valid'] + '.count'
+        query_valid = self._fmt_query(query_valid, window, operator='sum')
+        response_valid = self.client.Metric.query(start=start,
+                                                  end=end,
+                                                  query=query_valid)
+        valid_event_count = DatadogBackend.count(response_valid)
+        bad_event_count = valid_event_count - good_event_count
+        return (good_event_count, bad_event_count)
+
     def good_bad_ratio(self, timestamp, window, slo_config):
-        """Query SLO value from good and valid queries.
+        """Query SLI value from good and valid queries.
 
         Args:
             timestamp (int): UNIX timestamp.
@@ -46,10 +90,13 @@ class DatadogBackend:
         """
         conf = slo_config['backend']
         measurement = conf['measurement']
+        operator = measurement.get('operator', 'sum')
         start = timestamp - window
         end = timestamp
-        query_good = measurement['good_query']
-        query_valid = measurement['valid_query']
+        query_good = measurement['query_good']
+        query_valid = measurement['query_valid']
+        query_good = self._fmt_query(query_good, window, operator)
+        query_valid = self._fmt_query(query_valid, window, operator)
         good_event_query = self.client.Metric.query(start=start,
                                                     end=end,
                                                     query=query_good)
@@ -79,9 +126,11 @@ class DatadogBackend:
         start = timestamp - window
         end = timestamp
         query = measurement['query']
-        sli_query = self.client.Metric.query(start=start, end=end, query=query)
-        LOGGER.debug(f"Result good: {pprint.pformat(sli_query)}")
-        return sli_query['series'][0]['pointlist'][-1][1]
+        query = self._fmt_query(query, window)
+        response = self.client.Metric.query(start=start, end=end, query=query)
+        LOGGER.debug(f"Result good: {pprint.pformat(response)}")
+        sli_value = DatadogBackend.count(response)
+        return sli_value
 
     def query_slo(self, timestamp, window, slo_config):
         """Query SLO value from a given Datadog SLO.
@@ -94,7 +143,7 @@ class DatadogBackend:
         Returns:
             tuple: Good event count, bad event count.
         """
-        slo_id = slo_config['slo_id']
+        slo_id = slo_config['backend']['measurement']['slo_id']
         from_ts = timestamp - window
         slo_data = self.client.ServiceLevelObjective.get(id=slo_id)
         LOGGER.debug(
@@ -110,9 +159,35 @@ class DatadogBackend:
         return (good_event_count, bad_event_count)
 
     @staticmethod
+    def _fmt_query(query, window, operator=None):
+        """Format Datadog query:
+
+        * If the Datadog expression has a `[window]` placeholder, replace it by
+        the current window. Otherwise, append it to the expression.
+
+        * If prefix / suffix operators are defined, apply them to the metric.
+
+        * If labels are defined, append them to existing labels.
+
+        Args:
+            query (str): Original query in YAML config.
+            window (int): Query window (in seconds).
+            operator (str): Operator (e.g: sum, avg, median, ...)
+
+        Returns:
+            str: Formatted query.
+        """
+        query = query.strip()
+        if operator:
+            query = f'{operator}:{query}'
+        if '[window]' in query:
+            query = query.replace('[window]', f'{window}')
+        return query
+
+    @staticmethod
     def count(timeseries):
-        """Count events in time series assuming it was aligned with ALIGN_SUM
-        and reduced with REDUCE_SUM (default).
+        """Count events in time series. If multiple values are returned, take
+        the average of all values.
 
         Args:
             :dict: Timeseries response from Datadog Metrics API endpoint.
@@ -121,7 +196,9 @@ class DatadogBackend:
             int: Event count.
         """
         try:
-            return timeseries['series'][0]['pointlist'][0][1]
+            pointlist = timeseries['series'][0]['pointlist']
+            values = [point[1] for point in pointlist for i in point]
+            return sum(values) / len(values)
         except (IndexError, AttributeError) as exception:
             LOGGER.warning("Couldn't find any values in timeseries response")
             LOGGER.debug(exception)

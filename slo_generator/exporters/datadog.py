@@ -16,7 +16,6 @@
 Datadog exporter class.
 """
 import logging
-import pprint
 import datadog
 
 LOGGER = logging.getLogger(__name__)
@@ -30,12 +29,21 @@ DEFAULT_METRIC_LABELS = [
 ]
 
 
+# pylint: disable=too-few-public-methods
 class DatadogExporter:
-    """Datadog exporter class."""
-    def __init__(self, client=None, url=None, api_key=None, app_key=None):
+    """Datadog exporter class.
+
+    Args:
+        client (obj, optional): Existing Datadog client to pass.
+        api_key (str): Datadog API key.
+        app_key (str): Datadog APP key.
+        kwargs (dict): Extra arguments to pass to initialize function.
+    """
+    def __init__(self, client=None, api_key=None, app_key=None, **kwargs):
         self.client = client
         if not self.client:
             options = {'api_key': api_key, 'app_key': app_key}
+            options.update(kwargs)
             datadog.initialize(**options)
             self.client = datadog.api
 
@@ -64,6 +72,6 @@ class DatadogExporter:
         metric_type = config.get('metric_type', DEFAULT_METRIC_TYPE)
         timestamp = data['timestamp']
         value = data['error_budget_burn_rate']
-        return api.Metric.send(metric=metric_type,
-                               points=[(timestamp, value)],
-                               tags=tags)
+        return self.client.Metric.send(metric=metric_type,
+                                       points=[(timestamp, value)],
+                                       tags=tags)
