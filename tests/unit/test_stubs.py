@@ -15,8 +15,10 @@
 
 Stubs for mocking backends and exporters.
 """
+import copy
 import json
 import os
+import time
 
 from google.cloud.monitoring_v3.proto import metric_service_pb2
 
@@ -49,11 +51,148 @@ CTX = {
     'BIGQUERY_TABLE_NAME': 'fake'
 }
 
+CUSTOM_BACKEND_CODE = """
+class DummyBackend:
+    def __init__(self, client=None, **config):
+        self.good_events = config.get('good_events', None)
+        self.bad_events = config.get('bad_events', None)
+        self.sli_value = config.get('sli', None)
+
+    def good_bad_ratio(self, timestamp, window, slo_config):
+        return (self.good_events, self.bad_events)
+
+    def sli(self, timestamp, window, slo_config):
+        return self.sli_value
+"""
+
+
+def add_dummy_backend():
+    """Dynamically adds DummyBackend to slo-generator. The DummyBackend is
+    appended in a submodule, and can be imported using:
+
+    >>> import slo_generator.backends.dummy.DummyBackend
+    """
+    import sys
+    from types import ModuleType
+    mod = ModuleType('dummy')
+    sys.modules['slo_generator.backends.dummy'] = mod
+    exec(CUSTOM_BACKEND_CODE, mod.__dict__)
+
+
+add_dummy_backend()  # Adds backend `slo_generator.backends.dummy.Dummybackend
+
+CUSTOM_BASE_CONFIG = {
+    "service_name": "test",
+    "feature_name": "test",
+    "slo_name": "test",
+    "slo_description": "Test dummy backend",
+    "slo_target": 0.99,
+    "backend": {
+        "class": "Dummy",
+    }
+}
+
+CUSTOM_STEP = {
+    "error_budget_policy_step_name": "1 hour",
+    "measurement_window_seconds": 3600,
+    "alerting_burn_rate_threshold": 1,
+    "urgent_notification": True,
+    "overburned_consequence_message": "Page to defend the SLO",
+    "achieved_consequence_message": "Last hour on track"
+}
+
+CUSTOM_TESTS = {
+    "enough_events": {
+        'method': 'good_bad_ratio',
+        'good_events': 5,
+        'bad_events': 5,
+    },
+    "no_good_events": {
+        'method': 'good_bad_ratio',
+        'good_events': -1,
+        'bad_events': 15,
+    },
+    "no_bad_events": {
+        'method': 'good_bad_ratio',
+        'good_events': 15,
+        'bad_events': -1,
+    },
+    "valid_sli_value": {
+        'method': 'sli',
+        'good_events': -1,
+        'bad_events': -1,
+        'sli': 0.991
+    },
+    "no_events": {
+        'method': 'good_bad_ratio',
+        'good_events': 0,
+        'bad_events': 0,
+    },
+    "no_good_bad_events": {
+        'method': 'good_bad_ratio',
+        'good_events': -1,
+        'bad_events': -1,
+    },
+    "not_enough_events": {
+        'method': 'good_bad_ratio',
+        'good_events': 5,
+        'bad_events': 4,
+    },
+    "no_sli_value": {
+        'method': 'sli',
+        'good_events': -1,
+        'bad_events': -1,
+    },
+    "no_backend_response_sli": {
+        'method': 'sli',
+        'sli': None
+    },
+    "no_backend_response_ratio": {
+        'method': 'good_bad_ratio',
+        'good_events': None,
+        'bad_events': None,
+    },
+    'invalid_backend_response_type': {
+        'method': 'good_bad_ratio',
+        'good_events': {
+            'data': {
+                'value': 30
+            }
+        },
+        'bad_events': {
+            'data': {
+                'value': 400
+            }
+        },
+        'sli': None
+    }
+}
+
+
+def mock_slo_report(key):
+    """Mock SLO report config with edge cases contained in CUSTOM_TESTS.
+
+    Args:
+        key (str): Key identifying which config to pick from CUSTOM_TESTS.
+
+    Returns:
+        dict: Dict configuration for SLOReport class.
+    """
+    config = copy.deepcopy(CUSTOM_BASE_CONFIG)
+    config["backend"].update(CUSTOM_TESTS[key])
+    timestamp = time.time()
+    return {
+        "config": config,
+        "step": CUSTOM_STEP,
+        "timestamp": timestamp,
+        "client": None,
+        "delete": False
+    }
+
 
 # pylint: disable=too-few-public-methods
 class MultiCallableStub:
     """Stub for the grpc.UnaryUnaryMultiCallable interface."""
-
     def __init__(self, method, channel_stub):
         self.method = method
         self.channel_stub = channel_stub
@@ -76,7 +215,6 @@ class MultiCallableStub:
 # pylint: disable=R0903
 class ChannelStub:
     """Stub for the grpc.Channel interface."""
-
     def __init__(self, responses=[]):
         self.responses = responses
         self.requests = []
@@ -181,7 +319,6 @@ def dotize(data):
 
 class mock_ssm_client:
     """Fake Service Monitoring API client."""
-
     def __init__(self):
         self.services = [dotize(s) for s in load_fixture('ssm_services.json')]
         self.service_level_objectives = [
