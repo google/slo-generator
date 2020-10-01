@@ -336,11 +336,10 @@ class SLOReport:
             gap_str = f'+{gap}'
         sli_str = (f'SLI: {sli_per:<7} % | SLO: {slo_target_per} % | '
                    f'Gap: {gap_str:<6}%')
-        result_str = (
-            "BR: {error_budget_burn_rate:<2} / "
-            "{alerting_burn_rate_threshold} | "
-            "Alert: {alert:<1} | Good: {good_events_count:<8} | Bad: {bad_events_count:<8}"
-        ).format_map(report)
+        result_str = ("BR: {error_budget_burn_rate:<2} / "
+                      "{alerting_burn_rate_threshold} | "
+                      "Alert: {alert:<1} | Good: {good_events_count:<8} | "
+                      "Bad: {bad_events_count:<8}").format_map(report)
         full_str = f'{info} | {sli_str} | {result_str}'
         if COLORED_OUTPUT == 1:
             if self.alert:
