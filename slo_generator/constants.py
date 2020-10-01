@@ -19,3 +19,4 @@ import os
 
 NO_DATA = -1
 MIN_VALID_EVENTS = int(os.environ.get("MIN_VALID_EVENTS", "10"))
+COLORED_OUTPUT = int(os.environ.get("COLORED_OUTPUT", "0"))
