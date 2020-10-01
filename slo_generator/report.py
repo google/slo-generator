@@ -343,7 +343,7 @@ class SLOReport:
         full_str = f'{info} | {sli_str} | {result_str}'
         if COLORED_OUTPUT == 1:
             if self.alert:
-                full_str = utils.bcolors.FAIL + full_str + utils.bcolors.ENDC
+                full_str = utils.Colors.FAIL + full_str + utils.Colors.ENDC
             else:
-                full_str = utils.bcolors.OKGREEN + full_str + utils.bcolors.ENDC
+                full_str = utils.Colors.OKGREEN + full_str + utils.Colors.ENDC
         return full_str
