@@ -1,0 +1,16 @@
+name: release-please
+on:
+  push:
+    branches:
+      - master
+jobs:
+  release-pr:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: GoogleCloudPlatform/release-please-action@v2.4.0
+        with:
+          token: ${{ secrets.RELEASE_PR_TOKEN }}
+          release-type: python
+          fork: true
+          package-name: release-please-action
+          command: release-pr
