@@ -23,6 +23,8 @@ import pprint
 
 from prometheus_http_client import Prometheus
 
+from slo_generator.constants import NO_DATA
+
 LOGGER = logging.getLogger(__name__)
 
 
@@ -169,7 +171,7 @@ class PrometheusBackend:
         except (IndexError, KeyError) as exception:
             LOGGER.warning("Couldn't find any values in timeseries response.")
             LOGGER.debug(exception, exc_info=True)
-            return 0  # no events in timeseries
+            return NO_DATA  # no events in timeseries
 
     @staticmethod
     def _fmt_query(query, window, operators=[], labels={}):

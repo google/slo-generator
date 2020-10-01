@@ -20,6 +20,8 @@ import logging
 
 from elasticsearch import Elasticsearch
 
+from slo_generator.constants import NO_DATA
+
 LOGGER = logging.getLogger(__name__)
 
 DEFAULT_DATE_FIELD = '@timestamp'
@@ -32,7 +34,6 @@ class ElasticsearchBackend:
         client (elasticsearch.ElasticSearch): Existing ES client.
         es_config (dict): ES client configuration.
     """
-
     def __init__(self, client=None, **es_config):
         self.client = client
         if self.client is None:
@@ -106,7 +107,7 @@ class ElasticsearchBackend:
         except KeyError as exception:
             LOGGER.warning("Couldn't find any values in timeseries response")
             LOGGER.debug(exception, exc_info=True)
-            return 0
+            return NO_DATA
 
     @staticmethod
     def build_query(query, window, date_field=DEFAULT_DATE_FIELD):
