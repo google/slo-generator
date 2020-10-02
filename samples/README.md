@@ -90,3 +90,9 @@ slo-generator -f samples/prometheus -b error_budget_policy.yaml
 ```
 slo-generator -f samples/elasticsearch -b error_budget_policy.yaml
 ```
+
+##### Custom Class
+```
+cd samples/
+slo-generator -f custom -b error_budget_policy.yaml -e
+```
