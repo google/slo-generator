@@ -41,42 +41,6 @@ class DatadogBackend:
             datadog.initialize(**options)
             self.client = datadog.api
 
-    def distribution_cut(self, timestamp, window, slo_config):
-        """Query SLI value from a Datadog distribution (a.k.a histogram).
-
-        Args:
-            timestamp (int): UNIX timestamp.
-            window (int): Window (in seconds).
-            slo_config (dict): SLO configuration.
-
-        Returns:
-            tuple: Good event count, Bad event count.
-        """
-        conf = slo_config['backend']
-        percentile = slo_config['slo_target'] * 100
-        measurement = conf['measurement']
-        start = timestamp - window
-        end = timestamp
-
-        # Good query is all events corresponding to percentile identified by
-        # our SLO target. E.g: slo_target = 0.95 corresponds to 95th percentile.
-        query_good = measurement['query_valid'] + f'.{percentile}p'
-        query_good = self._fmt_query(query_good, window, operator='sum')
-        response_good = self.client.Metric.query(start=start,
-                                                 end=end,
-                                                 query=query_good)
-        good_event_count = DatadogBackend.count(response_good)
-
-        # Valid query is all events (use .count metric)
-        query_valid = measurement['query_valid'] + '.count'
-        query_valid = self._fmt_query(query_valid, window, operator='sum')
-        response_valid = self.client.Metric.query(start=start,
-                                                  end=end,
-                                                  query=query_valid)
-        valid_event_count = DatadogBackend.count(response_valid)
-        bad_event_count = valid_event_count - good_event_count
-        return (good_event_count, bad_event_count)
-
     def good_bad_ratio(self, timestamp, window, slo_config):
         """Query SLI value from good and valid queries.
 
@@ -128,7 +92,7 @@ class DatadogBackend:
         query = measurement['query']
         query = self._fmt_query(query, window)
         response = self.client.Metric.query(start=start, end=end, query=query)
-        LOGGER.debug(f"Result good: {pprint.pformat(response)}")
+        LOGGER.debug(f"Result valid: {pprint.pformat(response)}")
         sli_value = DatadogBackend.count(response)
         return sli_value
 
@@ -182,6 +146,7 @@ class DatadogBackend:
             query = f'{operator}:{query}'
         if '[window]' in query:
             query = query.replace('[window]', f'{window}')
+        LOGGER.debug(f'Query: {query}')
         return query
 
     @staticmethod
@@ -198,6 +163,7 @@ class DatadogBackend:
         try:
             pointlist = timeseries['series'][0]['pointlist']
             values = [point[1] for point in pointlist for i in point]
+            values = [v for v in values if v is not None]
             return sum(values) / len(values)
         except (IndexError, AttributeError) as exception:
             LOGGER.warning("Couldn't find any values in timeseries response")
