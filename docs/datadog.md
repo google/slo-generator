@@ -86,3 +86,42 @@ backend:
 
 Complete SLO samples using `Datadog` are available in
 [samples/datadog](../samples/datadog). Check them out !
+
+
+## Datadog API considerations
+
+The `distribution_cut` method is not currently implemented for Datadog.
+
+The reason for this is that Datadog distributions (or histograms) do not conform
+to what histograms should be (see [old issue](https://github.com/DataDog/dd-agent/issues/349)),
+i.e a set of configurable bins, each providing the number of events falling into
+each bin.
+
+Standard histograms representations (see [wikipedia](https://en.wikipedia.org/wiki/Histogram))
+already implement this, but the approach Datadog took is to pre-compute
+(client-side) or post-compute (server-side) percentiles, resulting in a
+different metric for each percentile representing the percentile value instead
+of the number of events in the percentile.
+
+This implementation has a couple advantages, like making it easy to query and
+graph the value of the 99th, 95p, or 50p percentiles; but it makes it
+effectively very hard to compute a standard SLI for it, since it's not possible
+to see how many requests fall in each bin; hence there is no way to know how
+many good and bad events there are.
+
+Three options can be considered to implement this:
+
+* Add support for `gostatsd`'s [Timer histograms implementation](https://github.com/atlassian/gostatsd#timer-histograms-experimental-feature)
+in `datadog-agent`.
+
+**OR**
+
+* Implement support for standard histograms where bucketization is configurable
+and where it's possible to query the number of events falling into each bucket.
+
+**OR**
+
+* Design an implementation that tries to reconstitute the original distribution
+by assimilating it to a Gaussian distribution and estimating its parameters.
+This is a complex and time-consuming approach that will give approximate results
+and is not a straightforward problem (see [StackExchange thread](https://stats.stackexchange.com/questions/6022/estimating-a-distribution-based-on-three-percentiles))
