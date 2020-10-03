@@ -157,6 +157,21 @@ def mock_es(self, index, body):
     return {'hits': {'total': {'value': 120}}}
 
 
+def mock_dd_metric_query(*args, **kwargs):
+    """Mock Datadog response for datadog.api.Metric.query."""
+    return load_fixture('dd_timeseries.json')
+
+
+def mock_dd_slo_history(*args, **kwargs):
+    """Mock Datadog response for datadog.api.ServiceLevelObjective.history."""
+    return load_fixture('dd_slo_history.json')
+
+
+def mock_dd_slo_get(*args, **kwargs):
+    """Mock Datadog response for datadog.api.ServiceLevelObjective.get."""
+    return load_fixture('dd_slo.json')
+
+
 class dotdict(dict):
     """dot.notation access to dictionary attributes"""
     __getattr__ = dict.get
