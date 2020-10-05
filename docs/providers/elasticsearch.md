@@ -41,7 +41,7 @@ Optional fields:
   * `date_field`: Alternative field to filter time on. Has to be an ELK `date`
     field. Defaults to `@timestamp` which is the Logstash-generated one.
 
-**&rightarrow; [Full SLO config](../samples/elasticsearch/slo_elk_test_ratio.yaml)**
+**&rightarrow; [Full SLO config](../../samples/elasticsearch/slo_elk_test_ratio.yaml)**
 
 You can also use the `filter_bad` field which identifies bad events instead of
 the `filter_valid` field which identifies all valid events.
@@ -82,4 +82,4 @@ look like:
 ### Examples
 
 Complete SLO samples using the `Elasticsearch` backend are available in
-[samples/elasticsearch](../samples/elasticsearch). Check them out !
+[samples/elasticsearch](../../samples/elasticsearch). Check them out !

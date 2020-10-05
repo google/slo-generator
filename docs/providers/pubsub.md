@@ -16,4 +16,4 @@ exporters:
     topic_name: "${PUBSUB_TOPIC_NAME}"
 ```
 
-**&rightarrow; [Full SLO config](../samples/stackdriver/slo_pubsub_subscription_throughput.yaml)**
+**&rightarrow; [Full SLO config](../../samples/stackdriver/slo_pubsub_subscription_throughput.yaml)**

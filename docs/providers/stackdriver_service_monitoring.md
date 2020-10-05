@@ -45,7 +45,7 @@ backend:
 For details on filling the `app_engine` fields, see [AppEngine](https://cloud.google.com/monitoring/api/ref_v3/rest/v3/services#appengine)
 spec.
 
-**&rightarrow; [Full SLO config](../samples/stackdriver_service_monitoring/slo_gae_app_availability_basic.yaml)**
+**&rightarrow; [Full SLO config](../../samples/stackdriver_service_monitoring/slo_gae_app_availability_basic.yaml)**
 
 **Example config (Cloud Endpoint latency):**
 
@@ -80,7 +80,7 @@ backend:
 For details on filling the `mesh_istio` fields, see [MeshIstio](https://cloud.google.com/monitoring/api/ref_v3/rest/v3/services#meshistio)
 spec.
 
-**&rightarrow; [Full SLO config](../samples/stackdriver_service_monitoring/slo_gke_app_latency_basic.yaml)**
+**&rightarrow; [Full SLO config](../../samples/stackdriver_service_monitoring/slo_gke_app_latency_basic.yaml)**
 
 **Example config (Istio service latency) [DEPRECATED SOON]:**
 ```yaml
@@ -101,7 +101,7 @@ backend:
 For details on filling the `cluster_istio` fields, see [ClusterIstio](https://cloud.google.com/monitoring/api/ref_v3/rest/v3/services#clusteristio)
 spec.
 
-**&rightarrow; [Full SLO config](../samples/stackdriver_service_monitoring/slo_gke_app_latency_basic_deprecated.yaml)**
+**&rightarrow; [Full SLO config](../../samples/stackdriver_service_monitoring/slo_gke_app_latency_basic_deprecated.yaml)**
 
 
 ### Good / bad ratio
@@ -137,7 +137,7 @@ backend:
 You can also use the `filter_bad` field which identifies bad events instead of
 the `filter_valid` field which identifies all valid events.
 
-**&rightarrow; [Full SLO config](../samples/stackdriver_service_monitoring/slo_gae_app_availability.yaml)**
+**&rightarrow; [Full SLO config](../../samples/stackdriver_service_monitoring/slo_gae_app_availability.yaml)**
 
 ## Distribution cut
 
@@ -169,7 +169,7 @@ backend:
 The `range_min` and `range_max` are used to specify the latency range that we
 consider 'good'.
 
-**&rightarrow; [Full SLO config](../samples/stackdriver_service_monitoring/slo_gae_app_latency.yaml)**
+**&rightarrow; [Full SLO config](../../samples/stackdriver_service_monitoring/slo_gae_app_latency.yaml)**
 
 
 ## Service Monitoring API considerations
@@ -268,5 +268,5 @@ for instructions on alerting.
 
 ### Examples
 
-Complete SLO samples using `Stackdriver Service Monitoring` are available in [ samples/stackdriver_service_monitoring](../samples/stackdriver_service_monitoring).
+Complete SLO samples using `Stackdriver Service Monitoring` are available in [ samples/stackdriver_service_monitoring](../../samples/stackdriver_service_monitoring).
 Check them out !
