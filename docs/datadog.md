@@ -87,6 +87,39 @@ backend:
 Complete SLO samples using `Datadog` are available in
 [samples/datadog](../samples/datadog). Check them out !
 
+## Exporter
+
+The `Datadog` exporter allows to export the error budget burn rate metric as
+a **Datadog metric** that can be used for alerting:
+
+ * The **metric name** is `error_budget_burn_rate` by default, but can be
+ modified using the `metric_type` field in the exporter YAML.
+
+ * The **metric descriptor** has labels describing our SLO, amongst which the
+ `service_name`, `feature_name`, and `error_budget_policy_step_name` labels.
+
+The exporter pushes the metric to the `Datadog`
+[Pushgateway](https://prometheus.io/docs/practices/pushing/) which needs to be
+running.
+
+`Datadog` needs to be setup to **scrape metrics from `Pushgateway`** (see
+  [documentation](https://github.com/prometheus/pushgateway) for more details).
+
+**Example config:**
+
+```yaml
+exporters:
+ - class: Datadog
+   api_key: ${DATADOG_API_KEY}
+   app_key: ${DATADOG_APP_KEY}
+```
+
+Optional fields:
+  * `metric_type`: Metric type / name. Defaults to `error_budget_burn_rate`.
+  * `metric_description`: Metric description.
+
+**&rightarrow; [Full SLO config](../samples/datadog/slo_dd_disk_utilization_ratio.yaml)**
+
 
 ## Datadog API considerations
 

@@ -20,7 +20,7 @@ import datadog
 
 LOGGER = logging.getLogger(__name__)
 logging.getLogger('datadog.api').setLevel(logging.ERROR)
-DEFAULT_METRIC_TYPE = "slo.error_budget_burn_rate"
+DEFAULT_METRIC_TYPE = "error_budget_burn_rate"
 DEFAULT_METRIC_DESCRIPTION = ("Speed at which the error budget for a given"
                               "aggregation window is consumed")
 DEFAULT_METRIC_LABELS = [
