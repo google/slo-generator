@@ -33,17 +33,16 @@ backend:
   api_key: ${DATADOG_API_KEY}
   app_key: ${DATADOG_APP_KEY}
   measurement:
-    filter_good: sum:system.disk.used{*}
-    filter_valid: sum:system.disk.total{*}
+    filter_good: app.requests.count{http.path:/, http.status_code_class:2xx}
+    filter_valid: app.requests.count{http.path:/}
 ```
-**&rightarrow; [Full SLO config](../samples/datadog/slo_dd_disk_utilization_ratio.yaml)**
+**&rightarrow; [Full SLO config](../../samples/datadog/slo_dd_app_availability_ratio.yaml)**
 
 
 ### Query SLI
 
 The `query_sli` method is used to directly query the needed SLI with Datadog:
-indeed, Datadog's query language is powerful enough that it can do ratios
-natively.
+Datadog's query language is powerful enough that it can do ratios natively.
 
 This method makes it more flexible to input any `Datadog` SLI computation and
 eventually reduces the number of queries made to Datadog.
@@ -55,10 +54,10 @@ backend:
   api_key: ${DATADOG_API_KEY}
   app_key: ${DATADOG_APP_KEY}
   measurement:
-    expression: sum:system.disk.used{*} / sum:system.disk.total{*}
+    expression: sum:app.requests.count{http.path:/, http.status_code_class:2xx} / sum:app.requests.count{http.path:/}
 ```
 
-**&rightarrow; [Full SLO config](../samples/datadog/slo_dd_disk_utilization_query_sli.yaml)**
+**&rightarrow; [Full SLO config](../../samples/datadog/slo_dd_app_availability_query_sli.yaml)**
 
 ### Query SLO
 
@@ -75,17 +74,17 @@ slo_id:  ${DATADOG_SLO_ID}
 ...
 backend:
   class:   Datadog
-  method:  query_sli
+  method:  query_slo
   api_key: ${DATADOG_API_KEY}
   app_key: ${DATADOG_APP_KEY}
 ```
 
-**&rightarrow; [Full SLO config](../samples/datadog/slo_dd_disk_utilization_query_slo.yaml)**
+**&rightarrow; [Full SLO config](../../samples/datadog/slo_dd_app_availability_query_slo.yaml)**
 
 ### Examples
 
 Complete SLO samples using `Datadog` are available in
-[samples/datadog](../samples/datadog). Check them out !
+[samples/datadog](../../samples/datadog). Check them out!
 
 ## Exporter
 
@@ -113,7 +112,7 @@ Optional fields:
   * `metric_type`: Metric type / name. Defaults to `error_budget_burn_rate`.
   * `metric_description`: Metric description.
 
-**&rightarrow; [Full SLO config](../samples/datadog/slo_dd_disk_utilization_ratio.yaml)**
+**&rightarrow; [Full SLO config](../../samples/datadog/slo_dd_app_availability_ratio.yaml)**
 
 
 ## Datadog API considerations
@@ -131,7 +130,7 @@ already implement this, but the approach Datadog took is to pre-compute
 different metric for each percentile representing the percentile value instead
 of the number of events in the percentile.
 
-This implementation has a couple advantages, like making it easy to query and
+This implementation has a couple of advantages, like making it easy to query and
 graph the value of the 99th, 95p, or 50p percentiles; but it makes it
 effectively very hard to compute a standard SLI for it, since it's not possible
 to see how many requests fall in each bin; hence there is no way to know how
