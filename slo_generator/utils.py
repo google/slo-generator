@@ -162,10 +162,8 @@ def get_backend_cls(backend):
     Returns:
         class: Backend class.
     """
-    filename = re.sub(r'(?<!^)(?=[A-Z])', '_', backend).lower()
-    return import_dynamic(f'slo_generator.backends.{filename}',
-                          f'{backend}Backend',
-                          prefix="backend")
+    expected_type = "Backend"
+    return import_cls(backend, expected_type)
 
 
 def get_exporter_cls(exporter):
@@ -177,10 +175,32 @@ def get_exporter_cls(exporter):
     Returns:
         class: Exporter class.
     """
-    filename = re.sub(r'(?<!^)(?=[A-Z])', '_', exporter).lower()
-    return import_dynamic(f'slo_generator.exporters.{filename}',
-                          f'{exporter}Exporter',
-                          prefix="exporter")
+    expected_type = "Exporter"
+    return import_cls(exporter, expected_type)
+
+
+def import_cls(klass_name, expected_type):
+    """Import class or method dynamically from full name.
+    If the classname is not fully qualified, import in current sub modules.
+
+    Args:
+        klass_name: the class name to import
+        expected_type: the type of class expected
+
+    Returns:
+        obj: Imported class or method object.
+    """
+    if "." in klass_name:
+        package, name = klass_name.rsplit(".", maxsplit=1)
+        return import_dynamic(package, name, prefix=expected_type)
+
+    # else
+    modules_name = f"{expected_type.lower()}s"
+    full_klass_name = f'{klass_name}{expected_type}'
+    filename = re.sub(r'(?<!^)(?=[A-Z])', '_', klass_name).lower()
+    return import_dynamic(f'slo_generator.{modules_name}.{filename}',
+                          full_klass_name,
+                          prefix=expected_type)
 
 
 def import_dynamic(package, name, prefix="class"):
@@ -197,7 +217,7 @@ def import_dynamic(package, name, prefix="class"):
         return getattr(importlib.import_module(package), name)
     except Exception as exception:  # pylint: disable=W0703
         LOGGER.error(
-            f'{prefix.capitalize()} "{package}.{name}" not found, check '
+            f'{prefix} "{package}.{name}" not found, check '
             f'package and class name are valid, or that importing it doesn\'t '
             f'result in an exception.')
         LOGGER.debug(exception, exc_info=True)
