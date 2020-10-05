@@ -49,7 +49,7 @@ timeseries. The default is to compute `sum(increase([METRIC_NAME][window]))` to
 get an accurate count of good and bad events. Be aware that changing will likely
 result in good / bad counts that do not accurately reflect actual load.
 
-**&rightarrow; [Full SLO config](../samples/prometheus/slo_prom_metrics_availability_ratio.yaml)**
+**&rightarrow; [Full SLO config](../../samples/prometheus/slo_prom_metrics_availability_ratio.yaml)**
 
 
 ### Query SLI
@@ -84,9 +84,9 @@ corresponding `window` field set in each step of the Error Budget Policy.
 * The `headers` section (commented) allows to specify Basic Authentication
 credentials if needed.
 
-**&rightarrow; [Full SLO config (availability)](../samples/prometheus/slo_prom_metrics_availability_query_sli.yaml)**
+**&rightarrow; [Full SLO config (availability)](../../samples/prometheus/slo_prom_metrics_availability_query_sli.yaml)**
 
-**&rightarrow; [Full SLO config (latency)](../samples/prometheus/slo_prom_metrics_latency_query_sli.yaml)**
+**&rightarrow; [Full SLO config (latency)](../../samples/prometheus/slo_prom_metrics_latency_query_sli.yaml)**
 
 ### Distribution cut
 
@@ -129,7 +129,7 @@ backend:
     expression: http_requests_duration_bucket{path='/', code=~"2.."}
     threshold_bucket: 0.25 # corresponds to 'le' attribute in Prometheus histograms
 ```
-**&rightarrow; [Full SLO config](../samples/prometheus/slo_prom_metrics_latency_distribution_cut.yaml)**
+**&rightarrow; [Full SLO config](../../samples/prometheus/slo_prom_metrics_latency_distribution_cut.yaml)**
 
 The `threshold_bucket` allowed  will depend on how the buckets boundaries are
 set for your metric. Learn more in the [Prometheus docs](https://prometheus.io/docs/concepts/metric_types/#histogram).
@@ -168,10 +168,10 @@ Optional fields:
   * `password`: Password for Basic Auth.
   * `job`: Name of `Pushgateway` job. Defaults to `slo-generator`.
 
-**&rightarrow; [Full SLO config](../samples/prometheus/slo_prom_metrics_availability_query_sli.yaml)**
+**&rightarrow; [Full SLO config](../../samples/prometheus/slo_prom_metrics_availability_query_sli.yaml)**
 
 
 ### Examples
 
 Complete SLO samples using `Prometheus` are available in
-[samples/prometheus](../samples/prometheus). Check them out !
+[samples/prometheus](../../samples/prometheus). Check them out !
