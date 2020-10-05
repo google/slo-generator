@@ -15,7 +15,7 @@
 service_name:    dd
 feature_name:    app
 slo_name:        availability
-slo_description: 99% of Flask app requests return a valid HTTP code
+slo_description: 99% of app requests return a valid HTTP code
 slo_target:      0.99
 backend:
   class:         Datadog
