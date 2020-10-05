@@ -71,7 +71,7 @@ install_test:
 tests: flake8 pylint unittest coverage_report
 
 unittest: clean
-	nosetests $(NOSE_OPTS) tests/unit/*
+	nosetests $(NOSE_OPTS) tests/unit/* -v
 
 coverage_report:
 	$(COVERAGE) report --rcfile=".coveragerc"
