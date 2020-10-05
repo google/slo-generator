@@ -26,8 +26,8 @@ backend:
   #   Content-Type: application/json
   #   Authorization: Basic b2s6cGFzcW==  # username:password base64-encoded
   measurement:
-    filter_good:  prometheus_http_requests_total{handler="/metrics", code=~"2.."}
-    filter_valid: prometheus_http_requests_total{handler="/metrics"}
+    filter_good:  prometheus_http_requests_total{handler="/metrics", code=~"2.."}[window]
+    filter_valid: prometheus_http_requests_total{handler="/metrics"}[window]
     # filter_bad: prometheus_http_requests_total{code=~"5..", handler="/metrics"} # alternative to filter_valid field
 exporters:
 - class:          Prometheus
