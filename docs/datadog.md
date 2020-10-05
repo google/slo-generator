@@ -31,7 +31,7 @@ backend:
   class:   Datadog
   method:  good_bad_ratio
   api_key: ${DATADOG_API_KEY}
-  app_key: ${DATADOG_APP_KEY
+  app_key: ${DATADOG_APP_KEY}
   measurement:
     filter_good: sum:system.disk.used{*}
     filter_valid: sum:system.disk.total{*}
@@ -53,7 +53,7 @@ backend:
   class:   Datadog
   method:  query_sli
   api_key: ${DATADOG_API_KEY}
-  app_key: ${DATADOG_APP_KEY
+  app_key: ${DATADOG_APP_KEY}
   measurement:
     expression: sum:system.disk.used{*} / sum:system.disk.total{*}
 ```
@@ -77,7 +77,7 @@ backend:
   class:   Datadog
   method:  query_sli
   api_key: ${DATADOG_API_KEY}
-  app_key: ${DATADOG_APP_KEY
+  app_key: ${DATADOG_APP_KEY}
 ```
 
 **&rightarrow; [Full SLO config](../samples/datadog/slo_dd_disk_utilization_query_slo.yaml)**
