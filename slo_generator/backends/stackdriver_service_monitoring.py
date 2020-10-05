@@ -25,6 +25,7 @@ from google.cloud.monitoring_v3 import ServiceMonitoringServiceClient
 from google.protobuf.json_format import MessageToJson
 
 from slo_generator.backends.stackdriver import StackdriverBackend
+from slo_generator.constants import NO_DATA
 from slo_generator.utils import dict_snake_to_caml
 
 LOGGER = logging.getLogger(__name__)
@@ -32,7 +33,7 @@ LOGGER = logging.getLogger(__name__)
 SID_GAE = 'gae:{project_id}_{module_id}'
 SID_CLOUD_ENDPOINT = 'ist:{project_id}-{service}'
 SID_CLUSTER_ISTIO = (
-    'ist:{project_id}-zone-{location}-{cluster_name}-{service_namespace}-'
+    'ist:{project_id}-location-{location}-{cluster_name}-{service_namespace}-'
     '{service_name}')
 SID_MESH_ISTIO = ('ist:{mesh_uid}-{service_namespace}-{service_name}')
 
@@ -46,7 +47,6 @@ class StackdriverServiceMonitoringBackend:
             Existing Service Monitoring API client. Initialize a new client if
             omitted.
     """
-
     def __init__(self, project_id, client=None):
         self.project_id = project_id
         self.client = client
@@ -174,7 +174,7 @@ class StackdriverServiceMonitoringBackend:
         Returns:
             tuple: A tuple (good_event_count, bad_event_count).
         """
-        good_event_count, bad_event_count = 0, 0
+        good_event_count, bad_event_count = NO_DATA, NO_DATA
         for timeserie in timeseries:
             event_type = timeserie.metric.labels['event_type']
             value = timeserie.points[0].value.double_value
@@ -480,7 +480,8 @@ class StackdriverServiceMonitoringBackend:
         slo_id = SSM.build_slo_id(window, slo_config, full=True)
         LOGGER.warning(f"Updating SLO {slo_id} ...")
         slo_json['name'] = slo_id
-        return SSM.to_json(self.client.update_service_level_objective(slo_json))
+        return SSM.to_json(
+            self.client.update_service_level_objective(slo_json))
 
     def list_slos(self, service_path):
         """List all SLOs from Stackdriver Service Monitoring API.

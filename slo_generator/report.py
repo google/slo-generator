@@ -20,6 +20,7 @@ import logging
 from dataclasses import asdict, dataclass, fields
 
 from slo_generator import utils
+from slo_generator.constants import NO_DATA, MIN_VALID_EVENTS, COLORED_OUTPUT
 
 LOGGER = logging.getLogger(__name__)
 
@@ -66,6 +67,9 @@ class SLOReport:
     alerting_burn_rate_threshold: float
     consequence_message: str
 
+    # Data validation
+    valid: bool
+
     def __init__(self, config, step, timestamp, client=None, delete=False):
 
         # Init dataclass fields from SLO config and Error Budget Policy
@@ -80,18 +84,21 @@ class SLOReport:
         self.window = int(step['measurement_window_seconds'])
         self.timestamp = int(timestamp)
         self.timestamp_human = utils.get_human_time(timestamp)
+        self.valid = True
 
         # Get backend results
-        result = self.run_backend(config, client=client, delete=delete)
-        if result:
-            self.build(step, result)
+        data = self.run_backend(config, client=client, delete=delete)
+        if not self._validate(data):
+            self.valid = False
+            return
+        self.build(step, data)
 
-    def build(self, step, result):
+    def build(self, step, data):
         """Compute all data necessary for the SLO report.
 
         Args:
             step (dict): Error Budget Policy step configuration.
-            result (obj): Backend result.
+            data (obj): Backend data.
 
         See https://landing.google.com/sre/workbook/chapters/implementing-slos/
         for details on the calculations.
@@ -100,7 +107,7 @@ class SLOReport:
         LOGGER.debug(f"{info} | SLO report starting ...")
 
         # SLI, Good count, Bad count, Gap from backend results
-        sli, good_count, bad_count = self.get_sli(result)
+        sli, good_count, bad_count = self.get_sli(data)
         gap = sli - self.slo_target
 
         # Error Budget calculations
@@ -151,7 +158,7 @@ class SLOReport:
                 action.
 
         Returns:
-            obj: Backend result.
+            obj: Backend data.
         """
         info = self.__get_info()
 
@@ -173,11 +180,11 @@ class SLOReport:
             LOGGER.warning(f'{info} | Delete mode enabled.')
 
         # Run backend method and return results.
-        result = method(self.timestamp, self.window, config)
-        LOGGER.debug(f'{info} | Backend results: {result}')
-        return result
+        data = method(self.timestamp, self.window, config)
+        LOGGER.debug(f'{info} | Backend response: {data}')
+        return data
 
-    def get_sli(self, result):
+    def get_sli(self, data):
         """Compute SLI value and good / bad counts from the backend result.
 
         Some backends (e.g: Prometheus) are computing and returning the SLI
@@ -185,7 +192,7 @@ class SLOReport:
         SLI value is computed from there.
 
         Args:
-            result (obj): Backend result.
+            data (obj): Backend data.
 
         Returns:
             tuple: A tuple of 3 values to unpack (float, int, int).
@@ -197,34 +204,94 @@ class SLOReport:
             Exception: When the backend does not return a proper result.
         """
         info = self.__get_info()
-        if isinstance(result, tuple):
-            good_count, bad_count = result
+        if isinstance(data, tuple):  # good, bad count
+            good_count, bad_count = data
+            if good_count == NO_DATA:
+                good_count = 0
+            if bad_count == NO_DATA:
+                bad_count = 0
             LOGGER.debug(f"{info} | Good: {good_count} | Bad: {bad_count}")
-            if (good_count + bad_count) == 0:
-                LOGGER.error(f"{info} | No events found.")
-                return 0, 0, 0
             sli_measurement = round(good_count / (good_count + bad_count), 6)
-
-        elif isinstance(result, (float, int)):
-            good_count, bad_count = 0, 0
-            sli_measurement = round(result, 6)
-
-        else:
-            msg = "Backend did not return any valid results."
-            LOGGER.error(msg)
-            LOGGER.debug(f'Backend result: {result}')
-            raise Exception(msg)
-
+        else:  # sli value
+            sli_measurement = round(data, 6)
+            good_count, bad_count = NO_DATA, NO_DATA
         return sli_measurement, good_count, bad_count
 
     def to_json(self):
         """Serialize dataclass to JSON."""
         return asdict(self)
 
-    def is_empty(self):
-        """Return True if report is empty (SLI = 0 or sum of good / bad count
-        is null)."""
-        return self.sli_measurement == 0
+    # pylint: disable=too-many-return-statements
+    def _validate(self, data):
+        """Validate backend results. Invalid data will result in SLO report not
+        being built.
+
+        Args:
+            data (obj): Backend result (expecting tuple, float, or int).
+
+        Returns:
+            bool: True if data is valid, False
+        """
+        info = self.__get_info()
+
+        # Backend data type should be one of tuple, float, or int
+        if not isinstance(data, (tuple, float, int)):
+            LOGGER.error(
+                f'{info} | Backend method returned an object of type '
+                f'{type(data).__name__}. It should instead return a tuple '
+                '(good_count, bad_count) or a numeric SLI value (float / int).'
+            )
+            return False
+
+        # Good / Bad tuple
+        if isinstance(data, tuple):
+
+            # Tuple length should be 2
+            if len(data) != 2:
+                LOGGER.error(
+                    f'{info} | Backend method returned a tuple with {len(data)}'
+                    ' elements. Expected 2 elements.')
+                return False
+            good, bad = data
+
+            # Tuple should contain only elements of type int or float
+            if not all(isinstance(n, (float, int)) for n in data):
+                LOGGER.error('f{info} | Backend method returned'
+                             'a tuple with some elements having '
+                             'a type different than float / int')
+                return False
+
+            # Tuple should not contain any element with value None.
+            if good is None or bad is None:
+                LOGGER.error(f'{info} | Backend method returned a valid tuple '
+                             '{data} but one of the values is None.')
+                return False
+
+            # Tuple should not have NO_DATA everywhere
+            if (good + bad) == (NO_DATA, NO_DATA):
+                LOGGER.error(f'{info} | Backend method returned a valid '
+                             f'tuple {data} but the good and bad count '
+                             'is NO_DATA (-1).')
+                return False
+
+            # Tuple should not have elements where the sum is inferior to our
+            # minimum valid events threshold
+            if (good + bad) < MIN_VALID_EVENTS:
+                LOGGER.error(f"{info} | Not enough valid events found | "
+                             f"Minimum valid events: {MIN_VALID_EVENTS}")
+                return False
+
+        # Check backend float / int value
+        if isinstance(data, (float, int)) and data == NO_DATA:
+            LOGGER.error(f'{info} | Backend returned NO_DATA (-1).')
+            return False
+
+        # Check backend None
+        if data is None:
+            LOGGER.error(f'{info} | Backend returned None.')
+            return False
+
+        return True
 
     def __set_fields(self, lambdas={}, **kwargs):
         """Set all fields in dataclasses from configs passed and apply function
@@ -269,8 +336,14 @@ class SLOReport:
             gap_str = f'+{gap}'
         sli_str = (f'SLI: {sli_per:<7} % | SLO: {slo_target_per} % | '
                    f'Gap: {gap_str:<6}%')
-        result_str = (
-            "BR: {error_budget_burn_rate:<2} / "
-            "{alerting_burn_rate_threshold} | "
-            "Alert: {alert} | Timestamp: {timestamp}").format_map(report)
-        return f'{info} | {sli_str} | {result_str}'
+        result_str = ("BR: {error_budget_burn_rate:<2} / "
+                      "{alerting_burn_rate_threshold} | "
+                      "Alert: {alert:<1} | Good: {good_events_count:<8} | "
+                      "Bad: {bad_events_count:<8}").format_map(report)
+        full_str = f'{info} | {sli_str} | {result_str}'
+        if COLORED_OUTPUT == 1:
+            if self.alert:
+                full_str = utils.Colors.FAIL + full_str + utils.Colors.ENDC
+            else:
+                full_str = utils.Colors.OKGREEN + full_str + utils.Colors.ENDC
+        return full_str

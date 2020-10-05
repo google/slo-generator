@@ -26,7 +26,6 @@ LOGGER = logging.getLogger(__name__)
 
 class BigqueryExporter:
     """BigQuery exporter class."""
-
     def __init__(self):
         self.client = bigquery.Client(project="unset")
 
@@ -54,6 +53,7 @@ class BigqueryExporter:
         table_id = config['table_id']
         self.client.project = project_id
         table_ref = self.client.dataset(dataset_id).table(table_id)
+        schema_fields = [element['name'] for element in TABLE_SCHEMA]
         try:
             table = self.client.get_table(table_ref)
         except google.api_core.exceptions.NotFound:
@@ -64,9 +64,10 @@ class BigqueryExporter:
         row_ids = "%s%s%s%s%s" % (data["service_name"], data["feature_name"],
                                   data["slo_name"], data["timestamp_human"],
                                   data["window"])
+        json_data = {k: v for k, v in data.items() if k in schema_fields}
         results = self.client.insert_rows_json(
             table,
-            json_rows=[data],
+            json_rows=[json_data],
             row_ids=[row_ids],
             retry=google.api_core.retry.Retry(deadline=30))
         if results != []:
@@ -85,17 +86,16 @@ class BigqueryExporter:
         """
         if schema is not None:
             schema = TABLE_SCHEMA
-        pyschema = [bigquery.SchemaField(row['name'],
-                                         row['type'],
-                                         mode=row['mode'])
-                    for row in schema]
+        pyschema = [
+            bigquery.SchemaField(row['name'], row['type'], mode=row['mode'])
+            for row in schema
+        ]
 
         table_name = f"{project_id}.{dataset_id}.{table_id}"
         LOGGER.info(f"Creating table {table_name}", table_name)
         table = bigquery.Table(table_name, schema=pyschema)
         table.time_partitioning = bigquery.TimePartitioning(
-            type_=bigquery.TimePartitioningType.DAY,
-        )
+            type_=bigquery.TimePartitioningType.DAY, )
         return self.client.create_table(table)
 
 
@@ -105,7 +105,6 @@ class BigQueryError(Exception):
     Args:
         errors (list): List of errors.
     """
-
     def __init__(self, errors):
         super().__init__(BigQueryError._format(errors))
         self.errors = errors

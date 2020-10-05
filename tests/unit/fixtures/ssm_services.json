@@ -10,7 +10,7 @@
     }
   },
   {
-    "name": "projects/999999999999/services/ist:fake-zone-fake-fake-fake-fake",
+    "name": "projects/999999999999/services/ist:fake-location-fake-fake-fake-fake",
     "displayName": "clusterIstio:fake/fake/fake/default/fake",
     "clusterIstio": {
       "location": "fake",
