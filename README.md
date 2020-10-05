@@ -107,3 +107,5 @@ To go further with the SLO Generator, you can read:
 * [Deploy the SLO Generator in a CloudBuild pipeline](docs/deploy/cloudbuild.md)
 
 * [Contribute to the SLO Generator](CONTRIBUTING.md)
+
+* [How to define a latency SLI-SLO from an exponential distribution metric in Cloud Monitoring](docs/pratices/latency_slo_distrib_metric_cloud_monitoring.md)
