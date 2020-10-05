@@ -2,6 +2,7 @@
 
 ![build](https://github.com/google/slo-generator/workflows/build/badge.svg)
 ![cloudbuild](https://github.com/google/slo-generator/workflows/cloudbuild/badge.svg)
+[![PyPI version](https://badge.fury.io/py/slo-generator.svg)](https://badge.fury.io/py/slo-generator)
 
 `slo-generator` is a tool to compute and export **Service Level Objectives** ([SLOs](https://landing.google.com/sre/sre-book/chapters/service-level-objectives/)),
 **Error Budgets** and **Burn Rates**, using policies written in JSON or YAML format.
@@ -18,7 +19,6 @@
 **Requirements**
 
 * Python 3
-* gcloud SDK installed
 
 **Installation**
 
@@ -43,11 +43,9 @@ slo-generator -f <SLO_CONFIG_PATH> -b <ERROR_BUDGET_POLICY> --export
 
 Use `slo-generator --help` to list all available arguments.
 
-To enable debug logs, set the environment variable `DEBUG` to `1` before running the `slo-generator`:
-
-```
-export DEBUG=1
-```
+***Notes:***
+* To enable **debug logs**, set the environment variable `DEBUG` to `1`.
+* To enable **colorized output** (local usage), set the environment variable `COLORED_OUTPUT` to `1`.
 
 ## Configuration
 
@@ -67,18 +65,18 @@ The **SLO configuration** (JSON or YAML) is composed of the following fields:
 
 * **SLI configuration**:
   * `backend`: Specific documentation and examples are available for each supported backends:
-    * [Stackdriver Monitoring](docs/stackdriver.md#backend)
-    * [Stackdriver Service Monitoring](docs/stackdriver_service_monitoring.md#backend)
-    * [Prometheus](docs/prometheus.md#backend)
-    * [ElasticSearch](docs/elasticsearch.md#backend)
+    * [Stackdriver Monitoring](docs/providers/stackdriver.md#backend)
+    * [Stackdriver Service Monitoring](docs/providers/stackdriver_service_monitoring.md#backend)
+    * [Prometheus](docs/providers/prometheus.md#backend)
+    * [ElasticSearch](docs/providers/elasticsearch.md#backend)
 
 
 - **Exporter configuration**:
   * `exporters`: A list of exporters to export results to. Specific documentation is available for each supported exporters:
-      * [Cloud Pub/Sub](docs/pubsub.md#exporter) to stream SLO reports.
-      * [BigQuery](docs/bigquery.md#exporter) to export SLO reports to BigQuery for historical analysis and DataStudio reporting.
-      * [Stackdriver Monitoring](docs/stackdriver.md#exporter) to export the `error_budget_burn_rate` metric to Stackdriver Monitoring.
-      * [Prometheus](docs/prometheus.md#exporter) to export the `error_budget_burn_rate` metric to Prometheus.
+      * [Cloud Pub/Sub](docs/providers/pubsub.md#exporter) to stream SLO reports.
+      * [BigQuery](docs/providers/bigquery.md#exporter) to export SLO reports to BigQuery for historical analysis and DataStudio reporting.
+      * [Stackdriver Monitoring](docs/providers/stackdriver.md#exporter) to export the `error_budget_burn_rate` metric to Stackdriver Monitoring.
+      * [Prometheus](docs/providers/prometheus.md#exporter) to export the `error_budget_burn_rate` metric to Prometheus.
 
 ***Note:*** *you can use environment variables in your SLO configs by using `${}` syntax to avoid having sensitive data in version control. Environment variables will be replaced at run time.*
 
@@ -96,219 +94,16 @@ The **Error Budget policy** (JSON or YAML) is a list of multiple error budgets, 
 
 ==> An example Error Budget policy is available [here](samples/error_budget_policy.yaml).
 
+## More documentation
 
-## Reporting on SLO achievements
+To go further with the SLO Generator, you can read:
 
-The [PUBLIC SLO achievements report template](https://datastudio.google.com/reporting/964e185c-6ca0-4ed8-809d-425e22568aa0) can be cloned following instructions on the report page named README. It provide a basic dashboard with:
+* [Build an SLO achievements report with BigQuery and DataStudio](docs/deploy/datastudio_slo_report.md)
 
-1. `Morning snapshot`: last error budget and SLI achievement, support decisions agreed in the Error Budget Policy
-2. `Trends`: SLI vs SLO by service/feature over a period of time
-3. `Alerting on burnrate`: visualize when alerting engage and fade off by sliding window sizes
+* [Deploy the SLO Generator on Google Cloud Functions (Terraform)](docs/deploy/cloudfunctions.md)
 
+* [Deploy the SLO Generator on Kubernetes (Alpha)](docs/deploy/kubernetes.md)
 
-## Extending the SLO generator
+* [Deploy the SLO Generator in a CloudBuild pipeline](docs/deploy/cloudbuild.md)
 
-The `slo-generator` tool is designed to add more backends and exporters as it moves forward. Users, customers and Google folks should be able to easily add the metrics backend or the exporter of their choosing.
-
-To prepare for development, you need to fork this repository and work on your own branch so that you can later submit your changes as a GitHub Pull Request.
-
-Once you have forked the repo on GitHub, clone it locally and install the `slo-generator` in a Python virtual environment:
-```
-git clone github.com/google/slo-generator
-cd slo-generator
-python3 -m venv venv/
-source venv/bin/activate
-```
-
-Install `slo-generator` locally in development mode, so that you can start making changes to it:
-```
-python setup.py develop
-```
-
-**New backend**
-
-To add a new backend, one must:
-
-* Add a new file `slo-generator/backends/<backend>.py`
-
-* Write a new Python class called `<Backend>` (CamlCase)
-
-* Add unit tests
-
-***Example with a fake Datadog backend:***
-
-* Add a new backend file:
-
-  ```sh
-  touch slo-generator/backends/datadog.py
-  ```
-
-* Fill the content of `datadog.py`:
-
-  ```python
-  from slo_generator.backends.base import MetricBackend
-
-  class Datadog(MetricBackend):
-    def __init__(self, **kwargs):
-      # instantiate your client here, or do nothing if your backend
-      # doesn't need it.
-      url = kwargs['url']
-      self.client = DatadogClient(url)
-
-    def query(self, *args, **kwargs):
-      # add code to query your backend here.
-      return self.client.query(*args, **kwargs)
-
-    @staticmethod
-    def count(timeseries):
-      # add code to count the number of events in the timeseries returned
-
-    def good_bad_ratio(self, *kwargs):
-      # this should return a tuple `(good_event_count, bad_event_count)`
-      # or a float `SLI value`.
-      good_event_query = kwargs['measurement']['filter_good']
-      bad_event_query = kwargs['measurement']['filter_bad']
-      good_timeseries = self.query(good_event_query)
-      bad_timeseries = self.query(bad_event_query)
-      good_count = Datadog.count(good_timeseries)
-      bad_count = Datadog.count(bad_timeseries)
-      return (good_count, bad_count)
-
-    def my_random_method():
-      # this should return a tuple `(good_event_count, bad_event_count)`
-      # or a float `SLI value`.
-      my_sli_value = self.compute_random_stuff()
-      return my_sli_value
-  ```
-* Write a sample SLO configs (`slo_test.yaml`):
-
-  ```yaml
-  service_name: test
-  feature_name: test
-  slo_name: datadog
-  slo_description: Test Datadog SLO
-  backend:
-    class: Datadog
-    method: good_bad_ratio
-    url: datadog.mycompany.com
-    measurement:
-      filter_good: avg:system.disk.free{*}.rollup(avg, {window})
-      filter_valid: avg:system.disk.used{*}.rollup(avg, {window})
-  ```
-
-* Run a test with the SLO generator:
-  ```sh
-  slo-generator -f slo_test.yaml -b samples/error_budget_target.yaml
-  ```
-
-* Create a directory `samples/<backend>` for your backend samples.
-
-* Add some YAML samples to show how to write SLO configs for your backend. Samples should be named `slo_<service_name>_<feature_name>_<function>.yaml`
-
-* Add a unit test: in the `tests/unit/test_compute.py`, simply add a method called `test_compute_<backend>`. Take the other backends an example when
-writing the test.
-
-The steps above are similar for adding a new exporter, but the exporter code will go to the `exporters/` directory and the unit test will be named `test_export_<exporter>`.
-
-## Usage in pipelines
-
-Once the SLO measurement has been tested locally, it's a good idea to deploy a pipeline that will automatically compute SLO reports. This pipeline can be triggered on a schedule, or by specific events.
-
-### Cloud Functions
-`slo-generator` is frequently used as part of an SLO Reporting Pipeline made of:
-
-* A **Cloud Scheduler** triggering an event every X minutes.
-* A **PubSub topic**, triggered by the Cloud Scheduler event.
-* A **Cloud Function**, triggered by the PubSub topic, running `slo-generator`.
-* A **PubSub topic** to stream computation results.
-
-
-Other components can be added to make results available to other destinations:
-* A **Cloud Function** to export SLO reports (e.g: to BigQuery and Stackdriver Monitoring), running `slo-generator`.
-* A **Stackdriver Monitoring Policy** to alert on high budget Burn Rates.
-
-Below is a diagram of what this pipeline looks like:
-
-![Architecture](https://raw.githubusercontent.com/terraform-google-modules/terraform-google-slo/master/diagram.png)
-
-**Benefits:**
-
-* **Frequent SLO / Error Budget / Burn rate reporting** (max 1 every minute) with Cloud Scheduler.
-
-* **Real-time visualization** by streaming results to DataStudio.
-
-* **Historical analytics** by analyzing SLO data in Bigquery.
-
-* **Real-time alerting** by setting up Stackdriver Monitoring alerts based on
-wanted SLOs.
-
-An example of pipeline automation with Terraform can be found [here](https://github.com/terraform-google-modules/terraform-google-slo/tree/master/examples/simple_example).
-
-### Cloud Build
-`slo-generator` can also be triggered in a Cloud Build pipeline. This can be useful if we want to compute some SLOs as part of a release process (e.g: to calculate a metric on each `git` commit or push)
-
-To do so, you need to build an image for the `slo-generator` and push it to `Google Container Registry` in your project.
-
-To build / push the image, run:
-
-```sh
-gcloud builds submit --config=cloudbuild.yaml . -s _PROJECT_NAME=<YOUR_PROJECT_NAME>
-```
-
-Once the image is built, you can call the SLO generator using the following snippet in your `cloudbuild.yaml`:
-
-```yaml
----
-steps:
-
-- name: gcr.io/${_PROJECT_NAME}/slo-generator
-  args:
-    - -f
-    - ${_SLO_CONFIG_FILE}
-    - -b
-    - ${_ERROR_BUDGET_POLICY_FILE}
-    - --export
-```
-
-Then, in another repo containing your SLO definitions, simply run the pipeline, substituting the needed variables:
-
-```sh
-gcloud builds submit . --config=cloudbuild.yaml --substitutions \
-  _SLO_CONFIG_FILE=<YOUR_SLO_CONFIG_FILE> \
-  _ERROR_BUDGET_POLICY_FILE=<_ERROR_BUDGET_POLICY_FILE> \
-  _WORKSPACE=<ENV>
-```
-
-If your repo is a Cloud Source Repository, you can also configure a trigger for
-Cloud Build, so that the pipeline is run automatically when a commit is made:
-
-```hcl
-resource "google_cloudbuild_trigger" "dev-trigger" {
-  trigger_template {
-    branch_name = "dev"
-    repo_name   = "my-repo"
-  }
-
-  substitutions = {
-    _SLO_CONFIG_FILE = "slo.json"
-    _ERROR_BUDGET_POLICY_FILE = "error_budget_policy.json"
-    _WORKSPACE = "dev"
-  }
-
-  filename = "cloudbuild.yaml"
-}
-
-resource "google_cloudbuild_trigger" "prod-trigger" {
-  trigger_template {
-    branch_name = "master"
-    repo_name   = "my-repo"
-  }
-
-  substitutions = {
-    _SLO_CONFIG_FILE = "slo.json"
-    _ERROR_BUDGET_POLICY_FILE = "error_budget_policy.json"
-  }
-
-  filename = "cloudbuild.yaml"
-}
-```
+* [Contribute to the SLO Generator](CONTRIBUTING.md)
