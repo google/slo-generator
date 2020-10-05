@@ -72,6 +72,7 @@ class DatadogExporter:
         metric_type = config.get('metric_type', DEFAULT_METRIC_TYPE)
         timestamp = data['timestamp']
         value = data['error_budget_burn_rate']
+        LOGGER.debug(f'Exporting metric {metric_type}{str(tags)} = {value}')
         return self.client.Metric.send(metric=metric_type,
                                        points=[(timestamp, value)],
                                        tags=tags)
