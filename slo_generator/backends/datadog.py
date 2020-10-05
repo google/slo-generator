@@ -161,9 +161,13 @@ class DatadogBackend:
             int: Event count.
         """
         try:
+            values = []
             pointlist = timeseries['series'][0]['pointlist']
-            values = [point[1] for point in pointlist for i in point]
-            values = [v for v in values if v is not None]
+            for point in pointlist:
+                value = point[1]
+                if value is None:
+                    continue
+                values.append(value)
             return sum(values) / len(values)
         except (IndexError, AttributeError) as exception:
             LOGGER.warning("Couldn't find any values in timeseries response")
