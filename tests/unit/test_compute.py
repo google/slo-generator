@@ -12,7 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import logging
 import unittest
+import sys
 import warnings
 
 from elasticsearch import Elasticsearch
@@ -26,8 +28,8 @@ from slo_generator.exporters.bigquery import BigQueryError
 
 from .test_stubs import (CTX, load_fixture, load_sample, load_slo_samples,
                          mock_es, mock_prom, mock_sd, mock_ssm_client,
-                         mock_dd_metric_query, mock_dd_slo_history,
-                         mock_dd_slo_get)
+                         mock_dd_metric_query, mock_dd_metric_send,
+                         mock_dd_slo_history, mock_dd_slo_get)
 
 warnings.filterwarnings("ignore", message=_CLOUD_SDK_CREDENTIALS_WARNING)
 
@@ -136,6 +138,10 @@ class TestCompute(unittest.TestCase):
     @patch("prometheus_client.push_to_gateway")
     def test_export_prometheus(self, mock):
         export(SLO_REPORT, EXPORTERS[3])
+
+    @patch.object(Metric, 'send', mock_dd_metric_send)
+    def test_export_datadog(self):
+        export(SLO_REPORT, EXPORTERS[4])
 
 
 if __name__ == '__main__':

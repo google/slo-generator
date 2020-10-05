@@ -172,6 +172,11 @@ def mock_dd_slo_get(*args, **kwargs):
     return load_fixture('dd_slo.json')
 
 
+def mock_dd_metric_send(*args, **kwargs):
+    """Mock Datadog response for datadog.api.Metric.send."""
+    return load_fixture('dd_success.json')
+
+
 class dotdict(dict):
     """dot.notation access to dictionary attributes"""
     __getattr__ = dict.get
