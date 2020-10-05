@@ -98,12 +98,7 @@ a **Datadog metric** that can be used for alerting:
  * The **metric descriptor** has labels describing our SLO, amongst which the
  `service_name`, `feature_name`, and `error_budget_policy_step_name` labels.
 
-The exporter pushes the metric to the `Datadog`
-[Pushgateway](https://prometheus.io/docs/practices/pushing/) which needs to be
-running.
-
-`Datadog` needs to be setup to **scrape metrics from `Pushgateway`** (see
-  [documentation](https://github.com/prometheus/pushgateway) for more details).
+The exporter pushes the metric to the `Datadog` API.
 
 **Example config:**
 
