@@ -77,7 +77,7 @@ BQ Data Viewer roles.
 
 ### 1 Copy the data sources
 
-### 1.a `report` data source
+#### 1.a. `report` data source
 
 #### Step 1
 
