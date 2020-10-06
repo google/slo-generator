@@ -1,0 +1,30 @@
+{
+  "data": {
+    "created_at": 1600791113,
+    "creator": {
+      "email": "user@company.com",
+      "handle": "user@company.com",
+      "name": "Firstname LastName"
+    },
+    "description": "",
+    "id": "423786587d20530b9c05db1767e5869c",
+    "modified_at": 1600791113,
+    "monitor_tags": [],
+    "name": "Disk SLO for test instance",
+    "query": {
+      "denominator": "sum:system.disk.total{*}",
+      "numerator": "sum:system.disk.used{*}"
+    },
+    "tags": [],
+    "thresholds": [
+      {
+        "target": 15,
+        "target_display": "15.",
+        "timeframe": "7d"
+      }
+    ],
+    "type": "metric",
+    "type_id": 1
+  },
+  "error": null
+}

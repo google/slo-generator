@@ -19,6 +19,7 @@ import difflib
 import json
 import logging
 import os
+import warnings
 
 import google.api_core.exceptions
 from google.cloud.monitoring_v3 import ServiceMonitoringServiceClient
@@ -33,7 +34,7 @@ LOGGER = logging.getLogger(__name__)
 SID_GAE = 'gae:{project_id}_{module_id}'
 SID_CLOUD_ENDPOINT = 'ist:{project_id}-{service}'
 SID_CLUSTER_ISTIO = (
-    'ist:{project_id}-zone-{location}-{cluster_name}-{service_namespace}-'
+    'ist:{project_id}-location-{location}-{cluster_name}-{service_namespace}-'
     '{service_name}')
 SID_MESH_ISTIO = ('ist:{mesh_uid}-{service_namespace}-{service_name}')
 
@@ -289,6 +290,10 @@ class StackdriverServiceMonitoringBackend:
             service_id = SID_GAE.format_map(app_engine)
             dest_project_id = app_engine['project_id']
         elif cluster_istio:
+            warnings.warn(
+                'ClusterIstio is deprecated in the Service Monitoring API.'
+                'It will be removed in version 2.0, please use MeshIstio '
+                'instead', FutureWarning)
             service_id = SID_CLUSTER_ISTIO.format_map(cluster_istio)
             dest_project_id = cluster_istio['project_id']
         elif mesh_istio:

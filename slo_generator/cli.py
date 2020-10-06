@@ -18,10 +18,13 @@ Command-Line interface of `slo-generator`.
 
 import argparse
 import logging
+import os
 import sys
 
 import slo_generator.utils as utils
 from slo_generator.compute import compute
+
+sys.path.append(os.getcwd())  # dynamic backend loading
 
 LOGGER = logging.getLogger(__name__)
 

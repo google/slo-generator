@@ -33,19 +33,38 @@ class TestUtils(unittest.TestCase):
         res1 = get_backend_cls("Stackdriver")
         res2 = get_backend_cls("Prometheus")
         self.assertEqual(res1.__name__, "StackdriverBackend")
+        self.assertEqual(res1.__module__, "slo_generator.backends.stackdriver")
         self.assertEqual(res2.__name__, "PrometheusBackend")
+        self.assertEqual(res2.__module__, "slo_generator.backends.prometheus")
         with self.assertRaises(SystemExit):
             get_backend_cls("UndefinedBackend")
+
+    def test_get_backend_dynamic_cls(self):
+        res1 = get_backend_cls("pathlib.Path")
+        self.assertEqual(res1.__name__, "Path")
+        self.assertEqual(res1.__module__, "pathlib")
+        with self.assertRaises(SystemExit):
+            get_exporter_cls("foo.bar.DoesNotExist")
 
     def test_get_exporter_cls(self):
         res1 = get_exporter_cls("Stackdriver")
         res2 = get_exporter_cls("Pubsub")
         res3 = get_exporter_cls("Bigquery")
         self.assertEqual(res1.__name__, "StackdriverExporter")
+        self.assertEqual(res1.__module__, "slo_generator.exporters.stackdriver")
         self.assertEqual(res2.__name__, "PubsubExporter")
+        self.assertEqual(res2.__module__, "slo_generator.exporters.pubsub")
         self.assertEqual(res3.__name__, "BigqueryExporter")
+        self.assertEqual(res3.__module__, "slo_generator.exporters.bigquery")
         with self.assertRaises(SystemExit):
             get_exporter_cls("UndefinedExporter")
+
+    def test_get_exporter_dynamic_cls(self):
+        res1 = get_exporter_cls("pathlib.Path")
+        self.assertEqual(res1.__name__, "Path")
+        self.assertEqual(res1.__module__, "pathlib")
+        with self.assertRaises(SystemExit):
+            get_exporter_cls("foo.bar.DoesNotExist")
 
     def test_import_dynamic(self):
         res1 = import_dynamic("slo_generator.backends.stackdriver",

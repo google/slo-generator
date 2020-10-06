@@ -158,7 +158,7 @@ class StackdriverBackend:
         """
         warnings.warn(
             'exponential_distribution_cut will be deprecated in version 2.0, '
-            'please use distribution_cut instead', PendingDeprecationWarning)
+            'please use distribution_cut instead', FutureWarning)
         return self.distribution_cut(*args, **kwargs)
 
     def query(self,

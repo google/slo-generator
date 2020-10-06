@@ -43,7 +43,7 @@ backend:
 You can also use the `filter_bad` field which identifies bad events instead of
 the `filter_valid` field which identifies all valid events.
 
-**&rightarrow; [Full SLO config](../samples/stackdriver/slo_gae_app_availability.yaml)**
+**&rightarrow; [Full SLO config](../../samples/stackdriver/slo_gae_app_availability.yaml)**
 
 ### Distribution cut
 
@@ -77,7 +77,7 @@ backend:
     good_below_threshold: true
     threshold_bucket: 19
 ```
-**&rightarrow; [Full SLO config](../samples/stackdriver/slo_gae_app_latency.yaml)**
+**&rightarrow; [Full SLO config](../../samples/stackdriver/slo_gae_app_latency.yaml)**
 
 The `threshold_bucket` number to reach our 724ms target latency will depend on
 how the buckets boundaries are set. Learn how to [inspect your distribution metrics](https://cloud.google.com/logging/docs/logs-based-metrics/distribution-metrics#inspecting_distribution_metrics) to figure out the bucketization.
@@ -108,7 +108,7 @@ Optional fields:
 * `metric_type`: Metric type / name. Defaults to `error_budget_burn_rate`.
 * `metric_description`: Metric description.
 
-**&rightarrow; [Full SLO config](../samples/stackdriver/slo_lb_request_availability.yaml)**
+**&rightarrow; [Full SLO config](../../samples/stackdriver/slo_lb_request_availability.yaml)**
 
 ## Alerting
 
@@ -172,4 +172,4 @@ differentiate the alert messages.
 ## Examples
 
 Complete SLO samples using `Stackdriver` are available in
-[samples/stackdriver](../samples/stackdriver). Check them out !
+[samples/stackdriver](../../samples/stackdriver). Check them out !
