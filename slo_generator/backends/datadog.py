@@ -75,7 +75,7 @@ class DatadogBackend:
         good_event_count = DatadogBackend.count(good_event_query)
         valid_event_count = DatadogBackend.count(valid_event_query)
         bad_event_count = valid_event_count - good_event_count
-        return (good_event_count), bad_event_count)
+        return (good_event_count, bad_event_count)
 
     def query_sli(self, timestamp, window, slo_config):
         """Query SLI value directly.
@@ -140,7 +140,7 @@ class DatadogBackend:
             query (str): Original query in YAML config.
             window (int): Query window (in seconds).
             operator (str): Operator (e.g: sum, avg, median, ...)
-            operator_suffix (str): Operator suffix (e.g: as_count(), as_rate(), ...)
+            operator_suffix (str): Operator suffix (e.g: as_count(), ...)
 
         Returns:
             str: Formatted query.
