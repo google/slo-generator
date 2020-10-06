@@ -75,7 +75,7 @@ BQ Data Viewer roles.
 3. Table `report` in SLO Generator Bigquery dataset
 4. View `last_report` in SLO Generator Bigquery dataset.
 
-### 1 Copy the data sources
+### 1. Copy the data sources
 
 #### 1.a. `report` data source
 
