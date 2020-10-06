@@ -69,7 +69,7 @@ The **SLO configuration** (JSON or YAML) is composed of the following fields:
     * [Stackdriver Service Monitoring](docs/providers/stackdriver_service_monitoring.md#backend)
     * [Prometheus](docs/providers/prometheus.md#backend)
     * [ElasticSearch](docs/providers/elasticsearch.md#backend)
-
+    * [Datadog](docs/providers/datadog.md#backend)
 
 - **Exporter configuration**:
   * `exporters`: A list of exporters to export results to. Specific documentation is available for each supported exporters:
@@ -77,6 +77,7 @@ The **SLO configuration** (JSON or YAML) is composed of the following fields:
       * [BigQuery](docs/providers/bigquery.md#exporter) to export SLO reports to BigQuery for historical analysis and DataStudio reporting.
       * [Stackdriver Monitoring](docs/providers/stackdriver.md#exporter) to export the `error_budget_burn_rate` metric to Stackdriver Monitoring.
       * [Prometheus](docs/providers/prometheus.md#exporter) to export the `error_budget_burn_rate` metric to Prometheus.
+      * [Datadog](docs/providers/datadog.md#exporter) to export the `error_budget_burn_rate` metric to Datadog.
 
 ***Note:*** *you can use environment variables in your SLO configs by using `${}` syntax to avoid having sensitive data in version control. Environment variables will be replaced at run time.*
 

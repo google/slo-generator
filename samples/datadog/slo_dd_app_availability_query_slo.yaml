@@ -11,21 +11,16 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-  - class:      Pubsub
-    project_id: ${PUBSUB_PROJECT_ID}
-    topic_name: ${PUBSUB_TOPIC_NAME}
-
-  - class:      Stackdriver
-    project_id: ${STACKDRIVER_HOST_PROJECT_ID}
-
-  - class:      Bigquery
-    project_id: ${BIGQUERY_PROJECT_ID}
-    dataset_id: ${BIGQUERY_DATASET_ID}
-    table_id:   ${BIGQUERY_TABLE_ID}
-
-  - class:      Prometheus
-    url:        ${PROMETHEUS_PUSHGATEWAY_URL}
-
-  - class:      Datadog
-    api_key:    ${DATADOG_API_KEY}
-    app_key:    ${DATADOG_APP_KEY}
+---
+service_name:    dd
+feature_name:    app
+slo_name:        availability
+slo_description: 99% of app requests return a valid HTTP code
+slo_target:      0.99
+backend:
+  class:         Datadog
+  method:        query_slo
+  api_key:       ${DATADOG_API_KEY}
+  app_key:       ${DATADOG_APP_KEY}
+  measurement:
+    slo_id:      ${DATADOG_SLO_ID}

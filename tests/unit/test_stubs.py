@@ -48,7 +48,10 @@ CTX = {
     'BIGQUERY_PROJECT_ID': 'fake',
     'BIGQUERY_TABLE_ID': 'fake',
     'BIGQUERY_DATASET_ID': 'fake',
-    'BIGQUERY_TABLE_NAME': 'fake'
+    'BIGQUERY_TABLE_NAME': 'fake',
+    'DATADOG_API_KEY': 'fake',
+    'DATADOG_APP_KEY': 'fake',
+    'DATADOG_SLO_ID': 'fake'
 }
 
 CUSTOM_BACKEND_CODE = """
@@ -292,6 +295,26 @@ def mock_es(self, index, body):
         dict: Fake response.
     """
     return {'hits': {'total': {'value': 120}}}
+
+
+def mock_dd_metric_query(*args, **kwargs):
+    """Mock Datadog response for datadog.api.Metric.query."""
+    return load_fixture('dd_timeseries.json')
+
+
+def mock_dd_slo_history(*args, **kwargs):
+    """Mock Datadog response for datadog.api.ServiceLevelObjective.history."""
+    return load_fixture('dd_slo_history.json')
+
+
+def mock_dd_slo_get(*args, **kwargs):
+    """Mock Datadog response for datadog.api.ServiceLevelObjective.get."""
+    return load_fixture('dd_slo.json')
+
+
+def mock_dd_metric_send(*args, **kwargs):
+    """Mock Datadog response for datadog.api.Metric.send."""
+    return load_fixture('dd_success.json')
 
 
 class dotdict(dict):

@@ -1,0 +1,10 @@
+{
+  "code": 403,
+  "email": "support@datadoghq.com",
+  "errors": [
+    "Forbidden"
+  ],
+  "status": "error",
+  "statuspage": "http://status.datadoghq.com",
+  "twitter": "http://twitter.com/datadogops"
+}
