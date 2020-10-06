@@ -55,12 +55,15 @@ class DatadogBackend:
         conf = slo_config['backend']
         measurement = conf['measurement']
         operator = measurement.get('operator', 'sum')
+        operator_suffix = measurement.get('operator_suffix', 'as_count()')
         start = timestamp - window
         end = timestamp
         query_good = measurement['query_good']
         query_valid = measurement['query_valid']
-        query_good = self._fmt_query(query_good, window, operator)
-        query_valid = self._fmt_query(query_valid, window, operator)
+        query_good = self._fmt_query(query_good, window, operator,
+                                     operator_suffix)
+        query_valid = self._fmt_query(query_valid, window, operator,
+                                      operator_suffix)
         good_event_query = self.client.Metric.query(start=start,
                                                     end=end,
                                                     query=query_good)
@@ -123,7 +126,7 @@ class DatadogBackend:
         return (good_event_count, bad_event_count)
 
     @staticmethod
-    def _fmt_query(query, window, operator=None):
+    def _fmt_query(query, window, operator=None, operator_suffix=None):
         """Format Datadog query:
 
         * If the Datadog expression has a `[window]` placeholder, replace it by
@@ -137,6 +140,7 @@ class DatadogBackend:
             query (str): Original query in YAML config.
             window (int): Query window (in seconds).
             operator (str): Operator (e.g: sum, avg, median, ...)
+            operator_suffix (str): Operator suffix (e.g: as_count(), ...)
 
         Returns:
             str: Formatted query.
@@ -146,6 +150,8 @@ class DatadogBackend:
             query = f'{operator}:{query}'
         if '[window]' in query:
             query = query.replace('[window]', f'{window}')
+        if operator_suffix:
+            query = f'{query}.{operator_suffix}'
         LOGGER.debug(f'Query: {query}')
         return query
 
