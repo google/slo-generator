@@ -38,7 +38,7 @@ dependencies = [
     'google-api-python-client', 'oauth2client', 'google-cloud-monitoring',
     'google-cloud-pubsub==1.7.0', 'google-cloud-bigquery',
     'prometheus-http-client', 'prometheus-client', 'pyyaml', 'opencensus',
-    'elasticsearch', 'python-dateutil', 'datadog'
+    'elasticsearch', 'python-dateutil', 'datadog', 'si-prefix'
 ]
 extras = {}
 

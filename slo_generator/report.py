@@ -18,6 +18,7 @@ Report utilities.
 
 import logging
 from dataclasses import asdict, dataclass, fields
+from si_prefix import si_format
 
 from slo_generator import utils
 from slo_generator.constants import NO_DATA, MIN_VALID_EVENTS, COLORED_OUTPUT
@@ -338,9 +339,11 @@ class SLOReport:
                    f'Gap: {gap_str:<6}%')
         result_str = ("BR: {error_budget_burn_rate:<2} / "
                       "{alerting_burn_rate_threshold} | "
-                      "Alert: {alert:<1} | Good: {good_events_count:<8} | "
-                      "Bad: {bad_events_count:<8}").format_map(report)
-        full_str = f'{info} | {sli_str} | {result_str}'
+                      "Alert: {alert:<1}").format_map(report)
+        good_str = si_format(self.good_events_count)
+        bad_str = si_format(self.bad_events_count)
+        good_bad_str = f'Good: {good_str:<8} | Bad: {bad_str:<8}'
+        full_str = f'{info} | {sli_str} | {result_str} | {good_bad_str}'
         if COLORED_OUTPUT == 1:
             if self.alert:
                 full_str = utils.Colors.FAIL + full_str + utils.Colors.ENDC
