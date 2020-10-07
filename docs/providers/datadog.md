@@ -38,6 +38,10 @@ backend:
 ```
 **&rightarrow; [Full SLO config](../../samples/datadog/slo_dd_app_availability_ratio.yaml)**
 
+Optional arguments to configure Datadog are documented in the Datadog
+`initialize` method [here](https://github.com/DataDog/datadogpy/blob/058114cc3d65483466684c96a5c23e36c3aa052e/datadog/__init__.py#L33).
+You can pass them in the `backend` section, such as specifying
+`api_host: api.datadoghq.eu` in order to use the EU site.
 
 ### Query SLI
 
@@ -56,6 +60,11 @@ backend:
   measurement:
     expression: sum:app.requests.count{http.path:/, http.status_code_class:2xx} / sum:app.requests.count{http.path:/}
 ```
+
+Optional arguments to configure Datadog are documented in the Datadog
+`initialize` method [here](https://github.com/DataDog/datadogpy/blob/058114cc3d65483466684c96a5c23e36c3aa052e/datadog/__init__.py#L33).
+You can pass them in the `backend` section, such as specifying
+`api_host: api.datadoghq.eu` in order to use the EU site.
 
 **&rightarrow; [Full SLO config](../../samples/datadog/slo_dd_app_availability_query_sli.yaml)**
 
