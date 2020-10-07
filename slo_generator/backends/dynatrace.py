@@ -17,6 +17,7 @@ Datadog backend implementation.
 """
 import json
 import logging
+import pprint
 
 import requests
 
@@ -36,8 +37,8 @@ class DynatraceBackend:
         if client is None:
             self.client = DynatraceClient(api_url, api_token)
 
-    def query_sli(self, timestamp, window, slo_config):
-        """Query SLI value directly.
+    def good_bad_ratio(self, timestamp, window, slo_config):
+        """Query SLI value from good and valid queries.
 
         Args:
             timestamp (int): UNIX timestamp.
@@ -48,33 +49,68 @@ class DynatraceBackend:
             tuple: Good event count, Bad event count.
         """
         conf = slo_config['backend']
-        metric_selector = conf['measurement']['metric_selector']
-        aggregation = conf['measurement'].get('aggregation', 'AVG')
+        measurement = conf['measurement']
         start = (timestamp - window) * 1000
         end = timestamp * 1000
-        ret = self.query(start, end, metric_selector, aggregation)
-        LOGGER.info(ret)
+        query_good = measurement['query_good']
+        query_valid = measurement['query_valid']
 
-    def query(self, start, end, metric_selector, aggregation='AVG'):
-        """Query Dynatrace Metrics V2.
+        # Good query
+        good_event_response = self.query(start=start, end=end, **query_good)
+        LOGGER.debug(f"Result good: {pprint.pformat(good_event_response)}")
+        good_event_count = DynatraceBackend.count(good_event_response)
+
+        # Good query
+        valid_event_response = self.query(start=start, end=end, **query_valid)
+        LOGGER.debug(f"Result valid: {pprint.pformat(valid_event_response)}")
+        valid_event_count = DynatraceBackend.count(valid_event_response)
+
+        # Return good, bad
+        bad_event_count = valid_event_count - good_event_count
+        return (good_event_count, bad_event_count)
+
+    def query(self, start, end, timeseries_id, entity, aggregation='AVG'):
+        """Query Dynatrace Metrics V1.
 
         Args:
             start (int): Start timestamp (in milliseconds).
             end (int): End timestamp (in milliseconds).
-            metric_selector (str): Metric selector.
+            timeseries_id (str): Timeseries id.
+            entity (str): Entity selector.
             aggregation (str): Aggregation.
 
         Returns:
             dict: Dynatrace API response.
         """
         params = {
-            'from': start,
-            'to': end,
-            'metricSelector': metric_selector,
-            'aggregation': aggregation,
+            'startTimestamp': start,
+            'endTimestamp': end,
+            'aggregationType': aggregation,
             'includeData': True
         }
-        return self.client.request('get', 'metrics', version='v2', **params)
+        return self.client.request('get',
+                                   'timeseries',
+                                   timeseries_id,
+                                   version='v1',
+                                   **params)
+
+    @staticmethod
+    def count(response):
+        try:
+            datapoints = response['dataResult']['dataPoints']
+            timeseries = list(datapoints.values())
+            values = []
+            for datapoints_sets in timeseries:
+                set_values = [
+                    datapoint[1] for datapoint in datapoints_sets
+                    if datapoint[1] is not None and datapoint[1] > 0
+                ]
+                values.extend(set_values)
+            return sum(values) / len(values)
+        except (IndexError, AttributeError, ZeroDivisionError) as exception:
+            LOGGER.warning("Couldn't find any values in timeseries response")
+            LOGGER.debug(exception)
+            return 0  # no events in timeseries
 
 
 class DynatraceClient:
@@ -119,10 +155,12 @@ class DynatraceClient:
         }
         if name:
             url += f'/{name}'
+        params_str = "&".join("%s=%s" % (k, v) for k, v in params.items())
+        url += f'?{params_str}'
         if method in ['put', 'post']:
-            response = req(url, params=params, headers=headers, json=post_data)
+            response = req(url, headers=headers, json=post_data)
         else:
-            response = req(url, params=params, headers=headers)
+            response = req(url, headers=headers)
         return DynatraceClient.to_json(response)
 
     @staticmethod
@@ -140,4 +178,5 @@ class DynatraceClient:
         data = json.loads(res)
         if 'error' in data:
             LOGGER.error(f"Dynatrace API returned an error: {data}")
+        LOGGER.debug(data)
         return data
