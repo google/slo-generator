@@ -66,7 +66,7 @@ install: clean
 	$(PYTHON) setup.py install
 
 install_test:
-	$(PIP) install wheel flake8==3.8.3 mock==4.0.2 coverage==5.3 nose==1.3.7 pylint==2.6.0
+	$(PIP) install wheel flake8 mock coverage nose pylint
 
 tests: flake8 pylint unittest coverage_report
 
