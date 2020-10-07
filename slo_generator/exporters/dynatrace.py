@@ -40,6 +40,9 @@ class DynatraceExporter:
         api_url (str): Dynatrace API URL.
         api_token (str): Dynatrace token.
     """
+    def __init__(self):
+        self.client = None
+
     def export(self, data, **config):
         """Export SLO data to Dynatrace.
 
@@ -52,11 +55,11 @@ class DynatraceExporter:
         """
         api_url, api_token = config['api_url'], config['api_token']
         self.client = DynatraceClient(api_url, api_token)
-        response = self.get_custom_metric(data, **config)
+        response = self.get_custom_metric(**config)
         LOGGER.info(response)
         if 'error' in response:
             LOGGER.warning("Custom metric doesn't exist. Creating it.")
-            ret = self.create_custom_metric(data, **config)
+            ret = self.create_custom_metric(**config)
             LOGGER.info(ret)
         LOGGER.info("Writing timeseries.")
         ret2 = self.create_timeseries(data, **config)
@@ -73,8 +76,6 @@ class DynatraceExporter:
         Returns:
             object: Dynatrace API response.
         """
-        metric_description = config.get('metric_description',
-                                        DEFAULT_METRIC_DESCRIPTION)
         metric_tags = config.get('metric_tags', [])
         metric_timeseries_id = config.get('metric_timeseries_id',
                                           DEFAULT_TIMESERIES_ID)
@@ -102,11 +103,10 @@ class DynatraceExporter:
                                    name=device_id,
                                    post_data=timeseries)
 
-    def create_custom_metric(self, data, **config):
+    def create_custom_metric(self, **config):
         """Create a metric descriptor in Dynatrace API.
 
         Args:
-            data (dict): SLO Report data.
             config (dict): Exporter config.
 
         Returns:
@@ -129,7 +129,7 @@ class DynatraceExporter:
                                    name=metric_timeseries_id,
                                    post_data=metric_definition)
 
-    def get_custom_metric(self, data, **config):
+    def get_custom_metric(self, **config):
         """Get a custom metric descriptor from Dynatrace API.
 
         Args:

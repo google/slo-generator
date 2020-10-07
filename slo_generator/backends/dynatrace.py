@@ -69,7 +69,7 @@ class DynatraceBackend:
         bad_event_count = valid_event_count - good_event_count
         return (good_event_count, bad_event_count)
 
-    def query(self, start, end, timeseries_id, entity, aggregation='AVG'):
+    def query(self, start, end, timeseries_id, aggregation='AVG'):
         """Query Dynatrace Metrics V1.
 
         Args:
@@ -96,6 +96,14 @@ class DynatraceBackend:
 
     @staticmethod
     def count(response):
+        """Count events in time series data.
+
+        Args:
+            response (dict): Dynatrace API response.
+
+        Returns:
+            int: Event count.
+        """
         try:
             datapoints = response['dataResult']['dataPoints']
             timeseries = list(datapoints.values())
