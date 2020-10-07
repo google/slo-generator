@@ -15,14 +15,9 @@
 `dynatrace.py`
 Datadog backend implementation.
 """
-
+import json
 import logging
-import pprint
-import random
-import sched
-import time
 
-import dynatrace
 import requests
 
 LOGGER = logging.getLogger(__name__)
@@ -53,20 +48,33 @@ class DynatraceBackend:
             tuple: Good event count, Bad event count.
         """
         conf = slo_config['backend']
-        query = conf['measurement']['query']
-        start = timestamp - window
-        end = timestamp
-        ret = self.query(start, end, query, aggregation)
+        metric_selector = conf['measurement']['metric_selector']
+        aggregation = conf['measurement'].get('aggregation', 'AVG')
+        start = (timestamp - window) * 1000
+        end = timestamp * 1000
+        ret = self.query(start, end, metric_selector, aggregation)
         LOGGER.info(ret)
 
-    def query(self, start, end, query, aggregation='AVG'):
-        return self.client.request('get',
-                                   'timeseries',
-                                   startTimestamp=start,
-                                   endTimestamp=end,
-                                   entity=entity,
-                                   aggregation=aggr,
-                                   timeseriesId=filter)
+    def query(self, start, end, metric_selector, aggregation='AVG'):
+        """Query Dynatrace Metrics V2.
+
+        Args:
+            start (int): Start timestamp (in milliseconds).
+            end (int): End timestamp (in milliseconds).
+            metric_selector (str): Metric selector.
+            aggregation (str): Aggregation.
+
+        Returns:
+            dict: Dynatrace API response.
+        """
+        params = {
+            'from': start,
+            'to': end,
+            'metricSelector': metric_selector,
+            'aggregation': aggregation,
+            'includeData': True
+        }
+        return self.client.request('get', 'metrics', version='v2', **params)
 
 
 class DynatraceClient:
@@ -104,8 +112,32 @@ class DynatraceClient:
         req = getattr(self.client, method)
         url = f'{self.url}/api/{version}/{endpoint}'
         params['Api-Token'] = self.token
-        if method in ['put', 'post']:
+        headers = {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'User-Agent': 'slo-generator'
+        }
+        if name:
             url += f'/{name}'
-            return req(url, params=params, json=post_data)
+        if method in ['put', 'post']:
+            response = req(url, params=params, headers=headers, json=post_data)
         else:
-            return req(url, params=params)
+            response = req(url, params=params, headers=headers)
+        return DynatraceClient.to_json(response)
+
+    @staticmethod
+    def to_json(resp):
+        """Decode JSON response from Python requests response as utf-8 and
+        replace \n characters.
+
+        Args:
+            resp (requests.Response): API response.
+
+        Returns:
+            dict: API JSON response.
+        """
+        res = resp.content.decode('utf-8').replace('\n', '')
+        data = json.loads(res)
+        if 'error' in data:
+            LOGGER.error(f"Dynatrace API returned an error: {data}")
+        return data
