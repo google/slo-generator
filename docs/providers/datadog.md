@@ -76,16 +76,18 @@ indeed, Datadog has SLO objects that you can directly refer to in your config by
 This method makes it more flexible to input any `Datadog` SLI computation and
 eventually reduces the number of queries made to Datadog.
 
-To query the value from Datadog SLO, simply add a `slo_id` field at the top level of your configuration.
+To query the value from Datadog SLO, simply add a `slo_id` field in the
+`measurement` section:
 
 ```yaml
-slo_id:  ${DATADOG_SLO_ID}
 ...
 backend:
   class:   Datadog
   method:  query_slo
   api_key: ${DATADOG_API_KEY}
   app_key: ${DATADOG_APP_KEY}
+  measurement:
+    slo_id:  ${DATADOG_SLO_ID}
 ```
 
 **&rightarrow; [Full SLO config](../../samples/datadog/slo_dd_app_availability_query_slo.yaml)**
