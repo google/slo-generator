@@ -38,6 +38,10 @@ backend:
 ```
 **&rightarrow; [Full SLO config](../../samples/datadog/slo_dd_app_availability_ratio.yaml)**
 
+Optional arguments to configure Datadog are documented in the Datadog
+`initialize` method [here](https://github.com/DataDog/datadogpy/blob/058114cc3d65483466684c96a5c23e36c3aa052e/datadog/__init__.py#L33).
+You can pass them in the `backend` section, such as specifying
+`api_host: api.datadoghq.eu` in order to use the EU site.
 
 ### Query SLI
 
@@ -57,6 +61,11 @@ backend:
     expression: sum:app.requests.count{http.path:/, http.status_code_class:2xx} / sum:app.requests.count{http.path:/}
 ```
 
+Optional arguments to configure Datadog are documented in the Datadog
+`initialize` method [here](https://github.com/DataDog/datadogpy/blob/058114cc3d65483466684c96a5c23e36c3aa052e/datadog/__init__.py#L33).
+You can pass them in the `backend` section, such as specifying
+`api_host: api.datadoghq.eu` in order to use the EU site.
+
 **&rightarrow; [Full SLO config](../../samples/datadog/slo_dd_app_availability_query_sli.yaml)**
 
 ### Query SLO
@@ -67,16 +76,18 @@ indeed, Datadog has SLO objects that you can directly refer to in your config by
 This method makes it more flexible to input any `Datadog` SLI computation and
 eventually reduces the number of queries made to Datadog.
 
-To query the value from Datadog SLO, simply add a `slo_id` field at the top level of your configuration.
+To query the value from Datadog SLO, simply add a `slo_id` field in the
+`measurement` section:
 
 ```yaml
-slo_id:  ${DATADOG_SLO_ID}
 ...
 backend:
   class:   Datadog
   method:  query_slo
   api_key: ${DATADOG_API_KEY}
   app_key: ${DATADOG_APP_KEY}
+  measurement:
+    slo_id:  ${DATADOG_SLO_ID}
 ```
 
 **&rightarrow; [Full SLO config](../../samples/datadog/slo_dd_app_availability_query_slo.yaml)**
