@@ -69,29 +69,34 @@ class DynatraceBackend:
         bad_event_count = valid_event_count - good_event_count
         return (good_event_count, bad_event_count)
 
-    def query(self, start, end, timeseries_id, aggregation='AVG'):
+    def query(self,
+              start,
+              end,
+              metric_selector=None,
+              entity_selector=None,
+              aggregation='SUM'):
         """Query Dynatrace Metrics V1.
 
         Args:
             start (int): Start timestamp (in milliseconds).
             end (int): End timestamp (in milliseconds).
-            timeseries_id (str): Timeseries id.
-            entity (str): Entity selector.
+            metric_selector (str): Metric selector.
+            entity_selector (str): Entity selector.
             aggregation (str): Aggregation.
 
         Returns:
             dict: Dynatrace API response.
         """
         params = {
-            'startTimestamp': start,
-            'endTimestamp': end,
-            'aggregationType': aggregation,
+            'from': start,
+            'end': end,
+            'metricSelector': metric_selector,
+            'aggregation': aggregation,
             'includeData': True
         }
         return self.client.request('get',
-                                   'timeseries',
-                                   timeseries_id,
-                                   version='v1',
+                                   'metrics/query',
+                                   version='v2',
                                    **params)
 
     @staticmethod
@@ -105,15 +110,14 @@ class DynatraceBackend:
             int: Event count.
         """
         try:
-            datapoints = response['dataResult']['dataPoints']
-            timeseries = list(datapoints.values())
+            datapoints = response['result'][0]['data']
             values = []
-            for datapoints_sets in timeseries:
-                set_values = [
-                    datapoint[1] for datapoint in datapoints_sets
-                    if datapoint[1] is not None and datapoint[1] > 0
+            for point in datapoints:
+                point_values = [
+                    point for point in point['values']
+                    if point is not None and point > 0
                 ]
-                values.extend(set_values)
+                values.extend(point_values)
             return sum(values) / len(values)
         except (IndexError, AttributeError, ZeroDivisionError) as exception:
             LOGGER.warning("Couldn't find any values in timeseries response")
@@ -169,7 +173,17 @@ class DynatraceClient:
             response = req(url, headers=headers, json=post_data)
         else:
             response = req(url, headers=headers)
-        return DynatraceClient.to_json(response)
+        data = DynatraceClient.to_json(response)
+        next_page_key = data.get('nextPageKey')
+        if next_page_key:
+            params = {'nextPageKey': next_page_key, 'Api-Token': self.token}
+            LOGGER.debug("Requesting next page: %s" % next_page_key)
+            data_next = self.request(method, endpoint, name, version, **params)
+            next_page_key = data_next.get('nextPageKey')
+            if endpoint == 'metrics':
+                data['metrics'].extend(data_next['metrics'])
+                LOGGER.info(len(data['metrics']))
+        return data
 
     @staticmethod
     def to_json(resp):
