@@ -91,6 +91,7 @@ class DynatraceBackend:
             'from': start,
             'end': end,
             'metricSelector': metric_selector,
+            'entitySelector': entity_selector,
             'aggregation': aggregation,
             'includeData': True
         }
@@ -132,6 +133,9 @@ class DynatraceClient:
         api_url (str): Dynatrace API URL.
         api_token (str): Dynatrace token.
     """
+    # Keys to extract response data for each endpoint
+    ENDPOINT_KEYS = {'metrics': 'metrics', 'metrics/query': 'result'}
+
     def __init__(self, api_url, api_key):
         self.client = requests.Session()
         self.url = api_url
@@ -143,6 +147,7 @@ class DynatraceClient:
                 name=None,
                 version='v1',
                 post_data=None,
+                key=None,
                 **params):
         """Request Dynatrace API.
 
@@ -152,6 +157,7 @@ class DynatraceClient:
             name (str): API resource name.
             version (str): API version. Default: v1.
             post_data (dict): JSON data.
+            key (str): Key to extract data from JSON response.
             params (dict): Params to send with request.
 
         Returns:
@@ -167,7 +173,8 @@ class DynatraceClient:
         }
         if name:
             url += f'/{name}'
-        params_str = "&".join("%s=%s" % (k, v) for k, v in params.items())
+        params_str = "&".join("%s=%s" % (k, v) for k, v in params.items()
+                              if v is not None)
         url += f'?{params_str}'
         if method in ['put', 'post']:
             response = req(url, headers=headers, json=post_data)
@@ -180,9 +187,9 @@ class DynatraceClient:
             LOGGER.debug("Requesting next page: %s" % next_page_key)
             data_next = self.request(method, endpoint, name, version, **params)
             next_page_key = data_next.get('nextPageKey')
-            if endpoint == 'metrics':
-                data['metrics'].extend(data_next['metrics'])
-                LOGGER.info(len(data['metrics']))
+            if not key:
+                key = DynatraceClient.ENDPOINT_KEYS.get(endpoint, 'result')
+            data[key].extend(data_next[key])
         return data
 
     @staticmethod
