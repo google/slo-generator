@@ -13,7 +13,7 @@
 # limitations under the License.
 ---
 service_name:           dt
-feature_name:           metrics
+feature_name:           app
 slo_name:               availability
 slo_description:        99.9% of app requests return a good HTTP code
 slo_target:             0.999

@@ -70,6 +70,7 @@ The **SLO configuration** (JSON or YAML) is composed of the following fields:
     * [Prometheus](docs/providers/prometheus.md#backend)
     * [ElasticSearch](docs/providers/elasticsearch.md#backend)
     * [Datadog](docs/providers/datadog.md#backend)
+    * [Dynatrace](docs/providers/dynatrace.md#backend)
 
 - **Exporter configuration**:
   * `exporters`: A list of exporters to export results to. Specific documentation is available for each supported exporters:
@@ -78,6 +79,7 @@ The **SLO configuration** (JSON or YAML) is composed of the following fields:
       * [Stackdriver Monitoring](docs/providers/stackdriver.md#exporter) to export the `error_budget_burn_rate` metric to Stackdriver Monitoring.
       * [Prometheus](docs/providers/prometheus.md#exporter) to export the `error_budget_burn_rate` metric to Prometheus.
       * [Datadog](docs/providers/datadog.md#exporter) to export the `error_budget_burn_rate` metric to Datadog.
+      * [Dynatrace](docs/providers/dynatrace.md#exporter) to export the `custom:error_budget_burn_rate` metric to Dynatrace.
 
 ***Note:*** *you can use environment variables in your SLO configs by using `${}` syntax to avoid having sensitive data in version control. Environment variables will be replaced at run time.*
 
