@@ -51,7 +51,6 @@ CTX = {
     'DATADOG_API_KEY': 'fake',
     'DATADOG_APP_KEY': 'fake',
     'DATADOG_SLO_ID': 'fake',
-    'MIN_VALID_EVENT': '5'
 }
 
 CUSTOM_BACKEND_CODE = """

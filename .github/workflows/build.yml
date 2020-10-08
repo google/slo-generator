@@ -35,6 +35,7 @@ jobs:
       - name: Run unittests
         run: make unittest
         env:
+          MIN_VALID_EVENTS: 5
           GOOGLE_APPLICATION_CREDENTIALS: tests/unit/fixtures/fake_credentials.json
 
       - name: Run coverage report
