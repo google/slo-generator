@@ -18,26 +18,27 @@ https://packaging.python.org/en/latest/distributing.html
 https://github.com/pypa/sampleproject
 """
 
-from setuptools import setup, find_packages
-from os import path
 from io import open
+from os import path
+
+from setuptools import find_packages, setup
 
 here = path.abspath(path.dirname(__file__))
 
 # Package metadata.
 name = "slo-generator"
 description = "SLO Generator"
-version = "1.1.1"
+version = "1.1.2"
 # Should be one of:
 # 'Development Status :: 3 - Alpha'
 # 'Development Status :: 4 - Beta'
 # 'Development Status :: 5 - Production/Stable'
 release_status = "Development Status :: 3 - Alpha"
 dependencies = [
-    'google-api-python-client', 'oauth2client', 'google-cloud-monitoring',
-    'google-cloud-pubsub==1.7.0', 'google-cloud-bigquery',
-    'prometheus-http-client', 'prometheus-client', 'pyyaml', 'opencensus',
-    'elasticsearch', 'pytz'
+    'google-api-python-client', 'oauth2client',
+    'google-cloud-monitoring < 2.0.0', 'google-cloud-pubsub==1.7.0',
+    'google-cloud-bigquery', 'prometheus-http-client', 'prometheus-client',
+    'pyyaml', 'opencensus', 'elasticsearch', 'pytz'
 ]
 extras = {}
 
