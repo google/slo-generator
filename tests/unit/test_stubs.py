@@ -21,7 +21,6 @@ import os
 import time
 
 from google.cloud.monitoring_v3.proto import metric_service_pb2
-
 from slo_generator.utils import list_slo_configs, parse_config
 
 TEST_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -51,7 +50,8 @@ CTX = {
     'BIGQUERY_TABLE_NAME': 'fake',
     'DATADOG_API_KEY': 'fake',
     'DATADOG_APP_KEY': 'fake',
-    'DATADOG_SLO_ID': 'fake'
+    'DATADOG_SLO_ID': 'fake',
+    'MIN_VALID_EVENT': '5'
 }
 
 CUSTOM_BACKEND_CODE = """
