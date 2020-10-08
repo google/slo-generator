@@ -97,7 +97,7 @@ class DynatraceExporter:
             }]
         }
         return self.client.request('post',
-                                   endpoint='entity/infrastructure/custom',
+                                   'entity/infrastructure/custom',
                                    name=device_id,
                                    post_data=timeseries)
 
@@ -123,7 +123,7 @@ class DynatraceExporter:
             "types": device_ids
         }
         return self.client.request('put',
-                                   endpoint='timeseries',
+                                   'timeseries',
                                    name=metric_timeseries_id,
                                    post_data=metric_definition)
 
@@ -140,5 +140,5 @@ class DynatraceExporter:
         metric_timeseries_id = config.get('metric_timeseries_id',
                                           DEFAULT_TIMESERIES_ID)
         return self.client.request('get',
-                                   endpoint='timeseries',
+                                   'timeseries',
                                    name=metric_timeseries_id)

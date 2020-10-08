@@ -148,6 +148,10 @@ class TestCompute(unittest.TestCase):
     def test_export_datadog(self):
         export(SLO_REPORT, EXPORTERS[4])
 
+    @patch.object(DynatraceClient, 'request', side_effect=mock_dt)
+    def test_export_datadog(self, mock):
+        export(SLO_REPORT, EXPORTERS[5])
+
 
 if __name__ == '__main__':
     unittest.main()
