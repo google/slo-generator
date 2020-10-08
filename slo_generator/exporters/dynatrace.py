@@ -55,16 +55,14 @@ class DynatraceExporter:
         """
         api_url, api_token = config['api_url'], config['api_token']
         self.client = DynatraceClient(api_url, api_token)
-        response = self.get_custom_metric(**config)
-        LOGGER.info(response)
-        if 'error' in response:
+        metric = self.get_custom_metric(**config)
+        if 'error' in metric:
             LOGGER.warning("Custom metric doesn't exist. Creating it.")
-            ret = self.create_custom_metric(**config)
-            LOGGER.info(ret)
-        LOGGER.info("Writing timeseries.")
-        ret2 = self.create_timeseries(data, **config)
-        LOGGER.info(ret2)
-        return ret2
+            metric = self.create_custom_metric(**config)
+        LOGGER.debug(f'Custom metric: {metric}')
+        response = self.create_timeseries(data, **config)
+        LOGGER.debug(f'API Response: {response}')
+        return response
 
     def create_timeseries(self, data, **config):
         """Create Dynatrace timeseries.
