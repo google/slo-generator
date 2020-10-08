@@ -21,7 +21,6 @@ import os
 import time
 
 from google.cloud.monitoring_v3.proto import metric_service_pb2
-
 from slo_generator.utils import list_slo_configs, parse_config
 
 TEST_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -51,7 +50,9 @@ CTX = {
     'BIGQUERY_TABLE_NAME': 'fake',
     'DATADOG_API_KEY': 'fake',
     'DATADOG_APP_KEY': 'fake',
-    'DATADOG_SLO_ID': 'fake'
+    'DATADOG_SLO_ID': 'fake',
+    'DYNATRACE_API_URL': 'fake',
+    'DYNATRACE_API_TOKEN': 'fake'
 }
 
 CUSTOM_BACKEND_CODE = """
@@ -315,6 +316,18 @@ def mock_dd_slo_get(*args, **kwargs):
 def mock_dd_metric_send(*args, **kwargs):
     """Mock Datadog response for datadog.api.Metric.send."""
     return load_fixture('dd_success.json')
+
+
+def mock_dt(*args, **kwargs):
+    """Mock Dynatrace response."""
+    if args[0] == 'get' and args[1] == 'timeseries':
+        return load_fixture('dt_metric_get.json')
+
+    elif args[0] == 'get' and args[1] == 'metrics/query':
+        return load_fixture('dt_timeseries_get.json')
+
+    elif args[0] == 'post' and args[1] == 'timeseries':
+        return load_fixture('dt_metric_send.json')
 
 
 class dotdict(dict):
