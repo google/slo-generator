@@ -184,7 +184,7 @@ class DynatraceClient:
         next_page_key = data.get('nextPageKey')
         if next_page_key:
             params = {'nextPageKey': next_page_key, 'Api-Token': self.token}
-            LOGGER.debug("Requesting next page: %s" % next_page_key)
+            LOGGER.debug(f'Requesting next page: {next_page_key}')
             data_next = self.request(method, endpoint, name, version, **params)
             next_page_key = data_next.get('nextPageKey')
             if not key:
