@@ -35,10 +35,11 @@ version = "1.1.1"
 # 'Development Status :: 5 - Production/Stable'
 release_status = "Development Status :: 3 - Alpha"
 dependencies = [
-    'google-api-python-client', 'oauth2client',
+    'google-api-python-client < 2.0.0', 'oauth2client',
     'google-cloud-monitoring < 2.0.0', 'google-cloud-pubsub==1.7.0',
-    'google-cloud-bigquery', 'prometheus-http-client', 'prometheus-client',
-    'pyyaml', 'opencensus', 'elasticsearch', 'python-dateutil', 'datadog'
+    'google-cloud-bigquery < 3.0.0', 'prometheus-http-client',
+    'prometheus-client', 'pyyaml', 'opencensus', 'elasticsearch',
+    'python-dateutil', 'datadog'
 ]
 extras = {}
 
