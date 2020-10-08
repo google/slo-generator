@@ -24,11 +24,11 @@ backend:
   api_token:            ${DYNATRACE_API_TOKEN}
   measurement:
     query_good:
-      metric_selector:  ext:app.request_count:filter(and(eq(app,test_app),eq(env,prod)))
-      entity_selector:  type("HOST")
-    query_good:
       metric_selector:  ext:app.request_count:filter(and(eq(app,test_app),eq(env,prod),eq(status_code_class,2xx)))
-      entity_selector:  type("HOST")
+      entity_selector:  type(HOST)
+    query_valid:
+      metric_selector:  ext:app.request_count:filter(and(eq(app,test_app),eq(env,prod)))
+      entity_selector:  type(HOST)
 exporters:
 - class:                Dynatrace
   api_url:              ${DYNATRACE_API_URL}
