@@ -15,6 +15,7 @@
 import unittest
 
 from slo_generator.report import SLOReport
+
 from .test_stubs import mock_slo_report
 
 

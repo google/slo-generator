@@ -18,5 +18,5 @@ Constants and environment variables used in `slo-generator`.
 import os
 
 NO_DATA = -1
-MIN_VALID_EVENTS = int(os.environ.get("MIN_VALID_EVENTS", "10"))
+MIN_VALID_EVENTS = int(os.environ.get("MIN_VALID_EVENTS", "1"))
 COLORED_OUTPUT = int(os.environ.get("COLORED_OUTPUT", "0"))
