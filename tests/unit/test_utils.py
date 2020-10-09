@@ -21,9 +21,9 @@ from slo_generator.utils import (get_backend_cls, get_exporter_cls,
 class TestUtils(unittest.TestCase):
     def test_get_human_time(self):
         timestamp = 1565092435
-        human_time = "2019-08-06T13:53:55.000000Z"
+        human_time = "2019-08-06T11:53:55.000000+0200"
         timestamp_2 = 1565095633.9568892
-        human_time_2 = "2019-08-06T14:47:13.956889Z"
+        human_time_2 = "2019-08-06T12:47:13.956889+0200"
         self.assertEqual(get_human_time(timestamp, timezone='Europe/Paris'),
                          human_time)
         self.assertEqual(get_human_time(timestamp_2, timezone='Europe/Paris'),
@@ -51,7 +51,8 @@ class TestUtils(unittest.TestCase):
         res2 = get_exporter_cls("Pubsub")
         res3 = get_exporter_cls("Bigquery")
         self.assertEqual(res1.__name__, "StackdriverExporter")
-        self.assertEqual(res1.__module__, "slo_generator.exporters.stackdriver")
+        self.assertEqual(res1.__module__,
+                         "slo_generator.exporters.stackdriver")
         self.assertEqual(res2.__name__, "PubsubExporter")
         self.assertEqual(res2.__module__, "slo_generator.exporters.pubsub")
         self.assertEqual(res3.__name__, "BigqueryExporter")

@@ -125,16 +125,13 @@ def get_human_time(timestamp, timezone=None):
         timezone (optional): Explicit timezone (e.g: "America/Chicago").
 
     Returns:
-        str: Formatted human-readable date in ISO format, localized.
+        str: Formatted human-readable UTC date in ISO format with localization.
     """
     if timezone is not None:  # get timezone from arg
-        from_zone = tz.gettz('UTC')
         to_zone = tz.gettz(timezone)
     else:  # auto-detect locale
-        from_zone = tz.tzutc()
         to_zone = tz.tzlocal()
     dt_utc = datetime.utcfromtimestamp(timestamp)
-    dt_utc = dt_utc.replace(tzinfo=from_zone)
     dt_tz = dt_utc.astimezone(to_zone)
     timeformat = '%Y-%m-%dT%H:%M:%S.%f%z'
     return datetime.strftime(dt_tz, timeformat)
