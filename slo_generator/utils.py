@@ -15,7 +15,6 @@
 `utils.py`
 Utility functions.
 """
-from datetime import datetime
 import argparse
 import collections
 import glob
@@ -26,10 +25,10 @@ import pprint
 import re
 import sys
 import warnings
+from datetime import datetime
+
 import yaml
-
 from dateutil import tz
-
 from google.auth._default import _CLOUD_SDK_CREDENTIALS_WARNING
 
 LOGGER = logging.getLogger(__name__)
@@ -137,7 +136,7 @@ def get_human_time(timestamp, timezone=None):
     dt_utc = datetime.utcfromtimestamp(timestamp)
     dt_utc = dt_utc.replace(tzinfo=from_zone)
     dt_tz = dt_utc.astimezone(to_zone)
-    timeformat = '%Y-%m-%dT%H:%M:%S.%fZ'
+    timeformat = '%Y-%m-%dT%H:%M:%S.%f%z'
     return datetime.strftime(dt_tz, timeformat)
 
 
