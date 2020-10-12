@@ -20,7 +20,7 @@ import logging
 from dataclasses import asdict, dataclass, fields
 
 from slo_generator import utils
-from slo_generator.constants import NO_DATA, MIN_VALID_EVENTS, COLORED_OUTPUT
+from slo_generator.constants import COLORED_OUTPUT, MIN_VALID_EVENTS, NO_DATA
 
 LOGGER = logging.getLogger(__name__)
 

@@ -16,4 +16,4 @@ jobs:
           PROJECT_ID: ${{ secrets.PROJECT_ID }}
           APPLICATION_CREDENTIALS: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
         with:
-          args: builds submit .
+          args: builds submit . --timeout="10m"

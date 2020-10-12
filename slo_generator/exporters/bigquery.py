@@ -65,6 +65,7 @@ class BigqueryExporter:
                                   data["slo_name"], data["timestamp_human"],
                                   data["window"])
         json_data = {k: v for k, v in data.items() if k in schema_fields}
+        LOGGER.debug(f'Writing data to BigQuery:\n{json_data}')
         results = self.client.insert_rows_json(
             table,
             json_rows=[json_data],
@@ -92,7 +93,7 @@ class BigqueryExporter:
         ]
 
         table_name = f"{project_id}.{dataset_id}.{table_id}"
-        LOGGER.info(f"Creating table {table_name}", table_name)
+        LOGGER.info(f"Creating table {table_name}")
         table = bigquery.Table(table_name, schema=pyschema)
         table.time_partitioning = bigquery.TimePartitioning(
             type_=bigquery.TimePartitioningType.DAY, )
