@@ -126,20 +126,27 @@ def get_human_time(timestamp, timezone=None):
         timezone (optional): Explicit timezone (e.g: "America/Chicago").
 
     Returns:
-        str: Formatted human-readable date in ISO format, localized.
+        str: Formatted human-readable date in ISO format (UTC), with
+             time zone added.
+
+    Example:
+        >>> get_human_time(1565092435, timezone='Europe/Paris')
+        >>> 2019-08-06T11:53:55.000000+02:00
+        which corresponds to the UTC time appended the timezone format
+        to help with display and retrieval of the date localized.
     """
     if timezone is not None:  # get timezone from arg
-        from_zone = tz.gettz('UTC')
         to_zone = tz.gettz(timezone)
     else:  # auto-detect locale
-        from_zone = tz.tzutc()
         to_zone = tz.tzlocal()
     dt_utc = datetime.utcfromtimestamp(timestamp)
-    dt_utc = dt_utc.replace(tzinfo=from_zone)
-    dt_tz = dt_utc.astimezone(to_zone)
-    timeformat = '%Y-%m-%dT%H:%M:%S.%fZ'
-    return datetime.strftime(dt_tz, timeformat)
-
+    dt_tz = dt_utc.replace(tzinfo=to_zone)
+    timeformat = '%Y-%m-%dT%H:%M:%S.%f%z'
+    date_str = datetime.strftime(dt_tz, timeformat)
+    date_str = "{0}:{1}".format(
+        date_str[:-2], date_str[-2:]
+    )
+    return date_str
 
 def normalize(path):
     """Converts a path to an absolute path.
