@@ -21,9 +21,9 @@ from slo_generator.utils import (get_backend_cls, get_exporter_cls,
 class TestUtils(unittest.TestCase):
     def test_get_human_time(self):
         timestamp = 1565092435
-        human_time = "2019-08-06T13:53:55.000000+02:00"
+        human_time = "2019-08-06T11:53:55.000000+02:00"
         timestamp_2 = 1565095633.9568892
-        human_time_2 = "2019-08-06T14:47:13.956889+02:00"
+        human_time_2 = "2019-08-06T12:47:13.956889+02:00"
         self.assertEqual(get_human_time(timestamp, timezone='Europe/Paris'),
                          human_time)
         self.assertEqual(get_human_time(timestamp_2, timezone='Europe/Paris'),
