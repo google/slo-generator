@@ -15,5 +15,6 @@ jobs:
         env:
           PROJECT_ID: ${{ secrets.PROJECT_ID }}
           APPLICATION_CREDENTIALS: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
+          MIN_VALID_EVENTS: 10
         with:
           args: builds submit . --timeout="10m"
