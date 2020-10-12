@@ -140,7 +140,7 @@ def get_human_time(timestamp, timezone=None):
     else:  # auto-detect locale
         to_zone = tz.tzlocal()
     dt_utc = datetime.utcfromtimestamp(timestamp)
-    dt_tz = dt_utc.astimezone(to_zone)
+    dt_tz = dt_utc.replace(tzinfo=to_zone)
     timeformat = '%Y-%m-%dT%H:%M:%S.%f%z'
     date_str = datetime.strftime(dt_tz, timeformat)
     date_str = "{0}:{1}".format(
