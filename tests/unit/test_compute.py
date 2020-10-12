@@ -15,19 +15,19 @@
 import unittest
 import warnings
 
+from datadog.api import Metric, ServiceLevelObjective
 from elasticsearch import Elasticsearch
 from google.auth._default import _CLOUD_SDK_CREDENTIALS_WARNING
 from mock import MagicMock, patch
 from prometheus_http_client import Prometheus
-from datadog.api import Metric, ServiceLevelObjective
-
+from slo_generator.backends.dynatrace import DynatraceClient
 from slo_generator.compute import compute, export
 from slo_generator.exporters.bigquery import BigQueryError
 
 from .test_stubs import (CTX, load_fixture, load_sample, load_slo_samples,
-                         mock_es, mock_prom, mock_sd, mock_ssm_client,
                          mock_dd_metric_query, mock_dd_metric_send,
-                         mock_dd_slo_history, mock_dd_slo_get)
+                         mock_dd_slo_get, mock_dd_slo_history, mock_dt,
+                         mock_es, mock_prom, mock_sd, mock_ssm_client)
 
 warnings.filterwarnings("ignore", message=_CLOUD_SDK_CREDENTIALS_WARNING)
 
@@ -38,6 +38,7 @@ SLO_CONFIGS_SDSM = load_slo_samples('stackdriver_service_monitoring', **CTX)
 SLO_CONFIGS_PROM = load_slo_samples('prometheus', **CTX)
 SLO_CONFIGS_ES = load_slo_samples('elasticsearch', **CTX)
 SLO_CONFIGS_DD = load_slo_samples('datadog', **CTX)
+SLO_CONFIGS_DT = load_slo_samples('dynatrace', **CTX)
 SLO_REPORT = load_fixture('slo_report.json')
 EXPORTERS = load_fixture('exporters.yaml', **CTX)
 BQ_ERROR = load_fixture('bq_error.json')
@@ -109,6 +110,12 @@ class TestCompute(unittest.TestCase):
             with self.subTest(config=config):
                 compute(config, ERROR_BUDGET_POLICY)
 
+    @patch.object(DynatraceClient, 'request', side_effect=mock_dt)
+    def test_compute_dynatrace(self, mock):
+        for config in SLO_CONFIGS_DT:
+            with self.subTest(config=config):
+                compute(config, ERROR_BUDGET_POLICY)
+
     @patch(PUBSUB_MOCKS[0])
     @patch(PUBSUB_MOCKS[1])
     def test_export_pubsub(self, mock_pubsub, mock_pubsub_res):
@@ -140,6 +147,10 @@ class TestCompute(unittest.TestCase):
     @patch.object(Metric, 'send', mock_dd_metric_send)
     def test_export_datadog(self):
         export(SLO_REPORT, EXPORTERS[4])
+
+    @patch.object(DynatraceClient, 'request', side_effect=mock_dt)
+    def test_export_dynatrace(self, mock):
+        export(SLO_REPORT, EXPORTERS[5])
 
 
 if __name__ == '__main__':

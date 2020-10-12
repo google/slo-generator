@@ -51,6 +51,8 @@ CTX = {
     'DATADOG_API_KEY': 'fake',
     'DATADOG_APP_KEY': 'fake',
     'DATADOG_SLO_ID': 'fake',
+    'DYNATRACE_API_URL': 'fake',
+    'DYNATRACE_API_TOKEN': 'fake'
 }
 
 CUSTOM_BACKEND_CODE = """
@@ -314,6 +316,21 @@ def mock_dd_slo_get(*args, **kwargs):
 def mock_dd_metric_send(*args, **kwargs):
     """Mock Datadog response for datadog.api.Metric.send."""
     return load_fixture('dd_success.json')
+
+
+def mock_dt(*args, **kwargs):
+    """Mock Dynatrace response."""
+    if args[0] == 'get' and args[1] == 'timeseries':
+        return load_fixture('dt_metric_get.json')
+
+    elif args[0] == 'get' and args[1] == 'metrics/query':
+        return load_fixture('dt_timeseries_get.json')
+
+    elif args[0] == 'post' and args[1] == 'entity/infrastructure/custom':
+        return load_fixture('dt_metric_send.json')
+
+    elif args[0] == 'put' and args[1] == 'timeseries':
+        return {}
 
 
 class dotdict(dict):
