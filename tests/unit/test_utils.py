@@ -20,22 +20,26 @@ from slo_generator.utils import (get_backend_cls, get_exporter_cls,
 
 class TestUtils(unittest.TestCase):
     def test_get_human_time(self):
+        # Timezones
+        tz_1 = 'Europe/Paris'
+        tz_2 = 'America/Chicago'
+
         # Timestamp 1
         timestamp = 1565092435
         utc_time = "2019-08-06T11:53:55.000000"
-        human_paris_1 = get_human_time(timestamp, timezone='Europe/Paris')
-        human_chicago_1 = get_human_time(timestamp, timezone='America/Chicago')
+        human_paris_1 = get_human_time(timestamp, timezone=tz_1)
+        human_chicago_1 = get_human_time(timestamp, timezone=tz_2)
 
         # Timestamp 2
         timestamp_2 = 1565095633.9568892
         utc_time_2 = "2019-08-06T12:47:13.956889"
-        human_paris_2 = get_human_time(timestamp, timezone='Europe/Paris')
-        human_chicago_2 = get_human_time(timestamp, timezone='America/Chicago')
+        human_paris_2 = get_human_time(timestamp_2, timezone=tz_1)
+        human_chicago_2 = get_human_time(timestamp_2, timezone=tz_2)
 
         self.assertEqual(human_paris_1, utc_time + "+02:00")
         self.assertEqual(human_chicago_1, utc_time + "-05:00")
-        self.assertEqual(human_paris_2, utc_time + "+02:00")
-        self.assertEqual(human_chicago_2, utc_time + "-05:00")
+        self.assertEqual(human_paris_2, utc_time_2 + "+02:00")
+        self.assertEqual(human_chicago_2, utc_time_2 + "-05:00")
 
     def test_get_backend_cls(self):
         res1 = get_backend_cls("Stackdriver")
