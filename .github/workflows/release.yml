@@ -2,7 +2,7 @@ name: release-version
 on:
   push:
     tags:
-      - v*.*
+      - v*.*.*
 jobs:
   release-version:
     runs-on: ubuntu-latest
@@ -19,7 +19,7 @@ jobs:
           GOOGLE_APPLICATION_CREDENTIALS: tests/unit/fixtures/fake_credentials.json
 
       - name: Release PyPI package
-        run: make build deploy
+        run: make deploy
         env:
           TWINE_USERNAME: ${{ secrets.TWINE_USERNAME }}
           TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD }}

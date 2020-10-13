@@ -56,8 +56,11 @@ clean:
 build: clean
 	$(PYTHON) setup.py sdist bdist_wheel
 
-deploy:
+deploy: clean install_twine build
 	$(TWINE) upload dist/*
+
+install_twine:
+	$(PIP) install twine
 
 develop:
 	$(PYTHON) setup.py develop
