@@ -13,4 +13,3 @@ jobs:
           release-type: python
           fork: true
           package-name: release-please-action
-          command: release-pr
