@@ -22,7 +22,7 @@ steps:
   id: Run all tests
   entrypoint: make
   env:
-    MIN_VALID_EVENTS: 10
+    - 'MIN_VALID_EVENTS=10'
   args: []
 
 images:
