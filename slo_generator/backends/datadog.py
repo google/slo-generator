@@ -174,6 +174,8 @@ class DatadogBackend:
                 if value is None:
                     continue
                 values.append(value)
+            if not values:
+                raise IndexError
             return sum(values) / len(values)
         except (IndexError, AttributeError) as exception:
             LOGGER.warning("Couldn't find any values in timeseries response")
