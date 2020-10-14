@@ -20,61 +20,49 @@ import logging
 import google.api_core.exceptions
 from google.cloud import monitoring_v3
 
+from .base import MetricsExporter
+
 LOGGER = logging.getLogger(__name__)
-DEFAULT_METRIC_TYPE = "custom.googleapis.com/error_budget_burn_rate"
-DEFAULT_METRIC_DESCRIPTION = ("Speed at which the error budget for a given"
-                              "aggregation window is consumed")
 
-
-class StackdriverExporter:
+class StackdriverExporter(MetricsExporter):
     """Stackdriver Monitoring exporter class."""
+    METRIC_PREFIX = "custom.googleapis.com/"
+    REQUIRED_FIELDS = ['project_id']
 
     def __init__(self):
         self.client = monitoring_v3.MetricServiceClient()
 
-    def export(self, data, **config):
-        """Export data to Stackdriver Monitoring.
+    def export_metric(self, data):
+        """Export metric to Stackdriver Monitoring. Create metric descriptor if
+        it doesn't exist.
 
         Args:
             data (dict): Data to send to Stackdriver Monitoring.
-            config (dict): Stackdriver Monitoring metric config.
-                project_id (str): Stackdriver host project id.
-                custom_metric_type (str): Custom metric type.
-                custom_metric_unit (str): Custom metric unit.
+            project_id (str): Stackdriver Monitoring project id.
 
         Returns:
             object: Stackdriver Monitoring API result.
         """
-        if not self.get_metric_descriptor(**config):
-            self.create_metric_descriptor(**config)
-        self.create_timeseries(data, **config)
+        if not self.get_metric_descriptor(data):
+            self.create_metric_descriptor(data)
+        self.create_timeseries(data)
 
-    def create_timeseries(self, data, **config):
+    def create_timeseries(self, data):
         """Create Stackdriver Monitoring timeseries.
 
         Args:
-            data (dict): Data to send to Stackdriver Monitoring.
-            config (dict): Metric config.
+            data (dict): Metric data.
 
         Returns:
             object: Metric descriptor.
         """
+        labels = data['labels']
+        labels.update({'project_id': data['project_id']})
         series = monitoring_v3.types.TimeSeries()
-        series.metric.type = config.get('metric_type', DEFAULT_METRIC_TYPE)
-
-        # Write timeseries metric labels.
-        series.metric.labels['error_budget_policy_step_name'] = str(
-            data['error_budget_policy_step_name'])
-        series.metric.labels['window'] = str(data['window'])
-        series.metric.labels['service_name'] = data['service_name']
-        series.metric.labels['feature_name'] = data['feature_name']
-        series.metric.labels['slo_name'] = data['slo_name']
-        series.metric.labels['alerting_burn_rate_threshold'] = str(
-            data['alerting_burn_rate_threshold'])
-
-        # Use the generic resource 'global'.
+        series.metric.type = data['name']
+        for key, value in labels.items():
+            series.metric.labels[key] = value
         series.resource.type = 'global'
-        series.resource.labels['project_id'] = config['project_id']
 
         # Create a new data point.
         point = series.points.add()
@@ -86,52 +74,50 @@ class StackdriverExporter:
             (timestamp - point.interval.end_time.seconds) * 10**9)
 
         # Set the metric value.
-        point.value.double_value = data['error_budget_burn_rate']
+        point.value.double_value = data['value']
 
         # Record the timeseries to Stackdriver Monitoring.
-        project = self.client.project_path(config['project_id'])
+        project = self.client.project_path(data['project_id'])
         result = self.client.create_time_series(project, [series])
         labels = series.metric.labels
         LOGGER.debug(
-            f"timestamp: {timestamp} burnrate: {point.value.double_value}"
+            f"timestamp: {timestamp} value: {point.value.double_value}"
             f"{labels['service_name']}-{labels['feature_name']}-"
             f"{labels['slo_name']}-{labels['error_budget_policy_step_name']}")
         return result
 
-    def get_metric_descriptor(self, **config):
+    def get_metric_descriptor(self, data):
         """Get Stackdriver Monitoring metric descriptor.
 
         Args:
-            config (dict): Metric config.
+            data (dict): Metric data.
 
         Returns:
             object: Metric descriptor (or None if not found).
         """
-        name = config.get('metric_type', DEFAULT_METRIC_TYPE)
-        descriptor = self.client.metric_descriptor_path(config['project_id'],
-                                                        name)
+        descriptor = self.client.metric_descriptor_path(data['project_id'],
+                                                        data['name'])
         try:
             return self.client.get_metric_descriptor(descriptor)
         except google.api_core.exceptions.NotFound:
             return None
 
-    def create_metric_descriptor(self, **config):
+    def create_metric_descriptor(self, data):
         """Create Stackdriver Monitoring metric descriptor.
 
         Args:
-            config (dict): Metric config.
+            data (dict): Metric data.
 
         Returns:
             object: Metric descriptor.
         """
-        project = self.client.project_path(config['project_id'])
+        project = self.client.project_path(data['project_id'])
         descriptor = monitoring_v3.types.MetricDescriptor()
-        descriptor.type = config.get('metric_type', DEFAULT_METRIC_TYPE)
+        descriptor.type = data['name']
         descriptor.metric_kind = (
             monitoring_v3.enums.MetricDescriptor.MetricKind.GAUGE)
         descriptor.value_type = (
             monitoring_v3.enums.MetricDescriptor.ValueType.DOUBLE)
-        descriptor.description = config.get('metric_description',
-                                            DEFAULT_METRIC_DESCRIPTION)
+        descriptor.description = data['description']
         self.client.create_metric_descriptor(project, descriptor)
         return descriptor

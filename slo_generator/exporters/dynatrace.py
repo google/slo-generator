@@ -15,24 +15,17 @@
 `dynatrace.py`
 Dynatrace exporter implementation.
 """
-
 import logging
 import time
 
 from slo_generator.backends.dynatrace import DynatraceClient
 
+from .base import MetricsExporter
+
 LOGGER = logging.getLogger(__name__)
-DEFAULT_TIMESERIES_ID = "custom:error_budget_burn_rate"
-DEFAULT_METRIC_DESCRIPTION = ("Speed at which the error budget for a given"
-                              "aggregation window is consumed")
 DEFAULT_DEVICE_ID = "slo_report"
-DEFAULT_METRIC_LABELS = [
-    'service_name', 'feature_name', 'slo_name', 'window',
-    'error_budget_policy_step_name', 'alerting_burn_rate_threshold'
-]
 
-
-class DynatraceExporter:
+class DynatraceExporter(MetricsExporter):
     """Backend for querying metrics from Dynatrace.
 
     Args:
@@ -40,60 +33,57 @@ class DynatraceExporter:
         api_url (str): Dynatrace API URL.
         api_token (str): Dynatrace token.
     """
+    METRIC_PREFIX = 'custom:'
+    REQUIRED_FIELDS = ['api_url', 'api_token']
+
     def __init__(self):
         self.client = None
 
-    def export(self, data, **config):
+    def export_metric(self, data):
         """Export SLO data to Dynatrace.
 
         Args:
-            data (dict): Data to send to Dynatrace.
-            config (dict): Metric / exporter config.
+            data (dict): Metric data.
 
         Returns:
             object: Dynatrace API response.
         """
-        api_url, api_token = config['api_url'], config['api_token']
+        api_url, api_token = data['api_url'], data['api_token']
         self.client = DynatraceClient(api_url, api_token)
-        metric = self.get_custom_metric(**config)
+        metric = self.get_custom_metric(data)
         if 'error' in metric:
             LOGGER.warning("Custom metric doesn't exist. Creating it.")
-            metric = self.create_custom_metric(**config)
-        LOGGER.debug(f'Custom metric: {metric}')
-        response = self.create_timeseries(data, **config)
+            metric = self.create_custom_metric(data)
+        LOGGER.info(f'Custom metric: {metric}')
+        response = self.create_timeseries(data)
         LOGGER.debug(f'API Response: {response}')
         return response
 
-    def create_timeseries(self, data, **config):
+    def create_timeseries(self, data):
         """Create Dynatrace timeseries.
 
         Args:
-            data (dict): Data to send to Dynatrace.
-            config (dict): Metric / exporter config.
+            data (dict): Metric data.
 
         Returns:
             object: Dynatrace API response.
         """
-        metric_tags = config.get('metric_tags', [])
-        metric_timeseries_id = config.get('metric_timeseries_id',
-                                          DEFAULT_TIMESERIES_ID)
-        error_budget_burn_rate = data['error_budget_burn_rate']
-        device_id = config.get('device_id', DEFAULT_DEVICE_ID)
+        name = data['name']
+        labels = data['labels']
+        value = data['value']
+        tags = data.get('tags', [])
+        device_id = data.get('device_id', DEFAULT_DEVICE_ID)
         timestamp_ms = time.time() * 1000
-        labels = {
-            key: value
-            for key, value in data.items() if key in DEFAULT_METRIC_LABELS
-        }
         timeseries = {
             "type":
             DEFAULT_DEVICE_ID,
             "tags":
-            metric_tags,
+            tags,
             "properties": {},
             "series": [{
-                "timeseriesId": metric_timeseries_id,
+                "timeseriesId": name,
                 "dimensions": labels,
-                "dataPoints": [[timestamp_ms, error_budget_burn_rate]]
+                "dataPoints": [[timestamp_ms, value]]
             }]
         }
         return self.client.request('post',
@@ -101,44 +91,39 @@ class DynatraceExporter:
                                    name=device_id,
                                    post_data=timeseries)
 
-    def create_custom_metric(self, **config):
+    def create_custom_metric(self, data):
         """Create a metric descriptor in Dynatrace API.
 
         Args:
-            config (dict): Exporter config.
+            data (dict): Metric data.
 
         Returns:
             obj: Dynatrace API response.
         """
-        metric_description = config.get('metric_description',
-                                        DEFAULT_METRIC_DESCRIPTION)
-        metric_timeseries_id = config.get('metric_timeseries_id',
-                                          DEFAULT_TIMESERIES_ID)
-        device_ids = [config.get('device_id', DEFAULT_DEVICE_ID)]
-        labelkeys = DEFAULT_METRIC_LABELS
-        metric_definition = {
-            "displayName": metric_description,
+        name = data['name']
+        device_ids = [data.get('device_id', DEFAULT_DEVICE_ID)]
+        labelkeys = list(data['labels'].keys())
+        metric = {
+            "displayName": name,
             "unit": "Count",
             "dimensions": labelkeys,
             "types": device_ids
         }
         return self.client.request('put',
                                    'timeseries',
-                                   name=metric_timeseries_id,
-                                   post_data=metric_definition)
+                                   name=name,
+                                   post_data=metric)
 
-    def get_custom_metric(self, **config):
+    def get_custom_metric(self, data):
         """Get a custom metric descriptor from Dynatrace API.
 
         Args:
-            data (dict): SLO Report data.
-            config(dict): Exporter config.
+            data (dict): Metric data.
 
         Returns:
             obj: Dynatrace API response.
         """
-        metric_timeseries_id = config.get('metric_timeseries_id',
-                                          DEFAULT_TIMESERIES_ID)
+        name = data['name']
         return self.client.request('get',
                                    'timeseries',
-                                   name=metric_timeseries_id)
+                                   name=name)

@@ -16,21 +16,18 @@
 Datadog exporter class.
 """
 import logging
+
 import datadog
+
+from .base import MetricsExporter
 
 LOGGER = logging.getLogger(__name__)
 logging.getLogger('datadog.api').setLevel(logging.ERROR)
-DEFAULT_METRIC_TYPE = "error_budget_burn_rate"
-DEFAULT_METRIC_DESCRIPTION = ("Speed at which the error budget for a given"
-                              "aggregation window is consumed")
-DEFAULT_METRIC_LABELS = [
-    'error_budget_policy_step_name', 'window', 'service_name', 'slo_name',
-    'alerting_burn_rate_threshold'
-]
 
+DEFAULT_API_HOST = "https://api.datadoghq.com"
 
 # pylint: disable=too-few-public-methods
-class DatadogExporter:
+class DatadogExporter(MetricsExporter):
     """Datadog exporter class.
 
     Args:
@@ -39,40 +36,29 @@ class DatadogExporter:
         app_key (str): Datadog APP key.
         kwargs (dict): Extra arguments to pass to initialize function.
     """
-    def __init__(self, client=None, api_key=None, app_key=None, **kwargs):
-        self.client = client
-        if not self.client:
-            options = {'api_key': api_key, 'app_key': app_key}
-            options.update(kwargs)
-            datadog.initialize(**options)
-            self.client = datadog.api
+    REQUIRED_FIELDS = ['api_key', 'app_key']
+    OPTIONAL_FIELDS = ['api_host']
 
-    def export(self, data, **config):
-        """Export results to Datadog.
+    def export_metric(self, data):
+        """Export a metric to Datadog.
 
         Args:
-            data (dict): Data to export.
-                service_name (str): Service name.
-                feature_name (str): Feature name.
-                slo_name (str): SLO name.
-                timestamp_human (str): Timestamp in human-readable format.
-                measurement_window_seconds (int): Measurement window (in s).
-
-            config (dict): Exporter config.
-                url (str): Datadog url.
+            data (dict): Metric data.
 
         Raises:
             DatadogError (object): Datadog exception object.
         """
-        labelnames = config.get('metric_labels', DEFAULT_METRIC_LABELS)
-        tags = [
-            f'{key}:{value}' for key, value in data.items()
-            if key in labelnames
-        ]
-        metric_type = config.get('metric_type', DEFAULT_METRIC_TYPE)
+        options = {
+            'api_key': data['api_key'],
+            'app_key': data['app_key'],
+            'api_host': data.get('api_host', DEFAULT_API_HOST)
+        }
+        datadog.initialize(**options)
+        client = datadog.api
         timestamp = data['timestamp']
-        value = data['error_budget_burn_rate']
-        LOGGER.debug(f'Exporting metric {metric_type}{str(tags)} = {value}')
-        return self.client.Metric.send(metric=metric_type,
-                                       points=[(timestamp, value)],
-                                       tags=tags)
+        tags = data['labels']
+        name = data['name']
+        value = data['value']
+        return client.Metric.send(metric=name,
+                                  points=[(timestamp, value)],
+                                  tags=tags)
