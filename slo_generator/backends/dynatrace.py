@@ -138,7 +138,7 @@ class DynatraceClient:
 
     def __init__(self, api_url, api_key):
         self.client = requests.Session()
-        self.url = api_url
+        self.url = api_url.rstrip('/')
         self.token = api_key
 
     def request(self,
@@ -176,6 +176,7 @@ class DynatraceClient:
         params_str = "&".join("%s=%s" % (k, v) for k, v in params.items()
                               if v is not None)
         url += f'?{params_str}'
+        LOGGER.debug(f"Requesting {url}")
         if method in ['put', 'post']:
             response = req(url, headers=headers, json=post_data)
         else:
