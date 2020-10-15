@@ -57,6 +57,13 @@ class MetricsExporter:
         LOGGER.info(
             f'Exporting {len(metrics)} metrics with {self.__class__.__name__}')
         for metric_cfg in metrics:
+            if isinstance(metric_cfg, str): # short form
+                metric_cfg = {
+                    'name': metric_cfg,
+                    'alias': metric_cfg,
+                    'description': "",
+                    'labels': DEFAULT_METRIC_LABELS
+                }
             metric = metric_cfg.copy()
             fields = {
                 key: value for key, value in config.items()
@@ -64,6 +71,7 @@ class MetricsExporter:
             }
             metric.update(fields)
             metric = self.build_metric(data, metric)
+            print(metric)
             LOGGER.info(f'Exporting metric: {metric}')
             self.export_metric(metric)
 

@@ -105,8 +105,7 @@ exporters:
 ```
 
 Optional fields:
-* `metric_type`: Metric type / name. Defaults to `error_budget_burn_rate`.
-* `metric_description`: Metric description.
+  * `metrics`: List of metrics to export ([see docs](../shared/metrics.md)). Defaults to [`custom:error_budget_burn_rate`, `custom:sli_measurement`].
 
 **&rightarrow; [Full SLO config](../../samples/stackdriver/slo_lb_request_availability.yaml)**
 
