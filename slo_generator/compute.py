@@ -64,11 +64,11 @@ def compute(slo_config,
 
         LOGGER.info(report)
         json_report = report.to_json()
-        reports.append(json_report)
 
         if exporters is not None and do_export is True:
-            export(json_report, exporters)
-
+            responses = export(json_report, exporters)
+            json_report['exporters'] = responses
+        reports.append(json_report)
     return reports
 
 
@@ -84,17 +84,20 @@ def export(data, exporters):
     """
     LOGGER.debug(f'Exporters: {pprint.pformat(exporters)}')
     LOGGER.debug(f'Data: {pprint.pformat(data)}')
-    results = []
+    responses = []
 
     # Passing one exporter as a dict will work for convenience
     if isinstance(exporters, dict):
         exporters = [exporters]
 
     for config in exporters:
-        LOGGER.debug(f'Exporter config: {pprint.pformat(config)}')
         exporter_class = config.get('class')
         LOGGER.info(f'Exporting results to {exporter_class}')
+        LOGGER.debug(f'Exporter config: {pprint.pformat(config)}')
         exporter = utils.get_exporter_cls(exporter_class)()
-        ret = exporter.export(data, **config)
-        results.append(ret)
-        LOGGER.debug(f'Exporter return: {pprint.pformat(ret)}')
+        response = exporter.export(data, **config)
+        if isinstance(response, list):
+            for elem in response:
+                elem['exporter'] = exporter_class
+        responses.append(response)
+    return responses

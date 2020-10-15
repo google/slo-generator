@@ -51,12 +51,16 @@ class MetricsExporter:
         Args:
             data (dict): SLO Report data.
             config (dict): Exporter config.
+
+        Returns:
+            list: List of exporter responses.
         """
 
         metrics = config.get('metrics', DEFAULT_METRICS)
         required_fields = getattr(self, 'REQUIRED_FIELDS', [])
         optional_fields = getattr(self, 'OPTIONAL_FIELDS', [])
-        LOGGER.info(
+        all_data = []
+        LOGGER.debug(
             f'Exporting {len(metrics)} metrics with {self.__class__.__name__}')
         for metric_cfg in metrics:
             if isinstance(metric_cfg, str): # short form
@@ -79,7 +83,19 @@ class MetricsExporter:
             metric = self.build_metric(data, metric)
             name = metric['name']
             LOGGER.info(f'Exporting "{name}" ...')
-            self.export_metric(metric)
+            ret = self.export_metric(metric)
+            metric_info = {
+                k: v for k, v in metric.items() 
+                if k in ['name', 'alias', 'description', 'labels']
+            }
+            response = {
+                'response': ret,
+                'metric': metric_info
+            }
+            if ret and 'error' in ret:
+                LOGGER.error(response)
+            all_data.append(response)
+        return all_data
 
     def build_metric(self, data, metric):
         """Build a metric from current data and metric configuration.
@@ -111,7 +127,6 @@ class MetricsExporter:
             metric['name'] = metric['alias']
 
         if prefix:
-            print(prefix)
             metric['name'] = prefix + metric['name']
 
         # Set description
