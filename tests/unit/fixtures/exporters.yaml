@@ -11,6 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+---
   - class:      Pubsub
     project_id: ${PUBSUB_PROJECT_ID}
     topic_name: ${PUBSUB_TOPIC_NAME}
@@ -33,3 +34,12 @@
   - class:      Dynatrace
     api_url:    ${DYNATRACE_API_URL}
     api_token:  ${DYNATRACE_API_TOKEN}
+
+  # Old format that will be deprecated in 2.0.0 in favor of the `metrics` block
+  - class: Stackdriver
+    project_id: ${STACKDRIVER_HOST_PROJECT_ID}
+    metric_type: custom.googleapis.com/ebp
+    metric_description: Test old format
+    metric_labels: [good_events_count, bad_events_count]
+    metrics:
+      - error_budget_burn_rate

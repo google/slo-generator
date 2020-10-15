@@ -141,12 +141,12 @@ class MetricsExporter:
             warnings.warn(
                 '`metric_type` will be deprecated in favor of `metrics` '
                 'in version 2.0.0, ', FutureWarning)
-        if old_metric_labels in config:
+        if old_metric_labels:
             metric['labels'] = old_metric_labels
             warnings.warn(
                 '`metric_labels` will be deprecated in favor of `metrics` '
                 'in version 2.0.0, ', FutureWarning)
-        if old_metric_description in config:
+        if old_metric_description:
             warnings.warn(
                 '`metric_description` will be deprecated in favor of `metrics` '
                 'in version 2.0.0, ', FutureWarning)
