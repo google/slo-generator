@@ -54,7 +54,7 @@ class DynatraceExporter(MetricsExporter):
         if 'error' in metric:
             LOGGER.warning("Custom metric doesn't exist. Creating it.")
             metric = self.create_custom_metric(data)
-        LOGGER.info(f'Custom metric: {metric}')
+        LOGGER.debug(f'Custom metric: {metric}')
         response = self.create_timeseries(data)
         LOGGER.debug(f'API Response: {response}')
         return response
