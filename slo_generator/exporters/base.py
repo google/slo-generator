@@ -67,7 +67,9 @@ class MetricsExporter:
                     'labels': DEFAULT_METRIC_LABELS
                 }
             if metric_cfg['name'] == 'error_budget_burn_rate':
-                metric_cfg = MetricsExporter.use_deprecated_fields(config, metric_cfg)
+                metric_cfg = MetricsExporter.use_deprecated_fields(
+                    config=config,
+                    metric=metric_cfg)
             metric = metric_cfg.copy()
             fields = {
                 key: value for key, value in config.items()
