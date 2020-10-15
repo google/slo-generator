@@ -16,6 +16,7 @@
 Base exporter abstract classes.
 """
 import logging
+import warnings
 from abc import ABCMeta, abstractmethod
 
 LOGGER = logging.getLogger(__name__)
@@ -51,6 +52,7 @@ class MetricsExporter:
             data (dict): SLO Report data.
             config (dict): Exporter config.
         """
+
         metrics = config.get('metrics', DEFAULT_METRICS)
         required_fields = getattr(self, 'REQUIRED_FIELDS', [])
         optional_fields = getattr(self, 'OPTIONAL_FIELDS', [])
@@ -64,6 +66,8 @@ class MetricsExporter:
                     'description': "",
                     'labels': DEFAULT_METRIC_LABELS
                 }
+            if metric_cfg['name'] == 'error_budget_burn_rate':
+                metric_cfg = MetricsExporter.use_deprecated_fields(config, metric_cfg)
             metric = metric_cfg.copy()
             fields = {
                 key: value for key, value in config.items()
@@ -71,8 +75,8 @@ class MetricsExporter:
             }
             metric.update(fields)
             metric = self.build_metric(data, metric)
-            print(metric)
-            LOGGER.info(f'Exporting metric: {metric}')
+            name = metric['name']
+            LOGGER.info(f'Exporting "{name}" ...')
             self.export_metric(metric)
 
     def build_metric(self, data, metric):
@@ -105,11 +109,46 @@ class MetricsExporter:
             metric['name'] = metric['alias']
 
         if prefix:
+            print(prefix)
             metric['name'] = prefix + metric['name']
 
         # Set description
         metric['description'] = metric.get('description', "")
 
+        return metric
+
+    @staticmethod
+    def use_deprecated_fields(config, metric):
+        """Old format to new format with DeprecationWarning for 2.0.0.
+
+        Update error_budget_burn_rate metric with `metric_type`,
+        `metric_labels`, and `metric_description`.
+
+        Args:
+            config (dict): Exporter config.
+            metric (dict): Metric config.
+
+        Returns:
+            list: List of metrics to export.
+        """
+        old_metric_type = config.get('metric_type')
+        old_metric_labels = config.get('metric_labels')
+        old_metric_description = config.get('metric_description')
+        if old_metric_type:
+            metric['alias'] = old_metric_type
+            warnings.warn(
+                '`metric_type` will be deprecated in favor of `metrics` '
+                'in version 2.0.0, ', FutureWarning)
+        if old_metric_labels in config:
+            metric['labels'] = old_metric_labels
+            warnings.warn(
+                '`metric_labels` will be deprecated in favor of `metrics` '
+                'in version 2.0.0, ', FutureWarning)
+        if old_metric_description in config:
+            warnings.warn(
+                '`metric_description` will be deprecated in favor of `metrics` '
+                'in version 2.0.0, ', FutureWarning)
+            metric['description'] = old_metric_description
         return metric
 
     @abstractmethod
