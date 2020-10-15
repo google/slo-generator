@@ -85,7 +85,7 @@ class MetricsExporter:
             LOGGER.info(f'Exporting "{name}" ...')
             ret = self.export_metric(metric)
             metric_info = {
-                k: v for k, v in metric.items() 
+                k: v for k, v in metric.items()
                 if k in ['name', 'alias', 'description', 'labels']
             }
             response = {
