@@ -135,8 +135,8 @@ class SLOReport:
 
         # Set fields in dataclass.
         self.__set_fields(sli_measurement=sli,
-                          good_events_count=good_count,
-                          bad_events_count=bad_count,
+                          good_events_count=int(good_count),
+                          bad_events_count=int(bad_count),
                           gap=gap,
                           error_budget_target=eb_target,
                           error_budget_measurement=eb_value,
