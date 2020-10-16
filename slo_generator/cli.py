@@ -70,7 +70,7 @@ def cli(args):
                           timestamp=timestamp,
                           do_export=export,
                           delete=delete)
-        all_reports[slo_config_name] = reports
+        all_reports[path] = reports
     return all_reports
 
 

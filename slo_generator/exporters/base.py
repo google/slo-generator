@@ -22,7 +22,7 @@ from abc import ABCMeta, abstractmethod
 LOGGER = logging.getLogger(__name__)
 
 DEFAULT_METRIC_LABELS = [
-    'error_budget_policy_step_name', 'window', 'service_name', 'feature_name', 
+    'error_budget_policy_step_name', 'window', 'service_name', 'feature_name',
     'slo_name', 'alerting_burn_rate_threshold'
 ]
 
