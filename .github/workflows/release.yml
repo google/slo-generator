@@ -16,6 +16,7 @@ jobs:
       - name: Run all tests
         run: make all
         env:
+          MIN_VALID_EVENTS: "10"
           GOOGLE_APPLICATION_CREDENTIALS: tests/unit/fixtures/fake_credentials.json
 
       - name: Release PyPI package
