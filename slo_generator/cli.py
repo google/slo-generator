@@ -70,8 +70,7 @@ def cli(args):
                           timestamp=timestamp,
                           do_export=export,
                           delete=delete)
-        all_reports[path] = reports
-    LOGGER.debug(all_reports)
+        all_reports[slo_config_name] = reports
     return all_reports
 
 

@@ -43,6 +43,7 @@ def compute(slo_config,
         do_export (bool, optional): Enable / Disable export. Default: False.
         delete (bool, optional): Enable / Disable delete mode. Default: False.
     """
+    start = time.time()
     if timestamp is None:
         timestamp = time.time()
 
@@ -69,6 +70,10 @@ def compute(slo_config,
             responses = export(json_report, exporters)
             json_report['exporters'] = responses
         reports.append(json_report)
+    end = time.time()
+    run_duration = round(end - start, 1)
+    LOGGER.debug(pprint.pformat(reports))
+    LOGGER.info(f'Run finished successfully in {run_duration}s.')
     return reports
 
 

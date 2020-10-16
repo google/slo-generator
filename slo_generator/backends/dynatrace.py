@@ -120,7 +120,7 @@ class DynatraceBackend:
                 ]
                 values.extend(point_values)
             return sum(values) / len(values)
-        except (IndexError, AttributeError, ZeroDivisionError) as exception:
+        except (IndexError, KeyError, ZeroDivisionError) as exception:
             LOGGER.warning("Couldn't find any values in timeseries response")
             LOGGER.debug(exception)
             return 0  # no events in timeseries
@@ -206,5 +206,6 @@ class DynatraceClient:
         """
         res = resp.content.decode('utf-8').replace('\n', '')
         data = json.loads(res)
-        LOGGER.debug(data)
+        if 'error' in data:
+            LOGGER.error(data)
         return data

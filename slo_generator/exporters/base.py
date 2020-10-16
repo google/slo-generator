@@ -22,8 +22,8 @@ from abc import ABCMeta, abstractmethod
 LOGGER = logging.getLogger(__name__)
 
 DEFAULT_METRIC_LABELS = [
-    'error_budget_policy_step_name', 'window', 'service_name', 'slo_name',
-    'alerting_burn_rate_threshold'
+    'error_budget_policy_step_name', 'window', 'service_name', 'feature_name', 
+    'slo_name', 'alerting_burn_rate_threshold'
 ]
 
 DEFAULT_METRICS = [
@@ -126,7 +126,7 @@ class MetricsExporter:
         if 'alias' in metric:
             metric['name'] = metric['alias']
 
-        if prefix:
+        if prefix and not metric['name'].startswith(prefix):
             metric['name'] = prefix + metric['name']
 
         # Set description
