@@ -20,6 +20,7 @@ import argparse
 import logging
 import os
 import sys
+import time
 
 import slo_generator.utils as utils
 from slo_generator.compute import compute
@@ -48,6 +49,7 @@ def cli(args):
     export = args.export
     delete = args.delete
     timestamp = args.timestamp
+    start = time.time()
 
     # Load error budget policy
     LOGGER.debug(f"Loading Error Budget config from {args.error_budget_policy}")
@@ -71,7 +73,12 @@ def cli(args):
                           do_export=export,
                           delete=delete)
         all_reports[path] = reports
-    LOGGER.debug(all_reports)
+    end = time.time()
+    duration = round(end - start, 1)
+    LOGGER.info(f'Run summary | SLO Configs: {len(slo_configs)} | '
+                f'Error Budget Policy Steps: {len(eb_policy)} | '
+                f'Total: {len(slo_configs) * len(eb_policy)} | '
+                f'Duration: {duration}s')
     return all_reports
 
 
