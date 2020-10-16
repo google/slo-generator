@@ -73,7 +73,7 @@ def compute(slo_config,
     end = time.time()
     run_duration = round(end - start, 1)
     LOGGER.debug(pprint.pformat(reports))
-    LOGGER.info(f'Run finished successfully in {run_duration}s.')
+    LOGGER.debug(f'Run finished successfully in {run_duration}s.')
     return reports
 
 
