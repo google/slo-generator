@@ -152,6 +152,12 @@ class TestCompute(unittest.TestCase):
     def test_export_dynatrace(self, mock):
         export(SLO_REPORT, EXPORTERS[5])
 
+    @patch("google.api_core.grpc_helpers.create_channel",
+           return_value=mock_sd(STEPS))
+    def test_export_deprecated(self, mock):
+        with self.assertWarns(FutureWarning):
+            export(SLO_REPORT, EXPORTERS[6])
+
 
 if __name__ == '__main__':
     unittest.main()

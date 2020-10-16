@@ -206,7 +206,5 @@ class DynatraceClient:
         """
         res = resp.content.decode('utf-8').replace('\n', '')
         data = json.loads(res)
-        if 'error' in data:
-            LOGGER.error(f"Dynatrace API returned an error: {data}")
         LOGGER.debug(data)
         return data
