@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.3.0](https://www.github.com/google/slo-generator/compare/v1.2.0...v1.3.0) (2020-10-16)
+
+
+### Features
+
+* add support for multiple metrics in metrics exporters ([#77](https://www.github.com/google/slo-generator/issues/77)) ([268058a](https://www.github.com/google/slo-generator/commit/268058ada37a61f1d797868017d1ee33d2e7c37f))
+
+
+### Bug Fixes
+
+* fail gracefully when no data in response ([#79](https://www.github.com/google/slo-generator/issues/79)) ([7265f25](https://www.github.com/google/slo-generator/commit/7265f25d205e186b77062d400b46c059337d9179))
+* Metrics feature bugfix ([#84](https://www.github.com/google/slo-generator/issues/84)) ([9953c1a](https://www.github.com/google/slo-generator/commit/9953c1aa15c0883e23e8f1aaaecea051090a2529))
+* SLO Report: cast good / bad count to int ([#82](https://www.github.com/google/slo-generator/issues/82)) ([8bbc552](https://www.github.com/google/slo-generator/commit/8bbc55282685bb570115bd3ec5275db33e83f4a9))
+* strip URL to avoid bad API response [Dynatrace] ([#78](https://www.github.com/google/slo-generator/issues/78)) ([7320f8b](https://www.github.com/google/slo-generator/commit/7320f8b9ecf12831b29186d30d0e95e636dd24be))
+
 ## [1.2.0](https://www.github.com/google/slo-generator/compare/v1.1.1...v1.2.0) (2020-10-12)
 
 
