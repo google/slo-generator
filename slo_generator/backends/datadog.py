@@ -157,8 +157,7 @@ class DatadogBackend:
 
     @staticmethod
     def count(timeseries):
-        """Count events in time series. If multiple values are returned, take
-        the average of all values.
+        """Count events in time series.
 
         Args:
             :dict: Timeseries response from Datadog Metrics API endpoint.
