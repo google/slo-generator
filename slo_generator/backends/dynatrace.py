@@ -21,6 +21,8 @@ import pprint
 
 import requests
 
+from slo_generator.constants import NO_DATA
+
 LOGGER = logging.getLogger(__name__)
 
 
@@ -69,13 +71,38 @@ class DynatraceBackend:
         bad_event_count = valid_event_count - good_event_count
         return (good_event_count, bad_event_count)
 
+    def split_threshold(self, timestamp, window, slo_config):
+        """Compute SLI by counting the number of values below and above a
+        threshold.
+
+        Args:
+            timestamp (int): UNIX timestamp.
+            window (int): Window (in seconds).
+            slo_config (dict): SLO configuration.
+
+        Returns:
+            tuple: Good event count, Bad event count.
+        """
+        conf = slo_config['backend']
+        measurement = conf['measurement']
+        start = (timestamp - window) * 1000
+        end = timestamp * 1000
+        query_valid = measurement['query_valid']
+        threshold = measurement['threshold']
+        good_below_threshold = measurement['good_below_threshold']
+        response = self.query(start=start, end=end, **query_valid)
+        LOGGER.debug(f"Result valid: {pprint.pformat(response)}")
+        return DynatraceBackend.count_threshold(response,
+                                                threshold,
+                                                good_below_threshold)
+
     def query(self,
               start,
               end,
               metric_selector=None,
               entity_selector=None,
               aggregation='SUM'):
-        """Query Dynatrace Metrics V1.
+        """Query Dynatrace Metrics V2.
 
         Args:
             start (int): Start timestamp (in milliseconds).
@@ -123,7 +150,43 @@ class DynatraceBackend:
         except (IndexError, KeyError, ZeroDivisionError) as exception:
             LOGGER.warning("Couldn't find any values in timeseries response")
             LOGGER.debug(exception)
-            return 0  # no events in timeseries
+            return NO_DATA  # no events in timeseries
+
+    @staticmethod
+    def count_threshold(response, threshold, good_below_threshold=True):
+        """Create 2 buckets based on response and a value threshold, and return
+        number of events contained in each bucket.
+
+        Args:
+            response (dict): Dynatrace API response.
+            threshold (int): Threshold.
+            good_below_threshold (bool): If true, good events are < threshold.
+
+        Returns:
+            tuple: Number of good events, Number of bad events.
+        """
+        try:
+            datapoints = response['result'][0]['data']
+            below = []
+            above = []
+            for point in datapoints:
+                points_below = [
+                    point for point in point['values']
+                    if point is not None and point < threshold
+                ]
+                points_above = [
+                    point for point in point['values']
+                    if point is not None and point > threshold
+                ]
+                below.extend(points_below)
+                above.extend(points_above)
+            if good_below_threshold:
+                return len(below), len(above)
+            return len(above), len(below)
+        except (IndexError, KeyError, ZeroDivisionError) as exception:
+            LOGGER.warning("Couldn't find any values in timeseries response")
+            LOGGER.debug(exception)
+            return NO_DATA, NO_DATA  # no events in timeseries
 
 
 class DynatraceClient:
