@@ -119,8 +119,8 @@ class DynatraceBackend:
                     if point is not None and point > 0
                 ]
                 values.extend(point_values)
-            return sum(values) / len(values)
-        except (IndexError, KeyError, ZeroDivisionError) as exception:
+            return sum(values)
+        except (IndexError, KeyError) as exception:
             LOGGER.warning("Couldn't find any values in timeseries response")
             LOGGER.debug(exception)
             return 0  # no events in timeseries
