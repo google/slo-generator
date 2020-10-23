@@ -48,7 +48,7 @@ Complete SLO samples using `Dynatrace` are available in
 
 ## Exporter
 
-The `Dynatrace` exporter allows to export metrics to Dynatrace API.
+The `Dynatrace` exporter allows to export SLO metrics to Dynatrace API.
 
 **Example config:**
 
