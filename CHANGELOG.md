@@ -1,5 +1,19 @@
 # Changelog
 
+### [1.3.1](https://www.github.com/google/slo-generator/compare/v1.3.0...v1.3.1) (2020-10-23)
+
+
+### Bug Fixes
+
+* Datadog count ([#88](https://www.github.com/google/slo-generator/issues/88)) ([65b9312](https://www.github.com/google/slo-generator/commit/65b9312fbd6faf3b35c8d98360d1d792c81a2df9))
+* Dynatrace fixes ([#89](https://www.github.com/google/slo-generator/issues/89)) ([ca6c7b2](https://www.github.com/google/slo-generator/commit/ca6c7b2e44267fd74280b7ce428121c2d409c4dc))
+
+
+### Documentation
+
+* Add better custom samples ([#90](https://www.github.com/google/slo-generator/issues/90)) ([c0fcfe5](https://www.github.com/google/slo-generator/commit/c0fcfe50f9c8f0407b6b44e82e15e288401e92d3))
+* fix metrics blob in exporters docs ([#91](https://www.github.com/google/slo-generator/issues/91)) ([f75663d](https://www.github.com/google/slo-generator/commit/f75663db3fe5d9f6c8736b58e4e423f8cdb9fd35))
+
 ## [1.3.0](https://www.github.com/google/slo-generator/compare/v1.2.0...v1.3.0) (2020-10-16)
 
 
