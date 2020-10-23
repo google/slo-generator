@@ -26,8 +26,9 @@ from slo_generator.exporters.bigquery import BigQueryError
 
 from .test_stubs import (CTX, load_fixture, load_sample, load_slo_samples,
                          mock_dd_metric_query, mock_dd_metric_send,
-                         mock_dd_slo_get, mock_dd_slo_history, mock_dt,
-                         mock_es, mock_prom, mock_sd, mock_ssm_client)
+                         mock_dd_slo_get, mock_dd_slo_history,
+                         mock_dt, mock_dt_errors, mock_es, mock_prom, mock_sd,
+                         mock_ssm_client)
 
 warnings.filterwarnings("ignore", message=_CLOUD_SDK_CREDENTIALS_WARNING)
 
@@ -151,6 +152,12 @@ class TestCompute(unittest.TestCase):
     @patch.object(DynatraceClient, 'request', side_effect=mock_dt)
     def test_export_dynatrace(self, mock):
         export(SLO_REPORT, EXPORTERS[5])
+
+    @patch.object(DynatraceClient, 'request', side_effect=mock_dt_errors)
+    def test_export_dynatrace_error(self, mock):
+        responses = export(SLO_REPORT, EXPORTERS[5])
+        codes = [r[0]['response']['error']['code'] for r in responses]
+        self.assertTrue(all(code == 429 for code in codes))
 
     @patch("google.api_core.grpc_helpers.create_channel",
            return_value=mock_sd(STEPS))
