@@ -84,14 +84,7 @@ how the buckets boundaries are set. Learn how to [inspect your distribution metr
 
 ## Exporter
 
-The `Stackdriver` exporter allows to export the error budget burn rate metric as
-a **custom Stackdriver metric** that we'll use for alerting:
-
- * The **metric type** is `custom.googleapis.com/error_budget_burn_rate` by
- default, but can be modified using the `metric_type` field in the exporter YAML.
-
- * The **metric descriptor** has labels describing our SLO, amongst which the
- `service_name`, `feature_name`, and `error_budget_policy_step_name` labels.
+The `Stackdriver` exporter allows to export SLO metrics to Cloud Monitoring API.
 
 **Example config:**
 
