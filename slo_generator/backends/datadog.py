@@ -96,7 +96,7 @@ class DatadogBackend:
         query = self._fmt_query(query, window)
         response = self.client.Metric.query(start=start, end=end, query=query)
         LOGGER.debug(f"Result valid: {pprint.pformat(response)}")
-        sli_value = DatadogBackend.count(response)
+        sli_value = DatadogBackend.count(response, average=True)
         return sli_value
 
     def query_slo(self, timestamp, window, slo_config):
@@ -156,18 +156,19 @@ class DatadogBackend:
         return query
 
     @staticmethod
-    def count(timeseries):
+    def count(response, average=False):
         """Count events in time series.
 
         Args:
-            :dict: Timeseries response from Datadog Metrics API endpoint.
+            response (dict):  Datadog Metrics API response.
+            average (bool): Take average of result.
 
         Returns:
             int: Event count.
         """
         try:
             values = []
-            pointlist = timeseries['series'][0]['pointlist']
+            pointlist = response['series'][0]['pointlist']
             for point in pointlist:
                 value = point[1]
                 if value is None:
@@ -175,6 +176,8 @@ class DatadogBackend:
                 values.append(value)
             if not values:
                 raise IndexError
+            if average:
+                return sum(values) / len(values)
             return sum(values)
         except (IndexError, AttributeError) as exception:
             LOGGER.warning("Couldn't find any values in timeseries response")
