@@ -128,8 +128,9 @@ class DynatraceBackend:
 
 
 def retry_http(response):
-    """Retry on specifc HTTP errors:
-    * 429: Rate limited to 50 reqs/minute.
+    """Retry on specific HTTP errors:
+        
+        * 429: Rate limited to 50 reqs/minute.
 
     Args:
         response (dict): Dynatrace API response.
