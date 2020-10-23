@@ -332,6 +332,19 @@ def mock_dt(*args, **kwargs):
     elif args[0] == 'put' and args[1] == 'timeseries':
         return {}
 
+def mock_dt_errors(*args, **kwargs):
+    """Mock Dynatrace response with errors."""
+    if args[0] == 'get' and args[1] == 'timeseries':
+        return load_fixture('dt_metric_get.json')
+
+    elif args[0] == 'get' and args[1] == 'metrics/query':
+        return load_fixture('dt_timeseries_get.json')
+
+    elif args[0] == 'post' and args[1] == 'entity/infrastructure/custom':
+        return load_fixture('dt_error_rate.json')
+
+    elif args[0] == 'put' and args[1] == 'timeseries':
+        return load_fixture('dt_error_rate.json')
 
 class dotdict(dict):
     """dot.notation access to dictionary attributes"""
