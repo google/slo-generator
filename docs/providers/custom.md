@@ -12,7 +12,7 @@ This enables you to:
 To create a custom backend, simply create a new file and add the backend code 
 within it. 
 
-For this example, we will assume the backend code above was added in 
+For this example, we will assume the backend code below was added to 
 `custom/custom_backend.py`.
 
 A sample custom backend will have the following look:
@@ -58,7 +58,7 @@ backend:
 To create a custom exporter, simply create a new file and add the exporter code 
 within it. 
 
-For the examples below, we will assume the exporter code above was added in 
+For the examples below, we will assume the exporter code below was added to 
 `custom/custom_exporter.py`.
 
 ### Standard

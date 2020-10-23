@@ -29,14 +29,12 @@ class CustomBackend:
         """Good bad ratio method.
 
         Args:
-            data (dict): Data to send to Stackdriver Monitoring.
-            config (dict): Stackdriver Monitoring metric config.
-                project_id (str): Stackdriver host project id.
-                custom_metric_type (str): Custom metric type.
-                custom_metric_unit (str): Custom metric unit.
+            timestamp (str): UNIX timestamp.
+            window (str): Window (in seconds).
+            slo_config (dict): SLO Config.
 
         Returns:
-            object: Stackdriver Monitoring API result.
+            tuple: Good events count / bad events count.
         """
         return 100000, 100
 

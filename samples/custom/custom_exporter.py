@@ -20,18 +20,37 @@ from slo_generator.exporters.base import MetricsExporter
 
 LOGGER = logging.getLogger(__name__)
 
-class CustomExporter(MetricsExporter):
-    """Custom exporter."""
+class CustomMetricExporter(MetricsExporter):
+    """Custom exporter for metrics."""
 
     def export_metric(self, data):
-        """Export data to Stackdriver Monitoring.
+        """Export data to custom destination.
 
         Args:
-            data (dict): Data to send.
+            data (dict): Metric data.
 
         Returns:
-            object: Stackdriver Monitoring API result.
+            object: Custom destination response.
         """
+        LOGGER.info(f"Metric data: {data}")
+        return {
+            'status': 'ok',
+            'code': 200
+        }
+
+class CustomSLOExporter:
+    """Custom exporter for SLO data."""
+
+    def export(self, data, **config):
+        """Export data to custom destination.
+
+        Args:
+            data (dict): SLO Report data.
+
+        Returns:
+            object: Custom destination response.
+        """
+        LOGGER.info(f"SLO data: {data}")
         return {
             'status': 'ok',
             'code': 200

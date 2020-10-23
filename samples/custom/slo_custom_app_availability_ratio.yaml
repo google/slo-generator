@@ -12,13 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ---
-service_name:             custom
-feature_name:             test
-slo_description:          99.9% of fake requests to custom backends are valid
-slo_name:                 availability-ratio
-slo_target:               0.999
+service_name:    custom
+feature_name:    test
+slo_description: 99.99% of fake requests to custom backends are valid
+slo_name:        availability-ratio
+slo_target:      0.999
 backend:
-  class:                  custom.custom_backend.CustomBackend
-  method:                 good_bad_ratio
+  class:         custom.custom_backend.CustomBackend
+  method:        good_bad_ratio
 exporters:
-- class:                  custom.custom_exporter.CustomExporter
+- class:         custom.custom_exporter.CustomMetricExporter
+  class:         custom.custom_exporter.CustomSLOExporter
