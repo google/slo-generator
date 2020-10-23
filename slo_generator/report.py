@@ -91,7 +91,13 @@ class SLOReport:
         if not self._validate(data):
             self.valid = False
             return
+
+        # Build SLO report
         self.build(step, data)
+
+        # Post validation
+        if not self._post_validate():
+            self.valid = False
 
     def build(self, step, data):
         """Compute all data necessary for the SLO report.
@@ -289,6 +295,26 @@ class SLOReport:
         # Check backend None
         if data is None:
             LOGGER.error(f'{info} | Backend returned None.')
+            return False
+
+        return True
+
+    def _post_validate(self):
+        """Validate report after build."""
+
+        # SLI measurement should be 0 <= x <= 1
+        if not 0 <= self.sli_measurement <= 1:
+            LOGGER.error(f"SLI is not between 0 and 1 (value = {self.sli_measurement}")
+            return False
+
+        # Good events is < 0
+        if self.good_events_count < 0:
+            LOGGER.error(f"Good event count is below 0 (value = {self.bad_events_count})")
+            return False
+
+        # Bad events is < 0
+        if self.bad_events_count < 0:
+            LOGGER.error(f"Bad event count is below 0 (value = {self.bad_events_count})")
             return False
 
         return True
