@@ -1,5 +1,12 @@
 # Changelog
 
+### [1.3.2](https://www.github.com/google/slo-generator/compare/v1.3.1...v1.3.2) (2020-10-23)
+
+
+### Bug Fixes
+
+* Datadog backend for direct SLI calculations ([#93](https://www.github.com/google/slo-generator/issues/93)) ([00fca80](https://www.github.com/google/slo-generator/commit/00fca80adb958e5200beca096b964e88d83c8d44))
+
 ### [1.3.1](https://www.github.com/google/slo-generator/compare/v1.3.0...v1.3.1) (2020-10-23)
 
 
