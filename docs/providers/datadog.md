@@ -99,7 +99,7 @@ Complete SLO samples using `Datadog` are available in
 
 ## Exporter
 
-The `Datadog` exporter pushes SLO metrics to the Datadog API.
+The `Datadog` exporter allows to export SLO metrics to the Datadog API.
 
 **Example config:**
 
