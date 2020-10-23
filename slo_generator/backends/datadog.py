@@ -157,8 +157,7 @@ class DatadogBackend:
 
     @staticmethod
     def count(timeseries):
-        """Count events in time series. If multiple values are returned, take
-        the average of all values.
+        """Count events in time series.
 
         Args:
             :dict: Timeseries response from Datadog Metrics API endpoint.
@@ -176,7 +175,7 @@ class DatadogBackend:
                 values.append(value)
             if not values:
                 raise IndexError
-            return sum(values) / len(values)
+            return sum(values)
         except (IndexError, AttributeError) as exception:
             LOGGER.warning("Couldn't find any values in timeseries response")
             LOGGER.debug(exception)
