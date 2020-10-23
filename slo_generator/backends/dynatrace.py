@@ -71,7 +71,7 @@ class DynatraceBackend:
         bad_event_count = valid_event_count - good_event_count
         return (good_event_count, bad_event_count)
 
-    def split_threshold(self, timestamp, window, slo_config):
+    def threshold(self, timestamp, window, slo_config):
         """Compute SLI by counting the number of values below and above a
         threshold.
 
@@ -89,7 +89,7 @@ class DynatraceBackend:
         end = timestamp * 1000
         query_valid = measurement['query_valid']
         threshold = measurement['threshold']
-        good_below_threshold = measurement['good_below_threshold']
+        good_below_threshold = measurement.get('good_below_threshold', True)
         response = self.query(start=start, end=end, **query_valid)
         LOGGER.debug(f"Result valid: {pprint.pformat(response)}")
         return DynatraceBackend.count_threshold(response,

@@ -41,6 +41,34 @@ backend:
 **&rightarrow; [Full SLO config](../../samples/dynatrace/slo_dt_app_availability_ratio.yaml)**
 
 
+### Threshold
+
+The `threshold` method is used to split a series of values into two buckets 
+using a threshold as delimiter: one bucket which will represent the good events, 
+the other will represent the bad events.
+
+This method can be used for latency SLOs, by defining a latency threshold.
+
+**Config example:**
+
+```yaml
+backend:
+  class:     Dynatrace
+  method:    threshold
+  api_token: ${DYNATRACE_API_TOKEN}
+  api_url:   ${DYNATRACE_API_URL}
+  measurement:
+    query_valid:  
+      metric_selector: ext:app.request_latency:filter(and(eq(app,test_app),eq(env,prod),eq(status_code_class,2xx)))
+      entity_selector: type(HOST)
+    threshold: 40000 # us
+```
+**&rightarrow; [Full SLO config](../../samples/dynatrace/slo_dt_app_latency_threshold.yaml)**
+
+Optional fields:
+  * `good_below_threshold`: Boolean, specify if good events are above or below threshold. Default: `true`.
+
+
 ### Examples
 
 Complete SLO samples using `Dynatrace` are available in
