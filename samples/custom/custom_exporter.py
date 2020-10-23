@@ -23,12 +23,11 @@ LOGGER = logging.getLogger(__name__)
 class CustomExporter(MetricsExporter):
     """Custom exporter."""
 
-    def export_metric(self, data, **config):
+    def export_metric(self, data):
         """Export data to Stackdriver Monitoring.
 
         Args:
             data (dict): Data to send.
-            config (dict): Exporter config.
 
         Returns:
             object: Stackdriver Monitoring API result.

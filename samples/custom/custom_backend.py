@@ -24,7 +24,7 @@ class CustomBackend:
 
     def __init__(self, client=None, **kwargs):
         pass
-    
+
     def good_bad_ratio(self, timestamp, window, slo_config):
         """Good bad ratio method.
 
