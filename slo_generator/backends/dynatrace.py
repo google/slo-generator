@@ -18,10 +18,10 @@ Datadog backend implementation.
 import json
 import logging
 import pprint
-
 import requests
 
 from slo_generator.constants import NO_DATA
+from retrying import retry
 
 LOGGER = logging.getLogger(__name__)
 
@@ -146,8 +146,8 @@ class DynatraceBackend:
                     if point is not None and point > 0
                 ]
                 values.extend(point_values)
-            return sum(values) / len(values)
-        except (IndexError, KeyError, ZeroDivisionError) as exception:
+            return sum(values)
+        except (IndexError, KeyError) as exception:
             LOGGER.warning("Couldn't find any values in timeseries response")
             LOGGER.debug(exception)
             return NO_DATA  # no events in timeseries
@@ -189,6 +189,22 @@ class DynatraceBackend:
             return NO_DATA, NO_DATA  # no events in timeseries
 
 
+def retry_http(response):
+    """Retry on specific HTTP errors:
+
+        * 429: Rate limited to 50 reqs/minute.
+
+    Args:
+        response (dict): Dynatrace API response.
+
+    Returns:
+        bool: True to retry, False otherwise.
+    """
+    retry_codes = [429]
+    code = int(response.get('error', {}).get('code', 200))
+    return code in retry_codes
+
+
 class DynatraceClient:
     """Small wrapper around requests to query Dynatrace API.
 
@@ -204,6 +220,9 @@ class DynatraceClient:
         self.url = api_url.rstrip('/')
         self.token = api_key
 
+    @retry(retry_on_result=retry_http,
+           wait_exponential_multiplier=1000,
+           wait_exponential_max=10000)
     def request(self,
                 method,
                 endpoint,
@@ -239,7 +258,6 @@ class DynatraceClient:
         params_str = "&".join("%s=%s" % (k, v) for k, v in params.items()
                               if v is not None)
         url += f'?{params_str}'
-        LOGGER.debug(f"Requesting {url}")
         if method in ['put', 'post']:
             response = req(url, headers=headers, json=post_data)
         else:
@@ -269,6 +287,4 @@ class DynatraceClient:
         """
         res = resp.content.decode('utf-8').replace('\n', '')
         data = json.loads(res)
-        if 'error' in data:
-            LOGGER.error(data)
         return data

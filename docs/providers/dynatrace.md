@@ -76,16 +76,7 @@ Complete SLO samples using `Dynatrace` are available in
 
 ## Exporter
 
-The `Dynatrace` exporter allows to export the error budget burn rate metric as
-a **Dynatrace metric** that can be used for alerting:
-
- * The **metric name** is `slo.error_budget_burn_rate` by default, but can be
- modified using the `metric_type` field in the exporter YAML.
-
- * The **metric descriptor** has labels describing our SLO, amongst which the
- `service_name`, `feature_name`, and `error_budget_policy_step_name` labels.
-
-The exporter pushes the metric to the `Dynatrace` API.
+The `Dynatrace` exporter allows to export SLO metrics to Dynatrace API.
 
 **Example config:**
 

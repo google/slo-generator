@@ -63,18 +63,7 @@ metric name:
 
 Those are standards and cannot be modified.
 
-**Example:**
-If the section above was added to a `StackdriverExporter`, the whole exporter
-config would look like:
+## MetricsExporter
 
-```yaml
-exporters:
-- class: StackdriverExporter
-    project_id: ${STACKDRIVER_PROJECT_ID}
-    metrics:
-    - name: error_budget_burn_rate
-      alias: error_budget_burn_rate
-      additional_labels:
-      - good_events_count
-      - bad_events_count   
-```
+The `MetricsExporter` base class that other exporters can inherit from has the 
+following behavior:

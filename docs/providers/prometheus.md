@@ -137,18 +137,9 @@ set for your metric. Learn more in the [Prometheus docs](https://prometheus.io/d
 
 ## Exporter
 
-The `Prometheus` exporter allows to export the error budget burn rate metric as
-a **Prometheus metric** that can be used for alerting:
-
- * The **metric name** is `error_budget_burn_rate` by default, but can be
- modified using the `metric_type` field in the exporter YAML.
-
- * The **metric descriptor** has labels describing our SLO, amongst which the
- `service_name`, `feature_name`, and `error_budget_policy_step_name` labels.
-
-The exporter pushes the metric to the `Prometheus`
-[Pushgateway](https://prometheus.io/docs/practices/pushing/) which needs to be
-running.
+The `Prometheus` exporter allows to export SLO metrics to the 
+[Prometheus Pushgateway](https://prometheus.io/docs/practices/pushing/) which 
+needs to be running.
 
 `Prometheus` needs to be setup to **scrape metrics from `Pushgateway`** (see
   [documentation](https://github.com/prometheus/pushgateway) for more details).
