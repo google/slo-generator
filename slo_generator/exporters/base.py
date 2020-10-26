@@ -40,7 +40,8 @@ DEFAULT_METRICS = [
     {
         'name': 'events_count',
         'description': 'Number of events',
-        'labels': DEFAULT_METRIC_LABELS + ['good_events_count', 'bad_events_count']
+        'labels': DEFAULT_METRIC_LABELS + [
+            'good_events_count', 'bad_events_count']
     },
     {
         'name': 'sli_measurement',
@@ -70,7 +71,6 @@ class MetricsExporter:
         Returns:
             list: List of exporter responses.
         """
-
         metrics = config.get('metrics', DEFAULT_METRICS)
         required_fields = getattr(self, 'REQUIRED_FIELDS', [])
         optional_fields = getattr(self, 'OPTIONAL_FIELDS', [])
