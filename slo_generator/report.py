@@ -304,7 +304,8 @@ class SLOReport:
 
         # SLI measurement should be 0 <= x <= 1
         if not 0 <= self.sli_measurement <= 1:
-            LOGGER.error(f"SLI is not between 0 and 1 (value = {self.sli_measurement})")
+            LOGGER.error(
+                f"SLI is not between 0 and 1 (value = {self.sli_measurement})")
             return False
 
         return True
