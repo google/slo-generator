@@ -20,8 +20,8 @@ import logging
 import pprint
 import requests
 
-from slo_generator.constants import NO_DATA
 from retrying import retry
+from slo_generator.constants import NO_DATA
 
 LOGGER = logging.getLogger(__name__)
 
