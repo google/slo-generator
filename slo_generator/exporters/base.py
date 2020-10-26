@@ -33,10 +33,25 @@ DEFAULT_METRICS = [
         'labels': DEFAULT_METRIC_LABELS
     },
     {
+        'name': 'alerting_burn_rate_threshold',
+        'description': 'Error Budget burn rate threshold.',
+        'labels': DEFAULT_METRIC_LABELS
+    },
+    {
+        'name': 'events_count',
+        'description': 'Number of events',
+        'labels': DEFAULT_METRIC_LABELS + ['good_events_count', 'bad_events_count']
+    },
+    {
         'name': 'sli_measurement',
         'description': 'Service Level Indicator.',
         'labels': DEFAULT_METRIC_LABELS
-    }
+    },
+    {
+        'name': 'slo_target',
+        'description': 'Service Level Objective target.',
+        'labels': DEFAULT_METRIC_LABELS
+    },
 ]
 
 class MetricsExporter:

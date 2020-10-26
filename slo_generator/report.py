@@ -46,6 +46,7 @@ class SLOReport:
     slo_target: float
     slo_description: str
     sli_measurement: float = 0
+    events_count: int = 0
     bad_events_count: int = 0
     good_events_count: int = 0
     gap: float
@@ -143,6 +144,7 @@ class SLOReport:
         self.__set_fields(sli_measurement=sli,
                           good_events_count=int(good_count),
                           bad_events_count=int(bad_count),
+                          events_count=int(good_count + bad_count),
                           gap=gap,
                           error_budget_target=eb_target,
                           error_budget_measurement=eb_value,
