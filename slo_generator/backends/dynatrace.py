@@ -18,12 +18,12 @@ Datadog backend implementation.
 import json
 import logging
 import pprint
-import requests
 
+import requests
 from retrying import retry
+from slo_generator.constants import RETRY_BACKOFF_MAX, RETRY_BACKOFF_MULTIPLIER
 
 LOGGER = logging.getLogger(__name__)
-
 
 class DynatraceBackend:
     """Backend for querying metrics from Datadog.
@@ -159,8 +159,8 @@ class DynatraceClient:
         self.token = api_key
 
     @retry(retry_on_result=retry_http,
-           wait_exponential_multiplier=1000,
-           wait_exponential_max=10000)
+           wait_exponential_multiplier=RETRY_BACKOFF_MULTIPLIER,
+           wait_exponential_max=RETRY_BACKOFF_MAX)
     def request(self,
                 method,
                 endpoint,

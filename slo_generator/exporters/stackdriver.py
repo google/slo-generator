@@ -19,10 +19,28 @@ import logging
 
 import google.api_core.exceptions
 from google.cloud import monitoring_v3
+from retrying import retry
+from slo_generator.constants import RETRY_BACKOFF_MAX, RETRY_BACKOFF_MULTIPLIER
 
 from .base import MetricsExporter
 
 LOGGER = logging.getLogger(__name__)
+
+
+def retry_exc(exception):
+    """Retrying function to retry on needed exceptions, such as a server 500.
+ 
+    Args:
+        exception (Exception): The exception thrown.
+
+    Returns:
+        bool: True if need to retry, False otherwise.
+    """
+    retry_exceptions = [
+        google.api_core.exceptions.InternalServerError
+    ]
+    return isinstance(exception, tuple(retry_exceptions))
+
 
 class StackdriverExporter(MetricsExporter):
     """Stackdriver Monitoring exporter class."""
@@ -47,6 +65,9 @@ class StackdriverExporter(MetricsExporter):
             self.create_metric_descriptor(data)
         self.create_timeseries(data)
 
+    @retry(retry_on_exception=retry_exc,
+           wait_exponential_multiplier=RETRY_BACKOFF_MULTIPLIER,
+           wait_exponential_max=RETRY_BACKOFF_MAX)
     def create_timeseries(self, data):
         """Create Stackdriver Monitoring timeseries.
 

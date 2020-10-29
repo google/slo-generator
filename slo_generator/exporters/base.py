@@ -82,7 +82,8 @@ class MetricsExporter:
             metric.update(fields)
             metric = self.build_metric(data, metric)
             name = metric['name']
-            LOGGER.info(f'Exporting "{name}" ...')
+            step = data['error_budget_policy_step_name']
+            LOGGER.info(f'Exporting "{name}" ({step}) ...')
             ret = self.export_metric(metric)
             metric_info = {
                 k: v for k, v in metric.items()

@@ -20,3 +20,5 @@ import os
 NO_DATA = -1
 MIN_VALID_EVENTS = int(os.environ.get("MIN_VALID_EVENTS", "1"))
 COLORED_OUTPUT = int(os.environ.get("COLORED_OUTPUT", "0"))
+RETRY_BACKOFF_MULTIPLIER = int(os.environ.get("RETRY_BACKOFF_MULTIPLIER", "1000"))
+RETRY_BACKOFF_MAX = int(os.environ.get("RETRY_BACKOFF_MAX", "10000"))
