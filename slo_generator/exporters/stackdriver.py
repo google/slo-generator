@@ -57,7 +57,6 @@ class StackdriverExporter(MetricsExporter):
             object: Metric descriptor.
         """
         labels = data['labels']
-        labels.update({'project_id': data['project_id']})
         series = monitoring_v3.types.TimeSeries()
         series.metric.type = data['name']
         for key, value in labels.items():
