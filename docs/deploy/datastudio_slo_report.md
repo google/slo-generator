@@ -48,7 +48,7 @@ ORDER BY
 
 Run it with the BigQuery CLI using:
 
-    bq query `cat create_view.sql`
+    bq query --use_legacy_sql=false `cat create_view.sql`
 
 Alternatively, you can create the view above with Terraform.
 
