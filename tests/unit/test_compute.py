@@ -190,8 +190,6 @@ class TestCompute(unittest.TestCase):
             'additional_labels': metric['additional_labels']
         }
         metric = exporter.build_metric(data=SLO_REPORT, metric=metric)
-        print(metric)
-        print(metric_expected)
         self.assertEqual(metric, metric_expected)
 
 
