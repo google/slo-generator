@@ -133,8 +133,23 @@ class MetricsExporter:
         # Set metric labels
         labels = metric.get('labels', DEFAULT_METRIC_LABELS)
         additional_labels = metric.get('additional_labels', [])
-        labels.extend(additional_labels)
+
+        # Data labels (using pre-defined labels, defined by str)
+        data_labels = [
+            label for label in additional_labels
+            if isinstance(label, str)]
+        labels.extend(data_labels)
         labels = {key: str(val) for key, val in data.items() if key in labels}
+
+        # User labels (set explicitely by user, defined by dict)
+        user_labels = [
+            label for label in additional_labels
+            if isinstance(label, dict)
+        ]
+        for label in user_labels:
+            labels.update({label['key']: label['value']})
+
+        # Set metric labels
         metric['labels'] = labels
 
         # Use metric alias (mapping)

@@ -59,6 +59,7 @@ SSM_MOCKS = [
 
 
 class TestCompute(unittest.TestCase):
+    maxDiff = None
     @patch('google.api_core.grpc_helpers.create_channel',
            return_value=mock_sd(2 * STEPS * len(SLO_CONFIGS_SD)))
     def test_compute_stackdriver(self, mock):
@@ -164,6 +165,34 @@ class TestCompute(unittest.TestCase):
     def test_export_deprecated(self, mock):
         with self.assertWarns(FutureWarning):
             export(SLO_REPORT, EXPORTERS[6])
+
+    def test_build_metrics(self):
+        from slo_generator.exporters.base import (
+            MetricsExporter, DEFAULT_METRIC_LABELS)
+        exporter = MetricsExporter()
+        metric = EXPORTERS[7]['metrics'][0]
+        labels = {
+            label: str(SLO_REPORT[label])
+            for label in DEFAULT_METRIC_LABELS
+        }
+        additional_labels = {
+            'good_events_count': str(SLO_REPORT['good_events_count']),
+            'bad_events_count': str(SLO_REPORT['bad_events_count']),
+            'test': 'test'
+        }
+        labels.update(additional_labels)
+        metric_expected = {
+            'name': 'error_budget_burn_rate',
+            'description': "",
+            'value': SLO_REPORT['error_budget_burn_rate'],
+            'timestamp': SLO_REPORT['timestamp'],
+            'labels': labels,
+            'additional_labels': metric['additional_labels']
+        }
+        metric = exporter.build_metric(data=SLO_REPORT, metric=metric)
+        print(metric)
+        print(metric_expected)
+        self.assertEqual(metric, metric_expected)
 
 
 if __name__ == '__main__':
