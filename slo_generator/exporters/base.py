@@ -163,7 +163,7 @@ class MetricsExporter:
         data_labels = {}
         nested_labels = [
             label for label in labels
-            if isinstance(data[label], dict)
+            if label in data and isinstance(data[label], dict)
         ]
         flat_labels = [
             label for label in labels
