@@ -131,15 +131,17 @@ class TestCompute(unittest.TestCase):
 
     @patch("google.cloud.bigquery.Client.get_table")
     @patch("google.cloud.bigquery.Client.create_table")
+    @patch("google.cloud.bigquery.Client.update_table")
     @patch("google.cloud.bigquery.Client.insert_rows_json", return_value=[])
-    def test_export_bigquery(self, mock_bq, mock_bq_2, mock_bq_3):
+    def test_export_bigquery(self, *mocks):
         export(SLO_REPORT, EXPORTERS[2])
 
     @patch("google.cloud.bigquery.Client.get_table")
     @patch("google.cloud.bigquery.Client.create_table")
+    @patch("google.cloud.bigquery.Client.update_table")
     @patch("google.cloud.bigquery.Client.insert_rows_json",
            return_value=BQ_ERROR)
-    def test_export_bigquery_error(self, mock_bq, mock_bq_2, mock_bq_3):
+    def test_export_bigquery_error(self, *mocks):
         with self.assertRaises(BigQueryError):
             export(SLO_REPORT, EXPORTERS[2])
 
@@ -170,16 +172,20 @@ class TestCompute(unittest.TestCase):
     def test_build_metrics(self):
         exporter = MetricsExporter()
         metric = EXPORTERS[7]['metrics'][0]
-        labels = {
+        labels = {}
+        metric_labels = {
             label: str(SLO_REPORT[label])
             for label in DEFAULT_METRIC_LABELS
+            if label != 'metadata'
         }
+        metadata_labels = SLO_REPORT['metadata'].items()
         additional_labels = {
             'good_events_count': str(SLO_REPORT['good_events_count']),
             'bad_events_count': str(SLO_REPORT['bad_events_count']),
-            'test': 'test'
         }
+        labels.update(metric_labels)
         labels.update(additional_labels)
+        labels.update(metadata_labels)
         metric_expected = {
             'name': 'error_budget_burn_rate',
             'description': "",
@@ -189,7 +195,21 @@ class TestCompute(unittest.TestCase):
             'additional_labels': metric['additional_labels']
         }
         metric = exporter.build_metric(data=SLO_REPORT, metric=metric)
-        self.assertEqual(metric, metric_expected)
+        self.assertEqual(labels, metric['labels'])
+        # self.assertEqual(metric, metric_expected)
+
+    def test_build_data_labels(self):
+        exporter = MetricsExporter()
+        data = SLO_REPORT
+        labels = ['service_name', 'slo_name', 'metadata']
+        result = exporter.build_data_labels(data, labels)
+        expected = {
+            'service_name': SLO_REPORT['service_name'],
+            'slo_name': SLO_REPORT['slo_name'],
+            'env': SLO_REPORT['metadata']['env'],
+            'team': SLO_REPORT['metadata']['team']
+        }
+        self.assertEqual(result, expected)
 
 
 if __name__ == '__main__':
