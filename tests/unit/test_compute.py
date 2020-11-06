@@ -196,7 +196,7 @@ class TestCompute(unittest.TestCase):
         }
         metric = exporter.build_metric(data=SLO_REPORT, metric=metric)
         self.assertEqual(labels, metric['labels'])
-        # self.assertEqual(metric, metric_expected)
+        self.assertEqual(metric, metric_expected)
 
     def test_build_data_labels(self):
         exporter = MetricsExporter()
