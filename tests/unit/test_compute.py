@@ -60,6 +60,7 @@ SSM_MOCKS = [
 
 class TestCompute(unittest.TestCase):
     maxDiff = None
+
     @patch('google.api_core.grpc_helpers.create_channel',
            return_value=mock_sd(2 * STEPS * len(SLO_CONFIGS_SD)))
     def test_compute_stackdriver(self, mock):
