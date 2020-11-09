@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.4.0](https://www.github.com/google/slo-generator/compare/v1.3.2...v1.4.0) (2020-11-09)
+
+
+### Features
+
+* Add custom metadata to SLO configs ([#103](https://www.github.com/google/slo-generator/issues/103)) ([e53bdda](https://www.github.com/google/slo-generator/commit/e53bddaee1f7811ebedd93ff2b8b5fcf4ab875fb))
+
+
+### Bug Fixes
+
+* Add `threshold` method to Dynatrace backend ([#87](https://www.github.com/google/slo-generator/issues/87)) ([a36c6eb](https://www.github.com/google/slo-generator/commit/a36c6eb930ddf64791ca02ab3404b35e6c24b59a))
+* add post validation of SLI value ([#95](https://www.github.com/google/slo-generator/issues/95)) ([3c75da4](https://www.github.com/google/slo-generator/commit/3c75da465d0d5077fb1fe67aee866c82f760c2f0))
+* default metrics ([#97](https://www.github.com/google/slo-generator/issues/97)) ([34bc2b7](https://www.github.com/google/slo-generator/commit/34bc2b78ccbae742cbaf03a1e2d359374d3a1c21))
+* Duplicated project_id in Stackdriver exporter metric ([#100](https://www.github.com/google/slo-generator/issues/100)) ([b1c274d](https://www.github.com/google/slo-generator/commit/b1c274d26f5f8d92ac3fa7a0b3555c8721865fab))
+
 ### [1.3.2](https://www.github.com/google/slo-generator/compare/v1.3.1...v1.3.2) (2020-10-23)
 
 
