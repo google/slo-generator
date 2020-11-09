@@ -97,7 +97,8 @@ class MetricsExporter:
             metric.update(fields)
             metric = self.build_metric(data, metric)
             name = metric['name']
-            LOGGER.info(f'Exporting "{name}" ...')
+            labels = metric['labels']
+            LOGGER.info(f'Exporting "{name}" with labels {labels}...')
             ret = self.export_metric(metric)
             metric_info = {
                 k: v for k, v in metric.items()

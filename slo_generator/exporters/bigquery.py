@@ -71,16 +71,16 @@ class BigqueryExporter:
                                   data['window'])
 
         # Format user metadata if needed
-        metadata = data.get('metadata', {})
+        json_data = {k: v for k, v in data.items() if k in schema_fields}
+        metadata = json_data.get('metadata', {})
         if isinstance(metadata, dict):
             metadata_fields = [
                 {'key': key, 'value': value}
                 for key, value in metadata.items()
             ]
-            data['metadata'] = metadata_fields
+            json_data['metadata'] = metadata_fields
 
         # Write results to BQ table
-        json_data = {k: v for k, v in data.items() if k in schema_fields}
         if DRY_RUN:
             LOGGER.info(f'[DRY RUN] Writing data to BigQuery: \n{json_data}')
             return []
