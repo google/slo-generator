@@ -17,7 +17,7 @@ Report utilities.
 """
 
 import logging
-from dataclasses import asdict, dataclass, fields
+from dataclasses import asdict, dataclass, fields, field
 
 from slo_generator import utils
 from slo_generator.constants import COLORED_OUTPUT, MIN_VALID_EVENTS, NO_DATA
@@ -38,6 +38,9 @@ class SLOReport:
         delete (bool): Backend delete action.
     """
     # pylint: disable=too-many-instance-attributes
+
+    # Metadata
+    metadata: dict = field(default_factory=dict)
 
     # SLO
     service_name: str
@@ -80,12 +83,12 @@ class SLOReport:
                               'slo_target': float,
                               'alerting_burn_rate_threshold': float
                           })
-
         # Set other fields
         self.window = int(step['measurement_window_seconds'])
         self.timestamp = int(timestamp)
         self.timestamp_human = utils.get_human_time(timestamp)
         self.valid = True
+        self.metadata = config.get('metadata', {})
 
         # Get backend results
         data = self.run_backend(config, client=client, delete=delete)

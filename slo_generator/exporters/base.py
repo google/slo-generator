@@ -23,7 +23,7 @@ LOGGER = logging.getLogger(__name__)
 
 DEFAULT_METRIC_LABELS = [
     'error_budget_policy_step_name', 'window', 'service_name', 'feature_name',
-    'slo_name', 'alerting_burn_rate_threshold'
+    'slo_name', 'alerting_burn_rate_threshold', 'metadata'
 ]
 
 DEFAULT_METRICS = [
@@ -130,11 +130,11 @@ class MetricsExporter:
         metric['value'] = data[name]
         metric['timestamp'] = data['timestamp']
 
-        # Set metric labels
+        # Set metric data labels
         labels = metric.get('labels', DEFAULT_METRIC_LABELS)
         additional_labels = metric.get('additional_labels', [])
         labels.extend(additional_labels)
-        labels = {key: str(val) for key, val in data.items() if key in labels}
+        labels = MetricsExporter.build_data_labels(data, labels)
         metric['labels'] = labels
 
         # Use metric alias (mapping)
@@ -148,6 +148,33 @@ class MetricsExporter:
         metric['description'] = metric.get('description', "")
 
         return metric
+
+    @staticmethod
+    def build_data_labels(data, labels):
+        """Build data labels. Also handle nested labels (depth=1).
+
+        Args:
+            data (dict): SLO Report data.
+            labels (list): Label keys.
+
+        Returns:
+            dict: Data labels.
+        """
+        data_labels = {}
+        nested_labels = [
+            label for label in labels
+            if label in data and isinstance(data[label], dict)
+        ]
+        flat_labels = [
+            label for label in labels
+            if label in data and not isinstance(data[label], dict)
+        ]
+        for label in nested_labels:
+            data_labels.update({k: str(v) for k, v in data[label].items()})
+        for label in flat_labels:
+            data_labels.update({label: str(data[label])})
+        LOGGER.debug(f'Data labels: {data_labels}')
+        return data_labels
 
     @staticmethod
     def use_deprecated_fields(config, metric):

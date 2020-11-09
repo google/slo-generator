@@ -43,3 +43,13 @@
     metric_labels: [good_events_count, bad_events_count]
     metrics:
       - error_budget_burn_rate
+
+  # New format ('metrics' block)
+  - class: Stackdriver
+    project_id: ${STACKDRIVER_HOST_PROJECT_ID}
+    metrics:
+      - name: error_budget_burn_rate
+        additional_labels:
+          # data labels
+          - good_events_count
+          - bad_events_count

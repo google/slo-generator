@@ -22,5 +22,9 @@
   "error_budget_measurement": 0.5,
   "error_budget_burn_rate": 5.000000000000001,
   "alerting_burn_rate_threshold": 3.0,
-  "alert": "true"
+  "alert": "true",
+  "metadata": {
+    "env": "test",
+    "team": "test"
+  }
 }
