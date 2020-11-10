@@ -82,14 +82,4 @@ Some metrics exporters have a limit of `labels` that can be written to their
 metrics timeseries:
 * `StackdriverExporter` labels limit: `10`.
 
-  You might run into the following error if you have too many labels:
-  ```
-  The new labels would cause the metric custom.googleapis.com/slo_target to have over 10 labels.: timeSeries[0]"
-        debug_error_string = "{"created":"@1605001943.853828000","description":"Error received from peer ipv6:[2a00:1450:4007:817::200a]:443","file":"src/core/lib/surface/call.cc","file_line":1062,"grpc_message":"One or more TimeSeries could not be written: The new labels would cause the metric custom.googleapis.com/slo_target to have over 10 labels.: timeSeries[0]","grpc_status":3}"
-  ```
-
-  A solution is to delete de metric descriptor (will delete historical data for 
-  the metric) and re-run. You can do so using `gmon` (`pip install gmon`) and 
-  run: `gmon metrics delete custom.googleapis.com/slo_target`.
-
 Those are standards and cannot be modified.
