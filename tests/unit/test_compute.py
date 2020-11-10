@@ -143,7 +143,7 @@ class TestCompute(unittest.TestCase):
            return_value=BQ_ERROR)
     def test_export_bigquery_error(self, *mocks):
         with self.assertRaises(BigQueryError):
-            export(SLO_REPORT, EXPORTERS[2])
+            export(SLO_REPORT, EXPORTERS[2], raise_on_error=True)
 
     @patch("prometheus_client.push_to_gateway")
     def test_export_prometheus(self, mock):
@@ -169,7 +169,7 @@ class TestCompute(unittest.TestCase):
         with self.assertWarns(FutureWarning):
             export(SLO_REPORT, EXPORTERS[6])
 
-    def test_build_metrics(self):
+    def test_metrics_exporter_build_metrics(self):
         exporter = MetricsExporter()
         metric = EXPORTERS[7]['metrics'][0]
         labels = {}
@@ -198,7 +198,7 @@ class TestCompute(unittest.TestCase):
         self.assertEqual(labels, metric['labels'])
         self.assertEqual(metric, metric_expected)
 
-    def test_build_data_labels(self):
+    def test_metrics_exporter_build_data_labels(self):
         exporter = MetricsExporter()
         data = SLO_REPORT
         labels = ['service_name', 'slo_name', 'metadata']
@@ -210,6 +210,30 @@ class TestCompute(unittest.TestCase):
             'team': SLO_REPORT['metadata']['team']
         }
         self.assertEqual(result, expected)
+
+    @patch("google.api_core.grpc_helpers.create_channel",
+           return_value=mock_sd(STEPS))
+    @patch("google.cloud.bigquery.Client.get_table")
+    @patch("google.cloud.bigquery.Client.create_table")
+    @patch("google.cloud.bigquery.Client.update_table")
+    @patch("google.cloud.bigquery.Client.insert_rows_json",
+           return_value=BQ_ERROR)
+    def test_export_multiple_error(self, *mocks):
+        exporters = [EXPORTERS[1], EXPORTERS[2]]
+        results = export(SLO_REPORT, exporters)
+        self.assertTrue(isinstance(results[-1], BigQueryError))
+
+    @patch("google.api_core.grpc_helpers.create_channel",
+           return_value=mock_sd(STEPS))
+    @patch("google.cloud.bigquery.Client.get_table")
+    @patch("google.cloud.bigquery.Client.create_table")
+    @patch("google.cloud.bigquery.Client.update_table")
+    @patch("google.cloud.bigquery.Client.insert_rows_json",
+           return_value=BQ_ERROR)
+    def test_export_multiple_error_raise(self, *mocks):
+        exporters = [EXPORTERS[1], EXPORTERS[2]]
+        with self.assertRaises(BigQueryError):
+            export(SLO_REPORT, exporters, raise_on_error=True)
 
 
 if __name__ == '__main__':

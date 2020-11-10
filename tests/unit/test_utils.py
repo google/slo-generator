@@ -48,14 +48,14 @@ class TestUtils(unittest.TestCase):
         self.assertEqual(res1.__module__, "slo_generator.backends.stackdriver")
         self.assertEqual(res2.__name__, "PrometheusBackend")
         self.assertEqual(res2.__module__, "slo_generator.backends.prometheus")
-        with self.assertRaises(SystemExit):
+        with self.assertRaises(ModuleNotFoundError):
             get_backend_cls("UndefinedBackend")
 
     def test_get_backend_dynamic_cls(self):
         res1 = get_backend_cls("pathlib.Path")
         self.assertEqual(res1.__name__, "Path")
         self.assertEqual(res1.__module__, "pathlib")
-        with self.assertRaises(SystemExit):
+        with self.assertRaises(ModuleNotFoundError):
             get_exporter_cls("foo.bar.DoesNotExist")
 
     def test_get_exporter_cls(self):
@@ -68,14 +68,14 @@ class TestUtils(unittest.TestCase):
         self.assertEqual(res2.__module__, "slo_generator.exporters.pubsub")
         self.assertEqual(res3.__name__, "BigqueryExporter")
         self.assertEqual(res3.__module__, "slo_generator.exporters.bigquery")
-        with self.assertRaises(SystemExit):
+        with self.assertRaises(ModuleNotFoundError):
             get_exporter_cls("UndefinedExporter")
 
     def test_get_exporter_dynamic_cls(self):
         res1 = get_exporter_cls("pathlib.Path")
         self.assertEqual(res1.__name__, "Path")
         self.assertEqual(res1.__module__, "pathlib")
-        with self.assertRaises(SystemExit):
+        with self.assertRaises(ModuleNotFoundError):
             get_exporter_cls("foo.bar.DoesNotExist")
 
     def test_import_dynamic(self):
@@ -87,7 +87,7 @@ class TestUtils(unittest.TestCase):
                               prefix="exporter")
         self.assertEqual(res1.__name__, "StackdriverBackend")
         self.assertEqual(res2.__name__, "StackdriverExporter")
-        with self.assertRaises(SystemExit):
+        with self.assertRaises(ModuleNotFoundError):
             import_dynamic("slo_generator.backends.unknown",
                            "StackdriverUnknown",
                            prefix="unknown")

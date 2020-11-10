@@ -18,7 +18,9 @@ Stubs for mocking backends and exporters.
 import copy
 import json
 import os
+import sys
 import time
+from types import ModuleType
 
 from google.cloud.monitoring_v3.proto import metric_service_pb2
 from slo_generator.utils import list_slo_configs, parse_config
@@ -69,21 +71,31 @@ class DummyBackend:
         return self.sli_value
 """
 
+FAIL_EXPORTER_CODE = """
+from slo_generator.exporters.base import MetricsExporter
+class FailExporter(MetricsExporter):
+    def export_metric(self, data):
+        raise ValueError("Oops !")
+"""
 
-def add_dummy_backend():
-    """Dynamically adds DummyBackend to slo-generator. The DummyBackend is
-    appended in a submodule, and can be imported using:
+def add_dynamic(name, code, type):
+    """Dynamically add a backend or exporter to slo-generator.
 
-    >>> import slo_generator.backends.dummy.DummyBackend
+    Args:
+        name (str): Name of backend / exporter.
+        code (str): Backend / exporter code.
+        type (str): 'backends' or 'exporters'.
     """
-    import sys
-    from types import ModuleType
-    mod = ModuleType('dummy')
-    sys.modules['slo_generator.backends.dummy'] = mod
-    exec(CUSTOM_BACKEND_CODE, mod.__dict__)
+    mod = ModuleType(name)
+    module_name = f'slo_generator.{type}.{name}'
+    sys.modules[module_name] = mod
+    exec(code, mod.__dict__)
 
 
-add_dummy_backend()  # Adds backend `slo_generator.backends.dummy.Dummybackend
+# Add backends / exporters for testing purposes
+add_dynamic('dummy', CUSTOM_BACKEND_CODE, 'backends')
+add_dynamic('fail', FAIL_EXPORTER_CODE, 'exporters')
+
 
 CUSTOM_BASE_CONFIG = {
     "service_name": "test",
