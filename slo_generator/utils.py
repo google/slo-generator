@@ -228,7 +228,7 @@ def import_dynamic(package, name, prefix="class"):
             f'package and class name are valid, or that importing it doesn\'t '
             f'result in an exception.')
         LOGGER.debug(exception, exc_info=True)
-        sys.exit(1)
+        raise exception
 
 
 def dict_snake_to_caml(data):
