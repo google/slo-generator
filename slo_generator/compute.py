@@ -77,7 +77,7 @@ def compute(slo_config,
     return reports
 
 
-def export(data, exporters):
+def export(data, exporters, raise_on_error=False):
     """Export data using selected exporters.
 
     Args:
@@ -96,13 +96,20 @@ def export(data, exporters):
         exporters = [exporters]
 
     for config in exporters:
-        exporter_class = config.get('class')
-        LOGGER.info(f'Exporting results to {exporter_class}')
-        LOGGER.debug(f'Exporter config: {pprint.pformat(config)}')
-        exporter = utils.get_exporter_cls(exporter_class)()
-        response = exporter.export(data, **config)
-        if isinstance(response, list):
-            for elem in response:
-                elem['exporter'] = exporter_class
-        responses.append(response)
+        try:
+            exporter_class = config.get('class')
+            LOGGER.info(f'Exporting results to {exporter_class}')
+            LOGGER.debug(f'Exporter config: {pprint.pformat(config)}')
+            exporter = utils.get_exporter_cls(exporter_class)()
+            response = exporter.export(data, **config)
+            if isinstance(response, list):
+                for elem in response:
+                    elem['exporter'] = exporter_class
+            responses.append(response)
+        except Exception as exc:  # pylint: disable=broad-except
+            LOGGER.critical(exc, exc_info=True)
+            LOGGER.error(f'{exporter_class}Exporter failed. Passing.')
+            if raise_on_error:
+                raise exc
+            responses.append(exc)
     return responses

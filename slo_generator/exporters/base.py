@@ -22,8 +22,8 @@ from abc import ABCMeta, abstractmethod
 LOGGER = logging.getLogger(__name__)
 
 DEFAULT_METRIC_LABELS = [
-    'error_budget_policy_step_name', 'window', 'service_name', 'feature_name',
-    'slo_name', 'alerting_burn_rate_threshold', 'metadata'
+    'error_budget_policy_step_name', 'service_name', 'feature_name', 'slo_name',
+    'metadata'
 ]
 
 DEFAULT_METRICS = [
@@ -98,7 +98,10 @@ class MetricsExporter:
             metric = self.build_metric(data, metric)
             name = metric['name']
             labels = metric['labels']
-            LOGGER.info(f'Exporting "{name}" with labels {labels}...')
+            labels_str = ', '.join([f'{k}={v}' for k, v in labels.items()])
+            LOGGER.info(
+                f'Exporting "{name}" with {len(labels.keys())} labels: '
+                f'{labels_str}...')
             ret = self.export_metric(metric)
             metric_info = {
                 k: v for k, v in metric.items()
@@ -132,7 +135,7 @@ class MetricsExporter:
         metric['timestamp'] = data['timestamp']
 
         # Set metric data labels
-        labels = metric.get('labels', DEFAULT_METRIC_LABELS)
+        labels = metric.get('labels', DEFAULT_METRIC_LABELS).copy()
         additional_labels = metric.get('additional_labels', [])
         labels.extend(additional_labels)
         labels = MetricsExporter.build_data_labels(data, labels)
@@ -147,7 +150,6 @@ class MetricsExporter:
 
         # Set description
         metric['description'] = metric.get('description', "")
-
         return metric
 
     @staticmethod
