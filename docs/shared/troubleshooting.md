@@ -1,6 +1,9 @@
 # Troubleshooting
 
-## `StackdriverExporter`: Labels limit (10) reached.
+## Problem
+
+**`StackdriverExporter`: Labels limit (10) reached.**
+
 ```
 The new labels would cause the metric custom.googleapis.com/slo_target to have over 10 labels.: timeSeries[0]"
     debug_error_string = "{"created":"@1605001943.853828000","description":"Error received from peer ipv6:[2a00:1450:4007:817::200a]:443","file":"src/core/lib/surface/call.cc","file_line":1062,"grpc_message":"One or more TimeSeries could not be written: The new labels would cause the metric custom.googleapis.com/slo_target to have over 10 labels.: timeSeries[0]","grpc_status":3}"
@@ -11,7 +14,7 @@ The new labels would cause the metric custom.googleapis.com/slo_target to have o
 **Solution 1:**
 Delete the metric descriptor, and re-run the SLO Generator. 
 You can do so using `gmon` (`pip install gmon`) and run: 
-`gmon metrics delete custom.googleapis.com/slo_target`.
+`gmon metrics delete custom.googleapis.com/slo_target -p <SD_HOST_PROJECT_ID>`.
 **Warning:** this will destroy all historical metric data (6 weeks). 
 If you are using the metric in Cloud Monitoring dashboards, be wary.
 
