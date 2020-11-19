@@ -17,7 +17,7 @@ Stackdriver Monitoring exporter class.
 """
 import logging
 
-from prometheus_client import CollectorRegistry, Gauge, push_to_gateway
+from prometheus_client import CollectorRegistry, Gauge, pushadd_to_gateway
 from prometheus_client.exposition import basic_auth_handler, default_handler
 
 from .base import MetricsExporter
@@ -76,7 +76,7 @@ class PrometheusExporter(MetricsExporter):
             self.password = data['password']
             handler = PrometheusExporter.auth_handler
 
-        return push_to_gateway(prometheus_push_url,
+        return pushadd_to_gateway(prometheus_push_url,
                                job=prometheus_push_job_name,
                                grouping_key=labels,
                                registry=registry,
