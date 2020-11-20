@@ -77,10 +77,10 @@ class PrometheusExporter(MetricsExporter):
             handler = PrometheusExporter.auth_handler
 
         return pushadd_to_gateway(prometheus_push_url,
-                               job=prometheus_push_job_name,
-                               grouping_key=labels,
-                               registry=registry,
-                               handler=handler)
+                                  job=prometheus_push_job_name,
+                                  grouping_key=labels,
+                                  registry=registry,
+                                  handler=handler)
 
     def auth_handler(self, url, method, timeout, headers, data):
         """Handles authentication for pushing to Prometheus gateway.
