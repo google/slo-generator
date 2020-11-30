@@ -1,5 +1,17 @@
 # Changelog
 
+### [1.4.1](https://www.github.com/google/slo-generator/compare/v1.4.0...v1.4.1) (2020-11-30)
+
+
+### Bug Fixes
+
+* replace PUT by POST for prometheus exporter (push-gateway) ([#109](https://www.github.com/google/slo-generator/issues/109)) ([0002456](https://www.github.com/google/slo-generator/commit/00024565ba9b5c713c2e122930a78ee22eb5122a))
+
+
+### Documentation
+
+* update readme with metadata info ([#107](https://www.github.com/google/slo-generator/issues/107)) ([6e078f8](https://www.github.com/google/slo-generator/commit/6e078f849c1de8cb908d7a065cb0f66449e95e57))
+
 ## [1.4.0](https://www.github.com/google/slo-generator/compare/v1.3.2...v1.4.0) (2020-11-12)
 
 
