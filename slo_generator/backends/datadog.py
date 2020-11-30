@@ -99,8 +99,8 @@ class DatadogBackend:
         sli_value = DatadogBackend.count(response, average=True)
         return sli_value
 
-    def query_slo(self, timestamp, window, slo_config):
-        """Query SLO value from a given Datadog SLO.
+    def query_slo_metric(self, timestamp, window, slo_config):
+        """Query SLO value from a given Datadog Metric SLO.
 
         Args:
             timestamp (int): UNIX timestamp.
@@ -124,6 +124,30 @@ class DatadogBackend:
         valid_event_count = data['data']['series']['denominator']['sum']
         bad_event_count = valid_event_count - good_event_count
         return (good_event_count, bad_event_count)
+    
+    def query_slo_monitor(self, timestamp, window, slo_config):
+        """Query SLO value from a given Datadog Monitor SLO.
+
+        Args:
+            timestamp (int): UNIX timestamp.
+            window (int): Window (in seconds).
+            slo_config (dict): SLO configuration.
+
+        Returns:
+            float: SLI value.
+        """
+        slo_id = slo_config['backend']['measurement']['slo_id']
+        from_ts = timestamp - window
+        slo_data = self.client.ServiceLevelObjective.get(id=slo_id)
+        LOGGER.debug(
+            f"SLO data: {slo_id} | Result: {pprint.pformat(slo_data)}")
+        data = self.client.ServiceLevelObjective.history(id=slo_id,
+                                                         from_ts=from_ts,
+                                                         to_ts=timestamp)
+        LOGGER.debug(
+            f"Timeseries data: {slo_id} | Result: {pprint.pformat(data)}")
+        sli_value = data['data']['overall']['sli_value'] / 100
+        return sli_value
 
     @staticmethod
     def _fmt_query(query, window, operator=None, operator_suffix=None):
