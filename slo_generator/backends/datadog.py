@@ -125,8 +125,9 @@ class DatadogBackend:
             valid_event_count = data['data']['series']['denominator']['sum']
             bad_event_count = valid_event_count - good_event_count
             return (good_event_count, bad_event_count)
-        except: # monitor-based SLI
+        except (KeyError) as exception:# monitor-based SLI
             sli_value = data['data']['overall']['sli_value'] / 100
+            LOGGER.debug(exception)
             return sli_value
 
     def query_slo_monitor(self, timestamp, window, slo_config):
