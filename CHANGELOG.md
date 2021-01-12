@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.0](https://www.github.com/google/slo-generator/compare/v1.4.1...v1.5.0) (2021-01-12)
+
+
+### Features
+
+* support Datadog monitor-based SLOs ([#112](https://www.github.com/google/slo-generator/issues/112)) ([43a7896](https://www.github.com/google/slo-generator/commit/43a7896e022b0c8314d8be4150f6113859a169fa))
+
 ### [1.4.1](https://www.github.com/google/slo-generator/compare/v1.4.0...v1.4.1) (2020-11-30)
 
 
