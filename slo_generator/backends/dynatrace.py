@@ -301,18 +301,15 @@ class DynatraceClient:
             response = req(url, headers=headers)
             LOGGER.debug(f'Response: {response}')
         data = DynatraceClient.to_json(response)
-        LOGGER.debug(f'data: {data}')
-        
-        if 'nextPageKey' in data:
-            next_page_key = data.get('nextPageKey')
-            if next_page_key:
-                params = {'nextPageKey': next_page_key}
-                LOGGER.debug(f'Requesting next page: {next_page_key}')
-                data_next = self.request(method, endpoint, name, version, **params)
-                next_page_key = data_next.get('nextPageKey')
-                if not key:
-                    key = DynatraceClient.ENDPOINT_KEYS.get(endpoint, 'result')
-                data[key].extend(data_next[key])
+        next_page_key = data.get('nextPageKey')
+        if next_page_key:	
+            params = {'nextPageKey': next_page_key, 'Api-Token': self.token}
+            LOGGER.debug(f'Requesting next page: {next_page_key}')
+            data_next = self.request(method, endpoint, name, version, **params)
+            next_page_key = data_next.get('nextPageKey')
+            if not key:
+                key = DynatraceClient.ENDPOINT_KEYS.get(endpoint, 'result')
+            data[key].extend(data_next[key])
         return data
 
     @staticmethod
