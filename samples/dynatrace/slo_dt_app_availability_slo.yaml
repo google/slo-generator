@@ -19,7 +19,7 @@ slo_description:        99.9% of app requests return a good HTTP code
 slo_target:             0.999
 backend:
   class:                Dynatrace
-  method:               slo
+  method:               query_slo
   api_url:              ${DYNATRACE_API_URL}
   api_token:            ${DYNATRACE_API_TOKEN}
   measurement:
