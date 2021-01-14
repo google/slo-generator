@@ -1,0 +1,31 @@
+# Copyright 2019 Google Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#            http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+---
+service_name:           dt
+feature_name:           app
+slo_name:               availability
+slo_description:        99.9% of app requests return a good HTTP code
+slo_target:             0.999
+backend:
+  class:                Dynatrace
+  method:               slo
+  api_url:              ${DYNATRACE_API_URL}
+  api_token:            ${DYNATRACE_API_TOKEN}
+  measurement:
+    slo_id:             898a6875-a5f5-3066-9aa8-977a17b9432d
+exporters:
+- class:                Dynatrace
+  api_url:              ${DYNATRACE_API_URL}
+  api_token:            ${DYNATRACE_API_TOKEN}
+  metric_timeseries_id: custom:slo.error_budget_burn_rate
