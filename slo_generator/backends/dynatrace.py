@@ -39,6 +39,17 @@ class DynatraceBackend:
         if client is None:
             self.client = DynatraceClient(api_url, api_token)
 
+    def slo(self, timestamp, window, slo_config):
+        conf = slo_config['backend']
+        start = (timestamp - window) * 1000
+        end = timestamp * 1000
+        measurement = conf['measurement']
+        slo_id = measurement['slo_id']
+        data = self.query_slo(start, end, slo_id)
+        LOGGER.debug(f"Result good: {pprint.pformat(data)}")
+        sli_value = data['evaluatedPercentage']/100
+        return sli_value
+    
     def good_bad_ratio(self, timestamp, window, slo_config):
         """Query SLI value from good and valid queries.
 
@@ -126,6 +137,28 @@ class DynatraceBackend:
                                    'metrics/query',
                                    version='v2',
                                    **params)
+    
+    def query_slo(self,
+              start,
+              end,
+              slo_id):
+        """Query Dynatrace SLO V2.
+
+        Args:
+            start (int): Start timestamp (in milliseconds).
+            end (int): End timestamp (in milliseconds).
+
+        Returns:
+            dict: Dynatrace API response.
+        """
+        params = {
+            'from': start,
+            'to': end
+        }
+        return self.client.request('get',
+                                   'slo/'+slo_id,
+                                   version='v2',
+                                   **params)
 
     @staticmethod
     def count(response):
@@ -201,7 +234,10 @@ def retry_http(response):
         bool: True to retry, False otherwise.
     """
     retry_codes = [429]
-    code = int(response.get('error', {}).get('code', 200))
+    if isinstance(response.get('error', {}), str):
+        code = 200
+    else:
+        code = int(response.get('error', {}).get('code', 200))
     return code in retry_codes
 
 
@@ -247,11 +283,11 @@ class DynatraceClient:
         """
         req = getattr(self.client, method)
         url = f'{self.url}/api/{version}/{endpoint}'
-        params['Api-Token'] = self.token
         headers = {
             'Accept': 'application/json',
             'Content-Type': 'application/json',
-            'User-Agent': 'slo-generator'
+            'User-Agent': 'slo-generator',
+            'Authorization': 'Api-Token '+ self.token
         }
         if name:
             url += f'/{name}'
@@ -262,16 +298,20 @@ class DynatraceClient:
             response = req(url, headers=headers, json=post_data)
         else:
             response = req(url, headers=headers)
+            LOGGER.debug(f'Response: {response}')
         data = DynatraceClient.to_json(response)
-        next_page_key = data.get('nextPageKey')
-        if next_page_key:
-            params = {'nextPageKey': next_page_key, 'Api-Token': self.token}
-            LOGGER.debug(f'Requesting next page: {next_page_key}')
-            data_next = self.request(method, endpoint, name, version, **params)
-            next_page_key = data_next.get('nextPageKey')
-            if not key:
-                key = DynatraceClient.ENDPOINT_KEYS.get(endpoint, 'result')
-            data[key].extend(data_next[key])
+        LOGGER.debug(f'data: {data}')
+        
+        if 'nextPageKey' in data:
+            next_page_key = data.get('nextPageKey')
+            if next_page_key:
+                params = {'nextPageKey': next_page_key}
+                LOGGER.debug(f'Requesting next page: {next_page_key}')
+                data_next = self.request(method, endpoint, name, version, **params)
+                next_page_key = data_next.get('nextPageKey')
+                if not key:
+                    key = DynatraceClient.ENDPOINT_KEYS.get(endpoint, 'result')
+                data[key].extend(data_next[key])
         return data
 
     @staticmethod

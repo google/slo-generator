@@ -115,15 +115,20 @@ class DatadogBackend:
         slo_data = self.client.ServiceLevelObjective.get(id=slo_id)
         LOGGER.debug(
             f"SLO data: {slo_id} | Result: {pprint.pformat(slo_data)}")
-        data = self.client.ServiceLevelObjective.history(id=slo_id,
-                                                         from_ts=from_ts,
-                                                         to_ts=timestamp)
-        LOGGER.debug(
-            f"Timeseries data: {slo_id} | Result: {pprint.pformat(data)}")
-        good_event_count = data['data']['series']['numerator']['sum']
-        valid_event_count = data['data']['series']['denominator']['sum']
-        bad_event_count = valid_event_count - good_event_count
-        return (good_event_count, bad_event_count)
+        try:
+            data = self.client.ServiceLevelObjective.history(id=slo_id,
+                                                             from_ts=from_ts,
+                                                             to_ts=timestamp)
+            LOGGER.debug(
+                f"Timeseries data: {slo_id} | Result: {pprint.pformat(data)}")
+            good_event_count = data['data']['series']['numerator']['sum']
+            valid_event_count = data['data']['series']['denominator']['sum']
+            bad_event_count = valid_event_count - good_event_count
+            return (good_event_count, bad_event_count)
+        except (KeyError) as exception:# monitor-based SLI
+            sli_value = data['data']['overall']['sli_value'] / 100
+            LOGGER.debug(exception)
+            return sli_value
 
     @staticmethod
     def _fmt_query(query, window, operator=None, operator_suffix=None):
