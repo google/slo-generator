@@ -39,15 +39,15 @@ class DynatraceBackend:
         if client is None:
             self.client = DynatraceClient(api_url, api_token)
 
-    def slo(self, timestamp, window, slo_config):
+    def query_slo(self, timestamp, window, slo_config):
         conf = slo_config['backend']
         start = (timestamp - window) * 1000
         end = timestamp * 1000
         measurement = conf['measurement']
         slo_id = measurement['slo_id']
-        data = self.query_slo(start, end, slo_id)
+        data = self.retrieve_slo(start, end, slo_id)
         LOGGER.debug(f"Result SLO: {pprint.pformat(data)}")
-        sli_value = data['evaluatedPercentage']/100
+        sli_value = round(data['evaluatedPercentage']/100, 4)
         return sli_value
     
     def good_bad_ratio(self, timestamp, window, slo_config):
@@ -138,7 +138,7 @@ class DynatraceBackend:
                                    version='v2',
                                    **params)
     
-    def query_slo(self,
+    def retrieve_slo(self,
               start,
               end,
               slo_id):
