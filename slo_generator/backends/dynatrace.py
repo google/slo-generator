@@ -46,7 +46,7 @@ class DynatraceBackend:
         measurement = conf['measurement']
         slo_id = measurement['slo_id']
         data = self.query_slo(start, end, slo_id)
-        LOGGER.debug(f"Result good: {pprint.pformat(data)}")
+        LOGGER.debug(f"Result SLO: {pprint.pformat(data)}")
         sli_value = data['evaluatedPercentage']/100
         return sli_value
     
@@ -147,6 +147,7 @@ class DynatraceBackend:
         Args:
             start (int): Start timestamp (in milliseconds).
             end (int): End timestamp (in milliseconds).
+            slo_id (int): SLO ID.
 
         Returns:
             dict: Dynatrace API response.
