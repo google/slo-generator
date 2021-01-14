@@ -284,11 +284,11 @@ class DynatraceClient:
         """
         req = getattr(self.client, method)
         url = f'{self.url}/api/{version}/{endpoint}'
+        params['Api-Token'] = self.token
         headers = {
             'Accept': 'application/json',
             'Content-Type': 'application/json',
-            'User-Agent': 'slo-generator',
-            'Authorization': 'Api-Token '+ self.token
+            'User-Agent': 'slo-generator'
         }
         if name:
             url += f'/{name}'
