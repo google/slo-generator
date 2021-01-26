@@ -23,7 +23,7 @@ backend:
   api_url:              ${DYNATRACE_API_URL}
   api_token:            ${DYNATRACE_API_TOKEN}
   measurement:
-    slo_id:             898a6875-a5f5-3066-9aa8-977a17b9432d
+    slo_id:             xxxx
 exporters:
 - class:                Dynatrace
   api_url:              ${DYNATRACE_API_URL}
