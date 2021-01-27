@@ -57,9 +57,9 @@ class DynatraceBackend:
         slo_id = measurement['slo_id']
         data = self.retrieve_slo(start, end, slo_id)
         LOGGER.debug(f"Result SLO: {pprint.pformat(data)}")
-        sli_value = round(data['evaluatedPercentage']/100, 4)
+        sli_value = round(data['evaluatedPercentage'] / 100, 4)
         return sli_value
-    
+
     def good_bad_ratio(self, timestamp, window, slo_config):
         """Query SLI value from good and valid queries.
 
@@ -147,11 +147,11 @@ class DynatraceBackend:
                                    'metrics/query',
                                    version='v2',
                                    **params)
-    
+
     def retrieve_slo(self,
-              start,
-              end,
-              slo_id):
+                     start,
+                     end,
+                     slo_id):
         """Query Dynatrace SLO V2.
 
         Args:
