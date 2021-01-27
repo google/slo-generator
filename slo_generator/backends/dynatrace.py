@@ -39,7 +39,17 @@ class DynatraceBackend:
         if client is None:
             self.client = DynatraceClient(api_url, api_token)
 
-    def query_slo(self, timestamp, window, slo_config):
+    def query_sli(self, timestamp, window, slo_config):
+        """Query SLI value from a given Dynatrace SLO.
+
+        Args:
+            timestamp (int): UNIX timestamp.
+            window (int): Window (in seconds).
+            slo_config (dict): SLO configuration.
+
+        Returns:
+            float: SLI value.
+        """
         conf = slo_config['backend']
         start = (timestamp - window) * 1000
         end = timestamp * 1000
