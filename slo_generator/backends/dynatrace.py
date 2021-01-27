@@ -166,8 +166,9 @@ class DynatraceBackend:
             'from': start,
             'to': end
         }
+        endpoint = 'slo/' + slo_id
         return self.client.request('get',
-                                   'slo/'+slo_id,
+                                   endpoint,
                                    version='v2',
                                    **params)
 
@@ -312,7 +313,7 @@ class DynatraceClient:
             LOGGER.debug(f'Response: {response}')
         data = DynatraceClient.to_json(response)
         next_page_key = data.get('nextPageKey')
-        if next_page_key:	
+        if next_page_key:
             params = {'nextPageKey': next_page_key, 'Api-Token': self.token}
             LOGGER.debug(f'Requesting next page: {next_page_key}')
             data_next = self.request(method, endpoint, name, version, **params)
