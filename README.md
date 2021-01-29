@@ -61,6 +61,7 @@ The **SLO configuration** (JSON or YAML) is composed of the following fields:
   * `slo_target`: SLO target (between 0 and 1).
   * `service_name`: Name of the monitored service.
   * `feature_name`: Name of the monitored subsystem.
+  * `metadata`: Dict of user metadata.
 
 
 * **SLI configuration**:
