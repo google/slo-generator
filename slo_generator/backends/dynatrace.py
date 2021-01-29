@@ -246,10 +246,11 @@ def retry_http(response):
         bool: True to retry, False otherwise.
     """
     retry_codes = [429]
-    if isinstance(response.get('error', {}), str):
+    returned_code = response.get('error', {})
+    if isinstance(returned_code, str):
         code = 200
     else:
-        code = int(response.get('error', {}).get('code', 200))
+        code = int(returned_code.get('code', 200))
     return code in retry_codes
 
 
