@@ -310,7 +310,7 @@ class DynatraceClient:
             response = req(url, headers=headers, json=post_data)
         else:
             response = req(url, headers=headers)
-            LOGGER.debug(f'Response: {response}')
+        LOGGER.debug(f'Response: {response}')
         data = DynatraceClient.to_json(response)
         next_page_key = data.get('nextPageKey')
         if next_page_key:
