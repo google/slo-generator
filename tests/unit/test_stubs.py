@@ -344,6 +344,9 @@ def mock_dt(*args, **kwargs):
     elif args[0] == 'put' and args[1] == 'timeseries':
         return {}
 
+    elif args[0] == 'put' and args[1].startswith('slo/'):
+        return load_fixture('dt_slo_get.json')
+
 def mock_dt_errors(*args, **kwargs):
     """Mock Dynatrace response with errors."""
     if args[0] == 'get' and args[1] == 'timeseries':

@@ -1,0 +1,21 @@
+{
+  "id": "XXXXXX",
+  "enabled": true,
+  "name": "XXXXXX",
+  "description": "Service Successes Server Rate > 99.9%",
+  "evaluatedPercentage": 94.57628498405988,
+  "errorBudget": -5.323715015940124,
+  "status": "FAILURE",
+  "error": "NONE",
+  "useRateMetric": true,
+  "metricRate": "builtin:service.successes.server.rate",
+  "metricNumerator": "",
+  "numeratorValue": 0,
+  "metricDenominator": "",
+  "denominatorValue": 0,
+  "target": 99.9,
+  "warning": 99.95,
+  "evaluationType": "AGGREGATE",
+  "timeframe": "-30m",
+  "filter": "type(\"sERVICE\"),tag(\"XXXXXX\")"
+}
