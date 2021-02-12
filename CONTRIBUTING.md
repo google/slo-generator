@@ -44,7 +44,21 @@ source venv/bin/activate
 
 Install `slo-generator` locally in development mode, so that you can start making changes to it:
 ```
-python setup.py develop
+make develop
+```
+
+### Testing environment
+Unittests are located in the `tests/unit` folder.
+
+To run all the tests, run `make` in the base directory.
+
+You can also select which test to run, and do other things:
+```
+make unittests     # run unittests only
+make flake8 pylint # run linting tests only
+make docker_test   # build Docker image and run tests within Docker container
+make docker_build  # build Docker image only
+make info          # see current slo-generator version
 ```
 
 ### Adding support for a new backend or exporter
@@ -59,9 +73,15 @@ To add a new backend, one must:
 
 * Add a new file `slo-generator/backends/<backend>.py`
 
-* Write a new Python class called `<Backend>` (CamlCase)
+* Write a new Python class called `<Name>Backend` (CamlCase)
 
-* Add unit tests
+* Test it with a sample config
+
+* Add some unit tests
+
+* Make sure all tests pass
+
+* Submit a PR
 
 ***Example with a fake Cat backend:***
 
@@ -134,7 +154,7 @@ To add a new backend, one must:
       query_valid: avg:system.disk.used{*}.rollup(avg, {window})
   ```
 
-* Run a test with the SLO generator:
+* Run a live test with the SLO generator:
   ```sh
   slo-generator -f slo_cat_test_slo_ratio.yaml -b samples/error_budget_target.yaml
   ```
@@ -147,5 +167,9 @@ To add a new backend, one must:
 writing the test.
 
 * Add documentation for your backend / exporter in a new file named `docs/providers/cat.md`.
+
+* Make sure all tests pass
+
+* Submit a PR
 
 The steps above are similar for adding a new exporter, but the exporter code will go to the `exporters/` directory and the unit test will be named `test_export_<exporter>`.
