@@ -24,5 +24,6 @@ RUN apt-get update && \
 ADD . /app
 WORKDIR /app
 RUN pip install -U setuptools
-RUN python setup.py install
+RUN pip install .
+CMD ["make"]
 ENTRYPOINT [ "slo-generator" ]

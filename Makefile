@@ -20,16 +20,19 @@ PIP=pip3
 PYTHON=python3
 TWINE=twine
 COVERAGE=coverage
-NOSE_OPTS = --with-coverage --cover-package=$(NAME)
+NOSE_OPTS = --with-coverage --cover-package=$(NAME) --cover-erase
 SITELIB = $(shell $(PYTHON) -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")
 
-VERSION := $(shell awk '/__version__/{print $$NF}' $(NAME)/__init__.py | sed "s/'//g")
+VERSION := $(shell grep "version = " setup.py | cut -d\  -f3)
 
 FLAKE8_IGNORE = E302,E203,E261
 
 ########################################################
 
-all: clean install install_test tests
+all: clean install install_test test
+
+info:
+	@echo "slo-generator version: ${VERSION}"
 
 flake8:
 	flake8 --ignore=$(FLAKE8_IGNORE) $(NAME)/ --max-line-length=80
@@ -71,10 +74,21 @@ install: clean
 install_test:
 	$(PIP) install wheel flake8 mock coverage nose pylint
 
-tests: flake8 pylint unittest coverage_report
+test: install_test flake8 pylint unittest
 
 unittest: clean
 	nosetests $(NOSE_OPTS) tests/unit/* -v
 
 coverage_report:
 	$(COVERAGE) report --rcfile=".coveragerc"
+
+# Docker
+docker_build:
+	DOCKER_BUILDKIT=1
+	docker build -t slo-generator:latest .
+
+docker_test: docker_build
+	docker run --entrypoint "make" \
+		-e MIN_VALID_EVENTS=10 \
+		-e GOOGLE_APPLICATION_CREDENTIALS=tests/unit/fixtures/fake_credentials.json \
+		slo-generator test
