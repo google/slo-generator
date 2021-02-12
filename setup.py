@@ -20,6 +20,7 @@ https://github.com/pypa/sampleproject
 
 from io import open
 from os import path
+import sys
 
 from setuptools import find_packages, setup
 
@@ -47,6 +48,7 @@ extras = {}
 with open(path.join(here, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
+sys.dont_write_bytecode = True
 setup(name=name,
       version=version,
       description=description,

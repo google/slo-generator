@@ -63,10 +63,10 @@ install_twine:
 	$(PIP) install twine
 
 develop:
-	$(PYTHON) setup.py develop
+	$(PIP) install -e .
 
 install: clean
-	$(PYTHON) setup.py install
+	$(PIP) install .
 
 install_test:
 	$(PIP) install wheel flake8 mock coverage nose pylint
