@@ -121,7 +121,7 @@ def parse_args(args):
                         '-t',
                         type=int,
                         default=None,
-                        help="End timestamp for query.")
+                        help="Start timestamp for query.")
     return parser.parse_args(args)
 
 

@@ -66,6 +66,7 @@ class SLOReport:
     # Error Budget step config
     timestamp: int
     timestamp_human: str
+    offset: int = 0
     window: int
     alert: bool
     alerting_burn_rate_threshold: float
@@ -189,6 +190,14 @@ class SLOReport:
         if delete and hasattr(instance, 'delete'):
             method = instance.delete
             LOGGER.warning(f'{info} | Delete mode enabled.')
+
+        # Set offset from class attribute if it exists in the class, otherwise
+        # keep the value defined in config.
+        self.offset = max(cls.getattr('DEFAULT_OFFSET', 0), self.offset)
+        LOGGER.debug(f'{info} | Running with offset {self.offset}s')
+
+        # Substract offset from start timestamp
+        self.timestamp = self.timestamp - self.offset
 
         # Run backend method and return results.
         data = method(self.timestamp, self.window, config)
