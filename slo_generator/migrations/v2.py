@@ -4,9 +4,11 @@ Migrate utilities for migrating slo-generator configs from v1 to v2.
 """
 import sys
 import os
-import ruamel.yaml as yaml
-from slo_generator import utils
 from collections import OrderedDict
+
+import ruamel.yaml as yaml
+
+from slo_generator import utils
 
 DEFAULT_SHARED_CONFIG = {
     'backends': [],
@@ -70,7 +72,7 @@ def migrate_slo_report_v1_to_v2(report):
 
 def migrate_slo_config_v1_to_v2(slo_config, shared_config={}):
     """Process old SLO config v1 and generate SLO config v2.
-    
+
     Args:
         slo_config (dict): SLO Config v1.
         shared_config (dict): SLO Generator config.
