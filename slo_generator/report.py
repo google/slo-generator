@@ -32,6 +32,7 @@ class SLOReport:
 
     Args:
         config (dict): SLO configuration.
+        backend (dict): Backend configuration.
         step (dict): Error budget policy step configuration.
         timestamp (int): Timestamp.
         client (obj): Existing backend client.
@@ -43,11 +44,14 @@ class SLOReport:
     metadata: dict = field(default_factory=dict)
 
     # SLO
-    service_name: str
-    feature_name: str
-    slo_name: str
-    slo_target: float
-    slo_description: str
+    name: str
+    description: str
+    goal: str
+    backend: str
+    exporters: list
+    error_budget_policy: str
+
+    # SLI
     sli_measurement: float = 0
     events_count: int = 0
     bad_events_count: int = 0
@@ -68,30 +72,39 @@ class SLOReport:
     timestamp_human: str
     window: int
     alert: bool
-    alerting_burn_rate_threshold: float
+    burn_rate_threshold: float
     consequence_message: str
 
     # Data validation
     valid: bool
 
-    def __init__(self, config, step, timestamp, client=None, delete=False):
+    def __init__(self,
+                 config,
+                 backend,
+                 step,
+                 timestamp,
+                 client=None,
+                 delete=False):
 
         # Init dataclass fields from SLO config and Error Budget Policy
-        self.__set_fields(**config,
+        spec = config['spec']
+        self.__set_fields(**spec,
                           **step,
                           lambdas={
-                              'slo_target': float,
-                              'alerting_burn_rate_threshold': float
+                              'goal': float,
+                              'step': int,
+                              'burn_rate_threshold': float
                           })
         # Set other fields
-        self.window = int(step['measurement_window_seconds'])
+        self.metadata = config['metadata']
         self.timestamp = int(timestamp)
+        self.name = self.metadata['name']
+        self.error_budget_policy_step_name = step['name']
         self.timestamp_human = utils.get_human_time(timestamp)
         self.valid = True
-        self.metadata = config.get('metadata', {})
 
         # Get backend results
-        data = self.run_backend(config, client=client, delete=delete)
+        data = self.run_backend(config, backend, client=client, delete=delete)
         if not self._validate(data):
             self.valid = False
             return
@@ -113,15 +126,15 @@ class SLOReport:
         See https://landing.google.com/sre/workbook/chapters/implementing-slos/
         for details on the calculations.
         """
-        info = self.__get_info()
+        info = self.get_step_info()
         LOGGER.debug(f"{info} | SLO report starting ...")
 
         # SLI, Good count, Bad count, Gap from backend results
         sli, good_count, bad_count = self.get_sli(data)
-        gap = sli - self.slo_target
+        gap = sli - self.goal
 
         # Error Budget calculations
-        eb_target = 1 - self.slo_target
+        eb_target = 1 - self.goal
         eb_value = 1 - sli
         eb_remaining_minutes = self.window * gap / 60
         eb_target_minutes = self.window * eb_target / 60
@@ -132,13 +145,13 @@ class SLOReport:
             eb_burn_rate = round(eb_value / eb_target, 1)
 
         # Alert boolean on burn rate excessive speed.
-        alert = eb_burn_rate > self.alerting_burn_rate_threshold
+        alert = eb_burn_rate > self.burn_rate_threshold
 
         # Manage alerting message.
         if alert:
-            consequence_message = step['overburned_consequence_message']
+            consequence_message = step['message_alert']
         elif eb_burn_rate <= 1:
-            consequence_message = step['achieved_consequence_message']
+            consequence_message = step['message_ok']
         else:
             consequence_message = \
                 'Missed for this measurement window, but not enough to alert'
@@ -158,12 +171,13 @@ class SLOReport:
                           alert=alert,
                           consequence_message=consequence_message)
 
-    def run_backend(self, config, client=None, delete=False):
+    def run_backend(self, config, backend, client=None, delete=False):
         """Get appropriate backend method from SLO configuration and run it on
         current SLO config and Error Budget Policy step.
 
         Args:
             config (dict): SLO configuration.
+            backend (dict): Backend configuration.
             client (obj, optional): Backend client initiated beforehand.
             delete (bool, optional): Set to True if we're running a delete
                 action.
@@ -171,14 +185,15 @@ class SLOReport:
         Returns:
             obj: Backend data.
         """
-        info = self.__get_info()
+        info = self.get_step_info()
 
         # Grab backend class and method dynamically.
-        cfg = config.get('backend', {})
-        cls = cfg.get('class')
-        method = cfg.get('method')
-        excluded_keys = ['class', 'method', 'measurement']
-        backend_cfg = {k: v for k, v in cfg.items() if k not in excluded_keys}
+        cls = backend.get('class')
+        method = config['spec']['method']
+        excluded_keys = ['class', 'serviceLevelIndicator', 'name']
+        backend_cfg = {
+            k: v for k, v in backend.items() if k not in excluded_keys
+        }
         instance = utils.get_backend_cls(cls)(client=client, **backend_cfg)
         method = getattr(instance, method)
         LOGGER.debug(f'{info} | '
@@ -214,7 +229,7 @@ class SLOReport:
         Raises:
             Exception: When the backend does not return a proper result.
         """
-        info = self.__get_info()
+        info = self.get_step_info()
         if isinstance(data, tuple):  # good, bad count
             good_count, bad_count = data
             if good_count == NO_DATA:
@@ -243,15 +258,14 @@ class SLOReport:
         Returns:
             bool: True if data is valid, False
         """
-        info = self.__get_info()
+        info = self.get_step_info()
 
         # Backend data type should be one of tuple, float, or int
         if not isinstance(data, (tuple, float, int)):
             LOGGER.error(
                 f'{info} | Backend method returned an object of type '
                 f'{type(data).__name__}. It should instead return a tuple '
-                '(good_count, bad_count) or a numeric SLI value (float / int).'
-            )
+                '(good_count, bad_count) or a numeric SLI value (float / int).')
             return False
 
         # Good / Bad tuple
@@ -332,37 +346,28 @@ class SLOReport:
                 value = lambdas[name](value)
             setattr(self, name, value)
 
-    def __get_info(self):
-        """Get info message describing current SLO andcurrent Error Budget Step.
-        """
-        slo_full_name = self.__get_slo_full_name()
-        step_name = self.error_budget_policy_step_name
-        return f"{slo_full_name :<32} | {step_name :<8}"
-
-    def __get_slo_full_name(self):
-        """Compile full SLO name from SLO configuration.
-
-        Returns:
-            str: Full SLO name.
-        """
-        return f'{self.service_name}/{self.feature_name}/{self.slo_name}'
+    def get_step_info(self):
+        """Get info message describing current SLO and current Error Budget
+        Policy Step."""
+        return f"{self.name :<32} | {self.error_budget_policy_step_name :<8}"
 
     def __str__(self):
         report = self.to_json()
-        info = self.__get_info()
-        slo_target_per = self.slo_target * 100
+        info_str = self.get_step_info()
+        goal_per = self.goal * 100
         sli_per = round(self.sli_measurement * 100, 6)
         gap = round(self.gap * 100, 2)
         gap_str = str(gap)
         if gap >= 0:
             gap_str = f'+{gap}'
-        sli_str = (f'SLI: {sli_per:<7} % | SLO: {slo_target_per} % | '
+
+        sli_str = (f'SLI: {sli_per:<7} % | SLO: {goal_per} % | '
                    f'Gap: {gap_str:<6}%')
         result_str = ("BR: {error_budget_burn_rate:<2} / "
-                      "{alerting_burn_rate_threshold} | "
+                      "{burn_rate_threshold} | "
                       "Alert: {alert:<1} | Good: {good_events_count:<8} | "
                       "Bad: {bad_events_count:<8}").format_map(report)
-        full_str = f'{info} | {sli_str} | {result_str}'
+        full_str = f'{info_str} | {sli_str} | {result_str}'
         if COLORED_OUTPUT == 1:
             if self.alert:
                 full_str = utils.Colors.FAIL + full_str + utils.Colors.ENDC

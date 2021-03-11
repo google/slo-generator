@@ -84,9 +84,8 @@ def parse_config(path, ctx=os.environ):
                 try:
                     full_value = full_value.replace(f'${{{var}}}', ctx[var])
                 except KeyError as exception:
-                    LOGGER.error(
-                        f'Environment variable "{var}" should be set.',
-                        exc_info=True)
+                    LOGGER.error(f'Environment variable "{var}" should be set.',
+                                 exc_info=True)
                     raise exception
             content = full_value
         return content
@@ -143,10 +142,9 @@ def get_human_time(timestamp, timezone=None):
     dt_tz = dt_utc.replace(tzinfo=to_zone)
     timeformat = '%Y-%m-%dT%H:%M:%S.%f%z'
     date_str = datetime.strftime(dt_tz, timeformat)
-    date_str = "{0}:{1}".format(
-        date_str[:-2], date_str[-2:]
-    )
+    date_str = "{0}:{1}".format(date_str[:-2], date_str[-2:])
     return date_str
+
 
 def normalize(path):
     """Converts a path to an absolute path.
@@ -231,6 +229,31 @@ def import_dynamic(package, name, prefix="class"):
         raise exception
 
 
+def capitalize(word):
+    """Only capitalize the first letter of a word, even when written in 
+    CamlCase.
+
+    Args:
+        word (str): Input string.
+
+    Returns:
+        str: Input string with first letter capitalized.
+    """
+    return re.sub('([a-zA-Z])', lambda x: x.groups()[0].upper(), word, 1)
+
+
+def snake_to_caml(word):
+    """Convert a string written in snake_case to a string in CamlCase.
+    
+    Args:
+        word (str): Input string.
+
+    Returns:
+        str: Output string.
+    """
+    return re.sub('_.', lambda x: x.group()[1].upper(), word)
+
+
 def dict_snake_to_caml(data):
     """Convert dictionary with keys written in snake_case to another one with
     keys written in CamlCase.
@@ -241,9 +264,6 @@ def dict_snake_to_caml(data):
     Returns:
         dict: Output dictionary.
     """
-    def snake_to_caml(word):
-        return re.sub('_.', lambda x: x.group()[1].upper(), word)
-
     return apply_func_dict(data, snake_to_caml)
 
 

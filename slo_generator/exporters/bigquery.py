@@ -27,8 +27,10 @@ from slo_generator.constants import DRY_RUN
 
 LOGGER = logging.getLogger(__name__)
 
+
 class BigqueryExporter:
     """BigQuery exporter class."""
+
     def __init__(self):
         self.client = bigquery.Client(project='unset')
 
@@ -74,10 +76,10 @@ class BigqueryExporter:
         json_data = {k: v for k, v in data.items() if k in schema_fields}
         metadata = json_data.get('metadata', {})
         if isinstance(metadata, dict):
-            metadata_fields = [
-                {'key': key, 'value': value}
-                for key, value in metadata.items()
-            ]
+            metadata_fields = [{
+                'key': key,
+                'value': value
+            } for key, value in metadata.items()]
             json_data['metadata'] = metadata_fields
 
         # Write results to BQ table
@@ -111,12 +113,15 @@ class BigqueryExporter:
             subschema = []
             if 'fields' in row:
                 subschema = [
-                    bigquery.SchemaField(subrow['name'], subrow['type'],
+                    bigquery.SchemaField(subrow['name'],
+                                         subrow['type'],
                                          mode=subrow['mode'])
                     for subrow in row['fields']
                 ]
-            field = bigquery.SchemaField(row['name'], row['type'],
-                                         mode=row['mode'], fields=subschema)
+            field = bigquery.SchemaField(row['name'],
+                                         row['type'],
+                                         mode=row['mode'],
+                                         fields=subschema)
             final_schema.append(field)
         return final_schema
 
@@ -140,7 +145,7 @@ class BigqueryExporter:
         LOGGER.debug(f'Table schema: {pyschema}')
         table = bigquery.Table(table_name, schema=pyschema)
         table.time_partitioning = bigquery.TimePartitioning(
-            type_=bigquery.TimePartitioningType.DAY, )
+            type_=bigquery.TimePartitioningType.DAY,)
         return self.client.create_table(table)
 
     def update_schema(self, table_ref, keep=[]):
@@ -161,7 +166,8 @@ class BigqueryExporter:
 
         # Fields in TABLE_SCHEMA to add / remove
         updated_fields = [
-            field['name'] for field in TABLE_SCHEMA
+            field['name']
+            for field in TABLE_SCHEMA
             if field not in existing_schema
         ]
         extra_remote_fields = [
@@ -187,12 +193,14 @@ class BigqueryExporter:
                 self.client.update_table(table, ['schema'])
         return table
 
+
 class BigQueryError(Exception):
     """Exception raised whenever a BigQuery error happened.
 
     Args:
         errors (list): List of errors.
     """
+
     def __init__(self, errors):
         super().__init__(BigQueryError._format(errors))
         self.errors = errors
@@ -321,10 +329,14 @@ TABLE_SCHEMA = [{
     'type': 'BOOLEAN',
     'mode': 'NULLABLE'
 }, {
-    'name': 'metadata',
-    'description': None,
-    'type': 'RECORD',
-    'mode': 'REPEATED',
+    'name':
+        'metadata',
+    'description':
+        None,
+    'type':
+        'RECORD',
+    'mode':
+        'REPEATED',
     'fields': [{
         'description': None,
         'name': 'key',

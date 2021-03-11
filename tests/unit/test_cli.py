@@ -26,27 +26,27 @@ root = os.path.dirname(os.path.dirname(cwd))
 
 
 class TestCLI(unittest.TestCase):
+
     def setUp(self):
         for k, v in CTX.items():
             os.environ[k] = v
         slo_config = f'{root}/samples/stackdriver/slo_gae_app_availability.yaml'
-        eb_policy = f'{root}/samples/error_budget_policy.yaml'
+        config = f'{root}/samples/config.yaml'
         self.slo_config = slo_config
-        self.eb_policy = eb_policy
+        self.config = config
 
     def test_parse_args(self):
         args = parse_args([
-            '--slo-config', self.slo_config, '--error-budget-policy',
-            self.eb_policy, '--export'
+            '--slo-config', self.slo_config, '--config', self.config, '--export'
         ])
         self.assertEqual(args.slo_config, self.slo_config)
-        self.assertEqual(args.error_budget_policy, self.eb_policy)
+        self.assertEqual(args.config, self.config)
         self.assertEqual(args.export, True)
 
     @patch('google.api_core.grpc_helpers.create_channel',
            return_value=mock_sd(8))
     def test_cli(self, mock):
-        args = parse_args(['-f', self.slo_config, '-b', self.eb_policy])
+        args = parse_args(['-f', self.slo_config, '-c', self.config])
         all_reports = cli(args)
         len_first_report = len(all_reports[self.slo_config])
         self.assertIn(self.slo_config, all_reports.keys())
@@ -56,17 +56,15 @@ class TestCLI(unittest.TestCase):
            return_value=mock_sd(40))
     def test_cli_folder(self, mock):
         args = parse_args(
-            ['-f', f'{root}/samples/stackdriver', '-b', self.eb_policy])
+            ['-f', f'{root}/samples/stackdriver', '-c', self.config])
         all_reports = cli(args)
         len_first_report = len(all_reports[self.slo_config])
         self.assertIn(self.slo_config, all_reports.keys())
         self.assertEqual(len_first_report, 4)
 
     def test_cli_no_config(self):
-        args = parse_args([
-            '-f', f'{root}/samples', '-b',
-            f'{root}/samples/error_budget_policy.yaml'
-        ])
+        args = parse_args(
+            ['-f', f'{root}/samples', '-c', f'{root}/samples/config.yaml'])
         all_reports = cli(args)
         self.assertEqual(all_reports, {})
 

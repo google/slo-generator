@@ -51,10 +51,10 @@ def cli(args):
     timestamp = args.timestamp
     start = time.time()
 
-    # Load error budget policy
-    LOGGER.debug(f"Loading Error Budget config from {args.error_budget_policy}")
-    eb_path = utils.normalize(args.error_budget_policy)
-    eb_policy = utils.parse_config(eb_path)
+    # Load config
+    LOGGER.debug(f"Loading Error Budget config from {args.config}")
+    cfg_path = utils.normalize(args.config)
+    cfg = utils.parse_config(cfg_path)
 
     # Parse SLO folder for configs
     slo_configs = utils.list_slo_configs(args.slo_config)
@@ -68,7 +68,7 @@ def cli(args):
         LOGGER.debug(f'Loading SLO config "{slo_config_name}"')
         slo_config = utils.parse_config(path)
         reports = compute(slo_config,
-                          eb_policy,
+                          cfg,
                           timestamp=timestamp,
                           do_export=export,
                           delete=delete)
@@ -76,8 +76,6 @@ def cli(args):
     end = time.time()
     duration = round(end - start, 1)
     LOGGER.info(f'Run summary | SLO Configs: {len(slo_configs)} | '
-                f'Error Budget Policy Steps: {len(eb_policy)} | '
-                f'Total: {len(slo_configs) * len(eb_policy)} | '
                 f'Duration: {duration}s')
     return all_reports
 
@@ -97,11 +95,11 @@ def parse_args(args):
                         type=str,
                         required=False,
                         help='SLO configuration file (JSON / YAML)')
-    parser.add_argument('--error-budget-policy',
-                        '-b',
+    parser.add_argument('--config',
+                        '-c',
                         type=str,
                         required=False,
-                        default='error_budget_policy.yaml',
+                        default='config.yaml',
                         help='Error budget policy file (JSON / YAML)')
     parser.add_argument('--export',
                         '-e',
