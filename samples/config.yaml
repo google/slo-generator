@@ -1,0 +1,94 @@
+# Copyright 2019 Google Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#            http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: slo-generator-config
+data:
+  receivers:
+    cloud_monitoring:
+      project_id: ${STACKDRIVER_HOST_PROJECT_ID}
+    datadog:
+      api_key: ${DATADOG_API_KEY}
+      app_key: ${DATADOG_APP_KEY}
+    dynatrace:
+      api_token: ${DYNATRACE_API_TOKEN}
+      api_url: ${DYNATRACE_API_URL}
+    elasticsearch:
+      url: ${ELASTICSEARCH_URL}
+    prometheus:
+      url: ${PROMETHEUS_URL}
+  exporters:
+    pubsub:
+      class: Pubsub
+      project_id: ${PROJECT_ID}
+      topic_name: ${PUBSUB_TOPIC_NAME}
+    bigquery:
+      project_id: ${BIGQUERY_PROJECT_ID}
+      dataset_id: ${BIGQUERY_DATASET_ID}
+      table_id: ${BIGQUERY_TABLE_ID}
+    cloud_monitoring:
+      project_id: ${STACKDRIVER_HOST_PROJECT_ID}
+    datadog:
+      api_key: ${DATADOG_API_KEY}
+      app_key: ${DATADOG_APP_KEY}
+    dynatrace:
+      api_token: ${DYNATRACE_API_TOKEN}
+      api_url: ${DYNATRACE_API_URL}
+    elasticsearch:
+      url: ${ELASTICSEARCH_URL}
+    prometheus:
+      url: ${PROMETHEUS_URL}
+  error_budget_policies:
+    standard:
+      steps:
+        - name: 1 hour
+          window: 3600
+          burn_rate_threshold: 9
+          alert: true
+          message_alert: Page to defend the SLO
+          message_ok: Last hour on track
+        - name: 12 hours
+          window: 43200
+          burn_rate_threshold: 3
+          alert: true
+          message_alert: Page to defend the SLO
+          message_ok: Last 12 hours on track
+        - name: 7 days
+          window: 604800
+          burn_rate_threshold: 1.5
+          alert: false
+          message_alert: Dev team dedicates 25% of engineers to the reliability backlog
+          message_ok: Last week on track
+        - name: 28 days
+          window: 2419200
+          burn_rate_threshold: 1
+          alert: false
+          message_alert: Freeze release, unless related to reliability or security
+          message_ok: Unfreeze release, per the agreed roll-out policy
+    ssm:
+      steps:
+        - name: 24 hours
+          window: 86400
+          burn_rate_threshold: 4
+          alert: true
+          message_alert: Page to defend the SLO
+          message_ok: Last 24 hours on track
+        - name: 48 hours
+          window: 172800
+          burn_rate_threshold: 2
+          alert: true
+          message_alert: Page to defend the SLO
+          message_ok: Last 48 hours on track

@@ -54,7 +54,7 @@ def cli(args):
     # Load config
     LOGGER.debug(f"Loading Error Budget config from {args.config}")
     cfg_path = utils.normalize(args.config)
-    cfg = utils.parse_config(cfg_path)
+    cfg = utils.parse_config(path=cfg_path)
 
     # Parse SLO folder for configs
     slo_configs = utils.list_slo_configs(args.slo_config)

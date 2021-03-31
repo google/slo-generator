@@ -69,12 +69,9 @@ develop:
 	$(PIP) install -e .
 
 install: clean
-	$(PIP) install .
+	$(PIP) install ."[api, datadog, prometheus, elasticsearch, pubsub, cloud_monitoring, bigquery]"
 
-install_test:
-	$(PIP) install wheel flake8 mock coverage nose pylint
-
-test: install_test flake8 pylint unittest
+test: install flake8 pylint unittest
 
 unittest: clean
 	nosetests $(NOSE_OPTS) tests/unit/* -v

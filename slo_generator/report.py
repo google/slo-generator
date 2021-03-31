@@ -188,16 +188,21 @@ class SLOReport:
         info = self.get_step_info()
 
         # Grab backend class and method dynamically.
-        cls = backend.get('class')
+        klass = backend.get('class')
         method = config['spec']['method']
         excluded_keys = ['class', 'serviceLevelIndicator', 'name']
         backend_cfg = {
             k: v for k, v in backend.items() if k not in excluded_keys
         }
-        instance = utils.get_backend_cls(cls)(client=client, **backend_cfg)
+        cls = utils.get_backend_cls(klass)
+        if not cls:
+            LOGGER.error(f'Backend {klass} not loaded.')
+            self.valid = False
+            return None
+        instance = cls(client=client, **backend_cfg)
         method = getattr(instance, method)
         LOGGER.debug(f'{info} | '
-                     f'Using backend {cls}.{method.__name__} (from '
+                     f'Using backend {klass}.{method.__name__} (from '
                      f'SLO config file).')
 
         # Delete mode activation.

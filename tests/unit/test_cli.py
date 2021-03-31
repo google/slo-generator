@@ -28,9 +28,9 @@ root = os.path.dirname(os.path.dirname(cwd))
 class TestCLI(unittest.TestCase):
 
     def setUp(self):
-        for k, v in CTX.items():
-            os.environ[k] = v
-        slo_config = f'{root}/samples/stackdriver/slo_gae_app_availability.yaml'
+        for key, value in CTX.items():
+            os.environ[key] = value
+        slo_config = f'{root}/samples/cloud_monitoring/slo_gae_app_availability.yaml'  # noqa: E501
         config = f'{root}/samples/config.yaml'
         self.slo_config = slo_config
         self.config = config
@@ -56,7 +56,7 @@ class TestCLI(unittest.TestCase):
            return_value=mock_sd(40))
     def test_cli_folder(self, mock):
         args = parse_args(
-            ['-f', f'{root}/samples/stackdriver', '-c', self.config])
+            ['-f', f'{root}/samples/cloud_monitoring', '-c', self.config])
         all_reports = cli(args)
         len_first_report = len(all_reports[self.slo_config])
         self.assertIn(self.slo_config, all_reports.keys())

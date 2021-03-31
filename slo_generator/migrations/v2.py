@@ -2,6 +2,9 @@
 `v1tov2.py`
 Migrate utilities for migrating slo-generator configs from v1 to v2.
 """
+# pylint: disable=line-too-long, too-many-statements, too-many-ancestors
+# flake8: noqa
+
 import sys
 import os
 from collections import OrderedDict
@@ -14,6 +17,10 @@ DEFAULT_SHARED_CONFIG = {
     'backends': [],
     'exporters': [],
     'error_budget_policies': [],
+}
+NAME_MAPPING = {
+    'stackdriver': 'cloud_monitoring',
+    'stackdriver_service_monitoring': 'cloud_service_monitoring'
 }
 
 GREEN = utils.Colors.OKGREEN
@@ -86,6 +93,7 @@ def migrate_slo_config_v1_to_v2(slo_config, shared_config={}):
         'kind': 'ServiceLevelObjectives',
         'metadata': {},
         'spec': {
+            'description': '',
             'backend': '',
             'method': '',
             'exporters': [],
@@ -111,12 +119,14 @@ def migrate_slo_config_v1_to_v2(slo_config, shared_config={}):
     backend = OrderedDict(backend)
     backend_name = utils.dict_snake_to_caml(backend['class']).replace(
         '_', '-').lower()
+    if backend_name in NAME_MAPPING:
+        backend_name = NAME_MAPPING[backend_name]
     backend['name'] = backend_name
     backend.move_to_end('name', last=False)
     backend = dict(backend)
     slo_config_v2['spec']['backend'] = backend_name
     backends = shared_config['backends']
-    if not any([str(b) == str(backend) for b in backends]):
+    if not any(str(b) == str(backend) for b in backends):
         backends.append(backend)
         shared_config['backends'] = backends
 
@@ -126,13 +136,15 @@ def migrate_slo_config_v1_to_v2(slo_config, shared_config={}):
         exporter = OrderedDict(exporter)
         exporter_name = utils.dict_snake_to_caml(exporter['class']).replace(
             '_', '-').lower()
+        if exporter_name in NAME_MAPPING:
+            exporter_name = NAME_MAPPING[exporter_name]
         exporter['name'] = exporter_name
         exporter.move_to_end('name', last=False)
         exporter = dict(exporter)
         if exporter_name not in slo_config_v2['spec']['exporters']:
             slo_config_v2['spec']['exporters'].append(exporter_name)
         exporters = shared_config['exporters']
-        if not any([str(d) == str(exporter) for d in exporters]):
+        if not any(str(d) == str(exporter) for d in exporters):
             exporters.append(exporter)
             shared_config['exporters'] = exporters
 
@@ -157,7 +169,8 @@ def migrate_slo_config_v1_to_v2(slo_config, shared_config={}):
     return dict(slo_config_v2)
 
 
-def process_all():
+def main():
+    """Process all SLO configs in folder and generate new SLO configurations."""
     shared_config = DEFAULT_SHARED_CONFIG
 
     if len(sys.argv) < 2:
@@ -190,22 +203,25 @@ def process_all():
     # print(f"Target SLO configs directory: {target_dir}")
     yaml.explicit_start = True
     yaml.default_flow_style = None
+    yaml.preserve_quotes = True
     for path in paths:
         print("-" * 50)
         print(f"{RED}{os.path.relpath(path, source_folder)}{ENDC} [v1]", end='')
         source_dir = os.path.dirname(path)
         target_path = path.replace(source_dir, target_dir)
         slo_config_str = open(path).read()
-        slo_config, indent, block_seq_indent = yaml.util.load_yaml_guess_indent(
-            slo_config_str, preserve_quotes=False)
+        # FORMER
+        # slo_config, _, _ = yaml.util.load_yaml_guess_indent(
+        #     slo_config_str, preserve_quotes=False)
+        slo_config, _, _ = yaml.util.load_yaml_guess_indent(slo_config_str)
         slo_config_v2 = migrate_slo_config_v1_to_v2(slo_config, shared_config)
         slo_config_v2 = utils.dict_snake_to_caml(slo_config_v2)
         print(" \u2192 ", end='')
         print(f"{GREEN}{os.path.relpath(target_path, source_dir)}{ENDC} [v2]",
               end='')
-        with open(target_path, 'w') as f:
+        with open(target_path, 'w') as conf:
             yaml.round_trip_dump(slo_config_v2,
-                                 f,
+                                 conf,
                                  indent=2,
                                  block_seq_indent=2,
                                  default_flow_style=None)
@@ -228,11 +244,11 @@ def process_all():
     target_path_human = os.path.relpath(target_path, source_dir)
     source_path_slo_human = os.path.relpath(source_dir, source_dir)
     target_path_slo_human = os.path.relpath(target_dir, source_dir)
-    with open(target_path, 'w') as f:
+    with open(target_path, 'w') as conf:
         print("-" * 50)
         print(f"{BOLD}Writing shared config v2 to {target_path_human}{ENDC}")
         yaml.round_trip_dump(shared_config,
-                             f,
+                             conf,
                              Dumper=MyDumper,
                              indent=2,
                              block_seq_indent=0,
@@ -284,6 +300,12 @@ def process_all():
 
 
 class MyDumper(yaml.RoundTripDumper):
+    """Dedicated YAML dumper to insert lines between top-level objects.
+
+    Args:
+        data (str): Line data.
+    """
+
     # HACK: insert blank lines between top-level objects
     # inspired by https://stackoverflow.com/a/44284819/3786245
     def write_line_break(self, data=None):
@@ -294,4 +316,4 @@ class MyDumper(yaml.RoundTripDumper):
 
 
 if __name__ == "__main__":
-    process_all()
+    main()

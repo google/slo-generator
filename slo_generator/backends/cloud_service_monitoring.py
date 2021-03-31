@@ -25,7 +25,7 @@ import google.api_core.exceptions
 from google.cloud.monitoring_v3 import ServiceMonitoringServiceClient
 from google.protobuf.json_format import MessageToJson
 
-from slo_generator.backends.cloudmonitoring import CloudmonitoringBackend
+from slo_generator.backends.cloud_monitoring import CloudMonitoringBackend
 from slo_generator.constants import NO_DATA
 from slo_generator.utils import dict_snake_to_caml
 
@@ -154,7 +154,7 @@ class CloudServiceMonitoringBackend:
         filter = f"select_slo_counts(\"{metric_filter}\")"
 
         # Query SLO timeseries
-        cloud_monitoring = CloudmonitoringBackend(self.project_id)
+        cloud_monitoring = CloudMonitoringBackend(self.project_id)
         timeseries = cloud_monitoring.query(
             timestamp,
             window,

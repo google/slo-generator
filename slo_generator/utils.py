@@ -30,8 +30,6 @@ import yaml
 
 from dateutil import tz
 
-from google.auth._default import _CLOUD_SDK_CREDENTIALS_WARNING
-
 LOGGER = logging.getLogger(__name__)
 
 
@@ -54,11 +52,12 @@ def list_slo_configs(path):
     return paths
 
 
-def parse_config(path, ctx=os.environ):
+def parse_config(path=None, content=None, ctx=os.environ):
     """Load a yaml configuration file and resolve environment variables in it.
 
     Args:
         path (str): the path to the yaml file.
+        content (str): the config content as a dict string.
         ctx (dict): Context to replace env variables from (defaults to
             `os.environ`).
 
@@ -90,10 +89,11 @@ def parse_config(path, ctx=os.environ):
             content = full_value
         return content
 
-    with open(path) as config:
-        content = config.read()
-        content = replace_env_vars(content, ctx)
-        data = yaml.safe_load(content)
+    if path:
+        with open(path) as config:
+            content = config.read()
+    content = replace_env_vars(content, ctx)
+    data = yaml.safe_load(content)
 
     LOGGER.debug(pprint.pformat(data))
     return data
@@ -114,7 +114,13 @@ def setup_logging():
     logging.getLogger('googleapiclient').setLevel(logging.ERROR)
 
     # Ignore Cloud SDK warning when using a user instead of service account
-    warnings.filterwarnings("ignore", message=_CLOUD_SDK_CREDENTIALS_WARNING)
+    try:
+        # pylint: disable=import-outside-toplevel
+        from google.auth._default import _CLOUD_SDK_CREDENTIALS_WARNING
+        warnings.filterwarnings("ignore",
+                                message=_CLOUD_SDK_CREDENTIALS_WARNING)
+    except ImportError:
+        pass
 
 
 def get_human_time(timestamp, timezone=None):
@@ -203,9 +209,17 @@ def import_cls(klass_name, expected_type):
     modules_name = f"{expected_type.lower()}s"
     full_klass_name = f'{klass_name}{expected_type}'
     filename = re.sub(r'(?<!^)(?=[A-Z])', '_', klass_name).lower()
-    return import_dynamic(f'slo_generator.{modules_name}.{filename}',
-                          full_klass_name,
-                          prefix=expected_type)
+    try:
+        return import_dynamic(f'slo_generator.{modules_name}.{filename}',
+                              full_klass_name,
+                              prefix=expected_type)
+    except ImportError as exc:
+        LOGGER.exception(exc)
+        warnings.warn(
+            f'Extra dependency {filename} is not currently installed. '
+            f'Install it locally with "pip install .[{filename}]" or remotely '
+            f'by adding "slo-generator[{filename}]" to your requirements.txt.')
+        return None
 
 
 def import_dynamic(package, name, prefix="class"):
@@ -230,7 +244,7 @@ def import_dynamic(package, name, prefix="class"):
 
 
 def capitalize(word):
-    """Only capitalize the first letter of a word, even when written in 
+    """Only capitalize the first letter of a word, even when written in
     CamlCase.
 
     Args:
@@ -244,7 +258,7 @@ def capitalize(word):
 
 def snake_to_caml(word):
     """Convert a string written in snake_case to a string in CamlCase.
-    
+
     Args:
         word (str): Input string.
 

@@ -26,16 +26,16 @@ from slo_generator.exporters.bigquery import BigQueryError
 from slo_generator.exporters.base import MetricsExporter, DEFAULT_METRIC_LABELS
 from .test_stubs import (CTX, load_fixture, load_sample, load_slo_samples,
                          mock_dd_metric_query, mock_dd_metric_send,
-                         mock_dd_slo_get, mock_dd_slo_history,
-                         mock_dt, mock_dt_errors, mock_es, mock_prom, mock_sd,
+                         mock_dd_slo_get, mock_dd_slo_history, mock_dt,
+                         mock_dt_errors, mock_es, mock_prom, mock_sd,
                          mock_ssm_client)
 
 warnings.filterwarnings("ignore", message=_CLOUD_SDK_CREDENTIALS_WARNING)
 
-ERROR_BUDGET_POLICY = load_sample('error_budget_policy.yaml', **CTX)
-STEPS = len(ERROR_BUDGET_POLICY)
-SLO_CONFIGS_SD = load_slo_samples('stackdriver', **CTX)
-SLO_CONFIGS_SDSM = load_slo_samples('stackdriver_service_monitoring', **CTX)
+CONFIG = load_sample('config.yaml', **CTX)
+STEPS = len(CONFIG['error_budget_policies']['standard']['steps'])
+SLO_CONFIGS_SD = load_slo_samples('cloud_monitoring', **CTX)
+SLO_CONFIGS_SDSM = load_slo_samples('cloud_service_monitoring', **CTX)
 SLO_CONFIGS_PROM = load_slo_samples('prometheus', **CTX)
 SLO_CONFIGS_ES = load_slo_samples('elasticsearch', **CTX)
 SLO_CONFIGS_DD = load_slo_samples('datadog', **CTX)
@@ -66,7 +66,7 @@ class TestCompute(unittest.TestCase):
     def test_compute_stackdriver(self, mock):
         for config in SLO_CONFIGS_SD:
             with self.subTest(config=config):
-                compute(config, ERROR_BUDGET_POLICY)
+                compute(config, CONFIG)
 
     @patch(SSM_MOCKS[0], return_value=mock_ssm_client())
     @patch(SSM_MOCKS[1],
@@ -76,7 +76,7 @@ class TestCompute(unittest.TestCase):
     def test_compute_ssm(self, *mocks):
         for config in SLO_CONFIGS_SDSM:
             with self.subTest(config=config):
-                compute(config, ERROR_BUDGET_POLICY)
+                compute(config, CONFIG)
 
     @patch(SSM_MOCKS[0], return_value=mock_ssm_client())
     @patch(SSM_MOCKS[1],
@@ -88,22 +88,19 @@ class TestCompute(unittest.TestCase):
     def test_compute_ssm_delete_export(self, *mocks):
         for config in SLO_CONFIGS_SDSM:
             with self.subTest(config=config):
-                compute(config,
-                        ERROR_BUDGET_POLICY,
-                        delete=True,
-                        do_export=True)
+                compute(config, CONFIG, delete=True, do_export=True)
 
     @patch.object(Prometheus, 'query', mock_prom)
     def test_compute_prometheus(self):
         for config in SLO_CONFIGS_PROM:
             with self.subTest(config=config):
-                compute(config, ERROR_BUDGET_POLICY)
+                compute(config, CONFIG)
 
     @patch.object(Elasticsearch, 'search', mock_es)
     def test_compute_elasticsearch(self):
         for config in SLO_CONFIGS_ES:
             with self.subTest(config=config):
-                compute(config, ERROR_BUDGET_POLICY)
+                compute(config, CONFIG)
 
     @patch.object(Metric, 'query', mock_dd_metric_query)
     @patch.object(ServiceLevelObjective, 'history', mock_dd_slo_history)
@@ -111,13 +108,13 @@ class TestCompute(unittest.TestCase):
     def test_compute_datadog(self):
         for config in SLO_CONFIGS_DD:
             with self.subTest(config=config):
-                compute(config, ERROR_BUDGET_POLICY)
+                compute(config, CONFIG)
 
     @patch.object(DynatraceClient, 'request', side_effect=mock_dt)
     def test_compute_dynatrace(self, mock):
         for config in SLO_CONFIGS_DT:
             with self.subTest(config=config):
-                compute(config, ERROR_BUDGET_POLICY)
+                compute(config, CONFIG)
 
     @patch(PUBSUB_MOCKS[0])
     @patch(PUBSUB_MOCKS[1])

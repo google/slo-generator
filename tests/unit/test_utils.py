@@ -19,6 +19,7 @@ from slo_generator.utils import (get_backend_cls, get_exporter_cls,
 
 
 class TestUtils(unittest.TestCase):
+
     def test_get_human_time(self):
         # Timezones
         tz_1 = 'Europe/Paris'
@@ -44,8 +45,9 @@ class TestUtils(unittest.TestCase):
     def test_get_backend_cls(self):
         res1 = get_backend_cls("Stackdriver")
         res2 = get_backend_cls("Prometheus")
-        self.assertEqual(res1.__name__, "StackdriverBackend")
-        self.assertEqual(res1.__module__, "slo_generator.backends.stackdriver")
+        self.assertEqual(res1.__name__, "CloudMonitoringBackend")
+        self.assertEqual(res1.__module__,
+                         "slo_generator.backends.cloud_monitoring")
         self.assertEqual(res2.__name__, "PrometheusBackend")
         self.assertEqual(res2.__module__, "slo_generator.backends.prometheus")
         with self.assertRaises(ModuleNotFoundError):
@@ -63,7 +65,8 @@ class TestUtils(unittest.TestCase):
         res2 = get_exporter_cls("Pubsub")
         res3 = get_exporter_cls("Bigquery")
         self.assertEqual(res1.__name__, "StackdriverExporter")
-        self.assertEqual(res1.__module__, "slo_generator.exporters.stackdriver")
+        self.assertEqual(res1.__module__,
+                         "slo_generator.exporters.cloud_monitoring")
         self.assertEqual(res2.__name__, "PubsubExporter")
         self.assertEqual(res2.__module__, "slo_generator.exporters.pubsub")
         self.assertEqual(res3.__name__, "BigqueryExporter")
@@ -79,13 +82,13 @@ class TestUtils(unittest.TestCase):
             get_exporter_cls("foo.bar.DoesNotExist")
 
     def test_import_dynamic(self):
-        res1 = import_dynamic("slo_generator.backends.stackdriver",
-                              "StackdriverBackend",
+        res1 = import_dynamic("slo_generator.backends.cloud_monitoring",
+                              "CloudMonitoringBackend",
                               prefix="backend")
-        res2 = import_dynamic("slo_generator.exporters.stackdriver",
+        res2 = import_dynamic("slo_generator.exporters.cloud_monitoring",
                               "StackdriverExporter",
                               prefix="exporter")
-        self.assertEqual(res1.__name__, "StackdriverBackend")
+        self.assertEqual(res1.__name__, "CloudMonitoringBackend")
         self.assertEqual(res2.__name__, "StackdriverExporter")
         with self.assertRaises(ModuleNotFoundError):
             import_dynamic("slo_generator.backends.unknown",

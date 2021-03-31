@@ -42,7 +42,7 @@ def get_exporters(config, spec):
     spec_exporters = spec.get('exporters', [])
     exporters = []
     for exporter in spec_exporters:
-        if not exporter in all_exporters.keys():
+        if exporter not in all_exporters.keys():
             LOGGER.warning(
                 f'Exporter {exporter} not found in config. Skipping.')
             continue
@@ -67,7 +67,7 @@ def get_backend(config, spec):
     all_backends = config['data'].get('receivers', {})
     spec_backend = spec['backend']
     backend_data = {}
-    if not spec_backend in all_backends.keys():
+    if spec_backend not in all_backends.keys():
         LOGGER.error(f'Backend {spec_backend} not found in config. Exiting.')
         sys.exit(0)
     backend_data = all_backends[spec_backend]
@@ -89,7 +89,7 @@ def get_error_budget_policy(config, spec):
     """
     all_ebp = config['data'].get('error_budget_policies', {})
     spec_ebp = spec['error_budget_policy']
-    if not spec_ebp in all_ebp.keys():
+    if spec_ebp not in all_ebp.keys():
         LOGGER.error(
             f'Error budget policy {spec_ebp} not found in config. Exiting.')
         sys.exit(0)
