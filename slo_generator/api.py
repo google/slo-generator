@@ -1,78 +1,102 @@
-# Copyright 2021 Google Inc.
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#            http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-"""
-`api.py`
-Simple Flask API for `slo-generator`.
-"""
-import argparse
-import sys
-from os.path import abspath
-from flask import jsonify, Flask, request
-from .compute import compute
-from .utils import parse_config
+import base64
+from os import environ
+import json
+import logging
+import pprint
+import time
+import yaml
+from datetime import datetime
+from urllib.parse import urlparse
 
-app = Flask(__name__)
-app.config['DEBUG'] = True
+import google.cloud.storage
+from slo_generator.compute import compute, export, get_exporters
+from slo_generator.utils import setup_logging, parse_config
 
-CONFIG_PATH = 'config.yaml'
+CONFIG_URL = environ['CONFIG_URL']
+EXPORTERS_URL = environ.get('EXPORTERS_URL', None)
+LOGGER = logging.getLogger(__name__)
+TIME_FORMAT = '%Y-%m-%dT%H:%M:%SZ'
+setup_logging()
 
 
-@app.route('/', methods=['POST'])
-def run():
-    """Run slo-generator on requested data."""
-    data = request.data.decode('utf-8')
-    slo_config = parse_config(content=data)
-    config = parse_config(path=app.config['CONFIG_PATH'])
-    reports = compute(slo_config, config)
-    return jsonify(reports)
+def run_compute(cloudevent):
+    # Get timestamp
+    timestamp = int(
+        datetime.strptime(cloudevent["time"], TIME_FORMAT).timestamp())
+
+    # Get SLO config
+    data = base64.b64decode(cloudevent.data).decode('utf-8')
+    if 'config_url' in data:
+        data = yaml.safe_load(data)
+        slo_config_url = data['config_url']
+        LOGGER.info(f'Downloading SLO config from {slo_config_url}')
+        slo_config = parse_config(content=download_gcs(slo_config_url))
+    else:
+        slo_config = parse_config(content=data)
+
+    # Get slo-generator config
+    LOGGER.info(f'Downloading config from {CONFIG_URL}')
+    config = parse_config(content=download_gcs(CONFIG_URL))
+
+    # Compute SLO report
+    LOGGER.debug(f'Config: {pprint.pformat(config)}')
+    LOGGER.debug(f'SLO Config: {pprint.pformat(slo_config)}')
+    compute(slo_config,
+            config,
+            timestamp=timestamp,
+            client=None,
+            do_export=True)
 
 
-def main():
-    """Run Flask application."""
-    args = vars(parse_args(sys.argv[1:]))
-    app.config['CONFIG_PATH'] = abspath(args.pop('config'))
-    app.run(**args)
+def run_export(cloudevent):
+    # Get export data
+    slo_report = yaml.safe_load(base64.b64decode(cloudevent.data))
+
+    # Get SLO config
+    LOGGER.info(f'Downloading SLO config from {CONFIG_URL}')
+    config = parse_config(content=download_gcs(CONFIG_URL))
+
+    # Get exporters list
+    LOGGER.info(f'Downloading exporters config from {EXPORTERS_URL}')
+
+    # Build exporters list
+    if EXPORTERS_URL:
+        exporters = parse_config(content=download_gcs(EXPORTERS_URL))
+    else:
+        exporters = slo_report['exporters']
+    spec = {"exporters": exporters}
+    exporters = get_exporters(config, spec)
+
+    # Export data
+    export(slo_report, exporters)
 
 
-def parse_args(args):
-    """Parse CLI arguments.
+def decode_gcs_url(url):
+    """Decode GCS URL.
 
     Args:
-        args (list): List of args passed from CLI.
+        url (str): GCS URL.
 
     Returns:
-        obj: Args parsed by ArgumentParser.
+        tuple: (bucket_name, file_path)
     """
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--config',
-                        '-c',
-                        type=str,
-                        required=False,
-                        default='config.yaml',
-                        help='Error budget policy file (JSON / YAML)')
-    parser.add_argument('--host',
-                        type=str,
-                        required=False,
-                        default='0.0.0.0',
-                        help='API host (default: 0.0.0.0)')
-    parser.add_argument('--port',
-                        type=str,
-                        required=False,
-                        default='5000',
-                        help='API port (default: 5000)')
-    return parser.parse_args(args)
+    split_url = url.split('/')
+    bucket_name = split_url[2]
+    file_path = '/'.join(split_url[3:])
+    return (bucket_name, file_path)
 
 
-if __name__ == '__main__':
-    main()
+def download_gcs(url):
+    """Download config from GCS and load it with json module.
+
+    Args:
+        url: Config URL.
+
+    Returns:
+        dict: Loaded configuration.
+    """
+    storage_client = google.cloud.storage.Client()
+    bucket, filepath = decode_gcs_url(url)
+    bucket = storage_client.get_bucket(bucket)
+    blob = bucket.blob(filepath)
+    return blob.download_as_string(client=None).decode('utf-8')

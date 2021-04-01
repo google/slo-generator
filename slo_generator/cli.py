@@ -66,7 +66,7 @@ def cli(args):
     for path in slo_configs:
         slo_config_name = path.split("/")[-1]
         LOGGER.debug(f'Loading SLO config "{slo_config_name}"')
-        slo_config = utils.parse_config(path)
+        slo_config = utils.parse_config(path=path)
         reports = compute(slo_config,
                           cfg,
                           timestamp=timestamp,
