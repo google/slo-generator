@@ -12,4 +12,5 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 slo-generator==2.0.0a0
+slo-generator[cloud_monitoring]==2.0.0a0
 google-cloud-storage

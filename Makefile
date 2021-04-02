@@ -91,13 +91,25 @@ docker_test: docker_build
 		slo-generator test
 
 # API 
-api_run:
+run_api:
 	functions-framework --source=slo_generator/api/main.py --target=run_compute --signature-type=cloudevent
 
-api_build:
+docker_build_api:
 	cd slo_generator/api && \
 	pack build \
 	--builder gcr.io/buildpacks/builder:v1 \
 	--env GOOGLE_FUNCTION_SIGNATURE_TYPE=cloudevent \
 	--env GOOGLE_FUNCTION_TARGET=run_compute \
 	slo-generator-api
+
+docker_push:
+	gcloud auth configure-docker -q
+	docker tag slo-generator-api gcr.io/${PROJECT_ID}/slo-generator-api:${VERSION}
+	docker push gcr.io/${PROJECT_ID}/slo-generator-api
+
+cloudbuild_api: 
+	cd slo_generator/api && \
+	gcloud alpha builds submit --pack image=gcr.io/${PROJECT_ID}/slo-generator-api:${VERSION},env=GOOGLE_FUNCTION_SIGNATURE_TYPE=cloudevent,env=GOOGLE_FUNCTION_TARGET=run_compute
+
+deploy_api:
+	gcloud run deploy --image gcr.io/${PROJECT_ID}/slo-generator-api:${VERSION} --platform managed --set-env-vars CONFIG_URL=${CONFIG_URL} --service-account=${SERVICE_ACCOUNT}
