@@ -1,0 +1,2 @@
+slo-generator
+google-cloud-storage

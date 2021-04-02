@@ -11,6 +11,7 @@ from urllib.parse import urlparse
 import google.cloud.storage
 from slo_generator.compute import compute, export, get_exporters
 from slo_generator.utils import setup_logging, parse_config
+from flask import jsonify
 
 CONFIG_URL = environ['CONFIG_URL']
 EXPORTERS_URL = environ.get('EXPORTERS_URL', None)
@@ -41,11 +42,12 @@ def run_compute(cloudevent):
     # Compute SLO report
     LOGGER.debug(f'Config: {pprint.pformat(config)}')
     LOGGER.debug(f'SLO Config: {pprint.pformat(slo_config)}')
-    compute(slo_config,
-            config,
-            timestamp=timestamp,
-            client=None,
-            do_export=True)
+    reports = compute(slo_config,
+                      config,
+                      timestamp=timestamp,
+                      client=None,
+                      do_export=True)
+    return jsonify(reports)
 
 
 def run_export(cloudevent):

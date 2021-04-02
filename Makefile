@@ -89,3 +89,15 @@ docker_test: docker_build
 		-e MIN_VALID_EVENTS=10 \
 		-e GOOGLE_APPLICATION_CREDENTIALS=tests/unit/fixtures/fake_credentials.json \
 		slo-generator test
+
+# API 
+api_run:
+	functions-framework --source=slo_generator/api/main.py --target=run_compute --signature-type=cloudevent
+
+api_build:
+	cd slo_generator/api && \
+	pack build \
+	--builder gcr.io/buildpacks/builder:v1 \
+	--env GOOGLE_FUNCTION_SIGNATURE_TYPE=cloudevent \
+	--env GOOGLE_FUNCTION_TARGET=run_compute \
+	slo-generator-api

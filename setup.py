@@ -86,7 +86,6 @@ setup(name=name,
       entry_points={
           'console_scripts': [
               'slo-generator=slo_generator.cli:main',
-              'slo-generator-api=slo_generator.api:main',
               'slo-generator-migrate=slo_generator.migrations.v2:main',
           ],
       },
