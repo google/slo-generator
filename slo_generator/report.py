@@ -117,7 +117,7 @@ class SLOReport:
             self.valid = False
 
     def build(self, step, data):
-        """Compute all data necessary for the SLO report.
+        """Compute all data necessary to build the SLO report.
 
         Args:
             step (dict): Error Budget Policy step configuration.
@@ -188,21 +188,21 @@ class SLOReport:
         info = self.get_step_info()
 
         # Grab backend class and method dynamically.
-        klass = backend.get('class')
+        cls_name = backend.get('class')
         method = config['spec']['method']
         excluded_keys = ['class', 'serviceLevelIndicator', 'name']
         backend_cfg = {
             k: v for k, v in backend.items() if k not in excluded_keys
         }
-        cls = utils.get_backend_cls(klass)
+        cls = utils.get_backend_cls(cls_name)
         if not cls:
-            LOGGER.error(f'Backend {klass} not loaded.')
+            LOGGER.warning(f'{info} | Backend {cls_name} not loaded.')
             self.valid = False
             return None
         instance = cls(client=client, **backend_cfg)
         method = getattr(instance, method)
         LOGGER.debug(f'{info} | '
-                     f'Using backend {klass}.{method.__name__} (from '
+                     f'Using backend {cls_name}.{method.__name__} (from '
                      f'SLO config file).')
 
         # Delete mode activation.
@@ -241,7 +241,7 @@ class SLOReport:
                 good_count = 0
             if bad_count == NO_DATA:
                 bad_count = 0
-            LOGGER.debug(f"{info} | Good: {good_count} | Bad: {bad_count}")
+            LOGGER.debug(f'{info} | Good: {good_count} | Bad: {bad_count}')
             sli_measurement = round(good_count / (good_count + bad_count), 6)
         else:  # sli value
             sli_measurement = round(data, 6)
@@ -265,7 +265,11 @@ class SLOReport:
         """
         info = self.get_step_info()
 
-        # Backend data type should be one of tuple, float, or int
+        # Backend not found
+        if data is None:
+            return False
+
+        # Backend result is the wrong type
         if not isinstance(data, (tuple, float, int)):
             LOGGER.error(
                 f'{info} | Backend method returned an object of type '
@@ -286,7 +290,7 @@ class SLOReport:
 
             # Tuple should contain only elements of type int or float
             if not all(isinstance(n, (float, int)) for n in data):
-                LOGGER.error('f{info} | Backend method returned'
+                LOGGER.error(f'{info} | Backend method returned'
                              'a tuple with some elements having '
                              'a type different than float / int')
                 return False
@@ -294,7 +298,7 @@ class SLOReport:
             # Tuple should not contain any element with value None.
             if good is None or bad is None:
                 LOGGER.error(f'{info} | Backend method returned a valid tuple '
-                             '{data} but one of the values is None.')
+                             f'{data} but one of the values is None.')
                 return False
 
             # Tuple should not have NO_DATA everywhere
@@ -307,8 +311,8 @@ class SLOReport:
             # Tuple should not have elements where the sum is inferior to our
             # minimum valid events threshold
             if (good + bad) < MIN_VALID_EVENTS:
-                LOGGER.error(f"{info} | Not enough valid events found | "
-                             f"Minimum valid events: {MIN_VALID_EVENTS}")
+                LOGGER.error(f'{info} | Not enough valid events found | '
+                             f'Minimum valid events: {MIN_VALID_EVENTS}')
                 return False
 
         # Check backend float / int value
@@ -329,7 +333,7 @@ class SLOReport:
         # SLI measurement should be 0 <= x <= 1
         if not 0 <= self.sli_measurement <= 1:
             LOGGER.error(
-                f"SLI is not between 0 and 1 (value = {self.sli_measurement})")
+                f'SLI is not between 0 and 1 (value = {self.sli_measurement})')
             return False
 
         return True
@@ -368,10 +372,10 @@ class SLOReport:
 
         sli_str = (f'SLI: {sli_per:<7} % | SLO: {goal_per} % | '
                    f'Gap: {gap_str:<6}%')
-        result_str = ("BR: {error_budget_burn_rate:<2} / "
-                      "{burn_rate_threshold} | "
-                      "Alert: {alert:<1} | Good: {good_events_count:<8} | "
-                      "Bad: {bad_events_count:<8}").format_map(report)
+        result_str = ('BR: {error_budget_burn_rate:<2} / '
+                      '{burn_rate_threshold} | '
+                      'Alert: {alert:<1} | Good: {good_events_count:<8} | '
+                      'Bad: {bad_events_count:<8}').format_map(report)
         full_str = f'{info_str} | {sli_str} | {result_str}'
         if COLORED_OUTPUT == 1:
             if self.alert:
