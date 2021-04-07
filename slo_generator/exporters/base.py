@@ -19,6 +19,8 @@ import logging
 import warnings
 from abc import ABCMeta, abstractmethod
 
+from slo_generator import constants
+
 LOGGER = logging.getLogger(__name__)
 
 # Default metric labels exported by all metrics exporters
@@ -104,8 +106,6 @@ class MetricsExporter:
             name = metric['name']
             labels = metric['labels']
             labels_str = ', '.join([f'{k}={v}' for k, v in labels.items()])
-            LOGGER.info(f'Exporting "{name}" with {len(labels.keys())} labels: '
-                        f'{labels_str}...')
             ret = self.export_metric(metric)
             metric_info = {
                 k: v
@@ -113,8 +113,14 @@ class MetricsExporter:
                 if k in ['name', 'alias', 'description', 'labels']
             }
             response = {'response': ret, 'metric': metric_info}
+            status = f' Export {name} {{{labels_str}}}'
             if ret and 'error' in ret:
+                status = constants.FAIL + status
+                LOGGER.error(status)
                 LOGGER.error(response)
+            else:
+                status = constants.SUCCESS + status
+                LOGGER.info(status)
             all_data.append(response)
         return all_data
 

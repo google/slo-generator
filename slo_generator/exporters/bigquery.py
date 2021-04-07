@@ -23,7 +23,7 @@ import pprint
 import google.api_core
 from google.cloud import bigquery
 
-from slo_generator.constants import DRY_RUN
+from slo_generator import constants
 
 LOGGER = logging.getLogger(__name__)
 
@@ -83,7 +83,7 @@ class BigqueryExporter:
             json_data['metadata'] = metadata_fields
 
         # Write results to BQ table
-        if DRY_RUN:
+        if constants.DRY_RUN:
             LOGGER.info(f'[DRY RUN] Writing data to BigQuery: \n{json_data}')
             return []
         LOGGER.debug(f'Writing data to BigQuery:\n{json_data}')
@@ -92,9 +92,12 @@ class BigqueryExporter:
             json_rows=[json_data],
             row_ids=[row_ids],
             retry=google.api_core.retry.Retry(deadline=30))
+        status = f' Export data to {str(table_ref)}'
         if results != []:
+            status = constants.FAIL + status
             raise BigQueryError(results)
-
+        status = constants.SUCCESS + status
+        LOGGER.info(status)
         return results
 
     @staticmethod

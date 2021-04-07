@@ -21,3 +21,6 @@ NO_DATA = -1
 MIN_VALID_EVENTS = int(os.environ.get("MIN_VALID_EVENTS", "1"))
 COLORED_OUTPUT = int(os.environ.get("COLORED_OUTPUT", "0"))
 DRY_RUN = bool(int(os.environ.get("DRY_RUN", "0")))
+DEBUG = int(os.environ.get("DEBUG", "0"))
+FAIL = '❌'
+SUCCESS = '✅'
