@@ -44,9 +44,9 @@ LABELS_MAPPING = {
 METADATA_LABELS_TOP_LEVEL = ['service_name', 'feature_name', 'slo_name']
 
 
-def migrate_slo_report_v1_to_v2(report):
-    """Convert SLO report to v1 format, for exporters to be backward-compatible
-    with v1 data format.
+def migrate_slo_report_v2_to_v1(report):
+    """Convert SLO report from v2 to v1 format, for exporters to be
+    backward-compatible with v1 data format.
 
     Args:
         report (dict): SLO report.
