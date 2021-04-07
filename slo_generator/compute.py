@@ -23,7 +23,7 @@ import time
 
 from slo_generator import utils
 from slo_generator.report import SLOReport
-from slo_generator.migrations.v2 import migrate_slo_report_v1_to_v2
+from slo_generator.migrations.v2 import migrate_slo_report_v2_to_v1
 
 LOGGER = logging.getLogger(__name__)
 
@@ -122,7 +122,6 @@ def compute(slo_config,
     exporters = get_exporters(config, spec)
     error_budget_policy = get_error_budget_policy(config, spec)
     backend = get_backend(config, spec)
-
     reports = []
     for step in error_budget_policy['steps']:
         report = SLOReport(config=slo_config,
@@ -148,7 +147,7 @@ def compute(slo_config,
     end = time.time()
     run_duration = round(end - start, 1)
     LOGGER.debug(pprint.pformat(reports))
-    LOGGER.debug(f'Run finished successfully in {run_duration}s.')
+    LOGGER.info(f'Run finished successfully in {run_duration}s.')
     return reports
 
 
@@ -166,8 +165,8 @@ def export(data, exporters, raise_on_error=False):
     LOGGER.debug(f'Data: {pprint.pformat(data)}')
     responses = []
 
-    # Convert data to export from v2 to v1 for backwards-compatible exports
-    data = migrate_slo_report_v1_to_v2(data)
+    # Convert data to export from v1 to v2 for backwards-compatible exports
+    data = migrate_slo_report_v2_to_v1(data)
 
     # Passing one exporter as a dict will work for convenience
     if isinstance(exporters, dict):
@@ -176,10 +175,13 @@ def export(data, exporters, raise_on_error=False):
     for config in exporters:
         try:
             exporter_class = config.get('class')
-            LOGGER.info(f'Exporting results to {exporter_class}')
+            instance = utils.get_exporter_cls(exporter_class)
+            if not instance:
+                continue
+            LOGGER.info(
+                f'Exporting SLO report using {exporter_class}Exporter ...')
             LOGGER.debug(f'Exporter config: {pprint.pformat(config)}')
-            exporter = utils.get_exporter_cls(exporter_class)()
-            response = exporter.export(data, **config)
+            response = instance().export(data, **config)
             if isinstance(response, list):
                 for elem in response:
                     elem['exporter'] = exporter_class
