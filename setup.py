@@ -35,22 +35,19 @@ version = "2.0.0a0"
 # 'Development Status :: 4 - Beta'
 # 'Development Status :: 5 - Production/Stable'
 release_status = "Development Status :: 3 - Alpha"
-dependencies = ['pyyaml', 'ruamel.yaml', 'python-dateutil']
+dependencies = ['pyyaml', 'ruamel.yaml', 'python-dateutil', 'click']
 extras = {
-    'api': ['Flask', 'gunicorn'],
+    'api': ['Flask', 'gunicorn', 'cloudevents', 'functions-framework'],
     'prometheus': ['prometheus-client', 'prometheus-http-client'],
     'datadog': ['datadog', 'retrying==1.3.3'],
     'bigquery': [
-        'google-api-python-client < 2.0.0', 'oauth2client',
-        'google-cloud-bigquery < 3.0.0'
+        'google-api-python-client < 2.0.0', 'google-cloud-bigquery < 3.0.0'
     ],
     'cloud_monitoring': [
-        'google-api-python-client < 2.0.0', 'oauth2client',
-        'google-cloud-monitoring < 2.0.0'
+        'google-api-python-client < 2.0.0', 'google-cloud-monitoring < 2.0.0'
     ],
     'pubsub': [
-        'google-api-python-client < 2.0.0', 'oauth2client',
-        'google-cloud-pubsub==1.7.0'
+        'google-api-python-client < 2.0.0', 'google-cloud-pubsub==1.7.0'
     ],
     'elasticsearch': ['elasticsearch'],
     'dev': ['wheel', 'flake8', 'mock', 'coverage', 'nose', 'pylint']
@@ -86,6 +83,7 @@ setup(name=name,
       entry_points={
           'console_scripts': [
               'slo-generator=slo_generator.cli:main',
+              'slo-generator-api=slo_generator.cli:api',
               'slo-generator-migrate=slo_generator.migrations.v2:main',
           ],
       },

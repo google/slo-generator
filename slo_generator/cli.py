@@ -17,12 +17,16 @@ Command-Line interface of `slo-generator`.
 """
 
 import argparse
+import click
 import logging
 import os
 import sys
+import pprint
 import time
 
-import slo_generator.utils as utils
+from pathlib import Path
+
+from slo_generator import utils
 from slo_generator.compute import compute
 
 sys.path.append(os.getcwd())  # dynamic backend loading
@@ -30,49 +34,73 @@ sys.path.append(os.getcwd())  # dynamic backend loading
 LOGGER = logging.getLogger(__name__)
 
 
-def main():
-    """slo-generator CLI entrypoint."""
-    args = parse_args(sys.argv[1:])
-    cli(args)
-
-
-def cli(args):
-    """Main CLI function.
+@click.command()
+@click.option('--slo-config',
+              '-f',
+              type=click.Path(),
+              required=True,
+              help='SLO config path')
+@click.option('--config',
+              '-c',
+              type=click.Path(exists=True),
+              default='config.yaml',
+              show_default=True,
+              help='slo-generator config path')
+@click.option('--export',
+              '-e',
+              is_flag=True,
+              help='Export SLO reports to exporters defined in SLO config')
+@click.option('--delete',
+              '-d',
+              is_flag=True,
+              help='Delete SLO (used for backends with SLO APIs)')
+@click.option('--timestamp',
+              '-t',
+              type=int,
+              default=None,
+              help='End timestamp for query.')
+def main(**kwargs):
+    """slo-generator CLI entrypoint.
 
     Args:
-        args (Namespace): Argparsed CLI parameters.
+        kwargs (Namespace): Click CLI options.
 
     Returns:
         dict: Dict of all reports indexed by config file path.
     """
     utils.setup_logging()
-    export = args.export
-    delete = args.delete
-    timestamp = args.timestamp
+    LOGGER.debug(f'CLI Options: {pprint.pformat(kwargs)}')
+    export = kwargs['export']
+    delete = kwargs['delete']
+    timestamp = kwargs['timestamp']
+    slo_path = kwargs['slo_config']
+    config_path = kwargs['config']
     start = time.time()
 
-    # Load config
-    LOGGER.debug(f"Loading Error Budget config from {args.config}")
-    cfg_path = utils.normalize(args.config)
-    cfg = utils.parse_config(path=cfg_path)
+    # Load slo-generator config
+    LOGGER.debug(f"Loading slo-generator config from {config_path}")
+    config = utils.load_config(config_path)
 
-    # Parse SLO folder for configs
-    slo_configs = utils.list_slo_configs(args.slo_config)
+    # Load SLO config(s)
+    if Path(slo_path).is_dir():
+        slo_configs = utils.load_configs(slo_path)
+    else:
+        slo_configs = [utils.load_config(slo_path)]
+
     if not slo_configs:
-        LOGGER.error(f'No SLO configs found in SLO folder {args.slo_config}.')
+        LOGGER.error(f'No SLO configs found in {slo_path}.')
+        sys.exit(1)
 
     # Load SLO configs and compute SLO reports
     all_reports = {}
-    for path in slo_configs:
-        slo_config_name = path.split("/")[-1]
-        LOGGER.debug(f'Loading SLO config "{slo_config_name}"')
-        slo_config = utils.parse_config(path=path)
+    for slo_config in slo_configs:
+        name = slo_config['metadata']['name']
         reports = compute(slo_config,
-                          cfg,
+                          config,
                           timestamp=timestamp,
                           do_export=export,
                           delete=delete)
-        all_reports[path] = reports
+        all_reports[name] = reports
     end = time.time()
     duration = round(end - start, 1)
     LOGGER.info(f'Run summary | SLO Configs: {len(slo_configs)} | '
@@ -80,47 +108,19 @@ def cli(args):
     return all_reports
 
 
-def parse_args(args):
-    """Parse CLI arguments.
-
-    Args:
-        args (list): List of args passed from CLI.
-
-    Returns:
-        obj: Args parsed by ArgumentParser.
-    """
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--slo-config',
-                        '-f',
-                        type=str,
-                        required=False,
-                        help='SLO configuration file (JSON / YAML)')
-    parser.add_argument('--config',
-                        '-c',
-                        type=str,
-                        required=False,
-                        default='config.yaml',
-                        help='Error budget policy file (JSON / YAML)')
-    parser.add_argument('--export',
-                        '-e',
-                        type=utils.str2bool,
-                        nargs='?',
-                        const=True,
-                        default=False,
-                        help="Export SLO reports")
-    parser.add_argument('--delete',
-                        '-d',
-                        type=utils.str2bool,
-                        nargs='?',
-                        const=True,
-                        default=False,
-                        help="Delete SLO (use for backends with APIs).")
-    parser.add_argument('--timestamp',
-                        '-t',
-                        type=int,
-                        default=None,
-                        help="End timestamp for query.")
-    return parser.parse_args(args)
+# pylint: disable=import-error,import-outside-toplevel
+@click.command()
+@click.pass_context
+@click.option('--config', envvar='CONFIG_PATH')
+def api(ctx, config):
+    """Run functions framework programmatically to provide the slo-generator-api
+    endpoint."""
+    from functions_framework._cli import _cli
+    os.environ['CONFIG_PATH'] = config
+    ctx.invoke(_cli,
+               target='run_compute',
+               source=Path(__file__).parent / 'api' / 'main.py',
+               signature_type='cloudevent')
 
 
 if __name__ == '__main__':
