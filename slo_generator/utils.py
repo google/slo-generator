@@ -18,6 +18,7 @@ Utility functions.
 from datetime import datetime
 import argparse
 import collections
+import errno
 import glob
 import importlib
 import logging
@@ -29,27 +30,59 @@ import warnings
 import yaml
 
 from dateutil import tz
+from pathlib import Path
+
+from slo_generator.constants import DEBUG
+
+try:
+    from google.cloud import storage
+    GCS_ENABLED = True
+except ImportError:
+    GCS_ENABLED = False
 
 LOGGER = logging.getLogger(__name__)
 
 
-def list_slo_configs(path):
-    """List all SLO configs from path.
+def load_configs(path):
+    """Load multiple slo-generator configs from a folder path.
 
-    If path is a file, normalize the path and return it as a list with one
-    element.
+    Args:
+        path (str): Folder path.
 
-    If path is a folder, get all SLO configs from folder (files starting with
-    slo_*), normalize their paths and return them as a list.
+    Returns:
+        list: List of configs downloaded and parsed.
     """
-    path = normalize(path)
-    if os.path.isfile(path):
-        paths = [path]
-    elif os.path.isdir(path):
-        paths = sorted(glob.glob(f'{path}/slo_*.yaml'))
-    else:
-        raise Exception(f'SLO Config path "{path}" is not a file or folder.')
-    return paths
+    return [load_configs(p) for p in sorted(path.glob('*.yaml'))]
+
+
+def load_config(path):
+    """Load any slo-generator config, from a local path, a GCS URL, or directly
+    from a string content.
+
+    Args:
+        path (str): GCS URL, file path, or data as string.
+
+    Returns:
+        dict: Config downloaded and parsed.
+    """
+    abspath = Path(path)
+    try:
+        if path.startswith('gs://'):
+            if not GCS_ENABLED:
+                warnings.warn(
+                    'To load a file from GCS, you need the `google-cloud-storage` '
+                    'library installed. Please install it using pip by running '
+                    '`pip install google-cloud-storage`')
+                sys.exit(1)
+            return parse_config(content=download_gcs_file(str(path)))
+        elif abspath.is_file():
+            return parse_config(path=str(abspath.resolve()))
+        else:
+            return parse_config(content=str(path))
+    except OSError as exc:
+        if exc.errno == errno.ENAMETOOLONG:  # filename too long, string content
+            return parse_config(content=str(path))
+        raise
 
 
 def parse_config(path=None, content=None, ctx=os.environ):
@@ -90,7 +123,7 @@ def parse_config(path=None, content=None, ctx=os.environ):
         return content
 
     if path:
-        with open(path) as config:
+        with Path(path).open() as config:
             content = config.read()
     content = replace_env_vars(content, ctx)
     data = yaml.safe_load(content)
@@ -101,9 +134,8 @@ def parse_config(path=None, content=None, ctx=os.environ):
 
 def setup_logging():
     """Setup logging for the CLI."""
-    debug = os.environ.get("DEBUG", "0")
-    print("DEBUG: %s" % debug)
-    if debug == "1":
+    if DEBUG == 1:
+        print(f'DEBUG mode is enabled. DEBUG={DEBUG}')
         level = logging.DEBUG
     else:
         level = logging.INFO
@@ -152,18 +184,6 @@ def get_human_time(timestamp, timezone=None):
     return date_str
 
 
-def normalize(path):
-    """Converts a path to an absolute path.
-
-    Args:
-        path (str): Input path.
-
-    Returns:
-        str: Absolute path.
-    """
-    return os.path.abspath(path)
-
-
 def get_backend_cls(backend):
     """Get backend class.
 
@@ -190,36 +210,29 @@ def get_exporter_cls(exporter):
     return import_cls(exporter, expected_type)
 
 
-def import_cls(klass_name, expected_type):
+def import_cls(cls_name, expected_type):
     """Import class or method dynamically from full name.
-    If the classname is not fully qualified, import in current sub modules.
+    If `cls_name` is not part of the core, try import from local path (plugins).
 
     Args:
-        klass_name: the class name to import
-        expected_type: the type of class expected
+        cls_name: Class name to import.
+        expected_type: Type of class expected.
 
     Returns:
         obj: Imported class or method object.
     """
-    if "." in klass_name:
-        package, name = klass_name.rsplit(".", maxsplit=1)
+    # plugin class
+    if "." in cls_name:
+        package, name = cls_name.rsplit(".", maxsplit=1)
         return import_dynamic(package, name, prefix=expected_type)
 
-    # else
+    # slo-generator core class
     modules_name = f"{expected_type.lower()}s"
-    full_klass_name = f'{klass_name}{expected_type}'
-    filename = re.sub(r'(?<!^)(?=[A-Z])', '_', klass_name).lower()
-    try:
-        return import_dynamic(f'slo_generator.{modules_name}.{filename}',
-                              full_klass_name,
-                              prefix=expected_type)
-    except ImportError as exc:
-        LOGGER.exception(exc)
-        warnings.warn(
-            f'Extra dependency {filename} is not currently installed. '
-            f'Install it locally with "pip install .[{filename}]" or remotely '
-            f'by adding "slo-generator[{filename}]" to your requirements.txt.')
-        return None
+    full_cls_name = f'{cls_name}{expected_type}'
+    filename = re.sub(r'(?<!^)(?=[A-Z])', '_', cls_name).lower()
+    return import_dynamic(f'slo_generator.{modules_name}.{filename}',
+                          full_cls_name,
+                          prefix=expected_type)
 
 
 def import_dynamic(package, name, prefix="class"):
@@ -235,12 +248,16 @@ def import_dynamic(package, name, prefix="class"):
     try:
         return getattr(importlib.import_module(package), name)
     except Exception as exception:  # pylint: disable=W0703
-        LOGGER.error(
-            f'{prefix} "{package}.{name}" not found, check '
-            f'package and class name are valid, or that importing it doesn\'t '
-            f'result in an exception.')
-        LOGGER.debug(exception, exc_info=True)
-        raise exception
+        dep = package.split('.')[-1]
+        warnings.warn(
+            f'{prefix} "{package}.{name}" not found.\nPlease ensure that:\n'
+            f'1. Package and class name are valid.\n'
+            f'2. Extra dependency {dep} is installed. If not, install it '
+            f'locally with "pip install slo-generator[{dep}]" or remotely '
+            f'by adding "slo-generator[{dep}]" to your requirements.txt.')
+        if DEBUG:
+            LOGGER.debug(exception, exc_info=True)
+        return None
 
 
 def capitalize(word):
@@ -314,6 +331,37 @@ def str2bool(string):
     if string.lower() in ('no', 'false', 'f', 'n', '0'):
         return False
     raise argparse.ArgumentTypeError('Boolean value expected.')
+
+
+def download_gcs_file(url):
+    """Download config from GCS.
+
+    Args:
+        url: Config URL.
+
+    Returns:
+        dict: Loaded configuration.
+    """
+    client = storage.Client()
+    bucket, filepath = decode_gcs_url(url)
+    bucket = client.get_bucket(bucket)
+    blob = bucket.blob(filepath)
+    return blob.download_as_string(client=None).decode('utf-8')
+
+
+def decode_gcs_url(url):
+    """Decode GCS URL.
+
+    Args:
+        url (str): GCS URL.
+
+    Returns:
+        tuple: (bucket_name, file_path)
+    """
+    split_url = url.split('/')
+    bucket_name = split_url[2]
+    file_path = '/'.join(split_url[3:])
+    return (bucket_name, file_path)
 
 
 # pylint: disable=too-few-public-methods
