@@ -286,6 +286,18 @@ def snake_to_caml(word):
     return re.sub('_.', lambda x: x.group()[1].upper(), word)
 
 
+def caml_to_snake(word):
+    """Convert a string written in CamlCase to a string written in snake_case.
+
+    Args:
+        word (str): Input string.
+
+    Returns:
+        str: Output string.
+    """
+    return re.sub(r'(?<!^)(?=[A-Z])', '_', word).lower()
+
+
 def dict_snake_to_caml(data):
     """Convert dictionary with keys written in snake_case to another one with
     keys written in CamlCase.

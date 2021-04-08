@@ -7,6 +7,8 @@ Migrate utilities for migrating slo-generator configs from v1 to v2.
 
 import itertools
 import os
+import random
+import string
 import sys
 from collections import OrderedDict
 from pathlib import Path
@@ -61,7 +63,7 @@ def do_migrate(source, target, error_budget_policy_path, glob, version):
             target_path = target.joinpath(*source_path.relative_to(cwd).parts)
         else:
             target_path = target.joinpath(
-                *source_path.relative_to(cwd).parts[-1])
+                *source_path.relative_to(cwd).parts[1:])
         target_path_str = target_path.relative_to(cwd)
         slo_config_str = source_path.open().read()
         slo_config, ind, blc = yaml.util.load_yaml_guess_indent(slo_config_str)
@@ -84,7 +86,6 @@ def do_migrate(source, target, error_budget_policy_path, glob, version):
         # Run vx to vy migrator method
         func = getattr(sys.modules[__name__], f'slo_config_{curver}to{version}')
         slo_config_v2 = func(slo_config, shared_config)
-        slo_config_v2 = utils.dict_snake_to_caml(slo_config_v2)
 
         # Write resulting config to target path
         print(f' \u2192 {GREEN}{target_path_str}{ENDC} [{version}]', end='')
@@ -106,9 +107,12 @@ def do_migrate(source, target, error_budget_policy_path, glob, version):
         step['message_alert'] = step.pop('overburned_consequence_message')
         step['message_standard'] = step.pop('achieved_consequence_message')
 
-    ebp = {'name': 'default', 'steps': error_budget_policy}
-    shared_config['error_budget_policies'].append(ebp)
-    shared_config = utils.dict_snake_to_caml(shared_config)
+    ebp = {'steps': error_budget_policy}
+    if error_budget_policy_path.name == 'error_budget_policy.yaml':
+        ebp_key = 'default'
+    else:
+        ebp_key = error_budget_policy_path.name
+    shared_config['error_budget_policies'][ebp_key] = ebp
     shared_config_path = target / 'config.yaml'
     shared_config_path_str = shared_config_path.relative_to(cwd)
     with shared_config_path.open('w') as conf:
@@ -123,6 +127,9 @@ def do_migrate(source, target, error_budget_policy_path, glob, version):
                              block_seq_indent=0,
                              explicit_start=True)
         print(f'{SUCCESS} {GREEN}{BOLD}Success !{ENDC}')
+
+    # Remove error budget policy file
+    error_budget_policy_path.unlink()
 
     print("-" * 50)
     print(
@@ -191,38 +198,49 @@ def slo_config_v1tov2(slo_config, shared_config={}):
     backend = slo_config['backend']
     method = backend.pop('method')
     exporters = slo_config.get('exporters', [])
+    shared_exporters = shared_config['exporters']
+    shared_backends = shared_config['backends']
 
     # If backend not in general config, add it and add an alias for the backend
     # Refer to the alias in the SLO config file.
     backend = OrderedDict(backend)
-    backend_name = utils.dict_snake_to_caml(backend['class']).replace(
-        '_', '-').lower()
-    backend_name = PROVIDERS_COMPAT.get(backend_name, backend_name)
-    backend['name'] = backend_name
-    backend.move_to_end('name', last=False)
+    backend_key = backend.pop('class')
+    if '.' not in backend_key:
+        backend_key = utils.caml_to_snake(
+            PROVIDERS_COMPAT.get(backend_key, backend_key))
+    if backend_key in shared_backends.keys():
+        backend_key += '/' + get_random_suffix()
     backend = dict(backend)
-    slo_config_v2['spec']['backend'] = backend_name
-    backends = shared_config['backends']
-    if not any(str(b) == str(backend) for b in backends):
-        backends.append(backend)
-        shared_config['backends'] = backends
+    slo_config_v2['spec']['backend'] = backend_key
+    if backend_key in shared_backends.keys():
+        backend_key += '/' + get_random_suffix()
+    if not any(
+            str(v) == str(backend) and k.startswith(backend_key.split('/')[0])
+            for k, v in shared_backends.items()):
+        print(f"Adding backend {backend_key}")
+        shared_backends[backend_key] = backend
+        shared_config['backends'] = dict(sorted(shared_backends.items()))
 
     # If exporter not in general config, add it and add an alias for the
     # exporter. Refer to the alias in the SLO config file.
     for exporter in exporters:
         exporter = OrderedDict(exporter)
-        exporter_name = utils.dict_snake_to_caml(exporter['class']).replace(
-            '_', '-').lower()
-        exporter_name = PROVIDERS_COMPAT.get(exporter_name, exporter_name)
-        exporter['name'] = exporter_name
-        exporter.move_to_end('name', last=False)
+        exporter_key = exporter.pop('class')
+        if '.' not in exporter_key:
+            exporter_key = utils.caml_to_snake(
+                PROVIDERS_COMPAT.get(exporter_key, exporter_key))
+        if exporter_key in shared_exporters.keys():
+            exporter_key += '/' + get_random_suffix()
         exporter = dict(exporter)
-        if exporter_name not in slo_config_v2['spec']['exporters']:
-            slo_config_v2['spec']['exporters'].append(exporter_name)
-        exporters = shared_config['exporters']
-        if not any(str(d) == str(exporter) for d in exporters):
-            exporters.append(exporter)
-            shared_config['exporters'] = exporters
+        if exporter_key not in slo_config_v2['spec']['exporters']:
+            slo_config_v2['spec']['exporters'].append(exporter_key)
+        if not any(
+                str(v) == str(exporter) and
+                k.startswith(exporter_key.split('/')[0])
+                for k, v in shared_exporters.items()):
+            print(f"Adding exporter {exporter_key}")
+            shared_exporters[exporter_key] = exporter
+            shared_config['exporters'] = dict(sorted(shared_exporters.items()))
 
     # Fill spec.serviceLevelIndicator and spec.backend/method
     slo_config_v2['spec']['description'] = slo_description
@@ -240,6 +258,11 @@ def slo_config_v1tov2(slo_config, shared_config={}):
         'slo_name': slo_config['slo_name']
     }
     return dict(slo_config_v2)
+
+
+def get_random_suffix():
+    """Get random suffix for our backends / exporters when configs clash."""
+    return ''.join(random.choices(string.digits, k=4))
 
 
 def report_v2tov1(report):

@@ -29,9 +29,9 @@ DEBUG = int(os.environ.get("DEBUG", "0"))
 
 # Config skeletons
 CONFIG_SCHEMA = {
-    'backends': [],
-    'exporters': [],
-    'error_budget_policies': [],
+    'backends': {},
+    'exporters': {},
+    'error_budget_policies': {},
 }
 SLO_CONFIG_SCHEMA = {
     'apiVersion': '',
@@ -49,8 +49,8 @@ SLO_CONFIG_SCHEMA = {
 # Providers that have changed with v2 YAML config format. This mapping helps
 # migrate them to their updated names.
 PROVIDERS_COMPAT = {
-    'stackdriver': 'cloud_monitoring',
-    'stackdriver_service_monitoring': 'cloud_service_monitoring'
+    'Stackdriver': 'CloudMonitoring',
+    'StackdriverServiceMonitoring': 'CloudServiceMonitoring'
 }
 
 # Fields that have changed name with v2 YAML config format. This mapping helps
