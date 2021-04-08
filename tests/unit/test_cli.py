@@ -17,7 +17,9 @@ import unittest
 
 from mock import patch
 
-from slo_generator.cli import cli, parse_args
+from click.testing import CliRunner
+from slo_generator.cli import main
+from slo_generator.utils import load_config
 
 from .test_stubs import CTX, mock_sd
 
@@ -33,39 +35,44 @@ class TestCLI(unittest.TestCase):
         slo_config = f'{root}/samples/cloud_monitoring/slo_gae_app_availability.yaml'  # noqa: E501
         config = f'{root}/samples/config.yaml'
         self.slo_config = slo_config
+        self.slo_metadata_name = load_config(slo_config,
+                                             ctx=CTX)['metadata']['name']
         self.config = config
-
-    def test_parse_args(self):
-        args = parse_args([
-            '--slo-config', self.slo_config, '--config', self.config, '--export'
-        ])
-        self.assertEqual(args.slo_config, self.slo_config)
-        self.assertEqual(args.config, self.config)
-        self.assertEqual(args.export, True)
+        self.cli = CliRunner()
 
     @patch('google.api_core.grpc_helpers.create_channel',
            return_value=mock_sd(8))
     def test_cli(self, mock):
-        args = parse_args(['-f', self.slo_config, '-c', self.config])
-        all_reports = cli(args)
-        len_first_report = len(all_reports[self.slo_config])
-        self.assertIn(self.slo_config, all_reports.keys())
+        kwargs = {
+            '-f': self.slo_config,
+            '-c': self.config,
+        }
+        all_reports = self.cli.invoke(main, **kwargs)
+        print(all_reports)
+        metadata_name = self.slo_metadata_name
+        len_first_report = len(all_reports[metadata_name])
+        self.assertIn(self.slo_metadata_name, all_reports.keys())
         self.assertEqual(len_first_report, 4)
 
     @patch('google.api_core.grpc_helpers.create_channel',
            return_value=mock_sd(40))
     def test_cli_folder(self, mock):
-        args = parse_args(
-            ['-f', f'{root}/samples/cloud_monitoring', '-c', self.config])
-        all_reports = cli(args)
-        len_first_report = len(all_reports[self.slo_config])
-        self.assertIn(self.slo_config, all_reports.keys())
+        kwargs = {
+            '-f': f'{root}/samples/cloud_monitoring',
+            '-c': self.config,
+        }
+        all_reports = self.cli.invoke(main, **kwargs)
+        metadata_name = self.slo_metadata_name
+        len_first_report = len(all_reports[metadata_name])
+        self.assertIn(self.slo_metadata_name, all_reports.keys())
         self.assertEqual(len_first_report, 4)
 
     def test_cli_no_config(self):
-        args = parse_args(
-            ['-f', f'{root}/samples', '-c', f'{root}/samples/config.yaml'])
-        all_reports = cli(args)
+        kwargs = {
+            '-f': f'{root}/samples',
+            '-c': f'{root}/samples/config.yaml',
+        }
+        all_reports = self.cli.invoke(main, **kwargs)
         self.assertEqual(all_reports, {})
 
 

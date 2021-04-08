@@ -23,13 +23,14 @@ import time
 from types import ModuleType
 
 from google.cloud.monitoring_v3.proto import metric_service_pb2
-from slo_generator.utils import list_slo_configs, parse_config
+from slo_generator.utils import load_configs, load_config
 
 TEST_DIR = os.path.dirname(os.path.abspath(__file__))
 SAMPLE_DIR = os.path.join(os.path.dirname(os.path.dirname(TEST_DIR)),
                           "samples/")
 
 CTX = {
+    'PROJECT_ID': 'fake',
     'PUBSUB_PROJECT_ID': 'fake',
     'PUBSUB_TOPIC_NAME': 'fake',
     'GAE_PROJECT_ID': 'fake',
@@ -78,6 +79,7 @@ class FailExporter(MetricsExporter):
         raise ValueError("Oops !")
 """
 
+
 def add_dynamic(name, code, type):
     """Dynamically add a backend or exporter to slo-generator.
 
@@ -95,7 +97,6 @@ def add_dynamic(name, code, type):
 # Add backends / exporters for testing purposes
 add_dynamic('dummy', CUSTOM_BACKEND_CODE, 'backends')
 add_dynamic('fail', FAIL_EXPORTER_CODE, 'exporters')
-
 
 CUSTOM_BASE_CONFIG = {
     "service_name": "test",
@@ -209,6 +210,7 @@ def mock_slo_report(key):
 # pylint: disable=too-few-public-methods
 class MultiCallableStub:
     """Stub for the grpc.UnaryUnaryMultiCallable interface."""
+
     def __init__(self, method, channel_stub):
         self.method = method
         self.channel_stub = channel_stub
@@ -231,6 +233,7 @@ class MultiCallableStub:
 # pylint: disable=R0903
 class ChannelStub:
     """Stub for the grpc.Channel interface."""
+
     def __init__(self, responses=[]):
         self.responses = responses
         self.requests = []
@@ -344,6 +347,7 @@ def mock_dt(*args, **kwargs):
     elif args[0] == 'put' and args[1] == 'timeseries':
         return {}
 
+
 def mock_dt_errors(*args, **kwargs):
     """Mock Dynatrace response with errors."""
     if args[0] == 'get' and args[1] == 'timeseries':
@@ -357,6 +361,7 @@ def mock_dt_errors(*args, **kwargs):
 
     elif args[0] == 'put' and args[1] == 'timeseries':
         return load_fixture('dt_error_rate.json')
+
 
 class dotdict(dict):
     """dot.notation access to dictionary attributes"""
@@ -383,6 +388,7 @@ def dotize(data):
 
 class mock_ssm_client:
     """Fake Service Monitoring API client."""
+
     def __init__(self):
         self.services = [dotize(s) for s in load_fixture('ssm_services.json')]
         self.service_level_objectives = [
@@ -425,7 +431,7 @@ class mock_ssm_client:
         return data
 
 
-def load_fixture(filename, **ctx):
+def load_fixture(filename, ctx=os.environ):
     """Load a fixture from the test/fixtures/ directory and replace context
     environmental variables in it.
 
@@ -437,10 +443,10 @@ def load_fixture(filename, **ctx):
         dict: Loaded fixture.
     """
     filename = os.path.join(TEST_DIR, "fixtures/", filename)
-    return parse_config(filename, ctx)
+    return load_config(filename, ctx=ctx)
 
 
-def load_sample(filename, **ctx):
+def load_sample(filename, ctx=os.environ):
     """Load a sample from the samples/ directory and replace context
     environmental variables in it.
 
@@ -452,10 +458,10 @@ def load_sample(filename, **ctx):
         dict: Loaded sample.
     """
     filename = os.path.join(SAMPLE_DIR, filename)
-    return parse_config(filename, ctx)
+    return load_config(filename, ctx=ctx)
 
 
-def load_slo_samples(folder_path, **ctx):
+def load_slo_samples(folder_path, ctx=os.environ):
     """List and load all SLO samples from folder path.
 
     Args:
@@ -465,7 +471,4 @@ def load_slo_samples(folder_path, **ctx):
     Returns:
         list: List of loaded SLO configs.
     """
-    return [
-        load_sample(filename, **ctx)
-        for filename in list_slo_configs(f'{SAMPLE_DIR}/{folder_path}')
-    ]
+    return load_configs(f'{SAMPLE_DIR}/{folder_path}', ctx)

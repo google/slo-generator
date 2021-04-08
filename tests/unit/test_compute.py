@@ -32,16 +32,16 @@ from .test_stubs import (CTX, load_fixture, load_sample, load_slo_samples,
 
 warnings.filterwarnings("ignore", message=_CLOUD_SDK_CREDENTIALS_WARNING)
 
-CONFIG = load_sample('config.yaml', **CTX)
+CONFIG = load_sample('config.yaml', CTX)
 STEPS = len(CONFIG['error_budget_policies']['standard']['steps'])
-SLO_CONFIGS_SD = load_slo_samples('cloud_monitoring', **CTX)
-SLO_CONFIGS_SDSM = load_slo_samples('cloud_service_monitoring', **CTX)
-SLO_CONFIGS_PROM = load_slo_samples('prometheus', **CTX)
-SLO_CONFIGS_ES = load_slo_samples('elasticsearch', **CTX)
-SLO_CONFIGS_DD = load_slo_samples('datadog', **CTX)
-SLO_CONFIGS_DT = load_slo_samples('dynatrace', **CTX)
+SLO_CONFIGS_SD = load_slo_samples('cloud_monitoring', CTX)
+SLO_CONFIGS_SDSM = load_slo_samples('cloud_service_monitoring', CTX)
+SLO_CONFIGS_PROM = load_slo_samples('prometheus', CTX)
+SLO_CONFIGS_ES = load_slo_samples('elasticsearch', CTX)
+SLO_CONFIGS_DD = load_slo_samples('datadog', CTX)
+SLO_CONFIGS_DT = load_slo_samples('dynatrace', CTX)
 SLO_REPORT = load_fixture('slo_report.json')
-EXPORTERS = load_fixture('exporters.yaml', **CTX)
+EXPORTERS = load_fixture('exporters.yaml', CTX)
 BQ_ERROR = load_fixture('bq_error.json')
 
 # Pub/Sub methods to patch
