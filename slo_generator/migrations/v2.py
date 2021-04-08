@@ -8,6 +8,7 @@ Migrate utilities for migrating slo-generator configs from v1 to v2.
 import sys
 import os
 from collections import OrderedDict
+from pathlib import Path
 
 import ruamel.yaml as yaml
 
@@ -119,8 +120,7 @@ def migrate_slo_config_v1_to_v2(slo_config, shared_config={}):
     backend = OrderedDict(backend)
     backend_name = utils.dict_snake_to_caml(backend['class']).replace(
         '_', '-').lower()
-    if backend_name in NAME_MAPPING:
-        backend_name = NAME_MAPPING[backend_name]
+    backend_name = NAME_MAPPING.get(backend_name, backend_name)
     backend['name'] = backend_name
     backend.move_to_end('name', last=False)
     backend = dict(backend)
@@ -136,8 +136,7 @@ def migrate_slo_config_v1_to_v2(slo_config, shared_config={}):
         exporter = OrderedDict(exporter)
         exporter_name = utils.dict_snake_to_caml(exporter['class']).replace(
             '_', '-').lower()
-        if exporter_name in NAME_MAPPING:
-            exporter_name = NAME_MAPPING[exporter_name]
+        exporter_name = NAME_MAPPING.get(exporter_name, exporter_name)
         exporter['name'] = exporter_name
         exporter.move_to_end('name', last=False)
         exporter = dict(exporter)
@@ -197,7 +196,7 @@ def main():
 
     # Process SLO configs
     print(f'{BOLD}{WARNING}slo-generator migration to v2 started ...{ENDC}')
-    paths = utils.list_slo_configs(source_folder)
+    paths = Path(source_folder).glob('*.yaml')
     target_dir = os.path.abspath(target_folder)
     # print(f"Source SLO configs directory: {os.path.abspath(source_folder)}")
     # print(f"Target SLO configs directory: {target_dir}")

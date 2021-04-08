@@ -189,7 +189,7 @@ class MetricsExporter:
 
     @staticmethod
     def use_deprecated_fields(config, metric):
-        """Old format to new format with DeprecationWarning for 2.0.0.
+        """Old format to new format with FutureWarning for 2.0.0.
 
         Update error_budget_burn_rate metric with `metric_type`,
         `metric_labels`, and `metric_description`.

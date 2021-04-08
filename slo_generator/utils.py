@@ -19,7 +19,6 @@ from datetime import datetime
 import argparse
 import collections
 import errno
-import glob
 import importlib
 import logging
 import os
@@ -27,10 +26,10 @@ import pprint
 import re
 import sys
 import warnings
-import yaml
+from pathlib import Path
 
 from dateutil import tz
-from pathlib import Path
+import yaml
 
 from slo_generator.constants import DEBUG
 
@@ -43,7 +42,7 @@ except ImportError:
 LOGGER = logging.getLogger(__name__)
 
 
-def load_configs(path):
+def load_configs(path, ctx=os.environ):
     """Load multiple slo-generator configs from a folder path.
 
     Args:
@@ -52,10 +51,10 @@ def load_configs(path):
     Returns:
         list: List of configs downloaded and parsed.
     """
-    return [load_configs(p) for p in sorted(path.glob('*.yaml'))]
+    return [load_config(p, ctx) for p in sorted(path.glob('*.yaml'))]
 
 
-def load_config(path):
+def load_config(path, ctx=os.environ):
     """Load any slo-generator config, from a local path, a GCS URL, or directly
     from a string content.
 
@@ -70,18 +69,18 @@ def load_config(path):
         if path.startswith('gs://'):
             if not GCS_ENABLED:
                 warnings.warn(
-                    'To load a file from GCS, you need the `google-cloud-storage` '
-                    'library installed. Please install it using pip by running '
-                    '`pip install google-cloud-storage`')
+                    'To load a file from GCS, you need `google-cloud-storage` '
+                    'installed. Please install it using pip by running '
+                    '`pip install google-cloud-storage`', ImportWarning)
                 sys.exit(1)
-            return parse_config(content=download_gcs_file(str(path)))
-        elif abspath.is_file():
-            return parse_config(path=str(abspath.resolve()))
-        else:
-            return parse_config(content=str(path))
+            return parse_config(content=download_gcs_file(str(path)), ctx=ctx)
+        if abspath.is_file():
+            return parse_config(path=str(abspath.resolve()), ctx=ctx)
+        LOGGER.warning(f'Path {abspath} not found. Trying to load from string')
+        return parse_config(content=str(path), ctx=ctx)
     except OSError as exc:
         if exc.errno == errno.ENAMETOOLONG:  # filename too long, string content
-            return parse_config(content=str(path))
+            return parse_config(content=str(path), ctx=ctx)
         raise
 
 
@@ -125,7 +124,8 @@ def parse_config(path=None, content=None, ctx=os.environ):
     if path:
         with Path(path).open() as config:
             content = config.read()
-    content = replace_env_vars(content, ctx)
+    if ctx:
+        content = replace_env_vars(content, ctx)
     data = yaml.safe_load(content)
 
     LOGGER.debug(pprint.pformat(data))
@@ -254,7 +254,8 @@ def import_dynamic(package, name, prefix="class"):
             f'1. Package and class name are valid.\n'
             f'2. Extra dependency {dep} is installed. If not, install it '
             f'locally with "pip install slo-generator[{dep}]" or remotely '
-            f'by adding "slo-generator[{dep}]" to your requirements.txt.')
+            f'by adding "slo-generator[{dep}]" to your requirements.txt.',
+            ImportWarning)
         if DEBUG:
             LOGGER.debug(exception, exc_info=True)
         return None

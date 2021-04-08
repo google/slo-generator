@@ -5,18 +5,18 @@
 #
 # useful targets:
 #	make clean -- clean distutils
-#	make coverage_report -- code coverage report
+#	make coverage -- code coverage report
 #	make flake8 -- flake8 checks
 #	make pylint -- source code checks
 #	make tests -- run all of the tests
-#	make unittest -- runs the unit tests
+#	make unit -- runs the unit tests
 ########################################################
 # variable section
 
 NAME = "slo_generator"
 
 PIP=pip3
-
+NOSE_NOCAPTURE=1
 PYTHON=python3
 TWINE=twine
 COVERAGE=coverage
@@ -33,13 +33,6 @@ all: clean install install_test test
 
 info:
 	@echo "slo-generator version: ${VERSION}"
-
-flake8:
-	flake8 --ignore=$(FLAKE8_IGNORE) $(NAME)/ --max-line-length=80
-	flake8 --ignore=$(FLAKE8_IGNORE),E402 tests/ --max-line-length=80
-
-pylint:
-	find ./$(NAME) ./tests -name \*.py | xargs pylint --rcfile .pylintrc --ignore-patterns=test_.*?py
 
 clean:
 	@echo "Cleaning up distutils stuff"
@@ -69,15 +62,23 @@ develop:
 	$(PIP) install -e .
 
 install: clean
-	$(PIP) install ."[api, datadog, prometheus, elasticsearch, pubsub, cloud_monitoring, bigquery]"
+	$(PIP) install -e ."[api, datadog, prometheus, elasticsearch, pubsub, cloud_monitoring, bigquery, dev]"
 
-test: install flake8 pylint unittest
+# Local tests
+test: install flake8 pylint unit
 
-unittest: clean
-	nosetests $(NOSE_OPTS) tests/unit/* -v
+unit: clean
+	NOSE_NOCAPTURE=${NOSE_NOCAPTURE} nosetests $(NOSE_OPTS) tests/unit/* -v
 
-coverage_report:
+coverage:
 	$(COVERAGE) report --rcfile=".coveragerc"
+
+flake8:
+	flake8 --ignore=$(FLAKE8_IGNORE) $(NAME)/ --max-line-length=80
+	flake8 --ignore=$(FLAKE8_IGNORE),E402 tests/ --max-line-length=80
+
+pylint:
+	find ./$(NAME) ./tests -name \*.py | xargs pylint --rcfile .pylintrc --ignore-patterns=test_.*?py
 
 # Docker
 docker_build:

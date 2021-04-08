@@ -19,7 +19,6 @@ import json
 import logging
 
 from google.cloud import pubsub_v1
-from google.api_core import exceptions
 
 from slo_generator import constants
 

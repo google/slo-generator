@@ -17,6 +17,7 @@ See:
 https://packaging.python.org/en/latest/distributing.html
 https://github.com/pypa/sampleproject
 """
+# pylint: disable=invalid-name
 
 from io import open
 from os import path

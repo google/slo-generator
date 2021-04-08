@@ -188,7 +188,7 @@ class BigqueryExporter:
         if updated_fields:
             LOGGER.info(f'Updated BigQuery fields: {updated_fields}')
             table.schema = BigqueryExporter.build_schema(TABLE_SCHEMA)
-            if DRY_RUN:
+            if constants.DRY_RUN:
                 LOGGER.info('[DRY RUN] Updating BigQuery schema.')
             else:
                 LOGGER.info('Updating BigQuery schema.')

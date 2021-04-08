@@ -16,16 +16,14 @@
 Command-Line interface of `slo-generator`.
 """
 
-import argparse
-import click
 import logging
 import os
 import sys
 import pprint
 import time
-
 from pathlib import Path
 
+import click
 from slo_generator import utils
 from slo_generator.compute import compute
 

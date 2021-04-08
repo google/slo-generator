@@ -21,14 +21,10 @@ import base64
 import os
 import logging
 import pprint
+
 from datetime import datetime
 
 import yaml
-
-try:
-    import google.cloud.storage  # pylint: disable=import-error
-except ImportError:
-    pass
 
 from slo_generator.compute import compute, export, get_exporters
 from slo_generator.utils import setup_logging, load_config
