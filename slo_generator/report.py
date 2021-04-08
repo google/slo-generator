@@ -20,7 +20,8 @@ import logging
 from dataclasses import asdict, dataclass, fields, field
 
 from slo_generator import utils
-from slo_generator.constants import COLORED_OUTPUT, MIN_VALID_EVENTS, NO_DATA
+from slo_generator.constants import (COLORED_OUTPUT, MIN_VALID_EVENTS, NO_DATA,
+                                     Colors)
 
 LOGGER = logging.getLogger(__name__)
 
@@ -379,7 +380,7 @@ class SLOReport:
         full_str = f'{info_str} | {sli_str} | {result_str}'
         if COLORED_OUTPUT == 1:
             if self.alert:
-                full_str = utils.Colors.FAIL + full_str + utils.Colors.ENDC
+                full_str = Colors.FAIL + full_str + Colors.ENDC
             else:
-                full_str = utils.Colors.OKGREEN + full_str + utils.Colors.ENDC
+                full_str = Colors.OKGREEN + full_str + Colors.ENDC
         return full_str

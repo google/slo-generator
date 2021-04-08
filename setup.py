@@ -85,7 +85,7 @@ setup(name=name,
           'console_scripts': [
               'slo-generator=slo_generator.cli:main',
               'slo-generator-api=slo_generator.cli:api',
-              'slo-generator-migrate=slo_generator.migrations.v2:main',
+              'slo-generator-migrate=slo_generator.cli:migrate',
           ],
       },
       python_requires='>=3.4')

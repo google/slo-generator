@@ -26,6 +26,8 @@ from pathlib import Path
 import click
 from slo_generator import utils
 from slo_generator.compute import compute
+from slo_generator.migrations import migrator
+from slo_generator.constants import LATEST_MAJOR_VERSION
 
 sys.path.append(os.getcwd())  # dynamic backend loading
 
@@ -111,14 +113,51 @@ def main(**kwargs):
 @click.pass_context
 @click.option('--config', envvar='CONFIG_PATH')
 def api(ctx, config):
-    """Run functions framework programmatically to provide the slo-generator-api
-    endpoint."""
+    """slo-generator API entrypoint.
+    Run functions framework programmatically to provide an API that can receive
+    Cloud events.
+
+    Args:
+        ctx ()
+    """
     from functions_framework._cli import _cli
     os.environ['CONFIG_PATH'] = config
     ctx.invoke(_cli,
                target='run_compute',
                source=Path(__file__).parent / 'api' / 'main.py',
                signature_type='cloudevent')
+
+
+@click.command()
+@click.option('--source',
+              type=click.Path(exists=True, resolve_path=True, readable=True),
+              required=True,
+              default=Path.cwd(),
+              help='Source SLO configs folder')
+@click.option('--target',
+              type=click.Path(resolve_path=True),
+              default=Path.cwd(),
+              required=True,
+              help='Target SLO configs folder')
+@click.option('--error-budget-policy-path',
+              type=click.Path(exists=True, resolve_path=True, readable=True),
+              required=False,
+              default='error_budget_policy.yaml',
+              help='Error budget policy path')
+@click.option('--glob',
+              type=str,
+              required=False,
+              default='**/slo_*.yaml',
+              help='Glob expression to seek SLO configs in subpaths')
+@click.option('--version',
+              type=str,
+              required=False,
+              default=LATEST_MAJOR_VERSION,
+              show_default=True,
+              help='SLO generate major version to migrate towards')
+def migrate(**kwargs):
+    """Migrate slo-generator configs from v1 to v2."""
+    migrator.do_migrate(**kwargs)
 
 
 if __name__ == '__main__':

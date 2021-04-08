@@ -363,16 +363,3 @@ def decode_gcs_url(url):
     bucket_name = split_url[2]
     file_path = '/'.join(split_url[3:])
     return (bucket_name, file_path)
-
-
-# pylint: disable=too-few-public-methods
-class Colors:
-    """Colors for console output."""
-    HEADER = '\033[95m'
-    OKBLUE = '\033[94m'
-    OKGREEN = '\033[92m'
-    WARNING = '\033[93m'
-    FAIL = '\033[91m'
-    ENDC = '\033[0m'
-    BOLD = '\033[1m'
-    UNDERLINE = '\033[4m'

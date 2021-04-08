@@ -23,7 +23,7 @@ import time
 
 from slo_generator import utils
 from slo_generator.report import SLOReport
-from slo_generator.migrations.v2 import migrate_slo_report_v2_to_v1
+from slo_generator.migrations.migrator import report_v2tov1
 
 LOGGER = logging.getLogger(__name__)
 
@@ -166,7 +166,7 @@ def export(data, exporters, raise_on_error=False):
     responses = []
 
     # Convert data to export from v1 to v2 for backwards-compatible exports
-    data = migrate_slo_report_v2_to_v1(data)
+    data = report_v2tov1(data)
 
     # Passing one exporter as a dict will work for convenience
     if isinstance(exporters, dict):
