@@ -59,33 +59,40 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
 sys.dont_write_bytecode = True
-setup(name=name,
-      version=version,
-      description=description,
-      long_description=long_description,
-      long_description_content_type='text/markdown',
-      author='Google Inc.',
-      author_email='ocervello@google.com',
-      license='Apache 2.0',
-      packages=find_packages(exclude=['contrib', 'docs', 'tests']),
-      classifiers=[
-          release_status,
-          'Intended Audience :: Developers',
-          'Topic :: Software Development :: Build Tools',
-          'License :: OSI Approved :: Apache Software License',
-          'Programming Language :: Python',
-          'Programming Language :: Python :: 3.6',
-          'Programming Language :: Python :: 3.7',
-          'Programming Language :: Python :: 3.8',
-      ],
-      keywords='slo sli generator gcp',
-      install_requires=dependencies,
-      extras_require=extras,
-      entry_points={
-          'console_scripts': [
-              'slo-generator=slo_generator.cli:main',
-              'slo-generator-api=slo_generator.cli:api',
-              'slo-generator-migrate=slo_generator.cli:migrate',
-          ],
-      },
-      python_requires='>=3.4')
+setup(
+    name=name,
+    version=version,
+    description=description,
+    long_description=long_description,
+    long_description_content_type='text/markdown',
+    author='Google Inc.',
+    author_email='ocervello@google.com',
+    license='Apache 2.0',
+    packages=find_packages(exclude=['contrib', 'docs', 'tests']),
+    classifiers=[
+        release_status,
+        'Intended Audience :: Developers',
+        'Topic :: Software Development :: Build Tools',
+        'License :: OSI Approved :: Apache Software License',
+        'Programming Language :: Python',
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
+    ],
+    keywords='slo sli generator gcp',
+    install_requires=dependencies,
+    extras_require=extras,
+    entry_points={
+        'console_scripts': [
+            # New endpoints
+            # 'slo=slo_generator.cli:main',
+            # 'slo-api=slo_generator.cli:api',
+            # 'slo-migrate=slo_generator.cli:migrate'
+
+            # Old endpoints
+            'slo-generator=slo_generator.cli:main',
+            'slo-generator-api=slo_generator.cli:api',
+            'slo-generator-migrate=slo_generator.cli:migrate',
+        ],
+    },
+    python_requires='>=3.4')

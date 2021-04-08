@@ -111,7 +111,7 @@ def main(**kwargs):
 # pylint: disable=import-error,import-outside-toplevel
 @click.command()
 @click.pass_context
-@click.option('--config', envvar='CONFIG_PATH')
+@click.option('--config', envvar='CONFIG_PATH', required=True)
 def api(ctx, config):
     """slo-generator API entrypoint.
     Run functions framework programmatically to provide an API that can receive
@@ -130,16 +130,19 @@ def api(ctx, config):
 
 @click.command()
 @click.option('--source',
+              '-s',
               type=click.Path(exists=True, resolve_path=True, readable=True),
               required=True,
               default=Path.cwd(),
               help='Source SLO configs folder')
 @click.option('--target',
+              '-t',
               type=click.Path(resolve_path=True),
               default=Path.cwd(),
               required=True,
               help='Target SLO configs folder')
 @click.option('--error-budget-policy-path',
+              '-b',
               type=click.Path(exists=True, resolve_path=True, readable=True),
               required=False,
               default='error_budget_policy.yaml',

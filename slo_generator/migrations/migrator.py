@@ -57,7 +57,11 @@ def do_migrate(source, target, error_budget_policy_path, glob, version):
 
     for source_path in paths:
         source_path_str = source_path.relative_to(cwd)
-        target_path = target.joinpath(*source_path.relative_to(cwd).parts)
+        if source == target == cwd:
+            target_path = target.joinpath(*source_path.relative_to(cwd).parts)
+        else:
+            target_path = target.joinpath(
+                *source_path.relative_to(cwd).parts[-1])
         target_path_str = target_path.relative_to(cwd)
         slo_config_str = source_path.open().read()
         slo_config, ind, blc = yaml.util.load_yaml_guess_indent(slo_config_str)
