@@ -246,7 +246,8 @@ def slo_config_v1tov2(slo_config, shared_config={}):
     slo_config_v2['spec']['description'] = slo_description
     slo_config_v2['spec']['method'] = method
     if service_level_indicator:
-        slo_config_v2['spec']['serviceLevelIndicator'] = service_level_indicator
+        slo_config_v2['spec'][
+            'service_level_indicator'] = service_level_indicator
 
     # Fill metadata.name
     slo_config_v2['metadata']['name'] = slo_metadata_name

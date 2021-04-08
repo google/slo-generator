@@ -42,7 +42,7 @@ SLO_CONFIG_SCHEMA = {
         'backend': '',
         'method': '',
         'exporters': [],
-        'serviceLevelIndicator': {}
+        'service_level_indicator': {}
     }
 }
 
