@@ -1,0 +1,16 @@
+service_name: catalog
+feature_name: gateway
+slo_name: availablility
+slo_description: 99.5% of Prometheus requests return a non-5xx HTTP status code
+slo_target: 0.995
+backend:
+  class: Prometheus
+  method: query_sli
+  url: http://istio-sg.sre.visenze.com:9090
+  measurement:
+    expression: >
+      sum(irate(istio_requests_total{reporter="destination",destination_service=~"catalog-gateway.catalog-production.svc.cluster.local",response_code!~"5.*"}[window])) 
+      / 
+      sum(irate(istio_requests_total{reporter="destination",destination_service=~"catalog-gateway.catalog-production.svc.cluster.local"}[window]))
+exporters:
+- class:   custom.custom_exporter.PrometheusExporter

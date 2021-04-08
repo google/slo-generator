@@ -1,0 +1,16 @@
+resources:
+  requests:
+    cpu: 100m
+    memory: 200Mi
+nodeSelector:
+  visenze.component: app
+image:
+  repository: visenze/slo-generator
+fullnameOverride: slo-generator
+podAnnotations:
+  sidecar.istio.io/inject: "false"
+serviceMonitor:
+  enabled: true
+  prometheus: kube-prometheus
+  interval: 5m
+  labels: {}
