@@ -1,11 +1,12 @@
 service_name: catalog
 feature_name: gateway
-slo_name: availablility
+slo_name: availability
 slo_description: 99.5% of Prometheus requests return a non-5xx HTTP status code
 slo_target: 0.995
 backend:
   class: Prometheus
   method: query_sli
+#  url: http://prometheus.istio-system:9090
   url: http://istio-sg.sre.visenze.com:9090
   measurement:
     expression: >
