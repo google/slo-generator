@@ -1,0 +1,18 @@
+service_name: catalog
+feature_name: gateway
+slo_name: latency
+slo_description: 99.5% of Prometheus requests return a non-5xx HTTP status code
+slo_target: 0.995
+backend:
+  class: Prometheus
+  method: query_sli
+  url: http://kube-prometheus-prometheus.kube-monitor:9090
+#  url: http://a63877be64b3042d88bedc31c9e0a084-72493022.ap-southeast-1.elb.amazonaws.com:9090
+  measurement:
+    expression: >
+      sum(rate(request_duration_milliseconds_bucket{namespace="catalog-production", service="catalog-gateway", method="GET", uri="/v1/app/id/data/id", le="500"}[window]))
+      /
+      sum(rate(request_duration_milliseconds_count{namespace="catalog-production", service="catalog-gateway", method="GET", uri="/v1/app/id/data/id"}[window]))
+      OR on() vector(1)
+exporters:
+- class:   custom.custom_exporter.PrometheusExporter

@@ -14,3 +14,5 @@ serviceMonitor:
   prometheus: kube-prometheus
   interval: 5m
   labels: {}
+  port: 9090
+  targetPort: 9090
