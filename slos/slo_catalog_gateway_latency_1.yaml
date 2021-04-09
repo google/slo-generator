@@ -6,8 +6,8 @@ slo_target: 0.995
 backend:
   class: Prometheus
   method: query_sli
-#  url: http://kube-prometheus-prometheus.kube-monitor:9090
-  url: http://a63877be64b3042d88bedc31c9e0a084-72493022.ap-southeast-1.elb.amazonaws.com:9090
+  url: http://kube-prometheus-prometheus.kube-monitor:9090
+#  url: http://a63877be64b3042d88bedc31c9e0a084-72493022.ap-southeast-1.elb.amazonaws.com:9090
   measurement:
     expression: >
       sum(rate(request_duration_milliseconds_bucket{service="catalog-gateway", method="GET", uri="/v1/app/id/data/id", le="1.0"}[window])) 
