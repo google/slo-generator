@@ -1,0 +1,66 @@
+---
+
+backends:
+  cloud_monitoring:
+    project_id: ${STACKDRIVER_HOST_PROJECT_ID}
+  cloud_service_monitoring:
+    project_id: ${STACKDRIVER_HOST_PROJECT_ID}
+  custom.custom_backend.CustomBackend: {}
+  datadog:
+    api_key: ${DATADOG_API_KEY}
+    app_key: ${DATADOG_APP_KEY}
+  dynatrace:
+    api_url: ${DYNATRACE_API_URL}
+    api_token: ${DYNATRACE_API_TOKEN}
+  elasticsearch:
+    url: ${ELASTICSEARCH_URL}
+  prometheus:
+    url: ${PROMETHEUS_URL}
+
+exporters:
+  bigquery:
+    project_id: ${BIGQUERY_PROJECT_ID}
+    dataset_id: slos
+    table_id: reports
+  cloud_monitoring:
+    project_id: ${STACKDRIVER_HOST_PROJECT_ID}
+  custom.custom_exporter.CustomMetricExporter: {}
+  datadog:
+    api_key: ${DATADOG_API_KEY}
+    app_key: ${DATADOG_APP_KEY}
+  dynatrace:
+    api_url: ${DYNATRACE_API_URL}
+    api_token: ${DYNATRACE_API_TOKEN}
+  prometheus:
+    url: ${PROMETHEUS_PUSHGATEWAY_URL}
+  pubsub:
+    project_id: ${PUBSUB_PROJECT_ID}
+    topic_name: ${PUBSUB_TOPIC_NAME}
+
+error_budget_policies:
+  default:
+    steps:
+    - measurement_window_seconds: 3600
+      name: 1 hour
+      burn_rate_threshold: 9
+      alert: true
+      message_alert: Page to defend the SLO
+      message_standard: Last hour on track
+    - measurement_window_seconds: 43200
+      name: 12 hours
+      burn_rate_threshold: 3
+      alert: true
+      message_alert: Page to defend the SLO
+      message_standard: Last 12 hours on track
+    - measurement_window_seconds: 604800
+      name: 7 days
+      burn_rate_threshold: 1.5
+      alert: false
+      message_alert: Dev team dedicates 25% of engineers to the reliability backlog
+      message_standard: Last week on track
+    - measurement_window_seconds: 2419200
+      name: 28 days
+      burn_rate_threshold: 1
+      alert: false
+      message_alert: Freeze release, unless related to reliability or security
+      message_standard: Unfreeze release, per the agreed roll-out policy

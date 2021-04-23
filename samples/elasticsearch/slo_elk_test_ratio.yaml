@@ -1,41 +1,26 @@
-# Copyright 2019 Google Inc.
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#            http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
----
-service_name:    elk
-feature_name:    test
-slo_description: >
-  SLO for random test data generated with the
-  https://github.com/oliver006/elasticsearch-test-data
-slo_name:        errors
-slo_target:      1
-backend:
-  class:         Elasticsearch
-  url:           ${ELASTICSEARCH_URL}
-  method:        good_bad_ratio
-  measurement:
-    index:       test_data
-    date_field:  last_updated
-    query_good:  {}
+apiVersion: sre.google.com/v2
+kind: ServiceLevelObjective
+metadata:
+  name: elk-test-errors
+  labels:
+    service: elk
+    feature: test
+    slo_name: errors
+spec:
+  description: >
+    SLO for random test data generated with the
+    https://github.com/oliver006/elasticsearch-test-data
+  backend: elasticsearch
+  method: good_bad_ratio
+  exporters:
+  - pubsub
+  - cloud_monitoring
+  service_level_indicator:
+    index: test_data
+    date_field: last_updated
+    query_good: {}
     query_bad:
       must:
         term:
-          name:  JAgOZE8
+          name: JAgOZE8
 
-exporters:
-- class:         Pubsub
-  project_id:    ${PUBSUB_PROJECT_ID}
-  topic_name:    ${PUBSUB_TOPIC_NAME}
-
-- class:         Stackdriver
-  project_id:    ${STACKDRIVER_HOST_PROJECT_ID}
