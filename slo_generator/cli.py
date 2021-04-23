@@ -158,6 +158,11 @@ def api(ctx, config):
               default=LATEST_MAJOR_VERSION,
               show_default=True,
               help='SLO generate major version to migrate towards')
+@click.option('--quiet',
+              '-q',
+              is_flag=True,
+              default=False,
+              help='Do not ask for user input and auto-generate config keys')
 def migrate(**kwargs):
     """Migrate slo-generator configs from v1 to v2."""
     migrator.do_migrate(**kwargs)

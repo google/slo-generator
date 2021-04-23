@@ -89,3 +89,4 @@ BOLD = Colors.BOLD
 WARNING = Colors.WARNING
 FAIL = '❌'
 SUCCESS = '✅'
+RIGHT_ARROW = '➞'
