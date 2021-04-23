@@ -32,8 +32,8 @@ backend:
       )
 exporters:
   - class:       Bigquery
-    project_id:  rnm-shared-monitoring
+    project_id:  ${BIGQUERY_PROJECT_ID}
     dataset_id:  slos
     table_id:    reports
   - class:       Stackdriver
-    project_id:  rnm-shared-monitoring
+    project_id:  ${STACKDRIVER_HOST_PROJECT_ID}
