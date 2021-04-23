@@ -6,7 +6,6 @@ Migrate utilities for migrating slo-generator configs from v1 to v2.
 # flake8: noqa
 
 import itertools
-import os
 import random
 import string
 import sys
@@ -345,7 +344,3 @@ class CustomDumper(yaml.RoundTripDumper):
 
         if len(self.indents) == 1:
             super().write_line_break()
-
-
-if __name__ == "__main__":
-    main()
