@@ -335,7 +335,7 @@ def add_to_shared_config(new_obj, shared_config, section, quiet=False):
                 key += '/' + get_random_suffix()
             else:
                 name = section.rstrip('s')
-                cfg = pprint.pformat(dict(new_obj))
+                cfg = pprint.pformat({key: dict(new_obj)})
                 valid = False
                 while not valid:
                     click.secho(
