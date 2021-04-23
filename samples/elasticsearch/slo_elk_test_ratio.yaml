@@ -38,4 +38,4 @@ exporters:
   topic_name:    ${PUBSUB_TOPIC_NAME}
 
 - class:         Stackdriver
-  project_id:    ${PUBSUB_PROJECT_ID}
+  project_id:    ${STACKDRIVER_HOST_PROJECT_ID}
