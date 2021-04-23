@@ -22,3 +22,4 @@ spec:
             increase(
               http_request_duration_seconds_count{handler="/metrics", code=~"2.."}[window]
             )
+    goal: 0.9999

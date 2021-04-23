@@ -17,3 +17,4 @@ spec:
       sum(rate(prometheus_http_requests_total{handler="/metrics", code=~"2.."}[window]))
       /
       sum(rate(prometheus_http_requests_total{handler="/metrics"}[window]))
+  goal: 0.999

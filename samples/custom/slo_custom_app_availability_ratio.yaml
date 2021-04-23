@@ -13,3 +13,4 @@ spec:
   exporters:
   - custom.custom_exporter.CustomMetricExporter
   service_level_indicator: {}
+  goal: 0.999

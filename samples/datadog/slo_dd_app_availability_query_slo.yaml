@@ -13,3 +13,4 @@ spec:
   exporters: []
   service_level_indicator:
     slo_id: ${DATADOG_SLO_ID}
+  goal: 0.99

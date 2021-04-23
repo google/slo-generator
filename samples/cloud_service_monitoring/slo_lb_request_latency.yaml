@@ -21,3 +21,4 @@ spec:
         metric.label.response_code_class="400" )
     range_min: 0
     range_max: 724     # ms
+  goal: 0.98

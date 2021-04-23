@@ -24,3 +24,4 @@ spec:
       project=${LB_PROJECT_ID}
       metric.type="loadbalancing.googleapis.com/https/request_count"
       resource.type="https_lb_rule"
+  goal: 0.98

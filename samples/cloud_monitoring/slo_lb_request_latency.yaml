@@ -22,3 +22,4 @@ spec:
         metric.label.response_code_class="400" )
     good_below_threshold: true
     threshold_bucket: 19
+  goal: 0.98

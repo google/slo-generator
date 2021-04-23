@@ -16,3 +16,4 @@ spec:
     filter_good: prometheus_http_requests_total{handler="/metrics", code=~"2.."}
     filter_valid: prometheus_http_requests_total{handler="/metrics"}
     # filter_bad: prometheus_http_requests_total{code=~"5..", handler="/metrics"} # alternative to filter_valid field
+  goal: 0.999

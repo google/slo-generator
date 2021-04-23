@@ -20,3 +20,4 @@ spec:
       service_name: ${GKE_SERVICE_NAME}
     latency:
       threshold: 724         # ms
+  goal: 0.999

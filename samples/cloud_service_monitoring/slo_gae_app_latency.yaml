@@ -20,3 +20,4 @@ spec:
       metric.labels.response_code < 500
     range_min: 0
     range_max: 724
+  goal: 0.999

@@ -15,3 +15,4 @@ spec:
     service_level_indicator:
         query: sum:app.requests.count{http.path:/, http.status_code_class:2xx}.as_count()
             / sum:app.requests.count{http.path:/}.as_count()
+    goal: 0.99

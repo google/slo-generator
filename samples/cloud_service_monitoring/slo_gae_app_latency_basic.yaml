@@ -17,3 +17,4 @@ spec:
       module_id: ${GAE_MODULE_ID}
     latency:
       threshold: 724  # ms
+  goal: 0.999

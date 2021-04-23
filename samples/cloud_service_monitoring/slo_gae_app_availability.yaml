@@ -32,3 +32,4 @@ spec:
       project=${GAE_PROJECT_ID}
       metric.type="appengine.googleapis.com/http/server/response_count"
       resource.type="gae_app"
+  goal: 0.95

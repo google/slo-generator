@@ -17,3 +17,4 @@ spec:
       metric_selector: ext:app.request_latency:filter(and(eq(app,test_app),eq(env,prod),eq(status_code_class,2xx)))
       entity_selector: type(HOST)
     threshold: 50000          # us
+  goal: 0.999

@@ -22,3 +22,4 @@ spec:
       project="${PUBSUB_PROJECT_ID}"
       metric.type="pubsub.googleapis.com/subscription/num_outstanding_messages"
       resource.type="pubsub_subscription"
+  goal: 0.95

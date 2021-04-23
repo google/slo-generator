@@ -32,3 +32,4 @@ spec:
     filter_valid: >
       project=${GAE_PROJECT_ID}
       metric.type="appengine.googleapis.com/http/server/response_count"
+  goal: 0.95

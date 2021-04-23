@@ -15,3 +15,4 @@ spec:
   service_level_indicator:
     expression: http_request_duration_seconds_bucket{handler="/metrics", code=~"2.."}
     threshold_bucket: 0.25 # in seconds, corresponds to the `le` (less than) PromQL label
+  goal: 0.9999

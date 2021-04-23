@@ -17,3 +17,4 @@ spec:
       service_namespace: ${GKE_SERVICE_NAMESPACE}
       service_name: ${GKE_SERVICE_NAME}
     availability: {}
+  goal: 0.98
