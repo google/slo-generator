@@ -30,7 +30,7 @@ from slo_generator.compute import compute, export, get_exporters
 from slo_generator.utils import setup_logging, load_config
 
 CONFIG_PATH = os.environ['CONFIG_PATH']
-EXPORTERS_URL = os.environ.get('EXPORTERS_URL', None)
+EXPORTERS_PATH = os.environ.get('EXPORTERS_PATH', None)
 LOGGER = logging.getLogger(__name__)
 TIME_FORMAT = '%Y-%m-%dT%H:%M:%SZ'
 setup_logging()
@@ -87,11 +87,11 @@ def run_export(cloudevent):
     config = load_config(CONFIG_PATH)
 
     # Build exporters list
-    if EXPORTERS_URL:
-        LOGGER.info(f'Loading exporters from {EXPORTERS_URL}')
-        exporters = load_config(EXPORTERS_URL)
+    if EXPORTERS_PATH:
+        LOGGER.info(f'Loading exporters from {EXPORTERS_PATH}')
+        exporters = load_config(EXPORTERS_PATH)
     else:
-        LOGGER.info(f'Loading exporters from SLO report data {EXPORTERS_URL}')
+        LOGGER.info(f'Loading exporters from SLO report data {EXPORTERS_PATH}')
         exporters = slo_report['exporters']
     spec = {"exporters": exporters}
     exporters = get_exporters(config, spec)
