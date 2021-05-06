@@ -18,7 +18,7 @@ Utility functions.
 from datetime import datetime
 import argparse
 import collections
-import glob
+import errno
 import importlib
 import logging
 import os
@@ -26,39 +26,70 @@ import pprint
 import re
 import sys
 import warnings
-import yaml
+from pathlib import Path
 
 from dateutil import tz
+import yaml
 
-from google.auth._default import _CLOUD_SDK_CREDENTIALS_WARNING
+from slo_generator.constants import DEBUG
+
+try:
+    from google.cloud import storage
+    GCS_ENABLED = True
+except ImportError:
+    GCS_ENABLED = False
 
 LOGGER = logging.getLogger(__name__)
 
 
-def list_slo_configs(path):
-    """List all SLO configs from path.
+def load_configs(path, ctx=os.environ):
+    """Load multiple slo-generator configs from a folder path.
 
-    If path is a file, normalize the path and return it as a list with one
-    element.
+    Args:
+        path (str): Folder path.
 
-    If path is a folder, get all SLO configs from folder (files starting with
-    slo_*), normalize their paths and return them as a list.
+    Returns:
+        list: List of configs downloaded and parsed.
     """
-    path = normalize(path)
-    if os.path.isfile(path):
-        paths = [path]
-    elif os.path.isdir(path):
-        paths = sorted(glob.glob(f'{path}/slo_*.yaml'))
-    else:
-        raise Exception(f'SLO Config path "{path}" is not a file or folder.')
-    return paths
+    return [load_config(p, ctx) for p in sorted(path.glob('*.yaml'))]
 
 
-def parse_config(path, ctx=os.environ):
+def load_config(path, ctx=os.environ):
+    """Load any slo-generator config, from a local path, a GCS URL, or directly
+    from a string content.
+
+    Args:
+        path (str): GCS URL, file path, or data as string.
+
+    Returns:
+        dict: Config downloaded and parsed.
+    """
+    abspath = Path(path)
+    try:
+        if path.startswith('gs://'):
+            if not GCS_ENABLED:
+                warnings.warn(
+                    'To load a file from GCS, you need `google-cloud-storage` '
+                    'installed. Please install it using pip by running '
+                    '`pip install google-cloud-storage`', ImportWarning)
+                sys.exit(1)
+            return parse_config(content=download_gcs_file(str(path)), ctx=ctx)
+        if abspath.is_file():
+            return parse_config(path=str(abspath.resolve()), ctx=ctx)
+        LOGGER.warning(f'Path {abspath} not found. Trying to load from string')
+        return parse_config(content=str(path), ctx=ctx)
+    except OSError as exc:
+        if exc.errno == errno.ENAMETOOLONG:  # filename too long, string content
+            return parse_config(content=str(path), ctx=ctx)
+        raise
+
+
+def parse_config(path=None, content=None, ctx=os.environ):
     """Load a yaml configuration file and resolve environment variables in it.
 
     Args:
         path (str): the path to the yaml file.
+        content (str): the config content as a dict string.
         ctx (dict): Context to replace env variables from (defaults to
             `os.environ`).
 
@@ -84,17 +115,18 @@ def parse_config(path, ctx=os.environ):
                 try:
                     full_value = full_value.replace(f'${{{var}}}', ctx[var])
                 except KeyError as exception:
-                    LOGGER.error(
-                        f'Environment variable "{var}" should be set.',
-                        exc_info=True)
+                    LOGGER.error(f'Environment variable "{var}" should be set.',
+                                 exc_info=True)
                     raise exception
             content = full_value
         return content
 
-    with open(path) as config:
-        content = config.read()
+    if path:
+        with Path(path).open() as config:
+            content = config.read()
+    if ctx:
         content = replace_env_vars(content, ctx)
-        data = yaml.safe_load(content)
+    data = yaml.safe_load(content)
 
     LOGGER.debug(pprint.pformat(data))
     return data
@@ -102,9 +134,8 @@ def parse_config(path, ctx=os.environ):
 
 def setup_logging():
     """Setup logging for the CLI."""
-    debug = os.environ.get("DEBUG", "0")
-    print("DEBUG: %s" % debug)
-    if debug == "1":
+    if DEBUG == 1:
+        print(f'DEBUG mode is enabled. DEBUG={DEBUG}')
         level = logging.DEBUG
     else:
         level = logging.INFO
@@ -115,7 +146,13 @@ def setup_logging():
     logging.getLogger('googleapiclient').setLevel(logging.ERROR)
 
     # Ignore Cloud SDK warning when using a user instead of service account
-    warnings.filterwarnings("ignore", message=_CLOUD_SDK_CREDENTIALS_WARNING)
+    try:
+        # pylint: disable=import-outside-toplevel
+        from google.auth._default import _CLOUD_SDK_CREDENTIALS_WARNING
+        warnings.filterwarnings("ignore",
+                                message=_CLOUD_SDK_CREDENTIALS_WARNING)
+    except ImportError:
+        pass
 
 
 def get_human_time(timestamp, timezone=None):
@@ -143,21 +180,8 @@ def get_human_time(timestamp, timezone=None):
     dt_tz = dt_utc.replace(tzinfo=to_zone)
     timeformat = '%Y-%m-%dT%H:%M:%S.%f%z'
     date_str = datetime.strftime(dt_tz, timeformat)
-    date_str = "{0}:{1}".format(
-        date_str[:-2], date_str[-2:]
-    )
+    date_str = "{0}:{1}".format(date_str[:-2], date_str[-2:])
     return date_str
-
-def normalize(path):
-    """Converts a path to an absolute path.
-
-    Args:
-        path (str): Input path.
-
-    Returns:
-        str: Absolute path.
-    """
-    return os.path.abspath(path)
 
 
 def get_backend_cls(backend):
@@ -186,27 +210,28 @@ def get_exporter_cls(exporter):
     return import_cls(exporter, expected_type)
 
 
-def import_cls(klass_name, expected_type):
+def import_cls(cls_name, expected_type):
     """Import class or method dynamically from full name.
-    If the classname is not fully qualified, import in current sub modules.
+    If `cls_name` is not part of the core, try import from local path (plugins).
 
     Args:
-        klass_name: the class name to import
-        expected_type: the type of class expected
+        cls_name: Class name to import.
+        expected_type: Type of class expected.
 
     Returns:
         obj: Imported class or method object.
     """
-    if "." in klass_name:
-        package, name = klass_name.rsplit(".", maxsplit=1)
+    # plugin class
+    if "." in cls_name:
+        package, name = cls_name.rsplit(".", maxsplit=1)
         return import_dynamic(package, name, prefix=expected_type)
 
-    # else
+    # slo-generator core class
     modules_name = f"{expected_type.lower()}s"
-    full_klass_name = f'{klass_name}{expected_type}'
-    filename = re.sub(r'(?<!^)(?=[A-Z])', '_', klass_name).lower()
+    full_cls_name = f'{cls_name}{expected_type}'
+    filename = re.sub(r'(?<!^)(?=[A-Z])', '_', cls_name).lower()
     return import_dynamic(f'slo_generator.{modules_name}.{filename}',
-                          full_klass_name,
+                          full_cls_name,
                           prefix=expected_type)
 
 
@@ -223,12 +248,54 @@ def import_dynamic(package, name, prefix="class"):
     try:
         return getattr(importlib.import_module(package), name)
     except Exception as exception:  # pylint: disable=W0703
-        LOGGER.error(
-            f'{prefix} "{package}.{name}" not found, check '
-            f'package and class name are valid, or that importing it doesn\'t '
-            f'result in an exception.')
-        LOGGER.debug(exception, exc_info=True)
-        raise exception
+        dep = package.split('.')[-1]
+        warnings.warn(
+            f'{prefix} "{package}.{name}" not found.\nPlease ensure that:\n'
+            f'1. Package and class name are valid.\n'
+            f'2. Extra dependency {dep} is installed. If not, install it '
+            f'locally with "pip install slo-generator[{dep}]" or remotely '
+            f'by adding "slo-generator[{dep}]" to your requirements.txt.',
+            ImportWarning)
+        if DEBUG:
+            LOGGER.debug(exception, exc_info=True)
+        return None
+
+
+def capitalize(word):
+    """Only capitalize the first letter of a word, even when written in
+    CamlCase.
+
+    Args:
+        word (str): Input string.
+
+    Returns:
+        str: Input string with first letter capitalized.
+    """
+    return re.sub('([a-zA-Z])', lambda x: x.groups()[0].upper(), word, 1)
+
+
+def snake_to_caml(word):
+    """Convert a string written in snake_case to a string in CamlCase.
+
+    Args:
+        word (str): Input string.
+
+    Returns:
+        str: Output string.
+    """
+    return re.sub('_.', lambda x: x.group()[1].upper(), word)
+
+
+def caml_to_snake(word):
+    """Convert a string written in CamlCase to a string written in snake_case.
+
+    Args:
+        word (str): Input string.
+
+    Returns:
+        str: Output string.
+    """
+    return re.sub(r'(?<!^)(?=[A-Z])', '_', word).lower()
 
 
 def dict_snake_to_caml(data):
@@ -241,9 +308,6 @@ def dict_snake_to_caml(data):
     Returns:
         dict: Output dictionary.
     """
-    def snake_to_caml(word):
-        return re.sub('_.', lambda x: x.group()[1].upper(), word)
-
     return apply_func_dict(data, snake_to_caml)
 
 
@@ -282,14 +346,32 @@ def str2bool(string):
     raise argparse.ArgumentTypeError('Boolean value expected.')
 
 
-# pylint: disable=too-few-public-methods
-class Colors:
-    """Colors for console output."""
-    HEADER = '\033[95m'
-    OKBLUE = '\033[94m'
-    OKGREEN = '\033[92m'
-    WARNING = '\033[93m'
-    FAIL = '\033[91m'
-    ENDC = '\033[0m'
-    BOLD = '\033[1m'
-    UNDERLINE = '\033[4m'
+def download_gcs_file(url):
+    """Download config from GCS.
+
+    Args:
+        url: Config URL.
+
+    Returns:
+        dict: Loaded configuration.
+    """
+    client = storage.Client()
+    bucket, filepath = decode_gcs_url(url)
+    bucket = client.get_bucket(bucket)
+    blob = bucket.blob(filepath)
+    return blob.download_as_string(client=None).decode('utf-8')
+
+
+def decode_gcs_url(url):
+    """Decode GCS URL.
+
+    Args:
+        url (str): GCS URL.
+
+    Returns:
+        tuple: (bucket_name, file_path)
+    """
+    split_url = url.split('/')
+    bucket_name = split_url[2]
+    file_path = '/'.join(split_url[3:])
+    return (bucket_name, file_path)

@@ -1,0 +1,2026 @@
+zip_safe flag not set; analyzing archive contents...
+test_cli (tests.unit.test_cli.TestCLI) ... ERROR
+test_cli_folder (tests.unit.test_cli.TestCLI) ... ERROR
+test_cli_no_config (tests.unit.test_cli.TestCLI) ... ok
+test_parse_args (tests.unit.test_cli.TestCLI) ... ok
+test_compute_datadog (tests.unit.test_compute.TestCompute) ... ok
+test_compute_dynatrace (tests.unit.test_compute.TestCompute) ... ok
+test_compute_elasticsearch (tests.unit.test_compute.TestCompute) ... ok
+test_compute_prometheus (tests.unit.test_compute.TestCompute) ... ok
+test_compute_ssm (tests.unit.test_compute.TestCompute) ... /Users/ocervello/Workspace/dev/slo-generator/slo_generator/backends/stackdriver_service_monitoring.py:293: FutureWarning: ClusterIstio is deprecated in the Service Monitoring API.It will be removed in version 2.0, please use MeshIstio instead
+  warnings.warn(
+ok
+test_compute_ssm_delete_export (tests.unit.test_compute.TestCompute) ... ok
+test_compute_stackdriver (tests.unit.test_compute.TestCompute) ... ok
+test_export_bigquery (tests.unit.test_compute.TestCompute) ... ok
+test_export_bigquery_error (tests.unit.test_compute.TestCompute) ... ok
+test_export_datadog (tests.unit.test_compute.TestCompute) ... ok
+test_export_deprecated (tests.unit.test_compute.TestCompute) ... ok
+test_export_dynatrace (tests.unit.test_compute.TestCompute) ... ok
+test_export_prometheus (tests.unit.test_compute.TestCompute) ... ok
+test_export_pubsub (tests.unit.test_compute.TestCompute) ... ok
+test_export_stackdriver (tests.unit.test_compute.TestCompute) ... ok
+test_report_enough_events (tests.unit.test_report.TestReport) ... ok
+test_report_invalid_backend_response_type (tests.unit.test_report.TestReport) ... ok
+test_report_no_backend_response_ratio (tests.unit.test_report.TestReport) ... ok
+test_report_no_backend_response_sli (tests.unit.test_report.TestReport) ... ok
+test_report_no_bad_events (tests.unit.test_report.TestReport) ... ok
+test_report_no_events (tests.unit.test_report.TestReport) ... ok
+test_report_no_good_bad_events (tests.unit.test_report.TestReport) ... ok
+test_report_no_good_events (tests.unit.test_report.TestReport) ... ok
+test_report_no_sli_value (tests.unit.test_report.TestReport) ... ok
+test_report_not_enough_events (tests.unit.test_report.TestReport) ... ok
+test_report_valid_sli_value (tests.unit.test_report.TestReport) ... ok
+test_get_backend_cls (tests.unit.test_utils.TestUtils) ... ok
+test_get_backend_dynamic_cls (tests.unit.test_utils.TestUtils) ... ok
+test_get_exporter_cls (tests.unit.test_utils.TestUtils) ... ok
+test_get_exporter_dynamic_cls (tests.unit.test_utils.TestUtils) ... ok
+test_get_human_time (tests.unit.test_utils.TestUtils) ... ok
+test_import_dynamic (tests.unit.test_utils.TestUtils) ... ok
+
+======================================================================
+ERROR: test_cli (tests.unit.test_cli.TestCLI)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/ocervello/.virtualenvs/slo/lib/python3.8/site-packages/mock/mock.py", line 1369, in patched
+    return func(*newargs, **newkeywargs)
+  File "/Users/ocervello/Workspace/dev/slo-generator/tests/unit/test_cli.py", line 51, in test_cli
+    len_first_report = len(all_reports[self.slo_config])
+KeyError: '/Users/ocervello/Workspace/dev/slo-generator/samples/stackdriver/slo_gae_app_availability.yaml'
+-------------------- >> begin captured stdout << ---------------------
+DEBUG: 0
+
+--------------------- >> end captured stdout << ----------------------
+-------------------- >> begin captured logging << --------------------
+slo_generator.utils: DEBUG: {'metric': {'labels': {'description': 'fake',
+                       'displayName': 'fake',
+                       'event_type': 'good',
+                       'metricKind': 'GAUGE',
+                       'name': 'fake',
+                       'type': 'custom.googleapis.com/invoice/paid/amount',
+                       'valueType': 'BOOL'},
+            'type': 'custom.googleapis.com/invoice/paid/amount'},
+ 'points': [{'interval': {'end_time': {'seconds': 1567771724},
+                          'start_time': {'seconds': 1567771724}},
+             'value': {'int64_value': 100}}],
+ 'resource': {'labels': {'instance_id': '[INSTANCE_ID]',
+                         'project_id': '[PROJECT_ID]',
+                         'zone': '[ZONE]'},
+              'type': 'gce_instance'}}
+slo_generator.utils: DEBUG: {'metric': {'labels': {'description': 'fake',
+                       'displayName': 'fake',
+                       'event_type': 'good',
+                       'metricKind': 'GAUGE',
+                       'name': 'fake',
+                       'type': 'custom.googleapis.com/invoice/paid/amount',
+                       'valueType': 'BOOL'},
+            'type': 'custom.googleapis.com/invoice/paid/amount'},
+ 'points': [{'interval': {'end_time': {'seconds': 1567771724},
+                          'start_time': {'seconds': 1567771724}},
+             'value': {'int64_value': 100}}],
+ 'resource': {'labels': {'instance_id': '[INSTANCE_ID]',
+                         'project_id': '[PROJECT_ID]',
+                         'zone': '[ZONE]'},
+              'type': 'gce_instance'}}
+google.cloud.bigquery.opentelemetry_tracing: INFO: This service is instrumented using OpenTelemetry.OpenTelemetry could not be imported; pleaseadd opentelemetry-api and opentelemetry-instrumentationpackages in order to get BigQuery Tracing data.
+slo_generator.utils: DEBUG: [{'achieved_consequence_message': 'Last hour on track',
+  'alerting_burn_rate_threshold': 9,
+  'error_budget_policy_step_name': '1 hour',
+  'measurement_window_seconds': 3600,
+  'overburned_consequence_message': 'Page to defend the SLO',
+  'urgent_notification': True},
+ {'achieved_consequence_message': 'Last 12 hours on track',
+  'alerting_burn_rate_threshold': 3,
+  'error_budget_policy_step_name': '12 hours',
+  'measurement_window_seconds': 43200,
+  'overburned_consequence_message': 'Page to defend the SLO',
+  'urgent_notification': True},
+ {'achieved_consequence_message': 'Last week on track',
+  'alerting_burn_rate_threshold': 1.5,
+  'error_budget_policy_step_name': '7 days',
+  'measurement_window_seconds': 604800,
+  'overburned_consequence_message': 'Dev team dedicates 25% of engineers to '
+                                    'the reliability backlog',
+  'urgent_notification': False},
+ {'achieved_consequence_message': 'Unfreeze release, per the agreed roll-out '
+                                  'policy',
+  'alerting_burn_rate_threshold': 1,
+  'error_budget_policy_step_name': '28 days',
+  'measurement_window_seconds': 2419200,
+  'overburned_consequence_message': 'Freeze release, unless related to '
+                                    'reliability or security',
+  'urgent_notification': False}]
+slo_generator.utils: DEBUG: {'backend': {'class': 'Stackdriver',
+             'measurement': {'filter_good': 'project=fake '
+                                            'metric.type="appengine.googleapis.com/http/server/response_count" '
+                                            'resource.type="gae_app" ( '
+                                            'metric.labels.response_code = 429 '
+                                            'OR\n'
+                                            '  metric.labels.response_code = '
+                                            '200 OR\n'
+                                            '  metric.labels.response_code = '
+                                            '201 OR\n'
+                                            '  metric.labels.response_code = '
+                                            '202 OR\n'
+                                            '  metric.labels.response_code = '
+                                            '203 OR\n'
+                                            '  metric.labels.response_code = '
+                                            '204 OR\n'
+                                            '  metric.labels.response_code = '
+                                            '205 OR\n'
+                                            '  metric.labels.response_code = '
+                                            '206 OR\n'
+                                            '  metric.labels.response_code = '
+                                            '207 OR\n'
+                                            '  metric.labels.response_code = '
+                                            '208 OR\n'
+                                            '  metric.labels.response_code = '
+                                            '226 OR\n'
+                                            '  metric.labels.response_code = '
+                                            '304 )\n',
+                             'filter_valid': 'project=fake '
+                                             'metric.type="appengine.googleapis.com/http/server/response_count"\n'},
+             'method': 'good_bad_ratio',
+             'project_id': 'fake'},
+ 'exporters': [{'class': 'Stackdriver', 'project_id': 'fake'}],
+ 'feature_name': 'app',
+ 'service_name': 'gae',
+ 'slo_description': 'Availability of App Engine app',
+ 'slo_name': 'availability',
+ 'slo_target': 0.95}
+slo_generator.utils: DEBUG: {'backend': {'class': 'Stackdriver',
+             'measurement': {'filter_valid': 'project=fake '
+                                             'metric.type="appengine.googleapis.com/http/server/response_latencies" '
+                                             'resource.type="gae_app" '
+                                             'metric.labels.response_code >= '
+                                             '200 metric.labels.response_code '
+                                             '< 500\n',
+                             'good_below_threshold': True,
+                             'threshold_bucket': 19},
+             'method': 'distribution_cut',
+             'project_id': 'fake'},
+ 'exporters': [{'class': 'Stackdriver', 'project_id': 'fake'}],
+ 'feature_name': 'app',
+ 'service_name': 'gae',
+ 'slo_description': 'Latency of App Engine app requests < 724ms',
+ 'slo_name': 'latency724ms',
+ 'slo_target': 0.999}
+slo_generator.utils: DEBUG: {'backend': {'class': 'Stackdriver',
+             'measurement': {'filter_good': 'project=fake '
+                                            'metric.type="loadbalancing.googleapis.com/https/request_count" '
+                                            'resource.type="https_lb_rule" ( '
+                                            'metric.label.response_code_class="200" '
+                                            'OR\n'
+                                            '  '
+                                            'metric.label.response_code_class="300" '
+                                            'OR\n'
+                                            '  '
+                                            'metric.label.response_code_class="400" '
+                                            ')\n',
+                             'filter_valid': 'project=fake '
+                                             'metric.type="loadbalancing.googleapis.com/https/request_count" '
+                                             'resource.type="https_lb_rule"\n'},
+             'method': 'good_bad_ratio',
+             'project_id': 'fake'},
+ 'exporters': [{'class': 'Stackdriver', 'project_id': 'fake'}],
+ 'feature_name': 'request',
+ 'service_name': 'lb',
+ 'slo_description': 'Availability of HTTP Load Balancer',
+ 'slo_name': 'availability',
+ 'slo_target': 0.98}
+slo_generator.utils: DEBUG: {'backend': {'class': 'Stackdriver',
+             'measurement': {'filter_valid': 'project=fake '
+                                             'metric.type="loadbalancing.googleapis.com/https/total_latencies" '
+                                             'resource.type="https_lb_rule" ( '
+                                             'metric.label.response_code_class="200" '
+                                             'OR\n'
+                                             '  '
+                                             'metric.label.response_code_class="300" '
+                                             'OR\n'
+                                             '  '
+                                             'metric.label.response_code_class="400" '
+                                             ')\n',
+                             'good_below_threshold': True,
+                             'threshold_bucket': 19},
+             'method': 'distribution_cut',
+             'project_id': 'fake'},
+ 'exporters': [{'class': 'Stackdriver', 'project_id': 'fake'}],
+ 'feature_name': 'request',
+ 'service_name': 'lb',
+ 'slo_description': 'Latency of HTTP Load Balancer < 724ms',
+ 'slo_name': 'latency724ms',
+ 'slo_target': 0.98}
+slo_generator.utils: DEBUG: {'backend': {'class': 'Stackdriver',
+             'measurement': {'filter_bad': 'project="fake" '
+                                           'metric.type="pubsub.googleapis.com/subscription/num_outstanding_messages" '
+                                           'resource.type="pubsub_subscription"\n',
+                             'filter_good': 'project="fake" '
+                                            'metric.type="pubsub.googleapis.com/subscription/ack_message_count" '
+                                            'resource.type="pubsub_subscription"\n'},
+             'method': 'good_bad_ratio',
+             'project_id': 'fake'},
+ 'exporters': [{'class': 'Stackdriver', 'project_id': 'fake'},
+               {'class': 'Pubsub', 'project_id': 'fake', 'topic_name': 'fake'}],
+ 'feature_name': 'subscription',
+ 'service_name': 'pubsub',
+ 'slo_description': 'Throughput of Pub/Sub subscription',
+ 'slo_name': 'throughput',
+ 'slo_target': 0.95}
+slo_generator.utils: DEBUG: {'backend': {'class': 'StackdriverServiceMonitoring',
+             'measurement': {'filter_good': 'project=fake '
+                                            'metric.type="appengine.googleapis.com/http/server/response_count" '
+                                            'resource.type="gae_app" ( '
+                                            'metric.labels.response_code = 429 '
+                                            'OR\n'
+                                            '  metric.labels.response_code = '
+                                            '200 OR\n'
+                                            '  metric.labels.response_code = '
+                                            '201 OR\n'
+                                            '  metric.labels.response_code = '
+                                            '202 OR\n'
+                                            '  metric.labels.response_code = '
+                                            '203 OR\n'
+                                            '  metric.labels.response_code = '
+                                            '204 OR\n'
+                                            '  metric.labels.response_code = '
+                                            '205 OR\n'
+                                            '  metric.labels.response_code = '
+                                            '206 OR\n'
+                                            '  metric.labels.response_code = '
+                                            '207 OR\n'
+                                            '  metric.labels.response_code = '
+                                            '208 OR\n'
+                                            '  metric.labels.response_code = '
+                                            '226 OR\n'
+                                            '  metric.labels.response_code = '
+                                            '304 )\n',
+                             'filter_valid': 'project=fake '
+                                             'metric.type="appengine.googleapis.com/http/server/response_count" '
+                                             'resource.type="gae_app"\n'},
+             'method': 'good_bad_ratio',
+             'project_id': 'fake'},
+ 'feature_name': 'app',
+ 'service_name': 'gae',
+ 'slo_description': 'Availability of App Engine app',
+ 'slo_name': 'availability',
+ 'slo_target': 0.95}
+slo_generator.utils: DEBUG: {'backend': {'class': 'StackdriverServiceMonitoring',
+             'measurement': {'app_engine': {'module_id': 'fake',
+                                            'project_id': 'fake'},
+                             'availability': {}},
+             'method': 'basic',
+             'project_id': 'fake'},
+ 'feature_name': 'app',
+ 'service_name': 'gae',
+ 'slo_description': 'Availability of App Engine app',
+ 'slo_name': 'availability',
+ 'slo_target': 0.98}
+slo_generator.utils: DEBUG: {'backend': {'class': 'StackdriverServiceMonitoring',
+             'measurement': {'filter_valid': 'project=fake '
+                                             'metric.type="appengine.googleapis.com/http/server/response_latencies" '
+                                             'resource.type="gae_app" '
+                                             'metric.labels.response_code >= '
+                                             '200 metric.labels.response_code '
+                                             '< 500\n',
+                             'range_max': 724,
+                             'range_min': 0},
+             'method': 'distribution_cut',
+             'project_id': 'fake'},
+ 'feature_name': 'app',
+ 'service_name': 'gae',
+ 'slo_description': 'Latency of App Engine app requests < 724ms',
+ 'slo_name': 'latency724ms',
+ 'slo_target': 0.999}
+slo_generator.utils: DEBUG: {'backend': {'class': 'StackdriverServiceMonitoring',
+             'measurement': {'app_engine': {'module_id': 'fake',
+                                            'project_id': 'fake'},
+                             'latency': {'threshold': 724}},
+             'method': 'basic',
+             'project_id': 'fake'},
+ 'feature_name': 'app',
+ 'service_name': 'gae',
+ 'slo_description': 'Latency of App Engine app requests < 724ms',
+ 'slo_name': 'latency724ms',
+ 'slo_target': 0.999}
+slo_generator.utils: DEBUG: {'backend': {'class': 'StackdriverServiceMonitoring',
+             'measurement': {'availability': {},
+                             'mesh_istio': {'mesh_uid': 'fake',
+                                            'service_name': 'fake',
+                                            'service_namespace': 'fake'}},
+             'method': 'basic',
+             'project_id': 'fake'},
+ 'feature_name': 'service',
+ 'service_name': 'gke',
+ 'slo_description': 'Availability of GKE service',
+ 'slo_name': 'availability',
+ 'slo_target': 0.98}
+slo_generator.utils: DEBUG: {'backend': {'class': 'StackdriverServiceMonitoring',
+             'measurement': {'availability': {},
+                             'cluster_istio': {'cluster_name': 'fake',
+                                               'location': 'fake',
+                                               'project_id': 'fake',
+                                               'service_name': 'fake',
+                                               'service_namespace': 'fake'}},
+             'method': 'basic',
+             'project_id': 'fake'},
+ 'feature_name': 'service',
+ 'service_name': 'gke',
+ 'slo_description': 'Availability of GKE service',
+ 'slo_name': 'availability',
+ 'slo_target': 0.98}
+slo_generator.utils: DEBUG: {'backend': {'class': 'StackdriverServiceMonitoring',
+             'measurement': {'latency': {'threshold': 724},
+                             'mesh_istio': {'mesh_uid': 'fake',
+                                            'service_name': 'fake',
+                                            'service_namespace': 'fake'}},
+             'method': 'basic',
+             'project_id': 'fake'},
+ 'feature_name': 'service',
+ 'service_name': 'gke',
+ 'slo_description': 'Latency of GKE service requests < 724ms',
+ 'slo_name': 'latency724ms',
+ 'slo_target': 0.999}
+slo_generator.utils: DEBUG: {'backend': {'class': 'StackdriverServiceMonitoring',
+             'measurement': {'cluster_istio': {'cluster_name': 'fake',
+                                               'location': 'fake',
+                                               'project_id': 'fake',
+                                               'service_name': 'fake',
+                                               'service_namespace': 'fake'},
+                             'latency': {'threshold': 724}},
+             'method': 'basic',
+             'project_id': 'fake'},
+ 'feature_name': 'service',
+ 'service_name': 'gke',
+ 'slo_description': 'Latency of GKE service requests < 724ms',
+ 'slo_name': 'latency724ms',
+ 'slo_target': 0.999}
+slo_generator.utils: DEBUG: {'backend': {'class': 'StackdriverServiceMonitoring',
+             'measurement': {'filter_good': 'project=fake '
+                                            'metric.type="loadbalancing.googleapis.com/https/request_count" '
+                                            'resource.type="https_lb_rule" ( '
+                                            'metric.label.response_code_class="200" '
+                                            'OR\n'
+                                            '  '
+                                            'metric.label.response_code_class="300" '
+                                            'OR\n'
+                                            '  '
+                                            'metric.label.response_code_class="400" '
+                                            ')\n',
+                             'filter_valid': 'project=fake '
+                                             'metric.type="loadbalancing.googleapis.com/https/request_count" '
+                                             'resource.type="https_lb_rule"\n'},
+             'method': 'good_bad_ratio',
+             'project_id': 'fake'},
+ 'feature_name': 'request',
+ 'service_name': 'lb',
+ 'slo_description': 'Availability of HTTP Load Balancer',
+ 'slo_name': 'availability',
+ 'slo_target': 0.98}
+slo_generator.utils: DEBUG: {'backend': {'class': 'StackdriverServiceMonitoring',
+             'measurement': {'filter_valid': 'project=fake '
+                                             'metric.type="loadbalancing.googleapis.com/https/total_latencies" '
+                                             'resource.type="https_lb_rule" ( '
+                                             'metric.label.response_code_class="200" '
+                                             'OR\n'
+                                             '  '
+                                             'metric.label.response_code_class="300" '
+                                             'OR\n'
+                                             '  '
+                                             'metric.label.response_code_class="400" '
+                                             ')\n',
+                             'range_max': 724,
+                             'range_min': 0},
+             'method': 'distribution_cut',
+             'project_id': 'fake'},
+ 'feature_name': 'request',
+ 'service_name': 'lb',
+ 'slo_description': 'Latency of HTTP Load Balancer < 724ms',
+ 'slo_name': 'latency724ms',
+ 'slo_target': 0.98}
+slo_generator.utils: DEBUG: {'backend': {'class': 'Prometheus',
+             'measurement': {'expression': 'sum(rate(prometheus_http_requests_total{handler="/metrics", '
+                                           'code=~"2.."}[window])) / '
+                                           'sum(rate(prometheus_http_requests_total{handler="/metrics"}[window]))\n'},
+             'method': 'query_sli',
+             'url': 'http://localhost:9090'},
+ 'exporters': [{'class': 'Prometheus', 'url': 'http://localhost:9091'}],
+ 'feature_name': 'metrics',
+ 'service_name': 'prom',
+ 'slo_description': '99.9% of Prometheus requests return a good HTTP code',
+ 'slo_name': 'availability',
+ 'slo_target': 0.999}
+slo_generator.utils: DEBUG: {'backend': {'class': 'Prometheus',
+             'measurement': {'filter_good': 'prometheus_http_requests_total{handler="/metrics", '
+                                            'code=~"2.."}',
+                             'filter_valid': 'prometheus_http_requests_total{handler="/metrics"}'},
+             'method': 'good_bad_ratio',
+             'url': 'http://localhost:9090'},
+ 'exporters': [{'class': 'Prometheus', 'url': 'http://localhost:9091'}],
+ 'feature_name': 'metrics',
+ 'service_name': 'prom',
+ 'slo_description': '99.9% of Prometheus requests return a good HTTP code',
+ 'slo_name': 'availability',
+ 'slo_target': 0.999}
+slo_generator.utils: DEBUG: {'backend': {'class': 'Prometheus',
+             'measurement': {'expression': 'http_request_duration_seconds_bucket{handler="/metrics", '
+                                           'code=~"2.."}',
+                             'threshold_bucket': 0.25},
+             'method': 'distribution_cut',
+             'url': 'http://localhost:9090'},
+ 'exporters': [{'class': 'Bigquery',
+                'dataset_id': 'slos',
+                'project_id': 'rnm-shared-monitoring',
+                'table_id': 'reports'},
+               {'class': 'Stackdriver', 'project_id': 'rnm-shared-monitoring'}],
+ 'feature_name': 'metrics',
+ 'service_name': 'prom',
+ 'slo_description': '99.99% of Prometheus requests return in less than 250ms',
+ 'slo_name': 'latency',
+ 'slo_target': 0.9999}
+slo_generator.utils: DEBUG: {'backend': {'class': 'Prometheus',
+             'measurement': {'expression': 'increase(\n'
+                                           '  '
+                                           'http_request_duration_seconds_bucket{handler="/metrics", '
+                                           'code=~"2..",le="0.25"}[window]\n'
+                                           ')\n'
+                                           ' / ignoring (le)\n'
+                                           'increase(\n'
+                                           '  '
+                                           'http_request_duration_seconds_count{handler="/metrics", '
+                                           'code=~"2.."}[window]\n'
+                                           ')\n'},
+             'method': 'query_sli',
+             'url': 'http://localhost:9090'},
+ 'exporters': [{'class': 'Bigquery',
+                'dataset_id': 'slos',
+                'project_id': 'rnm-shared-monitoring',
+                'table_id': 'reports'},
+               {'class': 'Stackdriver', 'project_id': 'rnm-shared-monitoring'}],
+ 'feature_name': 'metrics',
+ 'service_name': 'prom',
+ 'slo_description': '99.99% of Prometheus requests return in less than 250ms',
+ 'slo_name': 'latency',
+ 'slo_target': 0.9999}
+slo_generator.utils: DEBUG: {'backend': {'class': 'Elasticsearch',
+             'measurement': {'date_field': 'last_updated',
+                             'index': 'test_data',
+                             'query_bad': {'must': {'term': {'name': 'JAgOZE8'}}},
+                             'query_good': {}},
+             'method': 'good_bad_ratio',
+             'url': 'http://localhost:9200'},
+ 'exporters': [{'class': 'Pubsub', 'project_id': 'fake', 'topic_name': 'fake'},
+               {'class': 'Stackdriver', 'project_id': 'fake'}],
+ 'feature_name': 'test',
+ 'service_name': 'elk',
+ 'slo_description': 'SLO for random test data generated with the '
+                    'https://github.com/oliver006/elasticsearch-test-data\n',
+ 'slo_name': 'errors',
+ 'slo_target': 1}
+slo_generator.utils: DEBUG: {'backend': {'api_key': 'fake',
+             'app_key': 'fake',
+             'class': 'Datadog',
+             'measurement': {'query': 'sum:app.requests.count{http.path:/, '
+                                      'http.status_code_class:2xx}.as_count() '
+                                      '/ '
+                                      'sum:app.requests.count{http.path:/}.as_count()'},
+             'method': 'query_sli'},
+ 'exporters': [{'api_key': 'fake', 'app_key': 'fake', 'class': 'Datadog'}],
+ 'feature_name': 'app',
+ 'service_name': 'dd',
+ 'slo_description': '99% of app requests return a valid HTTP code',
+ 'slo_name': 'availability',
+ 'slo_target': 0.99}
+slo_generator.utils: DEBUG: {'backend': {'api_key': 'fake',
+             'app_key': 'fake',
+             'class': 'Datadog',
+             'measurement': {'slo_id': 'fake'},
+             'method': 'query_slo'},
+ 'feature_name': 'app',
+ 'service_name': 'dd',
+ 'slo_description': '99% of app requests return a valid HTTP code',
+ 'slo_name': 'availability',
+ 'slo_target': 0.99}
+slo_generator.utils: DEBUG: {'backend': {'api_key': 'fake',
+             'app_key': 'fake',
+             'class': 'Datadog',
+             'measurement': {'query_good': 'app.requests.count{http.path:/, '
+                                           'http.status_code_class:2xx}',
+                             'query_valid': 'app.requests.count{http.path:/}'},
+             'method': 'good_bad_ratio'},
+ 'exporters': [{'api_key': 'fake', 'app_key': 'fake', 'class': 'Datadog'}],
+ 'feature_name': 'app',
+ 'service_name': 'dd',
+ 'slo_description': '99% of app requests return a valid HTTP code',
+ 'slo_name': 'availability',
+ 'slo_target': 0.99}
+slo_generator.utils: DEBUG: {'backend': {'api_token': 'fake',
+             'api_url': 'fake',
+             'class': 'Dynatrace',
+             'measurement': {'query_good': {'entity_selector': 'type(HOST)',
+                                            'metric_selector': 'ext:app.request_count:filter(and(eq(app,test_app),eq(env,prod),eq(status_code_class,2xx)))'},
+                             'query_valid': {'entity_selector': 'type(HOST)',
+                                             'metric_selector': 'ext:app.request_count:filter(and(eq(app,test_app),eq(env,prod)))'}},
+             'method': 'good_bad_ratio'},
+ 'exporters': [{'api_token': 'fake',
+                'api_url': 'fake',
+                'class': 'Dynatrace',
+                'metric_timeseries_id': 'custom:slo.error_budget_burn_rate'}],
+ 'feature_name': 'app',
+ 'service_name': 'dt',
+ 'slo_description': '99.9% of app requests return a good HTTP code',
+ 'slo_name': 'availability',
+ 'slo_target': 0.999}
+slo_generator.utils: DEBUG: {'alert': 'true',
+ 'alerting_burn_rate_threshold': 3.0,
+ 'bad_events_count': 3556,
+ 'cadence': None,
+ 'consequence_message': 'Page the SRE team to defend the SLO',
+ 'error_budget_burn_rate': 5.000000000000001,
+ 'error_budget_measurement': 0.5,
+ 'error_budget_minutes': 71.99999999999999,
+ 'error_budget_policy_step_name': 'b.Last 12 hours',
+ 'error_budget_remaining_minutes': -288.0,
+ 'error_budget_target': 0.09999999999999998,
+ 'error_minutes': '360.0',
+ 'feature_name': 'test',
+ 'gap': -0.4,
+ 'good_events_count': 3556,
+ 'service_name': 'test',
+ 'sli_measurement': 0.5,
+ 'slo_description': 'Acked Pub/Sub messages over total number of Pub/Sub '
+                    'messages',
+ 'slo_name': 'slo-pubsub-acked-msg',
+ 'slo_target': '0.9',
+ 'timestamp': 1567762279.287761,
+ 'timestamp_human': '2019-09-05 11:55:01.004603 UTC',
+ 'window': 43200}
+slo_generator.utils: DEBUG: [{'class': 'Pubsub', 'project_id': 'fake', 'topic_name': 'fake'},
+ {'class': 'Stackdriver', 'project_id': 'fake'},
+ {'class': 'Bigquery',
+  'dataset_id': 'fake',
+  'project_id': 'fake',
+  'table_id': 'fake'},
+ {'class': 'Prometheus', 'url': 'http://localhost:9091'},
+ {'api_key': 'fake', 'app_key': 'fake', 'class': 'Datadog'},
+ {'api_token': 'fake', 'api_url': 'fake', 'class': 'Dynatrace'},
+ {'class': 'Stackdriver',
+  'metric_description': 'Test old format',
+  'metric_labels': ['good_events_count', 'bad_events_count'],
+  'metric_type': 'custom.googleapis.com/ebp',
+  'metrics': ['error_budget_burn_rate'],
+  'project_id': 'fake'}]
+slo_generator.utils: DEBUG: [{'errors': [{'debugInfo': 'This is some debug info',
+              'location': 'us-east1',
+              'message': 'This is a test exception',
+              'reason': 'You are running a test suite'}]}]
+slo_generator.utils: DEBUG: {'metric': {'labels': {'description': 'fake',
+                       'displayName': 'fake',
+                       'event_type': 'good',
+                       'metricKind': 'GAUGE',
+                       'name': 'fake',
+                       'type': 'custom.googleapis.com/invoice/paid/amount',
+                       'valueType': 'BOOL'},
+            'type': 'custom.googleapis.com/invoice/paid/amount'},
+ 'points': [{'interval': {'end_time': {'seconds': 1567771724},
+                          'start_time': {'seconds': 1567771724}},
+             'value': {'int64_value': 100}}],
+ 'resource': {'labels': {'instance_id': '[INSTANCE_ID]',
+                         'project_id': '[PROJECT_ID]',
+                         'zone': '[ZONE]'},
+              'type': 'gce_instance'}}
+slo_generator.utils: DEBUG: [{'appEngine': {'moduleId': 'fake'},
+  'displayName': 'fake/fake',
+  'full_name': 'test',
+  'name': 'projects/999999999/services/gae:fake_fake',
+  'telemetry': {'resourceName': '//appengine.googleapis.com/apps/fake/services/fake'}},
+ {'clusterIstio': {'clusterName': 'fake',
+                   'location': 'fake',
+                   'serviceName': 'fake',
+                   'serviceNamespace': 'fake'},
+  'displayName': 'clusterIstio:fake/fake/fake/default/fake',
+  'name': 'projects/999999999999/services/ist:fake-location-fake-fake-fake-fake',
+  'telemetry': {'resourceName': '//container.googleapis.com/projects/fake/zones/fake/clusters/fake/k8s/namespaces/fake/services/fake'}},
+ {'displayName': 'meshIstio:fake/fake/fake',
+  'meshIstio': {'meshUid': 'fake',
+                'serviceName': 'fake',
+                'serviceNamespace': 'fake'},
+  'name': 'projects/999999999999/services/ist:fake-fake-fake',
+  'telemetry': {'resourceName': '//container.googleapis.com/projects/fake/zones/fake/clusters/fake/k8s/namespaces/fake/services/fake'}}]
+slo_generator.utils: DEBUG: [{'displayName': 'Latency of App Engine app requests < 724ms (24h)',
+  'goal': 0.999,
+  'name': 'projects/999999999999/services/gae:fake_fake/serviceLevelObjectives/gae-app-latency724ms-86400',
+  'rollingPeriod': '86400s',
+  'serviceLevelIndicator': {'basicSli': {'latency': {'threshold': '0.724s'}}}}]
+slo_generator.utils: DEBUG: {'metric': {'labels': {'description': 'fake',
+                       'displayName': 'fake',
+                       'event_type': 'good',
+                       'metricKind': 'GAUGE',
+                       'name': 'fake',
+                       'type': 'custom.googleapis.com/invoice/paid/amount',
+                       'valueType': 'BOOL'},
+            'type': 'custom.googleapis.com/invoice/paid/amount'},
+ 'points': [{'interval': {'end_time': {'seconds': 1567771724},
+                          'start_time': {'seconds': 1567771724}},
+             'value': {'int64_value': 100}}],
+ 'resource': {'labels': {'instance_id': '[INSTANCE_ID]',
+                         'project_id': '[PROJECT_ID]',
+                         'zone': '[ZONE]'},
+              'type': 'gce_instance'}}
+slo_generator.utils: DEBUG: [{'appEngine': {'moduleId': 'fake'},
+  'displayName': 'fake/fake',
+  'full_name': 'test',
+  'name': 'projects/999999999/services/gae:fake_fake',
+  'telemetry': {'resourceName': '//appengine.googleapis.com/apps/fake/services/fake'}},
+ {'clusterIstio': {'clusterName': 'fake',
+                   'location': 'fake',
+                   'serviceName': 'fake',
+                   'serviceNamespace': 'fake'},
+  'displayName': 'clusterIstio:fake/fake/fake/default/fake',
+  'name': 'projects/999999999999/services/ist:fake-location-fake-fake-fake-fake',
+  'telemetry': {'resourceName': '//container.googleapis.com/projects/fake/zones/fake/clusters/fake/k8s/namespaces/fake/services/fake'}},
+ {'displayName': 'meshIstio:fake/fake/fake',
+  'meshIstio': {'meshUid': 'fake',
+                'serviceName': 'fake',
+                'serviceNamespace': 'fake'},
+  'name': 'projects/999999999999/services/ist:fake-fake-fake',
+  'telemetry': {'resourceName': '//container.googleapis.com/projects/fake/zones/fake/clusters/fake/k8s/namespaces/fake/services/fake'}}]
+slo_generator.utils: DEBUG: [{'displayName': 'Latency of App Engine app requests < 724ms (24h)',
+  'goal': 0.999,
+  'name': 'projects/999999999999/services/gae:fake_fake/serviceLevelObjectives/gae-app-latency724ms-86400',
+  'rollingPeriod': '86400s',
+  'serviceLevelIndicator': {'basicSli': {'latency': {'threshold': '0.724s'}}}}]
+slo_generator.utils: DEBUG: {'metric': {'labels': {'description': 'fake',
+                       'displayName': 'fake',
+                       'event_type': 'good',
+                       'metricKind': 'GAUGE',
+                       'name': 'fake',
+                       'type': 'custom.googleapis.com/invoice/paid/amount',
+                       'valueType': 'BOOL'},
+            'type': 'custom.googleapis.com/invoice/paid/amount'},
+ 'points': [{'interval': {'end_time': {'seconds': 1567771724},
+                          'start_time': {'seconds': 1567771724}},
+             'value': {'int64_value': 100}}],
+ 'resource': {'labels': {'instance_id': '[INSTANCE_ID]',
+                         'project_id': '[PROJECT_ID]',
+                         'zone': '[ZONE]'},
+              'type': 'gce_instance'}}
+slo_generator.utils: DEBUG: {'metric': {'labels': {'description': 'fake',
+                       'displayName': 'fake',
+                       'event_type': 'good',
+                       'metricKind': 'GAUGE',
+                       'name': 'fake',
+                       'type': 'custom.googleapis.com/invoice/paid/amount',
+                       'valueType': 'BOOL'},
+            'type': 'custom.googleapis.com/invoice/paid/amount'},
+ 'points': [{'interval': {'end_time': {'seconds': 1567771724},
+                          'start_time': {'seconds': 1567771724}},
+             'value': {'int64_value': 100}}],
+ 'resource': {'labels': {'instance_id': '[INSTANCE_ID]',
+                         'project_id': '[PROJECT_ID]',
+                         'zone': '[ZONE]'},
+              'type': 'gce_instance'}}
+slo_generator.utils: DEBUG: {'metric': {'labels': {'description': 'fake',
+                       'displayName': 'fake',
+                       'event_type': 'good',
+                       'metricKind': 'GAUGE',
+                       'name': 'fake',
+                       'type': 'custom.googleapis.com/invoice/paid/amount',
+                       'valueType': 'BOOL'},
+            'type': 'custom.googleapis.com/invoice/paid/amount'},
+ 'points': [{'interval': {'end_time': {'seconds': 1567771724},
+                          'start_time': {'seconds': 1567771724}},
+             'value': {'int64_value': 100}}],
+ 'resource': {'labels': {'instance_id': '[INSTANCE_ID]',
+                         'project_id': '[PROJECT_ID]',
+                         'zone': '[ZONE]'},
+              'type': 'gce_instance'}}
+slo_generator.cli: DEBUG: Loading Error Budget config from /Users/ocervello/Workspace/dev/slo-generator/samples/error_budget_policy.yaml
+slo_generator.utils: DEBUG: [{'achieved_consequence_message': 'Last hour on track',
+  'alerting_burn_rate_threshold': 9,
+  'error_budget_policy_step_name': '1 hour',
+  'measurement_window_seconds': 3600,
+  'overburned_consequence_message': 'Page to defend the SLO',
+  'urgent_notification': True},
+ {'achieved_consequence_message': 'Last 12 hours on track',
+  'alerting_burn_rate_threshold': 3,
+  'error_budget_policy_step_name': '12 hours',
+  'measurement_window_seconds': 43200,
+  'overburned_consequence_message': 'Page to defend the SLO',
+  'urgent_notification': True},
+ {'achieved_consequence_message': 'Last week on track',
+  'alerting_burn_rate_threshold': 1.5,
+  'error_budget_policy_step_name': '7 days',
+  'measurement_window_seconds': 604800,
+  'overburned_consequence_message': 'Dev team dedicates 25% of engineers to '
+                                    'the reliability backlog',
+  'urgent_notification': False},
+ {'achieved_consequence_message': 'Unfreeze release, per the agreed roll-out '
+                                  'policy',
+  'alerting_burn_rate_threshold': 1,
+  'error_budget_policy_step_name': '28 days',
+  'measurement_window_seconds': 2419200,
+  'overburned_consequence_message': 'Freeze release, unless related to '
+                                    'reliability or security',
+  'urgent_notification': False}]
+slo_generator.cli: DEBUG: Loading SLO config "slo_gae_app_availability.yaml"
+slo_generator.utils: DEBUG: {'backend': {'class': 'Stackdriver',
+             'measurement': {'filter_good': 'project=fake '
+                                            'metric.type="appengine.googleapis.com/http/server/response_count" '
+                                            'resource.type="gae_app" ( '
+                                            'metric.labels.response_code = 429 '
+                                            'OR\n'
+                                            '  metric.labels.response_code = '
+                                            '200 OR\n'
+                                            '  metric.labels.response_code = '
+                                            '201 OR\n'
+                                            '  metric.labels.response_code = '
+                                            '202 OR\n'
+                                            '  metric.labels.response_code = '
+                                            '203 OR\n'
+                                            '  metric.labels.response_code = '
+                                            '204 OR\n'
+                                            '  metric.labels.response_code = '
+                                            '205 OR\n'
+                                            '  metric.labels.response_code = '
+                                            '206 OR\n'
+                                            '  metric.labels.response_code = '
+                                            '207 OR\n'
+                                            '  metric.labels.response_code = '
+                                            '208 OR\n'
+                                            '  metric.labels.response_code = '
+                                            '226 OR\n'
+                                            '  metric.labels.response_code = '
+                                            '304 )\n',
+                             'filter_valid': 'project=fake '
+                                             'metric.type="appengine.googleapis.com/http/server/response_count"\n'},
+             'method': 'good_bad_ratio',
+             'project_id': 'fake'},
+ 'exporters': [{'class': 'Stackdriver', 'project_id': 'fake'}],
+ 'feature_name': 'app',
+ 'service_name': 'gae',
+ 'slo_description': 'Availability of App Engine app',
+ 'slo_name': 'availability',
+ 'slo_target': 0.95}
+slo_generator.report: DEBUG: gae/app/availability             | 1 hour   | Using backend Stackdriver.good_bad_ratio (from SLO config file).
+slo_generator.backends.stackdriver: DEBUG: start_time {
+  seconds: 1602872445
+}
+end_time {
+  seconds: 1602876045
+}
+
+slo_generator.backends.stackdriver: DEBUG: alignment_period {
+  seconds: 3600
+}
+per_series_aligner: ALIGN_SUM
+cross_series_reducer: REDUCE_SUM
+
+slo_generator.backends.stackdriver: DEBUG: <google.api_core.page_iterator.GRPCIterator object at 0x10802f8b0>
+slo_generator.backends.stackdriver: DEBUG: start_time {
+  seconds: 1602872445
+}
+end_time {
+  seconds: 1602876045
+}
+
+slo_generator.backends.stackdriver: DEBUG: alignment_period {
+  seconds: 3600
+}
+per_series_aligner: ALIGN_SUM
+cross_series_reducer: REDUCE_SUM
+
+slo_generator.backends.stackdriver: DEBUG: <google.api_core.page_iterator.GRPCIterator object at 0x10802f8b0>
+slo_generator.backends.stackdriver: DEBUG: Good events: 100 | Bad events: 0
+slo_generator.report: DEBUG: gae/app/availability             | 1 hour   | Backend response: (100, 0)
+slo_generator.report: DEBUG: gae/app/availability             | 1 hour   | SLO report starting ...
+slo_generator.report: DEBUG: gae/app/availability             | 1 hour   | Good: 100 | Bad: 0
+slo_generator.compute: INFO: gae/app/availability             | 1 hour   | SLI: 100.0   % | SLO: 95.0 % | Gap: +5.0  % | BR: 0.0 / 9.0 | Alert: 0 | Good: 100      | Bad: 0       
+slo_generator.report: DEBUG: gae/app/availability             | 12 hours | Using backend Stackdriver.good_bad_ratio (from SLO config file).
+slo_generator.backends.stackdriver: DEBUG: start_time {
+  seconds: 1602832845
+}
+end_time {
+  seconds: 1602876045
+}
+
+slo_generator.backends.stackdriver: DEBUG: alignment_period {
+  seconds: 43200
+}
+per_series_aligner: ALIGN_SUM
+cross_series_reducer: REDUCE_SUM
+
+slo_generator.backends.stackdriver: DEBUG: <google.api_core.page_iterator.GRPCIterator object at 0x10802fb20>
+slo_generator.backends.stackdriver: DEBUG: start_time {
+  seconds: 1602832845
+}
+end_time {
+  seconds: 1602876045
+}
+
+slo_generator.backends.stackdriver: DEBUG: alignment_period {
+  seconds: 43200
+}
+per_series_aligner: ALIGN_SUM
+cross_series_reducer: REDUCE_SUM
+
+slo_generator.backends.stackdriver: DEBUG: <google.api_core.page_iterator.GRPCIterator object at 0x10802fb20>
+slo_generator.backends.stackdriver: DEBUG: Good events: 100 | Bad events: 0
+slo_generator.report: DEBUG: gae/app/availability             | 12 hours | Backend response: (100, 0)
+slo_generator.report: DEBUG: gae/app/availability             | 12 hours | SLO report starting ...
+slo_generator.report: DEBUG: gae/app/availability             | 12 hours | Good: 100 | Bad: 0
+slo_generator.compute: INFO: gae/app/availability             | 12 hours | SLI: 100.0   % | SLO: 95.0 % | Gap: +5.0  % | BR: 0.0 / 3.0 | Alert: 0 | Good: 100      | Bad: 0       
+slo_generator.report: DEBUG: gae/app/availability             | 7 days   | Using backend Stackdriver.good_bad_ratio (from SLO config file).
+slo_generator.backends.stackdriver: DEBUG: start_time {
+  seconds: 1602271245
+}
+end_time {
+  seconds: 1602876045
+}
+
+slo_generator.backends.stackdriver: DEBUG: alignment_period {
+  seconds: 604800
+}
+per_series_aligner: ALIGN_SUM
+cross_series_reducer: REDUCE_SUM
+
+slo_generator.backends.stackdriver: DEBUG: <google.api_core.page_iterator.GRPCIterator object at 0x10802faf0>
+slo_generator.backends.stackdriver: DEBUG: start_time {
+  seconds: 1602271245
+}
+end_time {
+  seconds: 1602876045
+}
+
+slo_generator.backends.stackdriver: DEBUG: alignment_period {
+  seconds: 604800
+}
+per_series_aligner: ALIGN_SUM
+cross_series_reducer: REDUCE_SUM
+
+slo_generator.backends.stackdriver: DEBUG: <google.api_core.page_iterator.GRPCIterator object at 0x10802faf0>
+slo_generator.backends.stackdriver: DEBUG: Good events: 100 | Bad events: 0
+slo_generator.report: DEBUG: gae/app/availability             | 7 days   | Backend response: (100, 0)
+slo_generator.report: DEBUG: gae/app/availability             | 7 days   | SLO report starting ...
+slo_generator.report: DEBUG: gae/app/availability             | 7 days   | Good: 100 | Bad: 0
+slo_generator.compute: INFO: gae/app/availability             | 7 days   | SLI: 100.0   % | SLO: 95.0 % | Gap: +5.0  % | BR: 0.0 / 1.5 | Alert: 0 | Good: 100      | Bad: 0       
+slo_generator.report: DEBUG: gae/app/availability             | 28 days  | Using backend Stackdriver.good_bad_ratio (from SLO config file).
+slo_generator.backends.stackdriver: DEBUG: start_time {
+  seconds: 1600456845
+}
+end_time {
+  seconds: 1602876045
+}
+
+slo_generator.backends.stackdriver: DEBUG: alignment_period {
+  seconds: 2419200
+}
+per_series_aligner: ALIGN_SUM
+cross_series_reducer: REDUCE_SUM
+
+slo_generator.backends.stackdriver: DEBUG: <google.api_core.page_iterator.GRPCIterator object at 0x10802fa00>
+slo_generator.backends.stackdriver: DEBUG: start_time {
+  seconds: 1600456845
+}
+end_time {
+  seconds: 1602876045
+}
+
+slo_generator.backends.stackdriver: DEBUG: alignment_period {
+  seconds: 2419200
+}
+per_series_aligner: ALIGN_SUM
+cross_series_reducer: REDUCE_SUM
+
+slo_generator.backends.stackdriver: DEBUG: <google.api_core.page_iterator.GRPCIterator object at 0x10802fa00>
+slo_generator.backends.stackdriver: DEBUG: Good events: 100 | Bad events: 0
+slo_generator.report: DEBUG: gae/app/availability             | 28 days  | Backend response: (100, 0)
+slo_generator.report: DEBUG: gae/app/availability             | 28 days  | SLO report starting ...
+slo_generator.report: DEBUG: gae/app/availability             | 28 days  | Good: 100 | Bad: 0
+slo_generator.compute: INFO: gae/app/availability             | 28 days  | SLI: 100.0   % | SLO: 95.0 % | Gap: +5.0  % | BR: 0.0 / 1.0 | Alert: 0 | Good: 100      | Bad: 0       
+slo_generator.compute: DEBUG: [{'alert': False,
+  'alerting_burn_rate_threshold': 9.0,
+  'bad_events_count': 0,
+  'consequence_message': 'Last hour on track',
+  'error_budget_burn_rate': 0.0,
+  'error_budget_measurement': 0.0,
+  'error_budget_minutes': 3.0000000000000027,
+  'error_budget_policy_step_name': '1 hour',
+  'error_budget_remaining_minutes': 3.0000000000000027,
+  'error_budget_target': 0.050000000000000044,
+  'error_minutes': 0.0,
+  'feature_name': 'app',
+  'gap': 0.050000000000000044,
+  'good_events_count': 100,
+  'service_name': 'gae',
+  'sli_measurement': 1.0,
+  'slo_description': 'Availability of App Engine app',
+  'slo_name': 'availability',
+  'slo_target': 0.95,
+  'timestamp': 1602876045,
+  'timestamp_human': '2020-10-16T19:20:45.694336+02:00',
+  'valid': True,
+  'window': 3600},
+ {'alert': False,
+  'alerting_burn_rate_threshold': 3.0,
+  'bad_events_count': 0,
+  'consequence_message': 'Last 12 hours on track',
+  'error_budget_burn_rate': 0.0,
+  'error_budget_measurement': 0.0,
+  'error_budget_minutes': 36.00000000000003,
+  'error_budget_policy_step_name': '12 hours',
+  'error_budget_remaining_minutes': 36.00000000000003,
+  'error_budget_target': 0.050000000000000044,
+  'error_minutes': 0.0,
+  'feature_name': 'app',
+  'gap': 0.050000000000000044,
+  'good_events_count': 100,
+  'service_name': 'gae',
+  'sli_measurement': 1.0,
+  'slo_description': 'Availability of App Engine app',
+  'slo_name': 'availability',
+  'slo_target': 0.95,
+  'timestamp': 1602876045,
+  'timestamp_human': '2020-10-16T19:20:45.694336+02:00',
+  'valid': True,
+  'window': 43200},
+ {'alert': False,
+  'alerting_burn_rate_threshold': 1.5,
+  'bad_events_count': 0,
+  'consequence_message': 'Last week on track',
+  'error_budget_burn_rate': 0.0,
+  'error_budget_measurement': 0.0,
+  'error_budget_minutes': 504.0000000000004,
+  'error_budget_policy_step_name': '7 days',
+  'error_budget_remaining_minutes': 504.0000000000004,
+  'error_budget_target': 0.050000000000000044,
+  'error_minutes': 0.0,
+  'feature_name': 'app',
+  'gap': 0.050000000000000044,
+  'good_events_count': 100,
+  'service_name': 'gae',
+  'sli_measurement': 1.0,
+  'slo_description': 'Availability of App Engine app',
+  'slo_name': 'availability',
+  'slo_target': 0.95,
+  'timestamp': 1602876045,
+  'timestamp_human': '2020-10-16T19:20:45.694336+02:00',
+  'valid': True,
+  'window': 604800},
+ {'alert': False,
+  'alerting_burn_rate_threshold': 1.0,
+  'bad_events_count': 0,
+  'consequence_message': 'Unfreeze release, per the agreed roll-out policy',
+  'error_budget_burn_rate': 0.0,
+  'error_budget_measurement': 0.0,
+  'error_budget_minutes': 2016.0000000000016,
+  'error_budget_policy_step_name': '28 days',
+  'error_budget_remaining_minutes': 2016.0000000000016,
+  'error_budget_target': 0.050000000000000044,
+  'error_minutes': 0.0,
+  'feature_name': 'app',
+  'gap': 0.050000000000000044,
+  'good_events_count': 100,
+  'service_name': 'gae',
+  'sli_measurement': 1.0,
+  'slo_description': 'Availability of App Engine app',
+  'slo_name': 'availability',
+  'slo_target': 0.95,
+  'timestamp': 1602876045,
+  'timestamp_human': '2020-10-16T19:20:45.694336+02:00',
+  'valid': True,
+  'window': 2419200}]
+slo_generator.compute: INFO: Run finished successfully in 0.0s.
+--------------------- >> end captured logging << ---------------------
+
+======================================================================
+ERROR: test_cli_folder (tests.unit.test_cli.TestCLI)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/ocervello/.virtualenvs/slo/lib/python3.8/site-packages/mock/mock.py", line 1369, in patched
+    return func(*newargs, **newkeywargs)
+  File "/Users/ocervello/Workspace/dev/slo-generator/tests/unit/test_cli.py", line 61, in test_cli_folder
+    len_first_report = len(all_reports[self.slo_config])
+KeyError: '/Users/ocervello/Workspace/dev/slo-generator/samples/stackdriver/slo_gae_app_availability.yaml'
+-------------------- >> begin captured stdout << ---------------------
+DEBUG: 0
+
+--------------------- >> end captured stdout << ----------------------
+-------------------- >> begin captured logging << --------------------
+slo_generator.cli: DEBUG: Loading Error Budget config from /Users/ocervello/Workspace/dev/slo-generator/samples/error_budget_policy.yaml
+slo_generator.utils: DEBUG: [{'achieved_consequence_message': 'Last hour on track',
+  'alerting_burn_rate_threshold': 9,
+  'error_budget_policy_step_name': '1 hour',
+  'measurement_window_seconds': 3600,
+  'overburned_consequence_message': 'Page to defend the SLO',
+  'urgent_notification': True},
+ {'achieved_consequence_message': 'Last 12 hours on track',
+  'alerting_burn_rate_threshold': 3,
+  'error_budget_policy_step_name': '12 hours',
+  'measurement_window_seconds': 43200,
+  'overburned_consequence_message': 'Page to defend the SLO',
+  'urgent_notification': True},
+ {'achieved_consequence_message': 'Last week on track',
+  'alerting_burn_rate_threshold': 1.5,
+  'error_budget_policy_step_name': '7 days',
+  'measurement_window_seconds': 604800,
+  'overburned_consequence_message': 'Dev team dedicates 25% of engineers to '
+                                    'the reliability backlog',
+  'urgent_notification': False},
+ {'achieved_consequence_message': 'Unfreeze release, per the agreed roll-out '
+                                  'policy',
+  'alerting_burn_rate_threshold': 1,
+  'error_budget_policy_step_name': '28 days',
+  'measurement_window_seconds': 2419200,
+  'overburned_consequence_message': 'Freeze release, unless related to '
+                                    'reliability or security',
+  'urgent_notification': False}]
+slo_generator.cli: DEBUG: Loading SLO config "slo_gae_app_availability.yaml"
+slo_generator.utils: DEBUG: {'backend': {'class': 'Stackdriver',
+             'measurement': {'filter_good': 'project=fake '
+                                            'metric.type="appengine.googleapis.com/http/server/response_count" '
+                                            'resource.type="gae_app" ( '
+                                            'metric.labels.response_code = 429 '
+                                            'OR\n'
+                                            '  metric.labels.response_code = '
+                                            '200 OR\n'
+                                            '  metric.labels.response_code = '
+                                            '201 OR\n'
+                                            '  metric.labels.response_code = '
+                                            '202 OR\n'
+                                            '  metric.labels.response_code = '
+                                            '203 OR\n'
+                                            '  metric.labels.response_code = '
+                                            '204 OR\n'
+                                            '  metric.labels.response_code = '
+                                            '205 OR\n'
+                                            '  metric.labels.response_code = '
+                                            '206 OR\n'
+                                            '  metric.labels.response_code = '
+                                            '207 OR\n'
+                                            '  metric.labels.response_code = '
+                                            '208 OR\n'
+                                            '  metric.labels.response_code = '
+                                            '226 OR\n'
+                                            '  metric.labels.response_code = '
+                                            '304 )\n',
+                             'filter_valid': 'project=fake '
+                                             'metric.type="appengine.googleapis.com/http/server/response_count"\n'},
+             'method': 'good_bad_ratio',
+             'project_id': 'fake'},
+ 'exporters': [{'class': 'Stackdriver', 'project_id': 'fake'}],
+ 'feature_name': 'app',
+ 'service_name': 'gae',
+ 'slo_description': 'Availability of App Engine app',
+ 'slo_name': 'availability',
+ 'slo_target': 0.95}
+slo_generator.report: DEBUG: gae/app/availability             | 1 hour   | Using backend Stackdriver.good_bad_ratio (from SLO config file).
+slo_generator.backends.stackdriver: DEBUG: start_time {
+  seconds: 1602872445
+}
+end_time {
+  seconds: 1602876045
+}
+
+slo_generator.backends.stackdriver: DEBUG: alignment_period {
+  seconds: 3600
+}
+per_series_aligner: ALIGN_SUM
+cross_series_reducer: REDUCE_SUM
+
+slo_generator.backends.stackdriver: DEBUG: <google.api_core.page_iterator.GRPCIterator object at 0x10807b160>
+slo_generator.backends.stackdriver: DEBUG: start_time {
+  seconds: 1602872445
+}
+end_time {
+  seconds: 1602876045
+}
+
+slo_generator.backends.stackdriver: DEBUG: alignment_period {
+  seconds: 3600
+}
+per_series_aligner: ALIGN_SUM
+cross_series_reducer: REDUCE_SUM
+
+slo_generator.backends.stackdriver: DEBUG: <google.api_core.page_iterator.GRPCIterator object at 0x10807b160>
+slo_generator.backends.stackdriver: DEBUG: Good events: 100 | Bad events: 0
+slo_generator.report: DEBUG: gae/app/availability             | 1 hour   | Backend response: (100, 0)
+slo_generator.report: DEBUG: gae/app/availability             | 1 hour   | SLO report starting ...
+slo_generator.report: DEBUG: gae/app/availability             | 1 hour   | Good: 100 | Bad: 0
+slo_generator.compute: INFO: gae/app/availability             | 1 hour   | SLI: 100.0   % | SLO: 95.0 % | Gap: +5.0  % | BR: 0.0 / 9.0 | Alert: 0 | Good: 100      | Bad: 0       
+slo_generator.report: DEBUG: gae/app/availability             | 12 hours | Using backend Stackdriver.good_bad_ratio (from SLO config file).
+slo_generator.backends.stackdriver: DEBUG: start_time {
+  seconds: 1602832845
+}
+end_time {
+  seconds: 1602876045
+}
+
+slo_generator.backends.stackdriver: DEBUG: alignment_period {
+  seconds: 43200
+}
+per_series_aligner: ALIGN_SUM
+cross_series_reducer: REDUCE_SUM
+
+slo_generator.backends.stackdriver: DEBUG: <google.api_core.page_iterator.GRPCIterator object at 0x10807be50>
+slo_generator.backends.stackdriver: DEBUG: start_time {
+  seconds: 1602832845
+}
+end_time {
+  seconds: 1602876045
+}
+
+slo_generator.backends.stackdriver: DEBUG: alignment_period {
+  seconds: 43200
+}
+per_series_aligner: ALIGN_SUM
+cross_series_reducer: REDUCE_SUM
+
+slo_generator.backends.stackdriver: DEBUG: <google.api_core.page_iterator.GRPCIterator object at 0x10807be50>
+slo_generator.backends.stackdriver: DEBUG: Good events: 100 | Bad events: 0
+slo_generator.report: DEBUG: gae/app/availability             | 12 hours | Backend response: (100, 0)
+slo_generator.report: DEBUG: gae/app/availability             | 12 hours | SLO report starting ...
+slo_generator.report: DEBUG: gae/app/availability             | 12 hours | Good: 100 | Bad: 0
+slo_generator.compute: INFO: gae/app/availability             | 12 hours | SLI: 100.0   % | SLO: 95.0 % | Gap: +5.0  % | BR: 0.0 / 3.0 | Alert: 0 | Good: 100      | Bad: 0       
+slo_generator.report: DEBUG: gae/app/availability             | 7 days   | Using backend Stackdriver.good_bad_ratio (from SLO config file).
+slo_generator.backends.stackdriver: DEBUG: start_time {
+  seconds: 1602271245
+}
+end_time {
+  seconds: 1602876045
+}
+
+slo_generator.backends.stackdriver: DEBUG: alignment_period {
+  seconds: 604800
+}
+per_series_aligner: ALIGN_SUM
+cross_series_reducer: REDUCE_SUM
+
+slo_generator.backends.stackdriver: DEBUG: <google.api_core.page_iterator.GRPCIterator object at 0x10807b400>
+slo_generator.backends.stackdriver: DEBUG: start_time {
+  seconds: 1602271245
+}
+end_time {
+  seconds: 1602876045
+}
+
+slo_generator.backends.stackdriver: DEBUG: alignment_period {
+  seconds: 604800
+}
+per_series_aligner: ALIGN_SUM
+cross_series_reducer: REDUCE_SUM
+
+slo_generator.backends.stackdriver: DEBUG: <google.api_core.page_iterator.GRPCIterator object at 0x10807b400>
+slo_generator.backends.stackdriver: DEBUG: Good events: 100 | Bad events: 0
+slo_generator.report: DEBUG: gae/app/availability             | 7 days   | Backend response: (100, 0)
+slo_generator.report: DEBUG: gae/app/availability             | 7 days   | SLO report starting ...
+slo_generator.report: DEBUG: gae/app/availability             | 7 days   | Good: 100 | Bad: 0
+slo_generator.compute: INFO: gae/app/availability             | 7 days   | SLI: 100.0   % | SLO: 95.0 % | Gap: +5.0  % | BR: 0.0 / 1.5 | Alert: 0 | Good: 100      | Bad: 0       
+slo_generator.report: DEBUG: gae/app/availability             | 28 days  | Using backend Stackdriver.good_bad_ratio (from SLO config file).
+slo_generator.backends.stackdriver: DEBUG: start_time {
+  seconds: 1600456845
+}
+end_time {
+  seconds: 1602876045
+}
+
+slo_generator.backends.stackdriver: DEBUG: alignment_period {
+  seconds: 2419200
+}
+per_series_aligner: ALIGN_SUM
+cross_series_reducer: REDUCE_SUM
+
+slo_generator.backends.stackdriver: DEBUG: <google.api_core.page_iterator.GRPCIterator object at 0x10807beb0>
+slo_generator.backends.stackdriver: DEBUG: start_time {
+  seconds: 1600456845
+}
+end_time {
+  seconds: 1602876045
+}
+
+slo_generator.backends.stackdriver: DEBUG: alignment_period {
+  seconds: 2419200
+}
+per_series_aligner: ALIGN_SUM
+cross_series_reducer: REDUCE_SUM
+
+slo_generator.backends.stackdriver: DEBUG: <google.api_core.page_iterator.GRPCIterator object at 0x10807beb0>
+slo_generator.backends.stackdriver: DEBUG: Good events: 100 | Bad events: 0
+slo_generator.report: DEBUG: gae/app/availability             | 28 days  | Backend response: (100, 0)
+slo_generator.report: DEBUG: gae/app/availability             | 28 days  | SLO report starting ...
+slo_generator.report: DEBUG: gae/app/availability             | 28 days  | Good: 100 | Bad: 0
+slo_generator.compute: INFO: gae/app/availability             | 28 days  | SLI: 100.0   % | SLO: 95.0 % | Gap: +5.0  % | BR: 0.0 / 1.0 | Alert: 0 | Good: 100      | Bad: 0       
+slo_generator.compute: DEBUG: [{'alert': False,
+  'alerting_burn_rate_threshold': 9.0,
+  'bad_events_count': 0,
+  'consequence_message': 'Last hour on track',
+  'error_budget_burn_rate': 0.0,
+  'error_budget_measurement': 0.0,
+  'error_budget_minutes': 3.0000000000000027,
+  'error_budget_policy_step_name': '1 hour',
+  'error_budget_remaining_minutes': 3.0000000000000027,
+  'error_budget_target': 0.050000000000000044,
+  'error_minutes': 0.0,
+  'feature_name': 'app',
+  'gap': 0.050000000000000044,
+  'good_events_count': 100,
+  'service_name': 'gae',
+  'sli_measurement': 1.0,
+  'slo_description': 'Availability of App Engine app',
+  'slo_name': 'availability',
+  'slo_target': 0.95,
+  'timestamp': 1602876045,
+  'timestamp_human': '2020-10-16T19:20:45.725100+02:00',
+  'valid': True,
+  'window': 3600},
+ {'alert': False,
+  'alerting_burn_rate_threshold': 3.0,
+  'bad_events_count': 0,
+  'consequence_message': 'Last 12 hours on track',
+  'error_budget_burn_rate': 0.0,
+  'error_budget_measurement': 0.0,
+  'error_budget_minutes': 36.00000000000003,
+  'error_budget_policy_step_name': '12 hours',
+  'error_budget_remaining_minutes': 36.00000000000003,
+  'error_budget_target': 0.050000000000000044,
+  'error_minutes': 0.0,
+  'feature_name': 'app',
+  'gap': 0.050000000000000044,
+  'good_events_count': 100,
+  'service_name': 'gae',
+  'sli_measurement': 1.0,
+  'slo_description': 'Availability of App Engine app',
+  'slo_name': 'availability',
+  'slo_target': 0.95,
+  'timestamp': 1602876045,
+  'timestamp_human': '2020-10-16T19:20:45.725100+02:00',
+  'valid': True,
+  'window': 43200},
+ {'alert': False,
+  'alerting_burn_rate_threshold': 1.5,
+  'bad_events_count': 0,
+  'consequence_message': 'Last week on track',
+  'error_budget_burn_rate': 0.0,
+  'error_budget_measurement': 0.0,
+  'error_budget_minutes': 504.0000000000004,
+  'error_budget_policy_step_name': '7 days',
+  'error_budget_remaining_minutes': 504.0000000000004,
+  'error_budget_target': 0.050000000000000044,
+  'error_minutes': 0.0,
+  'feature_name': 'app',
+  'gap': 0.050000000000000044,
+  'good_events_count': 100,
+  'service_name': 'gae',
+  'sli_measurement': 1.0,
+  'slo_description': 'Availability of App Engine app',
+  'slo_name': 'availability',
+  'slo_target': 0.95,
+  'timestamp': 1602876045,
+  'timestamp_human': '2020-10-16T19:20:45.725100+02:00',
+  'valid': True,
+  'window': 604800},
+ {'alert': False,
+  'alerting_burn_rate_threshold': 1.0,
+  'bad_events_count': 0,
+  'consequence_message': 'Unfreeze release, per the agreed roll-out policy',
+  'error_budget_burn_rate': 0.0,
+  'error_budget_measurement': 0.0,
+  'error_budget_minutes': 2016.0000000000016,
+  'error_budget_policy_step_name': '28 days',
+  'error_budget_remaining_minutes': 2016.0000000000016,
+  'error_budget_target': 0.050000000000000044,
+  'error_minutes': 0.0,
+  'feature_name': 'app',
+  'gap': 0.050000000000000044,
+  'good_events_count': 100,
+  'service_name': 'gae',
+  'sli_measurement': 1.0,
+  'slo_description': 'Availability of App Engine app',
+  'slo_name': 'availability',
+  'slo_target': 0.95,
+  'timestamp': 1602876045,
+  'timestamp_human': '2020-10-16T19:20:45.725100+02:00',
+  'valid': True,
+  'window': 2419200}]
+slo_generator.compute: INFO: Run finished successfully in 0.0s.
+slo_generator.cli: DEBUG: Loading SLO config "slo_gae_app_latency.yaml"
+slo_generator.utils: DEBUG: {'backend': {'class': 'Stackdriver',
+             'measurement': {'filter_valid': 'project=fake '
+                                             'metric.type="appengine.googleapis.com/http/server/response_latencies" '
+                                             'resource.type="gae_app" '
+                                             'metric.labels.response_code >= '
+                                             '200 metric.labels.response_code '
+                                             '< 500\n',
+                             'good_below_threshold': True,
+                             'threshold_bucket': 19},
+             'method': 'distribution_cut',
+             'project_id': 'fake'},
+ 'exporters': [{'class': 'Stackdriver', 'project_id': 'fake'}],
+ 'feature_name': 'app',
+ 'service_name': 'gae',
+ 'slo_description': 'Latency of App Engine app requests < 724ms',
+ 'slo_name': 'latency724ms',
+ 'slo_target': 0.999}
+slo_generator.report: DEBUG: gae/app/latency724ms             | 1 hour   | Using backend Stackdriver.distribution_cut (from SLO config file).
+slo_generator.backends.stackdriver: DEBUG: start_time {
+  seconds: 1602872445
+}
+end_time {
+  seconds: 1602876045
+}
+
+slo_generator.backends.stackdriver: DEBUG: alignment_period {
+  seconds: 3600
+}
+per_series_aligner: ALIGN_SUM
+cross_series_reducer: REDUCE_SUM
+
+slo_generator.backends.stackdriver: DEBUG: <google.api_core.page_iterator.GRPCIterator object at 0x10807b7f0>
+slo_generator.backends.stackdriver: DEBUG: OrderedDict()
+slo_generator.report: DEBUG: gae/app/latency724ms             | 1 hour   | Backend response: (0, 0)
+slo_generator.report: ERROR: gae/app/latency724ms             | 1 hour   | Not enough valid events found | Minimum valid events: 10
+slo_generator.report: DEBUG: gae/app/latency724ms             | 12 hours | Using backend Stackdriver.distribution_cut (from SLO config file).
+slo_generator.backends.stackdriver: DEBUG: start_time {
+  seconds: 1602832845
+}
+end_time {
+  seconds: 1602876045
+}
+
+slo_generator.backends.stackdriver: DEBUG: alignment_period {
+  seconds: 43200
+}
+per_series_aligner: ALIGN_SUM
+cross_series_reducer: REDUCE_SUM
+
+slo_generator.backends.stackdriver: DEBUG: <google.api_core.page_iterator.GRPCIterator object at 0x10807bf10>
+slo_generator.backends.stackdriver: DEBUG: OrderedDict()
+slo_generator.report: DEBUG: gae/app/latency724ms             | 12 hours | Backend response: (0, 0)
+slo_generator.report: ERROR: gae/app/latency724ms             | 12 hours | Not enough valid events found | Minimum valid events: 10
+slo_generator.report: DEBUG: gae/app/latency724ms             | 7 days   | Using backend Stackdriver.distribution_cut (from SLO config file).
+slo_generator.backends.stackdriver: DEBUG: start_time {
+  seconds: 1602271245
+}
+end_time {
+  seconds: 1602876045
+}
+
+slo_generator.backends.stackdriver: DEBUG: alignment_period {
+  seconds: 604800
+}
+per_series_aligner: ALIGN_SUM
+cross_series_reducer: REDUCE_SUM
+
+slo_generator.backends.stackdriver: DEBUG: <google.api_core.page_iterator.GRPCIterator object at 0x1080880a0>
+slo_generator.backends.stackdriver: DEBUG: OrderedDict()
+slo_generator.report: DEBUG: gae/app/latency724ms             | 7 days   | Backend response: (0, 0)
+slo_generator.report: ERROR: gae/app/latency724ms             | 7 days   | Not enough valid events found | Minimum valid events: 10
+slo_generator.report: DEBUG: gae/app/latency724ms             | 28 days  | Using backend Stackdriver.distribution_cut (from SLO config file).
+slo_generator.backends.stackdriver: DEBUG: start_time {
+  seconds: 1600456845
+}
+end_time {
+  seconds: 1602876045
+}
+
+slo_generator.backends.stackdriver: DEBUG: alignment_period {
+  seconds: 2419200
+}
+per_series_aligner: ALIGN_SUM
+cross_series_reducer: REDUCE_SUM
+
+slo_generator.backends.stackdriver: DEBUG: <google.api_core.page_iterator.GRPCIterator object at 0x108088070>
+slo_generator.backends.stackdriver: DEBUG: OrderedDict()
+slo_generator.report: DEBUG: gae/app/latency724ms             | 28 days  | Backend response: (0, 0)
+slo_generator.report: ERROR: gae/app/latency724ms             | 28 days  | Not enough valid events found | Minimum valid events: 10
+slo_generator.compute: DEBUG: []
+slo_generator.compute: INFO: Run finished successfully in 0.0s.
+slo_generator.cli: DEBUG: Loading SLO config "slo_lb_request_availability.yaml"
+slo_generator.utils: DEBUG: {'backend': {'class': 'Stackdriver',
+             'measurement': {'filter_good': 'project=fake '
+                                            'metric.type="loadbalancing.googleapis.com/https/request_count" '
+                                            'resource.type="https_lb_rule" ( '
+                                            'metric.label.response_code_class="200" '
+                                            'OR\n'
+                                            '  '
+                                            'metric.label.response_code_class="300" '
+                                            'OR\n'
+                                            '  '
+                                            'metric.label.response_code_class="400" '
+                                            ')\n',
+                             'filter_valid': 'project=fake '
+                                             'metric.type="loadbalancing.googleapis.com/https/request_count" '
+                                             'resource.type="https_lb_rule"\n'},
+             'method': 'good_bad_ratio',
+             'project_id': 'fake'},
+ 'exporters': [{'class': 'Stackdriver', 'project_id': 'fake'}],
+ 'feature_name': 'request',
+ 'service_name': 'lb',
+ 'slo_description': 'Availability of HTTP Load Balancer',
+ 'slo_name': 'availability',
+ 'slo_target': 0.98}
+slo_generator.report: DEBUG: lb/request/availability          | 1 hour   | Using backend Stackdriver.good_bad_ratio (from SLO config file).
+slo_generator.backends.stackdriver: DEBUG: start_time {
+  seconds: 1602872445
+}
+end_time {
+  seconds: 1602876045
+}
+
+slo_generator.backends.stackdriver: DEBUG: alignment_period {
+  seconds: 3600
+}
+per_series_aligner: ALIGN_SUM
+cross_series_reducer: REDUCE_SUM
+
+slo_generator.backends.stackdriver: DEBUG: <google.api_core.page_iterator.GRPCIterator object at 0x108082130>
+slo_generator.backends.stackdriver: DEBUG: start_time {
+  seconds: 1602872445
+}
+end_time {
+  seconds: 1602876045
+}
+
+slo_generator.backends.stackdriver: DEBUG: alignment_period {
+  seconds: 3600
+}
+per_series_aligner: ALIGN_SUM
+cross_series_reducer: REDUCE_SUM
+
+slo_generator.backends.stackdriver: DEBUG: <google.api_core.page_iterator.GRPCIterator object at 0x108082130>
+slo_generator.backends.stackdriver: DEBUG: Good events: 100 | Bad events: 0
+slo_generator.report: DEBUG: lb/request/availability          | 1 hour   | Backend response: (100, 0)
+slo_generator.report: DEBUG: lb/request/availability          | 1 hour   | SLO report starting ...
+slo_generator.report: DEBUG: lb/request/availability          | 1 hour   | Good: 100 | Bad: 0
+slo_generator.compute: INFO: lb/request/availability          | 1 hour   | SLI: 100.0   % | SLO: 98.0 % | Gap: +2.0  % | BR: 0.0 / 9.0 | Alert: 0 | Good: 100      | Bad: 0       
+slo_generator.report: DEBUG: lb/request/availability          | 12 hours | Using backend Stackdriver.good_bad_ratio (from SLO config file).
+slo_generator.backends.stackdriver: DEBUG: start_time {
+  seconds: 1602832845
+}
+end_time {
+  seconds: 1602876045
+}
+
+slo_generator.backends.stackdriver: DEBUG: alignment_period {
+  seconds: 43200
+}
+per_series_aligner: ALIGN_SUM
+cross_series_reducer: REDUCE_SUM
+
+slo_generator.backends.stackdriver: DEBUG: <google.api_core.page_iterator.GRPCIterator object at 0x108088130>
+slo_generator.backends.stackdriver: DEBUG: start_time {
+  seconds: 1602832845
+}
+end_time {
+  seconds: 1602876045
+}
+
+slo_generator.backends.stackdriver: DEBUG: alignment_period {
+  seconds: 43200
+}
+per_series_aligner: ALIGN_SUM
+cross_series_reducer: REDUCE_SUM
+
+slo_generator.backends.stackdriver: DEBUG: <google.api_core.page_iterator.GRPCIterator object at 0x108088130>
+slo_generator.backends.stackdriver: DEBUG: Good events: 100 | Bad events: 0
+slo_generator.report: DEBUG: lb/request/availability          | 12 hours | Backend response: (100, 0)
+slo_generator.report: DEBUG: lb/request/availability          | 12 hours | SLO report starting ...
+slo_generator.report: DEBUG: lb/request/availability          | 12 hours | Good: 100 | Bad: 0
+slo_generator.compute: INFO: lb/request/availability          | 12 hours | SLI: 100.0   % | SLO: 98.0 % | Gap: +2.0  % | BR: 0.0 / 3.0 | Alert: 0 | Good: 100      | Bad: 0       
+slo_generator.report: DEBUG: lb/request/availability          | 7 days   | Using backend Stackdriver.good_bad_ratio (from SLO config file).
+slo_generator.backends.stackdriver: DEBUG: start_time {
+  seconds: 1602271245
+}
+end_time {
+  seconds: 1602876045
+}
+
+slo_generator.backends.stackdriver: DEBUG: alignment_period {
+  seconds: 604800
+}
+per_series_aligner: ALIGN_SUM
+cross_series_reducer: REDUCE_SUM
+
+slo_generator.backends.stackdriver: DEBUG: <google.api_core.page_iterator.GRPCIterator object at 0x1080881f0>
+slo_generator.backends.stackdriver: DEBUG: start_time {
+  seconds: 1602271245
+}
+end_time {
+  seconds: 1602876045
+}
+
+slo_generator.backends.stackdriver: DEBUG: alignment_period {
+  seconds: 604800
+}
+per_series_aligner: ALIGN_SUM
+cross_series_reducer: REDUCE_SUM
+
+slo_generator.backends.stackdriver: DEBUG: <google.api_core.page_iterator.GRPCIterator object at 0x1080881f0>
+slo_generator.backends.stackdriver: DEBUG: Good events: 100 | Bad events: 0
+slo_generator.report: DEBUG: lb/request/availability          | 7 days   | Backend response: (100, 0)
+slo_generator.report: DEBUG: lb/request/availability          | 7 days   | SLO report starting ...
+slo_generator.report: DEBUG: lb/request/availability          | 7 days   | Good: 100 | Bad: 0
+slo_generator.compute: INFO: lb/request/availability          | 7 days   | SLI: 100.0   % | SLO: 98.0 % | Gap: +2.0  % | BR: 0.0 / 1.5 | Alert: 0 | Good: 100      | Bad: 0       
+slo_generator.report: DEBUG: lb/request/availability          | 28 days  | Using backend Stackdriver.good_bad_ratio (from SLO config file).
+slo_generator.backends.stackdriver: DEBUG: start_time {
+  seconds: 1600456845
+}
+end_time {
+  seconds: 1602876045
+}
+
+slo_generator.backends.stackdriver: DEBUG: alignment_period {
+  seconds: 2419200
+}
+per_series_aligner: ALIGN_SUM
+cross_series_reducer: REDUCE_SUM
+
+slo_generator.backends.stackdriver: DEBUG: <google.api_core.page_iterator.GRPCIterator object at 0x108088280>
+slo_generator.backends.stackdriver: DEBUG: start_time {
+  seconds: 1600456845
+}
+end_time {
+  seconds: 1602876045
+}
+
+slo_generator.backends.stackdriver: DEBUG: alignment_period {
+  seconds: 2419200
+}
+per_series_aligner: ALIGN_SUM
+cross_series_reducer: REDUCE_SUM
+
+slo_generator.backends.stackdriver: DEBUG: <google.api_core.page_iterator.GRPCIterator object at 0x108088280>
+slo_generator.backends.stackdriver: DEBUG: Good events: 100 | Bad events: 0
+slo_generator.report: DEBUG: lb/request/availability          | 28 days  | Backend response: (100, 0)
+slo_generator.report: DEBUG: lb/request/availability          | 28 days  | SLO report starting ...
+slo_generator.report: DEBUG: lb/request/availability          | 28 days  | Good: 100 | Bad: 0
+slo_generator.compute: INFO: lb/request/availability          | 28 days  | SLI: 100.0   % | SLO: 98.0 % | Gap: +2.0  % | BR: 0.0 / 1.0 | Alert: 0 | Good: 100      | Bad: 0       
+slo_generator.compute: DEBUG: [{'alert': False,
+  'alerting_burn_rate_threshold': 9.0,
+  'bad_events_count': 0,
+  'consequence_message': 'Last hour on track',
+  'error_budget_burn_rate': 0.0,
+  'error_budget_measurement': 0.0,
+  'error_budget_minutes': 1.2000000000000008,
+  'error_budget_policy_step_name': '1 hour',
+  'error_budget_remaining_minutes': 1.2000000000000008,
+  'error_budget_target': 0.020000000000000018,
+  'error_minutes': 0.0,
+  'feature_name': 'request',
+  'gap': 0.020000000000000018,
+  'good_events_count': 100,
+  'service_name': 'lb',
+  'sli_measurement': 1.0,
+  'slo_description': 'Availability of HTTP Load Balancer',
+  'slo_name': 'availability',
+  'slo_target': 0.98,
+  'timestamp': 1602876045,
+  'timestamp_human': '2020-10-16T19:20:45.744363+02:00',
+  'valid': True,
+  'window': 3600},
+ {'alert': False,
+  'alerting_burn_rate_threshold': 3.0,
+  'bad_events_count': 0,
+  'consequence_message': 'Last 12 hours on track',
+  'error_budget_burn_rate': 0.0,
+  'error_budget_measurement': 0.0,
+  'error_budget_minutes': 14.400000000000013,
+  'error_budget_policy_step_name': '12 hours',
+  'error_budget_remaining_minutes': 14.400000000000013,
+  'error_budget_target': 0.020000000000000018,
+  'error_minutes': 0.0,
+  'feature_name': 'request',
+  'gap': 0.020000000000000018,
+  'good_events_count': 100,
+  'service_name': 'lb',
+  'sli_measurement': 1.0,
+  'slo_description': 'Availability of HTTP Load Balancer',
+  'slo_name': 'availability',
+  'slo_target': 0.98,
+  'timestamp': 1602876045,
+  'timestamp_human': '2020-10-16T19:20:45.744363+02:00',
+  'valid': True,
+  'window': 43200},
+ {'alert': False,
+  'alerting_burn_rate_threshold': 1.5,
+  'bad_events_count': 0,
+  'consequence_message': 'Last week on track',
+  'error_budget_burn_rate': 0.0,
+  'error_budget_measurement': 0.0,
+  'error_budget_minutes': 201.6000000000002,
+  'error_budget_policy_step_name': '7 days',
+  'error_budget_remaining_minutes': 201.6000000000002,
+  'error_budget_target': 0.020000000000000018,
+  'error_minutes': 0.0,
+  'feature_name': 'request',
+  'gap': 0.020000000000000018,
+  'good_events_count': 100,
+  'service_name': 'lb',
+  'sli_measurement': 1.0,
+  'slo_description': 'Availability of HTTP Load Balancer',
+  'slo_name': 'availability',
+  'slo_target': 0.98,
+  'timestamp': 1602876045,
+  'timestamp_human': '2020-10-16T19:20:45.744363+02:00',
+  'valid': True,
+  'window': 604800},
+ {'alert': False,
+  'alerting_burn_rate_threshold': 1.0,
+  'bad_events_count': 0,
+  'consequence_message': 'Unfreeze release, per the agreed roll-out policy',
+  'error_budget_burn_rate': 0.0,
+  'error_budget_measurement': 0.0,
+  'error_budget_minutes': 806.4000000000008,
+  'error_budget_policy_step_name': '28 days',
+  'error_budget_remaining_minutes': 806.4000000000008,
+  'error_budget_target': 0.020000000000000018,
+  'error_minutes': 0.0,
+  'feature_name': 'request',
+  'gap': 0.020000000000000018,
+  'good_events_count': 100,
+  'service_name': 'lb',
+  'sli_measurement': 1.0,
+  'slo_description': 'Availability of HTTP Load Balancer',
+  'slo_name': 'availability',
+  'slo_target': 0.98,
+  'timestamp': 1602876045,
+  'timestamp_human': '2020-10-16T19:20:45.744363+02:00',
+  'valid': True,
+  'window': 2419200}]
+slo_generator.compute: INFO: Run finished successfully in 0.0s.
+slo_generator.cli: DEBUG: Loading SLO config "slo_lb_request_latency.yaml"
+slo_generator.utils: DEBUG: {'backend': {'class': 'Stackdriver',
+             'measurement': {'filter_valid': 'project=fake '
+                                             'metric.type="loadbalancing.googleapis.com/https/total_latencies" '
+                                             'resource.type="https_lb_rule" ( '
+                                             'metric.label.response_code_class="200" '
+                                             'OR\n'
+                                             '  '
+                                             'metric.label.response_code_class="300" '
+                                             'OR\n'
+                                             '  '
+                                             'metric.label.response_code_class="400" '
+                                             ')\n',
+                             'good_below_threshold': True,
+                             'threshold_bucket': 19},
+             'method': 'distribution_cut',
+             'project_id': 'fake'},
+ 'exporters': [{'class': 'Stackdriver', 'project_id': 'fake'}],
+ 'feature_name': 'request',
+ 'service_name': 'lb',
+ 'slo_description': 'Latency of HTTP Load Balancer < 724ms',
+ 'slo_name': 'latency724ms',
+ 'slo_target': 0.98}
+slo_generator.report: DEBUG: lb/request/latency724ms          | 1 hour   | Using backend Stackdriver.distribution_cut (from SLO config file).
+slo_generator.backends.stackdriver: DEBUG: start_time {
+  seconds: 1602872445
+}
+end_time {
+  seconds: 1602876045
+}
+
+slo_generator.backends.stackdriver: DEBUG: alignment_period {
+  seconds: 3600
+}
+per_series_aligner: ALIGN_SUM
+cross_series_reducer: REDUCE_SUM
+
+slo_generator.backends.stackdriver: DEBUG: <google.api_core.page_iterator.GRPCIterator object at 0x10808b370>
+slo_generator.backends.stackdriver: DEBUG: OrderedDict()
+slo_generator.report: DEBUG: lb/request/latency724ms          | 1 hour   | Backend response: (0, 0)
+slo_generator.report: ERROR: lb/request/latency724ms          | 1 hour   | Not enough valid events found | Minimum valid events: 10
+slo_generator.report: DEBUG: lb/request/latency724ms          | 12 hours | Using backend Stackdriver.distribution_cut (from SLO config file).
+slo_generator.backends.stackdriver: DEBUG: start_time {
+  seconds: 1602832845
+}
+end_time {
+  seconds: 1602876045
+}
+
+slo_generator.backends.stackdriver: DEBUG: alignment_period {
+  seconds: 43200
+}
+per_series_aligner: ALIGN_SUM
+cross_series_reducer: REDUCE_SUM
+
+slo_generator.backends.stackdriver: DEBUG: <google.api_core.page_iterator.GRPCIterator object at 0x108082550>
+slo_generator.backends.stackdriver: DEBUG: OrderedDict()
+slo_generator.report: DEBUG: lb/request/latency724ms          | 12 hours | Backend response: (0, 0)
+slo_generator.report: ERROR: lb/request/latency724ms          | 12 hours | Not enough valid events found | Minimum valid events: 10
+slo_generator.report: DEBUG: lb/request/latency724ms          | 7 days   | Using backend Stackdriver.distribution_cut (from SLO config file).
+slo_generator.backends.stackdriver: DEBUG: start_time {
+  seconds: 1602271245
+}
+end_time {
+  seconds: 1602876045
+}
+
+slo_generator.backends.stackdriver: DEBUG: alignment_period {
+  seconds: 604800
+}
+per_series_aligner: ALIGN_SUM
+cross_series_reducer: REDUCE_SUM
+
+slo_generator.backends.stackdriver: DEBUG: <google.api_core.page_iterator.GRPCIterator object at 0x1080824c0>
+slo_generator.backends.stackdriver: DEBUG: OrderedDict()
+slo_generator.report: DEBUG: lb/request/latency724ms          | 7 days   | Backend response: (0, 0)
+slo_generator.report: ERROR: lb/request/latency724ms          | 7 days   | Not enough valid events found | Minimum valid events: 10
+slo_generator.report: DEBUG: lb/request/latency724ms          | 28 days  | Using backend Stackdriver.distribution_cut (from SLO config file).
+slo_generator.backends.stackdriver: DEBUG: start_time {
+  seconds: 1600456845
+}
+end_time {
+  seconds: 1602876045
+}
+
+slo_generator.backends.stackdriver: DEBUG: alignment_period {
+  seconds: 2419200
+}
+per_series_aligner: ALIGN_SUM
+cross_series_reducer: REDUCE_SUM
+
+slo_generator.backends.stackdriver: DEBUG: <google.api_core.page_iterator.GRPCIterator object at 0x108082520>
+slo_generator.backends.stackdriver: DEBUG: OrderedDict()
+slo_generator.report: DEBUG: lb/request/latency724ms          | 28 days  | Backend response: (0, 0)
+slo_generator.report: ERROR: lb/request/latency724ms          | 28 days  | Not enough valid events found | Minimum valid events: 10
+slo_generator.compute: DEBUG: []
+slo_generator.compute: INFO: Run finished successfully in 0.0s.
+slo_generator.cli: DEBUG: Loading SLO config "slo_pubsub_subscription_throughput.yaml"
+slo_generator.utils: DEBUG: {'backend': {'class': 'Stackdriver',
+             'measurement': {'filter_bad': 'project="fake" '
+                                           'metric.type="pubsub.googleapis.com/subscription/num_outstanding_messages" '
+                                           'resource.type="pubsub_subscription"\n',
+                             'filter_good': 'project="fake" '
+                                            'metric.type="pubsub.googleapis.com/subscription/ack_message_count" '
+                                            'resource.type="pubsub_subscription"\n'},
+             'method': 'good_bad_ratio',
+             'project_id': 'fake'},
+ 'exporters': [{'class': 'Stackdriver', 'project_id': 'fake'},
+               {'class': 'Pubsub', 'project_id': 'fake', 'topic_name': 'fake'}],
+ 'feature_name': 'subscription',
+ 'service_name': 'pubsub',
+ 'slo_description': 'Throughput of Pub/Sub subscription',
+ 'slo_name': 'throughput',
+ 'slo_target': 0.95}
+slo_generator.report: DEBUG: pubsub/subscription/throughput   | 1 hour   | Using backend Stackdriver.good_bad_ratio (from SLO config file).
+slo_generator.backends.stackdriver: DEBUG: start_time {
+  seconds: 1602872445
+}
+end_time {
+  seconds: 1602876045
+}
+
+slo_generator.backends.stackdriver: DEBUG: alignment_period {
+  seconds: 3600
+}
+per_series_aligner: ALIGN_SUM
+cross_series_reducer: REDUCE_SUM
+
+slo_generator.backends.stackdriver: DEBUG: <google.api_core.page_iterator.GRPCIterator object at 0x1080886d0>
+slo_generator.backends.stackdriver: DEBUG: start_time {
+  seconds: 1602872445
+}
+end_time {
+  seconds: 1602876045
+}
+
+slo_generator.backends.stackdriver: DEBUG: alignment_period {
+  seconds: 3600
+}
+per_series_aligner: ALIGN_SUM
+cross_series_reducer: REDUCE_SUM
+
+slo_generator.backends.stackdriver: DEBUG: <google.api_core.page_iterator.GRPCIterator object at 0x1080886d0>
+slo_generator.backends.stackdriver: DEBUG: Good events: 100 | Bad events: 100
+slo_generator.report: DEBUG: pubsub/subscription/throughput   | 1 hour   | Backend response: (100, 100)
+slo_generator.report: DEBUG: pubsub/subscription/throughput   | 1 hour   | SLO report starting ...
+slo_generator.report: DEBUG: pubsub/subscription/throughput   | 1 hour   | Good: 100 | Bad: 100
+slo_generator.compute: INFO: pubsub/subscription/throughput   | 1 hour   | SLI: 50.0    % | SLO: 95.0 % | Gap: -45.0 % | BR: 10.0 / 9.0 | Alert: 1 | Good: 100      | Bad: 100     
+slo_generator.report: DEBUG: pubsub/subscription/throughput   | 12 hours | Using backend Stackdriver.good_bad_ratio (from SLO config file).
+slo_generator.backends.stackdriver: DEBUG: start_time {
+  seconds: 1602832845
+}
+end_time {
+  seconds: 1602876045
+}
+
+slo_generator.backends.stackdriver: DEBUG: alignment_period {
+  seconds: 43200
+}
+per_series_aligner: ALIGN_SUM
+cross_series_reducer: REDUCE_SUM
+
+slo_generator.backends.stackdriver: DEBUG: <google.api_core.page_iterator.GRPCIterator object at 0x108088520>
+slo_generator.backends.stackdriver: DEBUG: start_time {
+  seconds: 1602832845
+}
+end_time {
+  seconds: 1602876045
+}
+
+slo_generator.backends.stackdriver: DEBUG: alignment_period {
+  seconds: 43200
+}
+per_series_aligner: ALIGN_SUM
+cross_series_reducer: REDUCE_SUM
+
+slo_generator.backends.stackdriver: DEBUG: <google.api_core.page_iterator.GRPCIterator object at 0x108088520>
+slo_generator.backends.stackdriver: DEBUG: Good events: 100 | Bad events: 100
+slo_generator.report: DEBUG: pubsub/subscription/throughput   | 12 hours | Backend response: (100, 100)
+slo_generator.report: DEBUG: pubsub/subscription/throughput   | 12 hours | SLO report starting ...
+slo_generator.report: DEBUG: pubsub/subscription/throughput   | 12 hours | Good: 100 | Bad: 100
+slo_generator.compute: INFO: pubsub/subscription/throughput   | 12 hours | SLI: 50.0    % | SLO: 95.0 % | Gap: -45.0 % | BR: 10.0 / 3.0 | Alert: 1 | Good: 100      | Bad: 100     
+slo_generator.report: DEBUG: pubsub/subscription/throughput   | 7 days   | Using backend Stackdriver.good_bad_ratio (from SLO config file).
+slo_generator.backends.stackdriver: DEBUG: start_time {
+  seconds: 1602271245
+}
+end_time {
+  seconds: 1602876045
+}
+
+slo_generator.backends.stackdriver: DEBUG: alignment_period {
+  seconds: 604800
+}
+per_series_aligner: ALIGN_SUM
+cross_series_reducer: REDUCE_SUM
+
+slo_generator.backends.stackdriver: DEBUG: <google.api_core.page_iterator.GRPCIterator object at 0x108088430>
+slo_generator.backends.stackdriver: DEBUG: start_time {
+  seconds: 1602271245
+}
+end_time {
+  seconds: 1602876045
+}
+
+slo_generator.backends.stackdriver: DEBUG: alignment_period {
+  seconds: 604800
+}
+per_series_aligner: ALIGN_SUM
+cross_series_reducer: REDUCE_SUM
+
+slo_generator.backends.stackdriver: DEBUG: <google.api_core.page_iterator.GRPCIterator object at 0x108088430>
+slo_generator.backends.stackdriver: DEBUG: Good events: 100 | Bad events: 100
+slo_generator.report: DEBUG: pubsub/subscription/throughput   | 7 days   | Backend response: (100, 100)
+slo_generator.report: DEBUG: pubsub/subscription/throughput   | 7 days   | SLO report starting ...
+slo_generator.report: DEBUG: pubsub/subscription/throughput   | 7 days   | Good: 100 | Bad: 100
+slo_generator.compute: INFO: pubsub/subscription/throughput   | 7 days   | SLI: 50.0    % | SLO: 95.0 % | Gap: -45.0 % | BR: 10.0 / 1.5 | Alert: 1 | Good: 100      | Bad: 100     
+slo_generator.report: DEBUG: pubsub/subscription/throughput   | 28 days  | Using backend Stackdriver.good_bad_ratio (from SLO config file).
+slo_generator.backends.stackdriver: DEBUG: start_time {
+  seconds: 1600456845
+}
+end_time {
+  seconds: 1602876045
+}
+
+slo_generator.backends.stackdriver: DEBUG: alignment_period {
+  seconds: 2419200
+}
+per_series_aligner: ALIGN_SUM
+cross_series_reducer: REDUCE_SUM
+
+slo_generator.backends.stackdriver: DEBUG: <google.api_core.page_iterator.GRPCIterator object at 0x1080886a0>
+slo_generator.backends.stackdriver: DEBUG: start_time {
+  seconds: 1600456845
+}
+end_time {
+  seconds: 1602876045
+}
+
+slo_generator.backends.stackdriver: DEBUG: alignment_period {
+  seconds: 2419200
+}
+per_series_aligner: ALIGN_SUM
+cross_series_reducer: REDUCE_SUM
+
+slo_generator.backends.stackdriver: DEBUG: <google.api_core.page_iterator.GRPCIterator object at 0x1080886a0>
+slo_generator.backends.stackdriver: DEBUG: Good events: 100 | Bad events: 100
+slo_generator.report: DEBUG: pubsub/subscription/throughput   | 28 days  | Backend response: (100, 100)
+slo_generator.report: DEBUG: pubsub/subscription/throughput   | 28 days  | SLO report starting ...
+slo_generator.report: DEBUG: pubsub/subscription/throughput   | 28 days  | Good: 100 | Bad: 100
+slo_generator.compute: INFO: pubsub/subscription/throughput   | 28 days  | SLI: 50.0    % | SLO: 95.0 % | Gap: -45.0 % | BR: 10.0 / 1.0 | Alert: 1 | Good: 100      | Bad: 100     
+slo_generator.compute: DEBUG: [{'alert': True,
+  'alerting_burn_rate_threshold': 9.0,
+  'bad_events_count': 100,
+  'consequence_message': 'Page to defend the SLO',
+  'error_budget_burn_rate': 10.0,
+  'error_budget_measurement': 0.5,
+  'error_budget_minutes': 3.0000000000000027,
+  'error_budget_policy_step_name': '1 hour',
+  'error_budget_remaining_minutes': -26.999999999999996,
+  'error_budget_target': 0.050000000000000044,
+  'error_minutes': 30.0,
+  'feature_name': 'subscription',
+  'gap': -0.44999999999999996,
+  'good_events_count': 100,
+  'service_name': 'pubsub',
+  'sli_measurement': 0.5,
+  'slo_description': 'Throughput of Pub/Sub subscription',
+  'slo_name': 'throughput',
+  'slo_target': 0.95,
+  'timestamp': 1602876045,
+  'timestamp_human': '2020-10-16T19:20:45.764445+02:00',
+  'valid': True,
+  'window': 3600},
+ {'alert': True,
+  'alerting_burn_rate_threshold': 3.0,
+  'bad_events_count': 100,
+  'consequence_message': 'Page to defend the SLO',
+  'error_budget_burn_rate': 10.0,
+  'error_budget_measurement': 0.5,
+  'error_budget_minutes': 36.00000000000003,
+  'error_budget_policy_step_name': '12 hours',
+  'error_budget_remaining_minutes': -323.99999999999994,
+  'error_budget_target': 0.050000000000000044,
+  'error_minutes': 360.0,
+  'feature_name': 'subscription',
+  'gap': -0.44999999999999996,
+  'good_events_count': 100,
+  'service_name': 'pubsub',
+  'sli_measurement': 0.5,
+  'slo_description': 'Throughput of Pub/Sub subscription',
+  'slo_name': 'throughput',
+  'slo_target': 0.95,
+  'timestamp': 1602876045,
+  'timestamp_human': '2020-10-16T19:20:45.764445+02:00',
+  'valid': True,
+  'window': 43200},
+ {'alert': True,
+  'alerting_burn_rate_threshold': 1.5,
+  'bad_events_count': 100,
+  'consequence_message': 'Dev team dedicates 25% of engineers to the '
+                         'reliability backlog',
+  'error_budget_burn_rate': 10.0,
+  'error_budget_measurement': 0.5,
+  'error_budget_minutes': 504.0000000000004,
+  'error_budget_policy_step_name': '7 days',
+  'error_budget_remaining_minutes': -4536.0,
+  'error_budget_target': 0.050000000000000044,
+  'error_minutes': 5040.0,
+  'feature_name': 'subscription',
+  'gap': -0.44999999999999996,
+  'good_events_count': 100,
+  'service_name': 'pubsub',
+  'sli_measurement': 0.5,
+  'slo_description': 'Throughput of Pub/Sub subscription',
+  'slo_name': 'throughput',
+  'slo_target': 0.95,
+  'timestamp': 1602876045,
+  'timestamp_human': '2020-10-16T19:20:45.764445+02:00',
+  'valid': True,
+  'window': 604800},
+ {'alert': True,
+  'alerting_burn_rate_threshold': 1.0,
+  'bad_events_count': 100,
+  'consequence_message': 'Freeze release, unless related to reliability or '
+                         'security',
+  'error_budget_burn_rate': 10.0,
+  'error_budget_measurement': 0.5,
+  'error_budget_minutes': 2016.0000000000016,
+  'error_budget_policy_step_name': '28 days',
+  'error_budget_remaining_minutes': -18144.0,
+  'error_budget_target': 0.050000000000000044,
+  'error_minutes': 20160.0,
+  'feature_name': 'subscription',
+  'gap': -0.44999999999999996,
+  'good_events_count': 100,
+  'service_name': 'pubsub',
+  'sli_measurement': 0.5,
+  'slo_description': 'Throughput of Pub/Sub subscription',
+  'slo_name': 'throughput',
+  'slo_target': 0.95,
+  'timestamp': 1602876045,
+  'timestamp_human': '2020-10-16T19:20:45.764445+02:00',
+  'valid': True,
+  'window': 2419200}]
+slo_generator.compute: INFO: Run finished successfully in 0.0s.
+--------------------- >> end captured logging << ---------------------
+
+Name                                                       Stmts   Miss  Cover
+------------------------------------------------------------------------------
+slo_generator/__init__.py                                      0      0   100%
+slo_generator/backends/__init__.py                             0      0   100%
+slo_generator/backends/datadog.py                             83      7    92%
+slo_generator/backends/dynatrace.py                           79     32    59%
+slo_generator/backends/elasticsearch.py                       52      9    83%
+slo_generator/backends/prometheus.py                          83      8    90%
+slo_generator/backends/stackdriver.py                        100     14    86%
+slo_generator/backends/stackdriver_service_monitoring.py     288     60    79%
+slo_generator/cli.py                                          41      2    95%
+slo_generator/compute.py                                      47      2    96%
+slo_generator/constants.py                                     5      0   100%
+slo_generator/exporters/__init__.py                            0      0   100%
+slo_generator/exporters/base.py                               67      1    99%
+slo_generator/exporters/bigquery.py                           47     10    79%
+slo_generator/exporters/datadog.py                            19      0   100%
+slo_generator/exporters/dynatrace.py                          41      5    88%
+slo_generator/exporters/prometheus.py                         35      3    91%
+slo_generator/exporters/pubsub.py                             13      0   100%
+slo_generator/exporters/stackdriver.py                        48      8    83%
+slo_generator/report.py                                      154     14    91%
+slo_generator/utils.py                                       111     12    89%
+------------------------------------------------------------------------------
+TOTAL                                                       1313    187    86%
+----------------------------------------------------------------------
+Ran 36 tests in 1.277s
+
+FAILED (errors=2)
+make: *** [unittest] Error 1

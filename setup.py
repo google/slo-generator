@@ -17,6 +17,7 @@ See:
 https://packaging.python.org/en/latest/distributing.html
 https://github.com/pypa/sampleproject
 """
+# pylint: disable=invalid-name
 
 from io import open
 from os import path
@@ -29,48 +30,69 @@ here = path.abspath(path.dirname(__file__))
 # Package metadata.
 name = "slo-generator"
 description = "SLO Generator"
-version = "1.5.0"
+version = "2.0.0a0"
 # Should be one of:
 # 'Development Status :: 3 - Alpha'
 # 'Development Status :: 4 - Beta'
 # 'Development Status :: 5 - Production/Stable'
 release_status = "Development Status :: 3 - Alpha"
-dependencies = [
-    'google-api-python-client < 2.0.0', 'oauth2client',
-    'google-cloud-monitoring < 2.0.0', 'google-cloud-pubsub==1.7.0',
-    'google-cloud-bigquery < 3.0.0', 'prometheus-http-client',
-    'prometheus-client', 'pyyaml', 'opencensus', 'elasticsearch',
-    'python-dateutil', 'datadog', 'retrying==1.3.3'
-]
-extras = {}
+dependencies = ['pyyaml', 'ruamel.yaml', 'python-dateutil', 'click']
+extras = {
+    'api': ['Flask', 'gunicorn', 'cloudevents', 'functions-framework'],
+    'prometheus': ['prometheus-client', 'prometheus-http-client'],
+    'datadog': ['datadog', 'retrying==1.3.3'],
+    'bigquery': [
+        'google-api-python-client < 2.0.0', 'google-cloud-bigquery < 3.0.0'
+    ],
+    'cloud_monitoring': [
+        'google-api-python-client < 2.0.0', 'google-cloud-monitoring < 2.0.0'
+    ],
+    'pubsub': [
+        'google-api-python-client < 2.0.0', 'google-cloud-pubsub==1.7.0'
+    ],
+    'elasticsearch': ['elasticsearch'],
+    'dev': ['wheel', 'flake8', 'mock', 'coverage', 'nose', 'pylint']
+}
 
 # Get the long description from the README file
 with open(path.join(here, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
 sys.dont_write_bytecode = True
-setup(name=name,
-      version=version,
-      description=description,
-      long_description=long_description,
-      long_description_content_type='text/markdown',
-      author='Google Inc.',
-      author_email='ocervello@google.com',
-      license='Apache 2.0',
-      packages=find_packages(exclude=['contrib', 'docs', 'tests']),
-      classifiers=[
-          release_status,
-          'Intended Audience :: Developers',
-          'Topic :: Software Development :: Build Tools',
-          'License :: OSI Approved :: Apache Software License',
-          'Programming Language :: Python',
-          'Programming Language :: Python :: 3.6',
-          'Programming Language :: Python :: 3.7',
-          'Programming Language :: Python :: 3.8',
-      ],
-      keywords='slo sli generator gcp',
-      install_requires=dependencies,
-      entry_points={
-          'console_scripts': ['slo-generator=slo_generator.cli:main'],
-      },
-      python_requires='>=3.4')
+setup(
+    name=name,
+    version=version,
+    description=description,
+    long_description=long_description,
+    long_description_content_type='text/markdown',
+    author='Google Inc.',
+    author_email='ocervello@google.com',
+    license='Apache 2.0',
+    packages=find_packages(exclude=['contrib', 'docs', 'tests']),
+    classifiers=[
+        release_status,
+        'Intended Audience :: Developers',
+        'Topic :: Software Development :: Build Tools',
+        'License :: OSI Approved :: Apache Software License',
+        'Programming Language :: Python',
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
+    ],
+    keywords='slo sli generator gcp',
+    install_requires=dependencies,
+    extras_require=extras,
+    entry_points={
+        'console_scripts': [
+            # New endpoints
+            # 'slo=slo_generator.cli:main',
+            # 'slo-api=slo_generator.cli:api',
+            # 'slo-migrate=slo_generator.cli:migrate'
+
+            # Old endpoints
+            'slo-generator=slo_generator.cli:main',
+            'slo-generator-api=slo_generator.cli:api',
+            'slo-generator-migrate=slo_generator.cli:migrate',
+        ],
+    },
+    python_requires='>=3.4')

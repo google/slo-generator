@@ -12,8 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """
-`stackdriver.py`
-Stackdriver Monitoring backend implementation.
+`cloud_monitoring.py`
+Cloud Monitoring backend implementation.
 """
 import logging
 import pprint
@@ -27,15 +27,16 @@ from slo_generator.constants import NO_DATA
 LOGGER = logging.getLogger(__name__)
 
 
-class StackdriverBackend:
-    """Backend for querying metrics from Stackdriver Monitoring.
+class CloudMonitoringBackend:
+    """Backend for querying metrics from Cloud Monitoring.
 
     Args:
-        project_id (str): Stackdriver host project id.
+        project_id (str): Cloud Monitoring host project id.
         client (google.cloud.monitoring_v3.MetricServiceClient, optional):
-            Existing Stackdriver Service Monitoring client. Initialize a new
-            client if omitted.
+            Existing Cloud Monitoring Metrics client. Initialize a new client
+            if omitted.
     """
+
     def __init__(self, project_id, client=None):
         self.client = client
         if client is None:
@@ -54,8 +55,7 @@ class StackdriverBackend:
         Returns:
             tuple: A tuple (good_event_count, bad_event_count)
         """
-        conf = slo_config['backend']
-        measurement = conf['measurement']
+        measurement = slo_config['spec']['serviceLevelIndicator']
         filter_good = measurement['filter_good']
         filter_bad = measurement.get('filter_bad')
         filter_valid = measurement.get('filter_valid')
@@ -65,7 +65,7 @@ class StackdriverBackend:
                              window=window,
                              filter=filter_good)
         good_ts = list(good_ts)
-        good_event_count = SD.count(good_ts)
+        good_event_count = CM.count(good_ts)
 
         # Query 'bad events' timeseries
         if filter_bad:
@@ -73,16 +73,15 @@ class StackdriverBackend:
                                 window=window,
                                 filter=filter_bad)
             bad_ts = list(bad_ts)
-            bad_event_count = SD.count(bad_ts)
+            bad_event_count = CM.count(bad_ts)
         elif filter_valid:
             valid_ts = self.query(timestamp=timestamp,
                                   window=window,
                                   filter=filter_valid)
             valid_ts = list(valid_ts)
-            bad_event_count = SD.count(valid_ts) - good_event_count
+            bad_event_count = CM.count(valid_ts) - good_event_count
         else:
-            raise Exception(
-                "Oneof `filter_bad` or `filter_valid` is required.")
+            raise Exception("Oneof `filter_bad` or `filter_valid` is required.")
 
         LOGGER.debug(f'Good events: {good_event_count} | '
                      f'Bad events: {bad_event_count}')
@@ -100,8 +99,7 @@ class StackdriverBackend:
         Returns:
             tuple: A tuple (good_event_count, bad_event_count).
         """
-        conf = slo_config['backend']
-        measurement = conf['measurement']
+        measurement = slo_config['spec']['serviceLevelIndicator']
         filter_valid = measurement['filter_valid']
         threshold_bucket = int(measurement['threshold_bucket'])
         good_below_threshold = measurement.get('good_below_threshold', True)
@@ -168,7 +166,7 @@ class StackdriverBackend:
               aligner='ALIGN_SUM',
               reducer='REDUCE_SUM',
               group_by=[]):
-        """Query timeseries from Stackdriver Monitoring.
+        """Query timeseries from Cloud Monitoring.
 
         Args:
             timestamp (int): Current timestamp.
@@ -181,8 +179,8 @@ class StackdriverBackend:
         Returns:
             list: List of timeseries objects.
         """
-        measurement_window = SD.get_window(timestamp, window)
-        aggregation = SD.get_aggregation(window,
+        measurement_window = CM.get_window(timestamp, window)
+        aggregation = CM.get_aggregation(window,
                                          aligner=aligner,
                                          reducer=reducer,
                                          group_by=group_by)
@@ -261,4 +259,4 @@ class StackdriverBackend:
         return aggregation
 
 
-SD = StackdriverBackend
+CM = CloudMonitoringBackend

@@ -1,0 +1,19 @@
+apiVersion: sre.google.com/v2
+kind: ServiceLevelObjective
+metadata:
+  name: gae-app-availability
+  labels:
+    service: gae
+    feature: app
+    slo_name: availability
+spec:
+  description: Availability of App Engine app
+  backend: cloud_service_monitoring
+  method: basic
+  exporters: []
+  service_level_indicator:
+    app_engine:
+      project_id: ${GAE_PROJECT_ID}
+      module_id: ${GAE_MODULE_ID}
+    availability: {}
+  goal: 0.98
