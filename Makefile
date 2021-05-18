@@ -16,11 +16,10 @@
 NAME = "slo_generator"
 
 PIP=pip3
-NOSE_NOCAPTURE=1
 PYTHON=python3
 TWINE=twine
 COVERAGE=coverage
-NOSE_OPTS = --with-coverage --cover-package=$(NAME) --cover-erase
+NOSE_OPTS = --with-coverage --cover-package=$(NAME) --cover-erase --nologcapture
 SITELIB = $(shell $(PYTHON) -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")
 
 VERSION := $(shell grep "version = " setup.py | cut -d\  -f3)
@@ -65,13 +64,15 @@ install: clean
 	$(PIP) install -e ."[api, datadog, prometheus, elasticsearch, pubsub, cloud_monitoring, bigquery, dev]"
 
 # Local tests
-test: install flake8 pylint unit
+test: install unit integration lint
 
 unit: clean
-	NOSE_NOCAPTURE=${NOSE_NOCAPTURE} nosetests $(NOSE_OPTS) tests/unit/* -v
+	nosetests $(NOSE_OPTS) tests/unit/* -v
 
 coverage:
 	$(COVERAGE) report --rcfile=".coveragerc"
+
+lint: flake8 pylint
 
 flake8:
 	flake8 --ignore=$(FLAKE8_IGNORE) $(NAME)/ --max-line-length=80
@@ -79,6 +80,9 @@ flake8:
 
 pylint:
 	find ./$(NAME) ./tests -name \*.py | xargs pylint --rcfile .pylintrc --ignore-patterns=test_.*?py
+
+integration:
+	slo-generator -f samples/ -c samples/config.yaml
 
 # Docker
 docker_build:
