@@ -105,6 +105,7 @@ def main(**kwargs):
     duration = round(end - start, 1)
     LOGGER.info(f'Run summary | SLO Configs: {len(slo_configs)} | '
                 f'Duration: {duration}s')
+    LOGGER.debug(all_reports)
     return all_reports
 
 

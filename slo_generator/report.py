@@ -50,7 +50,7 @@ class SLOReport:
     goal: str
     backend: str
     exporters: list
-    error_budget_policy: str
+    error_budget_policy: str = 'default'
 
     # SLI
     sli_measurement: float = 0
@@ -64,16 +64,17 @@ class SLOReport:
     error_budget_target: float
     error_budget_measurement: float
     error_budget_burn_rate: float
+    error_budget_burn_rate_threshold: float
     error_budget_minutes: float
     error_budget_remaining_minutes: float
     error_minutes: float
 
-    # Error Budget step config
+    # Global (from error budget policy)
     timestamp: int
     timestamp_human: str
     window: int
     alert: bool
-    burn_rate_threshold: float
+
     consequence_message: str
 
     # Data validation
@@ -94,13 +95,15 @@ class SLOReport:
                           lambdas={
                               'goal': float,
                               'step': int,
-                              'burn_rate_threshold': float
+                              'error_budget_burn_rate_threshold': float
                           })
         # Set other fields
         self.metadata = config['metadata']
         self.timestamp = int(timestamp)
         self.name = self.metadata['name']
         self.error_budget_policy_step_name = step['name']
+        self.error_budget_burn_rate_threshold = float(
+            step['burn_rate_threshold'])
         self.timestamp_human = utils.get_human_time(timestamp)
         self.valid = True
 
@@ -146,7 +149,7 @@ class SLOReport:
             eb_burn_rate = round(eb_value / eb_target, 1)
 
         # Alert boolean on burn rate excessive speed.
-        alert = eb_burn_rate > self.burn_rate_threshold
+        alert = eb_burn_rate > self.error_budget_burn_rate_threshold
 
         # Manage alerting message.
         if alert:
@@ -191,7 +194,7 @@ class SLOReport:
         # Grab backend class and method dynamically.
         cls_name = backend.get('class')
         method = config['spec']['method']
-        excluded_keys = ['class', 'serviceLevelIndicator', 'name']
+        excluded_keys = ['class', 'service_level_indicator', 'name']
         backend_cfg = {
             k: v for k, v in backend.items() if k not in excluded_keys
         }
@@ -374,7 +377,7 @@ class SLOReport:
         sli_str = (f'SLI: {sli_per:<7} % | SLO: {goal_per} % | '
                    f'Gap: {gap_str:<6}%')
         result_str = ('BR: {error_budget_burn_rate:<2} / '
-                      '{burn_rate_threshold} | '
+                      '{error_budget_burn_rate_threshold} | '
                       'Alert: {alert:<1} | Good: {good_events_count:<8} | '
                       'Bad: {bad_events_count:<8}').format_map(report)
         full_str = f'{info_str} | {sli_str} | {result_str}'

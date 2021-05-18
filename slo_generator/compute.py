@@ -38,7 +38,7 @@ def get_exporters(config, spec):
     Returns:
         list: List of dict containing exporters configurations.
     """
-    all_exporters = config['data'].get('exporters', {})
+    all_exporters = config.get('exporters', {})
     spec_exporters = spec.get('exporters', [])
     exporters = []
     for exporter in spec_exporters:
@@ -64,7 +64,7 @@ def get_backend(config, spec):
     Returns:
         list: List of dict containing exporters configurations.
     """
-    all_backends = config['data'].get('receivers', {})
+    all_backends = config.get('backends', {})
     spec_backend = spec['backend']
     backend_data = {}
     if spec_backend not in all_backends.keys():
@@ -87,8 +87,8 @@ def get_error_budget_policy(config, spec):
     Returns:
         list: List of dict containing exporters configurations.
     """
-    all_ebp = config['data'].get('error_budget_policies', {})
-    spec_ebp = spec['error_budget_policy']
+    all_ebp = config.get('error_budget_policies', {})
+    spec_ebp = spec.get('error_budget_policy', 'default')
     if spec_ebp not in all_ebp.keys():
         LOGGER.error(
             f'Error budget policy {spec_ebp} not found in config. Exiting.')
