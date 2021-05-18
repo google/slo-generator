@@ -18,7 +18,6 @@ Compute utilities.
 
 import logging
 import pprint
-import sys
 import time
 
 from slo_generator import utils

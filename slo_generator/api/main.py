@@ -27,8 +27,8 @@ from flask import jsonify
 
 import yaml
 
-from slo_generator.compute import compute, export, get_exporters
-from slo_generator.utils import setup_logging, load_config
+from slo_generator.compute import compute, export
+from slo_generator.utils import setup_logging, load_config, get_exporters
 
 CONFIG_PATH = os.environ['CONFIG_PATH']
 EXPORTERS_PATH = os.environ.get('EXPORTERS_PATH', None)
