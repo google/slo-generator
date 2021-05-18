@@ -1,11 +1,11 @@
-# Stackdriver Monitoring
+# Cloud Monitoring
 
 ## Backend
 
-Using the `Stackdriver` backend class, you can query any metrics available in
-Stackdriver Monitoring to create an SLO.
+Using the `CloudMonitoring` backend class, you can query any metrics available 
+in Cloud Monitoring to create an SLO.
 
-The following methods are available to compute SLOs with the `Stackdriver`
+The following methods are available to compute SLOs with the `CloudMonitoring`
 backend:
 
 * `good_bad_ratio` for metrics of type `DELTA`, `GAUGE`, or `CUMULATIVE`.
@@ -43,11 +43,11 @@ backend:
 You can also use the `filter_bad` field which identifies bad events instead of
 the `filter_valid` field which identifies all valid events.
 
-**&rightarrow; [Full SLO config](../../samples/stackdriver/slo_gae_app_availability.yaml)**
+**&rightarrow; [Full SLO config](../../samples/cloud_monitoring/slo_gae_app_availability.yaml)**
 
 ### Distribution cut
 
-The `distribution_cut` method is used for Stackdriver distribution-type metrics,
+The `distribution_cut` method is used for Cloud Monitoring distribution-type metrics,
 which are usually used for latency metrics.
 
 A distribution metric records the **statistical distribution of the extracted
@@ -55,7 +55,7 @@ values** in **histogram buckets**. The extracted values are not recorded
 individually, but their distribution across the configured buckets are recorded,
 along with the `count`, `mean`, and `sum` of squared deviation of the values.
 
-In `Stackdriver Monitoring`, there are three different ways to specify bucket
+In Cloud Monitoring, there are three different ways to specify bucket
 boundaries:
 * **Linear:** Every bucket has the same width.
 * **Exponential:** Bucket widths increases for higher values, using an
@@ -77,19 +77,19 @@ backend:
     good_below_threshold: true
     threshold_bucket: 19
 ```
-**&rightarrow; [Full SLO config](../../samples/stackdriver/slo_gae_app_latency.yaml)**
+**&rightarrow; [Full SLO config](../../samples/cloud_monitoring/slo_gae_app_latency.yaml)**
 
 The `threshold_bucket` number to reach our 724ms target latency will depend on
 how the buckets boundaries are set. Learn how to [inspect your distribution metrics](https://cloud.google.com/logging/docs/logs-based-metrics/distribution-metrics#inspecting_distribution_metrics) to figure out the bucketization.
 
 ## Exporter
 
-The `Stackdriver` exporter allows to export SLO metrics to Cloud Monitoring API.
+The `CloudMonitoring` exporter allows to export SLO metrics to Cloud Monitoring API.
 
 **Example config:**
 
 The following configuration will create the custom metric
-`error_budget_burn_rate` in `Stackdriver Monitoring`:
+`error_budget_burn_rate` in `Cloud Monitoring`:
 
 ```yaml
 exporters:
@@ -100,7 +100,7 @@ exporters:
 Optional fields:
   * `metrics`: List of metrics to export ([see docs](../shared/metrics.md)). Defaults to [`custom:error_budget_burn_rate`, `custom:sli_measurement`].
 
-**&rightarrow; [Full SLO config](../../samples/stackdriver/slo_lb_request_availability.yaml)**
+**&rightarrow; [Full SLO config](../../samples/cloud_monitoring/slo_lb_request_availability.yaml)**
 
 ## Alerting
 
@@ -117,7 +117,7 @@ reduce the noise and page only when it's needed.
 
 **Example:**
 
-We will define a `Stackdriver Monitoring` alert that we will **filter out on the
+We will define a `Cloud Monitoring` alert that we will **filter out on the
 corresponding error budget step**.
 
 Consider the following error budget policy config:
@@ -131,10 +131,10 @@ Consider the following error budget policy config:
   achieved_consequence_message: Last hour on track
 ```
 
-Using Stackdriver UI, let's set up an alert when our error budget burn rate is
-burning **9X faster** than it should in the last hour:
+Using Cloud Monitoring UI, let's set up an alert when our error budget burn rate 
+is burning **9X faster** than it should in the last hour:
 
-* Open `Stackdriver Monitoring` and click on `Alerting > Create Policy`
+* Open `Cloud Monitoring` and click on `Alerting > Create Policy`
 
 * Fill the alert name and click on `Add Condition`.
 
@@ -163,5 +163,5 @@ differentiate the alert messages.
 
 ## Examples
 
-Complete SLO samples using `Stackdriver` are available in
-[samples/stackdriver](../../samples/stackdriver). Check them out !
+Complete SLO samples using Cloud Monitoring are available in
+[samples/cloud_monitoring](../../samples/cloud_monitoring). Check them out !
