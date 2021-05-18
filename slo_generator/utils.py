@@ -200,6 +200,74 @@ def get_human_time(timestamp, timezone=None):
     return date_str
 
 
+def get_exporters(config, spec):
+    """Get SLO exporters configs from spec and global config.
+
+    Args:
+        config (dict): Global config.
+        spec (dict): SLO config.
+
+    Returns:
+        list: List of dict containing exporters configurations.
+    """
+    all_exporters = config.get('exporters', {})
+    spec_exporters = spec.get('exporters', [])
+    exporters = []
+    for exporter in spec_exporters:
+        if exporter not in all_exporters.keys():
+            LOGGER.warning(
+                f'Exporter "{exporter}" not found in config. Skipping.')
+            continue
+        exporter_data = all_exporters[exporter]
+        exporter_data['name'] = exporter
+        exporter_data['class'] = utils.capitalize(
+            utils.snake_to_caml(exporter.split('/')[0]))
+        exporters.append(exporter_data)
+    return exporters
+
+
+def get_backend(config, spec):
+    """Get SLO backend config from spec and global config.
+
+    Args:
+        config (dict): Global config.
+        spec (dict): SLO config.
+
+    Returns:
+        list: List of dict containing exporters configurations.
+    """
+    all_backends = config.get('backends', {})
+    spec_backend = spec['backend']
+    backend_data = {}
+    if spec_backend not in all_backends.keys():
+        LOGGER.error(f'Backend "{spec_backend}" not found in config. Exiting.')
+        sys.exit(0)
+    backend_data = all_backends[spec_backend]
+    backend_data['name'] = spec_backend
+    backend_data['class'] = utils.capitalize(
+        utils.snake_to_caml(spec_backend.split('/')[0]))
+    return backend_data
+
+
+def get_error_budget_policy(config, spec):
+    """Get error budget policy from spec and global config.
+
+    Args:
+        config (dict): Global config.
+        spec (dict): SLO config.
+
+    Returns:
+        list: List of dict containing exporters configurations.
+    """
+    all_ebp = config.get('error_budget_policies', {})
+    spec_ebp = spec.get('error_budget_policy', 'default')
+    if spec_ebp not in all_ebp.keys():
+        LOGGER.error(
+            f'Error budget policy "{spec_ebp}" not found in config. Exiting.')
+        sys.exit(0)
+    return all_ebp[spec_ebp]
+
+
 def get_backend_cls(backend):
     """Get backend class.
 
