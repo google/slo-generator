@@ -51,7 +51,7 @@ def load_configs(path, ctx=os.environ):
     Returns:
         list: List of configs downloaded and parsed.
     """
-    return [load_config(p, ctx) for p in sorted(path.glob('*.yaml'))]
+    return [load_config(str(p), ctx) for p in sorted(Path(path).glob('*.yaml'))]
 
 
 def load_config(path, ctx=os.environ):
