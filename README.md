@@ -69,7 +69,7 @@ is composed of the following fields:
   * `goal`: SLO Goal (formerly target) between 0 and 1.
   * `backend`: Backend name to pick from the SLO generator configuration.
   * `exporters`: A list of exporter names to pick from the SLO generator configuration. 
-  * `serviceLevelIndicator`: Service Level Indicator a.k.a the backend configuration to query SLI metrics from. See individual backends documentation.
+  * `service_level_indicator`: Service Level Indicator a.k.a the backend configuration to query SLI metrics from. See individual backends documentation.
 
 ***Note:*** *you can use environment variables in your SLO configs by using `${MY_ENV_VAR}` syntax to avoid having sensitive data in version control. Environment variables will be replaced at run time.*
 
