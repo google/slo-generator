@@ -37,7 +37,7 @@ DEFAULT_METRICS = [
         'labels': DEFAULT_METRIC_LABELS
     },
     {
-        'name': 'alerting_burn_rate_threshold',
+        'name': 'error_budget_burn_rate_threshold',
         'description': 'Error Budget burn rate threshold.',
         'labels': DEFAULT_METRIC_LABELS
     },

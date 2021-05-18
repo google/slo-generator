@@ -23,6 +23,7 @@ import logging
 import pprint
 
 from datetime import datetime
+from flask import jsonify
 
 import yaml
 
@@ -33,27 +34,35 @@ CONFIG_PATH = os.environ['CONFIG_PATH']
 EXPORTERS_PATH = os.environ.get('EXPORTERS_PATH', None)
 LOGGER = logging.getLogger(__name__)
 TIME_FORMAT = '%Y-%m-%dT%H:%M:%SZ'
+API_SIGNATURE_TYPE = os.environ['GOOGLE_FUNCTION_SIGNATURE_TYPE']
 setup_logging()
 
 
-def run_compute(cloudevent):
+def run_compute(request):
     """Run slo-generator compute function. Can be configured to export data as
     well, using the `exporters` key of the SLO config.
 
     Args:
-        cloudevent (cloudevent.CloudEvent): Cloud event object.
+        request (cloudevent.CloudEvent, flask.Request): Request object.
 
     Returns:
         list: List of SLO reports.
     """
-    # Get timestamp
-    timestamp = int(
-        datetime.strptime(cloudevent["time"], TIME_FORMAT).timestamp())
-
     # Get SLO config
-    data = base64.b64decode(cloudevent.data).decode('utf-8')
-    LOGGER.info(f'Loading SLO config from Cloud Event {cloudevent["id"]}')
+    if API_SIGNATURE_TYPE == 'http':
+        timestamp = None
+        print(type(request))
+        data = str(request.get_json())
+        print(data)
+        LOGGER.info(f'Loading SLO config from Flask request')
+    elif API_SIGNATURE_TYPE == 'cloudevent':
+        timestamp = int(
+            datetime.strptime(request["time"], TIME_FORMAT).timestamp())
+        data = base64.b64decode(request.data).decode('utf-8')
+        LOGGER.info(f'Loading SLO config from Cloud Event "{request["id"]}"')
+
     slo_config = load_config(data)
+    print(slo_config)
 
     # Get slo-generator config
     LOGGER.info(f'Loading slo-generator config from {CONFIG_PATH}')
@@ -62,25 +71,30 @@ def run_compute(cloudevent):
     # Compute SLO report
     LOGGER.debug(f'Config: {pprint.pformat(config)}')
     LOGGER.debug(f'SLO Config: {pprint.pformat(slo_config)}')
-    compute(slo_config,
-            config,
-            timestamp=timestamp,
-            client=None,
-            do_export=True)
+    reports = compute(slo_config,
+                      config,
+                      timestamp=timestamp,
+                      client=None,
+                      do_export=True)
+    if API_SIGNATURE_TYPE == 'http':
+        return jsonify(reports)
 
 
-def run_export(cloudevent):
-    """Run slo-generator export function. Get the SLO report data from a Cloud
-    Event object.
+def run_export(request):
+    """Run slo-generator export function. Get the SLO report data from a request
+    object.
 
     Args:
-        cloudevent (cloudevent.CloudEvent): Cloud event object.
+        request (cloudevent.CloudEvent, flask.Request): Request object.
 
     Returns:
         list: List of SLO reports.
     """
     # Get export data
-    slo_report = yaml.safe_load(base64.b64decode(cloudevent.data))
+    if API_SIGNATURE_TYPE == 'http':
+        slo_report = request.get_json()
+    elif API_SIGNATURE_TYPE == 'cloudevent':
+        slo_report = yaml.safe_load(base64.b64decode(request.data))
 
     # Get SLO config
     LOGGER.info(f'Downloading SLO config from {CONFIG_PATH}')

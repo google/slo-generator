@@ -97,7 +97,7 @@ docker_test: docker_build
 
 # API 
 run_api:
-	functions-framework --source=slo_generator/api/main.py --target=run_compute --signature-type=cloudevent
+	slo-generator api --target=run_compute --signature-type=cloudevent
 
 docker_build_api:
 	cd slo_generator/api && \

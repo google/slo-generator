@@ -113,15 +113,30 @@ def compute(slo_config, config, export, delete, timestamp):
 # pylint: disable=import-error,import-outside-toplevel
 @main.command()
 @click.pass_context
-@click.option('--config', envvar='CONFIG_PATH', required=True)
-def api(ctx, config):
-    """Run an API that can receive Cloud Events."""
+@click.option('--config',
+              envvar='CONFIG_PATH',
+              required=True,
+              help='slo-generator configuration file path.')
+@click.option('--signature-type',
+              envvar='GOOGLE_FUNCTION_SIGNATURE_TYPE',
+              default='http',
+              type=click.Choice(['http', 'cloudevent']),
+              help='Signature type')
+@click.option('--target',
+              envvar='GOOGLE_FUNCTION_SIGNATURE_TYPE',
+              default='run_compute',
+              help='Target function name')
+def api(ctx, config, signature_type, target):
+    """Run an API that can receive requests (supports both 'http' and
+    'cloudevents' signature types)."""
     from functions_framework._cli import _cli
     os.environ['CONFIG_PATH'] = config
+    os.environ['GOOGLE_FUNCTION_SIGNATURE_TYPE'] = signature_type
+    os.environ['GOOGLE_FUNCTION_TARGET'] = target
     ctx.invoke(_cli,
-               target='run_compute',
+               target=target,
                source=Path(__file__).parent / 'api' / 'main.py',
-               signature_type='cloudevent')
+               signature_type=signature_type)
 
 
 @main.command()
