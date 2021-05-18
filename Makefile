@@ -81,13 +81,27 @@ flake8:
 pylint:
 	find ./$(NAME) ./tests -name \*.py | xargs pylint --rcfile .pylintrc --ignore-patterns=test_.*?py
 
-integration:
+integration: int_cm int_csm int_custom int_dd int_dt int_es int_prom
+
+int_cm:
 	slo-generator compute -f samples/cloud_monitoring -c samples/config.yaml
+
+int_csm:
 	slo-generator compute -f samples/cloud_service_monitoring -c samples/config.yaml
+
+int_custom:
 	slo-generator compute -f samples/custom -c samples/config.yaml
+
+int_dd:
 	slo-generator compute -f samples/datadog -c samples/config.yaml
+
+int_dt:
 	slo-generator compute -f samples/dynatrace -c samples/config.yaml
+
+int_es:
 	slo-generator compute -f samples/elasticsearch -c samples/config.yaml
+
+int_prom:
 	slo-generator compute -f samples/prometheus -c samples/config.yaml
 
 # Docker
@@ -96,7 +110,7 @@ docker_build:
 	docker build -t slo-generator:latest .
 
 docker_test: docker_build
-	docker run --entrypoint "make" \
+	docker run --entrypoint "make test" \
 		-e GOOGLE_APPLICATION_CREDENTIALS=tests/unit/fixtures/fake_credentials.json \
 		slo-generator test
 
