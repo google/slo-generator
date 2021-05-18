@@ -3,8 +3,8 @@ kind: ServiceLevelObjective
 metadata:
   name: gae-app-latency724ms
   labels:
-    service: gae
-    feature: app
+    service_name: gae
+    feature_name: app
     slo_name: latency724ms
 spec:
   description: Latency of App Engine app requests < 724ms

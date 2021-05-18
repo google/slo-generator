@@ -3,8 +3,8 @@ kind: ServiceLevelObjective
 metadata:
   name: dd-app-availability
   labels:
-    service: dd
-    feature: app
+    service_name: dd
+    feature_name: app
     slo_name: availability
 spec:
   description: 99% of app requests return a valid HTTP code

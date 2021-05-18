@@ -44,23 +44,23 @@ error_budget_policies:
       burn_rate_threshold: 9
       alert: true
       message_alert: Page to defend the SLO
-      message_standard: Last hour on track
+      message_ok: Last hour on track
       window: 3600
     - name: 12 hours
       burn_rate_threshold: 3
       alert: true
       message_alert: Page to defend the SLO
-      message_standard: Last 12 hours on track
+      message_ok: Last 12 hours on track
       window: 43200
     - name: 7 days
       burn_rate_threshold: 1.5
       alert: false
       message_alert: Dev team dedicates 25% of engineers to the reliability backlog
-      message_standard: Last week on track
+      message_ok: Last week on track
       window: 604800
     - name: 28 days
       burn_rate_threshold: 1
       alert: false
       message_alert: Freeze release, unless related to reliability or security
-      message_standard: Unfreeze release, per the agreed roll-out policy
+      message_ok: Unfreeze release, per the agreed roll-out policy
       window: 2419200

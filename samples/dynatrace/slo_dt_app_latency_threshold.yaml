@@ -3,8 +3,8 @@ kind: ServiceLevelObjective
 metadata:
   name: dt-app-latency
   labels:
-    service: dt
-    feature: app
+    service_name: dt
+    feature_name: app
     slo_name: latency
 spec:
   description: 99.9% of app 2xx requests return within 50ms

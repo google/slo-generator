@@ -3,8 +3,8 @@ kind: ServiceLevelObjective
 metadata:
   name: gae-app-availability
   labels:
-    service: gae
-    feature: app
+    service_name: gae
+    feature_name: app
     slo_name: availability
 spec:
   description: Availability of App Engine app

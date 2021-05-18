@@ -3,8 +3,8 @@ kind: ServiceLevelObjective
 metadata:
   name: gke-service-latency724ms
   labels:
-    service: gke
-    feature: service
+    service_name: gke
+    feature_name: service
     slo_name: latency724ms
 spec:
   description: Latency of GKE service requests < 724ms

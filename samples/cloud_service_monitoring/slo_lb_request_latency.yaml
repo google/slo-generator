@@ -3,8 +3,8 @@ kind: ServiceLevelObjective
 metadata:
   name: lb-request-latency724ms
   labels:
-    service: lb
-    feature: request
+    service_name: lb
+    feature_name: request
     slo_name: latency724ms
 spec:
   description: Latency of HTTP Load Balancer < 724ms
