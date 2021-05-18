@@ -220,8 +220,8 @@ def get_exporters(config, spec):
             continue
         exporter_data = all_exporters[exporter]
         exporter_data['name'] = exporter
-        exporter_data['class'] = utils.capitalize(
-            utils.snake_to_caml(exporter.split('/')[0]))
+        exporter_data['class'] = capitalize(
+            snake_to_caml(exporter.split('/')[0]))
         exporters.append(exporter_data)
     return exporters
 
@@ -244,8 +244,8 @@ def get_backend(config, spec):
         sys.exit(0)
     backend_data = all_backends[spec_backend]
     backend_data['name'] = spec_backend
-    backend_data['class'] = utils.capitalize(
-        utils.snake_to_caml(spec_backend.split('/')[0]))
+    backend_data['class'] = capitalize(snake_to_caml(
+        spec_backend.split('/')[0]))
     return backend_data
 
 
