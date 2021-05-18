@@ -31,10 +31,10 @@ import ruamel.yaml as yaml
 
 from slo_generator import utils
 from slo_generator.constants import (METRIC_LABELS_COMPAT,
-                                     METRIC_LABELS_TOP_COMPAT, PROVIDERS_COMPAT,
-                                     CONFIG_SCHEMA, SLO_CONFIG_SCHEMA, GREEN,
-                                     RED, BOLD, WARNING, ENDC, SUCCESS, FAIL,
-                                     RIGHT_ARROW)
+                                     METRIC_METADATA_LABELS_TOP_COMPAT,
+                                     PROVIDERS_COMPAT, CONFIG_SCHEMA,
+                                     SLO_CONFIG_SCHEMA, GREEN, RED, BOLD,
+                                     WARNING, ENDC, SUCCESS, FAIL, RIGHT_ARROW)
 
 yaml.explicit_start = True
 yaml.default_flow_style = None
@@ -137,7 +137,8 @@ def do_migrate(source,
         step['burn_rate_threshold'] = step.pop('alerting_burn_rate_threshold')
         step['alert'] = step.pop('urgent_notification')
         step['message_alert'] = step.pop('overburned_consequence_message')
-        step['message_standard'] = step.pop('achieved_consequence_message')
+        step['message_ok'] = step.pop('achieved_consequence_message')
+        step['window'] = step.pop('measurement_window_seconds')
 
     ebp = {'steps': error_budget_policy}
     if error_budget_policy_path.name == 'error_budget_policy.yaml':
@@ -217,10 +218,27 @@ def slo_config_v1tov2(slo_config, shared_config={}, quiet=False, verbose=0):
     slo_metadata_name = '{service_name}-{feature_name}-{slo_name}'.format(
         **slo_config)
     slo_description = slo_config.pop('slo_description')
+    slo_target = slo_config.pop('slo_target')
     service_level_indicator = slo_config['backend'].pop('measurement', {})
     backend = slo_config['backend']
     method = backend.pop('method')
     exporters = slo_config.get('exporters', [])
+
+    # Fill spec
+    slo_config_v2['metadata']['name'] = slo_metadata_name
+    slo_config_v2['metadata']['labels'] = {
+        'service_name': slo_config['service_name'],
+        'feature_name': slo_config['feature_name'],
+        'slo_name': slo_config['slo_name'],
+    }
+    other_labels = {
+        k: v
+        for k, v in slo_config.items()
+        if k not in ['service_name', 'feature_name', 'slo_name', 'backend']
+    }
+    slo_config_v2['metadata']['labels'].update(other_labels)
+    slo_config_v2['spec']['description'] = slo_description
+    slo_config_v2['spec']['goal'] = slo_target
 
     # Process backend
     backend = OrderedDict(backend)
@@ -229,6 +247,7 @@ def slo_config_v1tov2(slo_config, shared_config={}, quiet=False, verbose=0):
                                        'backends',
                                        quiet=quiet)
     slo_config_v2['spec']['backend'] = backend_key
+    slo_config_v2['spec']['method'] = method
 
     # If exporter not in general config, add it and add an alias for the
     # exporter. Refer to the alias in the SLO config file.
@@ -240,20 +259,9 @@ def slo_config_v1tov2(slo_config, shared_config={}, quiet=False, verbose=0):
                                        quiet=quiet)
         slo_config_v2['spec']['exporters'].append(exp_key)
 
-    # Fill spec.serviceLevelIndicator and spec.backend/method
-    slo_config_v2['spec']['description'] = slo_description
-    slo_config_v2['spec']['method'] = method
+    # Fill spec
     slo_config_v2['spec']['service_level_indicator'] = service_level_indicator
 
-    # Fill metadata.name
-    slo_config_v2['metadata']['name'] = slo_metadata_name
-
-    # Fill metadata labels
-    slo_config_v2['metadata']['labels'] = {
-        'service': slo_config['service_name'],
-        'feature': slo_config['feature_name'],
-        'slo_name': slo_config['slo_name'],
-    }
     if verbose > 0:
         pprint.pprint(dict(slo_config_v2))
     return dict(slo_config_v2)
@@ -275,9 +283,31 @@ def report_v2tov1(report):
         # If a metadata label is passed, use the metadata label mapping
         if key == 'metadata':
             mapped_report['metadata'] = {}
-            for subkey, subvalue in value['labels'].items():
-                if subkey in METRIC_LABELS_TOP_COMPAT:
-                    mapped_report[subkey] = subvalue
+            for subkey, subvalue in value.items():
+
+                # v2 `metadata.labels` attributes map to `metadata` attributes
+                # in v1
+                if subkey == 'labels':
+                    labels = subvalue
+                    for labelkey, labelval in labels.items():
+
+                        # Top-level labels like 'service_name', 'feature_name',
+                        # and 'slo_name'.
+                        if labelkey in METRIC_METADATA_LABELS_TOP_COMPAT:
+                            mapped_report[labelkey] = labelval
+
+                        # Other labels that are mapped to 'metadata' in the v1
+                        # report
+                        else:
+                            mapped_report['metadata'][labelkey] = labelval
+
+                # ignore the name attribute which is just a concatenation of
+                # service_name, feature_name and slo_name
+                elif subkey == 'name':
+                    continue
+
+                # other metadata labels are still mapped to the v1 `metadata`
+                # attributes
                 else:
                     mapped_report['metadata'][subkey] = subvalue
 
