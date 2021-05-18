@@ -1,20 +1,21 @@
-apiVersion: sre.google.com/v2
-kind: ServiceLevelObjective
-metadata:
-  name: gke-service-availability
-  labels:
-    service_name: gke
-    feature_name: service
-    slo_name: availability
-spec:
-  description: Availability of GKE service
-  backend: cloud_service_monitoring
-  method: basic
-  exporters: []
-  service_level_indicator:
-    mesh_istio:
-      mesh_uid: ${GKE_MESH_UID}
-      service_namespace: ${GKE_SERVICE_NAMESPACE}
-      service_name: ${GKE_SERVICE_NAME}
-    availability: {}
-  goal: 0.98
+# apiVersion: sre.google.com/v2
+# kind: ServiceLevelObjective
+# metadata:
+#   name: gke-service-availability
+#   labels:
+#     service_name: gke
+#     feature_name: service
+#     slo_name: availability
+# spec:
+#   description: Availability of GKE service
+#   error_budget_policy: cloud_service_monitoring
+#   backend: cloud_service_monitoring
+#   method: basic
+#   exporters: []
+#   service_level_indicator:
+#     mesh_istio:
+#       mesh_uid: ${GKE_MESH_UID}
+#       service_namespace: ${GKE_SERVICE_NAMESPACE}
+#       service_name: ${GKE_SERVICE_NAME}
+#     availability: {}
+#   goal: 0.98

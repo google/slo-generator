@@ -8,6 +8,7 @@ metadata:
     slo_name: availability
 spec:
   description: Availability of App Engine app
+  error_budget_policy: cloud_service_monitoring
   backend: cloud_service_monitoring
   method: good_bad_ratio
   exporters: []

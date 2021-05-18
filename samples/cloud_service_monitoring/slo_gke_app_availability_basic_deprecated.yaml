@@ -8,6 +8,7 @@ metadata:
     slo_name: availability
 spec:
   description: Availability of GKE service
+  error_budget_policy: cloud_service_monitoring
   backend: cloud_service_monitoring
   method: basic
   exporters: []

@@ -8,6 +8,7 @@ metadata:
     slo_name: latency724ms
 spec:
   description: Latency of HTTP Load Balancer < 724ms
+  error_budget_policy: cloud_service_monitoring
   backend: cloud_service_monitoring
   method: distribution_cut
   exporters: []
