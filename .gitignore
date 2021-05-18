@@ -42,3 +42,5 @@ htmlcov/
 *.tfstate.backup
 *.tfstate.*.backup
 .vscode
+.env
+reports/
