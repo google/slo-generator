@@ -55,7 +55,7 @@ class CloudMonitoringBackend:
         Returns:
             tuple: A tuple (good_event_count, bad_event_count)
         """
-        measurement = slo_config['spec']['serviceLevelIndicator']
+        measurement = slo_config['spec']['service_level_indicator']
         filter_good = measurement['filter_good']
         filter_bad = measurement.get('filter_bad')
         filter_valid = measurement.get('filter_valid')
@@ -99,7 +99,7 @@ class CloudMonitoringBackend:
         Returns:
             tuple: A tuple (good_event_count, bad_event_count).
         """
-        measurement = slo_config['spec']['serviceLevelIndicator']
+        measurement = slo_config['spec']['service_level_indicator']
         filter_valid = measurement['filter_valid']
         threshold_bucket = int(measurement['threshold_bucket'])
         good_below_threshold = measurement.get('good_below_threshold', True)

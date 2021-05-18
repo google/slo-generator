@@ -34,6 +34,7 @@ class DynatraceBackend:
         api_url (str): Dynatrace API URL.
         api_token (str): Dynatrace token.
     """
+
     def __init__(self, client=None, api_url=None, api_token=None):
         self.client = client
         if client is None:
@@ -50,8 +51,7 @@ class DynatraceBackend:
         Returns:
             tuple: Good event count, Bad event count.
         """
-        conf = slo_config['backend']
-        measurement = conf['measurement']
+        measurement = slo_config['spec']['service_level_indicator']
         start = (timestamp - window) * 1000
         end = timestamp * 1000
         query_good = measurement['query_good']
@@ -83,8 +83,7 @@ class DynatraceBackend:
         Returns:
             tuple: Good event count, Bad event count.
         """
-        conf = slo_config['backend']
-        measurement = conf['measurement']
+        measurement = slo_config['spec']['service_level_indicator']
         start = (timestamp - window) * 1000
         end = timestamp * 1000
         query_valid = measurement['query_valid']
@@ -92,8 +91,7 @@ class DynatraceBackend:
         good_below_threshold = measurement.get('good_below_threshold', True)
         response = self.query(start=start, end=end, **query_valid)
         LOGGER.debug(f"Result valid: {pprint.pformat(response)}")
-        return DynatraceBackend.count_threshold(response,
-                                                threshold,
+        return DynatraceBackend.count_threshold(response, threshold,
                                                 good_below_threshold)
 
     def query(self,
@@ -255,8 +253,8 @@ class DynatraceClient:
         }
         if name:
             url += f'/{name}'
-        params_str = "&".join("%s=%s" % (k, v) for k, v in params.items()
-                              if v is not None)
+        params_str = "&".join(
+            "%s=%s" % (k, v) for k, v in params.items() if v is not None)
         url += f'?{params_str}'
         if method in ['put', 'post']:
             response = req(url, headers=headers, json=post_data)

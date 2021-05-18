@@ -33,6 +33,7 @@ class DatadogBackend:
         app_key (str): Datadog APP key.
         kwargs (dict): Extra arguments to pass to initialize function.
     """
+
     def __init__(self, client=None, api_key=None, app_key=None, **kwargs):
         self.client = client
         if not self.client:
@@ -52,8 +53,7 @@ class DatadogBackend:
         Returns:
             tuple: Good event count, Bad event count.
         """
-        conf = slo_config['backend']
-        measurement = conf['measurement']
+        measurement = slo_config['spec']['service_level_indicator']
         operator = measurement.get('operator', 'sum')
         operator_suffix = measurement.get('operator_suffix', 'as_count()')
         start = timestamp - window
@@ -88,8 +88,7 @@ class DatadogBackend:
         Returns:
             float: SLI value.
         """
-        conf = slo_config['backend']
-        measurement = conf['measurement']
+        measurement = slo_config['spec']['service_level_indicator']
         start = timestamp - window
         end = timestamp
         query = measurement['query']
@@ -110,11 +109,10 @@ class DatadogBackend:
         Returns:
             tuple: Good event count, bad event count.
         """
-        slo_id = slo_config['backend']['measurement']['slo_id']
+        slo_id = slo_config['spec']['service_level_indicator']['slo_id']
         from_ts = timestamp - window
         slo_data = self.client.ServiceLevelObjective.get(id=slo_id)
-        LOGGER.debug(
-            f"SLO data: {slo_id} | Result: {pprint.pformat(slo_data)}")
+        LOGGER.debug(f"SLO data: {slo_id} | Result: {pprint.pformat(slo_data)}")
         try:
             data = self.client.ServiceLevelObjective.history(id=slo_id,
                                                              from_ts=from_ts,
@@ -125,7 +123,7 @@ class DatadogBackend:
             valid_event_count = data['data']['series']['denominator']['sum']
             bad_event_count = valid_event_count - good_event_count
             return (good_event_count, bad_event_count)
-        except (KeyError) as exception:# monitor-based SLI
+        except (KeyError) as exception:  # monitor-based SLI
             sli_value = data['data']['overall']['sli_value'] / 100
             LOGGER.debug(exception)
             return sli_value

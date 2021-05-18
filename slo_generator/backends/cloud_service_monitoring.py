@@ -230,7 +230,7 @@ class CloudServiceMonitoringBackend:
         if not matches:
             msg = (f'Service "{service_id}" does not exist in '
                    f'workspace "{self.project_id}"')
-            method = slo_config['backend']['method']
+            method = slo_config['spec']['method']
             if method == 'basic':
                 sids = [service.name.split("/")[-1] for service in services]
                 LOGGER.debug(
@@ -261,8 +261,7 @@ class CloudServiceMonitoringBackend:
         service = {'display_name': display_name, 'custom': {}}
         return service
 
-    @staticmethod
-    def build_service_id(slo_config, dest_project_id=None, full=False):
+    def build_service_id(self, slo_config, dest_project_id=None, full=False):
         """Build service id from SLO configuration.
 
         Args:
@@ -275,11 +274,8 @@ class CloudServiceMonitoringBackend:
         Returns:
             str: Service id.
         """
-        service_name = slo_config['service_name']
-        feature_name = slo_config['feature_name']
-        backend = slo_config['backend']
-        project_id = backend['project_id']
-        measurement = backend['measurement']
+        project_id = self.project_id
+        measurement = slo_config['spec']['service_level_indicator']
         app_engine = measurement.get('app_engine')
         cluster_istio = measurement.get('cluster_istio')
         mesh_istio = measurement.get('mesh_istio')
@@ -302,8 +298,22 @@ class CloudServiceMonitoringBackend:
         elif cloud_endpoints:
             service_id = SID_CLOUD_ENDPOINT.format_map(cloud_endpoints)
             dest_project_id = cluster_istio['project_id']
-        else:
-            service_id = f'{service_name}-{feature_name}'
+        else:  # user-defined service id
+            service_name = slo_config['metadata']['labels'].get(
+                'service_name', '')
+            feature_name = slo_config['metadata']['labels'].get(
+                'feature_name', '')
+            service_id = slo_config['spec']['service_level_indicator'].get(
+                'service_id')
+            if not service_id:
+                service_id = f'{service_name}-{feature_name}'
+
+            if not service_id == '-':
+                raise Exception(
+                    'Service id not set in SLO configuration. Please set either '
+                    '`spec.service_level_indicator.service_id` or both '
+                    '`metadata.labels.service_name` and '
+                    '`metadata.labels.feature_name` in your SLO configuration.')
 
         if full:
             if dest_project_id:
@@ -341,16 +351,16 @@ class CloudServiceMonitoringBackend:
         Returns:
             dict: SLO JSON configuration.
         """
-        measurement = slo_config['backend'].get('measurement', {})
-        method = slo_config['backend']['method']
-        description = slo_config['slo_description']
-        target = slo_config['slo_target']
+        measurement = slo_config['spec'].get('service_level_indicator', {})
+        method = slo_config['spec']['method']
+        description = slo_config['spec']['description']
+        goal = slo_config['spec']['goal']
         minutes, _ = divmod(window, 60)
         hours, _ = divmod(minutes, 60)
         display_name = f'{description} ({hours}h)'
         slo = {
             'display_name': display_name,
-            'goal': target,
+            'goal': goal,
             'rolling_period': {
                 'seconds': window
             }
@@ -536,16 +546,19 @@ class CloudServiceMonitoringBackend:
         Returns:
             str: SLO id.
         """
-        if 'slo_id' in slo_config:
-            slo_id_part = slo_config['slo_id']
-            slo_id = f'{slo_id_part}-{window}'
-        else:
-            slo_name = slo_config['slo_name']
-            slo_id = f'{slo_name}-{window}'
+        sli = slo_config['spec']['service_level_indicator']
+        slo_name = slo_config['metadata']['labels'].get('slo_name')
+        slo_id = sli.get('slo_id', slo_name)
+        if not slo_id:
+            raise Exception(
+                'SLO id not set in SLO configuration. Please set either '
+                '`spec.service_level_indicator.slo_id` or '
+                '`metadata.labels.slo_name` in your SLO configuration.')
+        full_slo_id = f'{slo_id}-{window}'
         if full:
             service_path = SSM.build_service_id(slo_config, full=True)
-            return f'{service_path}/serviceLevelObjectives/{slo_id}'
-        return slo_id
+            return f'{service_path}/serviceLevelObjectives/{full_slo_id}'
+        return full_slo_id
 
     @staticmethod
     def compare_slo(slo1, slo2):
