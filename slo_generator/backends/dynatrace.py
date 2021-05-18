@@ -220,7 +220,8 @@ class DynatraceClient:
 
     @retry(retry_on_result=retry_http,
            wait_exponential_multiplier=1000,
-           wait_exponential_max=10000)
+           wait_exponential_max=10000,
+           stop_max_delay=10000)
     def request(self,
                 method,
                 endpoint,
@@ -256,6 +257,7 @@ class DynatraceClient:
         params_str = "&".join(
             "%s=%s" % (k, v) for k, v in params.items() if v is not None)
         url += f'?{params_str}'
+        LOGGER.debug(f'Running "{method}" request to {url} ...')
         if method in ['put', 'post']:
             response = req(url, headers=headers, json=post_data)
         else:
