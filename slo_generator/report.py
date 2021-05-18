@@ -216,8 +216,13 @@ class SLOReport:
             LOGGER.info(f'{info} | Delete mode enabled.')
 
         # Run backend method and return results.
-        data = method(self.timestamp, self.window, config)
-        LOGGER.debug(f'{info} | Backend response: {data}')
+        try:
+            data = method(self.timestamp, self.window, config)
+            LOGGER.debug(f'{info} | Backend response: {data}')
+        except Exception as exc:  # pylint:disable=broad-except
+            LOGGER.exception(exc)
+            LOGGER.error(f'{info} | Backend error occured while fetching data.')
+            return None
         return data
 
     def get_sli(self, data):
