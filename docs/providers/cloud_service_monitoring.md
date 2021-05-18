@@ -56,7 +56,7 @@ backend:
   project_id:      ${STACKDRIVER_HOST_PROJECT_ID}
   measurement:
     cloud_endpoints:
-      service:     ${ENDPOINT_URL}
+      service_name     ${ENDPOINT_URL}
     latency:
       threshold:   724 # ms
 ```
