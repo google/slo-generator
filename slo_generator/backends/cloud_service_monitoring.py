@@ -12,8 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """
-`stackdriver_service_monitoring.py`
-Stackdriver Service Monitoring exporter class.
+`cloud_service_monitoring.py`
+Cloud Service Monitoring exporter class.
 """
 import difflib
 import json
@@ -25,7 +25,7 @@ import google.api_core.exceptions
 from google.cloud.monitoring_v3 import ServiceMonitoringServiceClient
 from google.protobuf.json_format import MessageToJson
 
-from slo_generator.backends.stackdriver import StackdriverBackend
+from slo_generator.backends.cloud_monitoring import CloudMonitoringBackend
 from slo_generator.constants import NO_DATA
 from slo_generator.utils import dict_snake_to_caml
 
@@ -34,20 +34,21 @@ LOGGER = logging.getLogger(__name__)
 SID_GAE = 'gae:{project_id}_{module_id}'
 SID_CLOUD_ENDPOINT = 'ist:{project_id}-{service}'
 SID_CLUSTER_ISTIO = (
-    'ist:{project_id}-location-{location}-{cluster_name}-{service_namespace}-'
+    'ist:{project_id}-zone-{location}-{cluster_name}-{service_namespace}-'
     '{service_name}')
 SID_MESH_ISTIO = ('ist:{mesh_uid}-{service_namespace}-{service_name}')
 
 
-class StackdriverServiceMonitoringBackend:
-    """Stackdriver Service Monitoring backend class.
+class CloudServiceMonitoringBackend:
+    """Cloud Service Monitoring backend class.
 
     Args:
-        project_id (str): Stackdriver host project id.
+        project_id (str): Cloud Monitoring host project id.
         client (google.cloud.monitoring_v3.ServiceMonitoringServiceClient):
             Existing Service Monitoring API client. Initialize a new client if
             omitted.
     """
+
     def __init__(self, project_id, client=None):
         self.project_id = project_id
         self.client = client
@@ -125,7 +126,7 @@ class StackdriverServiceMonitoringBackend:
         return self.delete_slo(window, slo_config)
 
     def retrieve_slo(self, timestamp, window, slo_config):
-        """Get SLI value from Stackdriver Monitoring API.
+        """Get SLI value from Cloud Monitoring API.
 
         Args:
             timestamp (int): UNIX timestamp.
@@ -147,26 +148,27 @@ class StackdriverServiceMonitoringBackend:
             slo = self.create_slo(window, slo_config)
         LOGGER.debug(service)
 
-        # Now that we have our SLO, retrieve the TimeSeries from Stackdriver
+        # Now that we have our SLO, retrieve the TimeSeries from Cloud
         # Monitoring API for that particular SLO id.
-        metric_filter = SSM.build_slo_id(window, slo_config, full=True)
+        metric_filter = self.build_slo_id(window, slo_config, full=True)
         filter = f"select_slo_counts(\"{metric_filter}\")"
 
         # Query SLO timeseries
-        stackdriver = StackdriverBackend(self.project_id)
-        timeseries = stackdriver.query(timestamp,
-                                       window,
-                                       filter,
-                                       aligner='ALIGN_SUM',
-                                       reducer='REDUCE_SUM',
-                                       group_by=['metric.labels.event_type'])
+        cloud_monitoring = CloudMonitoringBackend(self.project_id)
+        timeseries = cloud_monitoring.query(
+            timestamp,
+            window,
+            filter,
+            aligner='ALIGN_SUM',
+            reducer='REDUCE_SUM',
+            group_by=['metric.labels.event_type'])
         timeseries = list(timeseries)
         good_event_count, bad_event_count = SSM.count(timeseries)
         return (good_event_count, bad_event_count)
 
     @staticmethod
     def count(timeseries):
-        """Extract good_count, bad_count tuple from Stackdriver Monitoring API
+        """Extract good_count, bad_count tuple from Cloud Monitoring API
         response.
 
         Args:
@@ -186,27 +188,26 @@ class StackdriverServiceMonitoringBackend:
         return good_event_count, bad_event_count
 
     def create_service(self, slo_config):
-        """Create Service object in Stackdriver Service Monitoring API.
+        """Create Service object in Cloud Service Monitoring API.
 
         Args:
             slo_config (dict): SLO configuration.
 
         Returns:
-            dict: Stackdriver Service Monitoring API response.
+            dict: Cloud Service Monitoring API response.
         """
         LOGGER.debug("Creating service ...")
-        service_json = SSM.build_service(slo_config)
-        service_id = SSM.build_service_id(slo_config)
+        service_json = self.build_service(slo_config)
+        service_id = self.build_service_id(slo_config)
         service = self.client.create_service(self.project_path,
                                              service_json,
                                              service_id=service_id)
-        LOGGER.info(
-            f'Service "{service_id}" created successfully in Stackdriver '
-            f'Service Monitoring API.')
+        LOGGER.info(f'Service "{service_id}" created successfully in Cloud '
+                    f'Service Monitoring API.')
         return SSM.to_json(service)
 
     def get_service(self, slo_config):
-        """Get Service object from Stackdriver Service Monitoring API.
+        """Get Service object from Cloud Service Monitoring API.
 
         Args:
             slo_config (dict): SLO configuration.
@@ -216,7 +217,7 @@ class StackdriverServiceMonitoringBackend:
         """
 
         # Look for API services in workspace matching our config.
-        service_id = SSM.build_service_id(slo_config)
+        service_id = self.build_service_id(slo_config)
         services = list(self.client.list_services(self.workspace_path))
         matches = [
             service for service in services
@@ -229,7 +230,7 @@ class StackdriverServiceMonitoringBackend:
         if not matches:
             msg = (f'Service "{service_id}" does not exist in '
                    f'workspace "{self.project_id}"')
-            method = slo_config['backend']['method']
+            method = slo_config['spec']['method']
             if method == 'basic':
                 sids = [service.name.split("/")[-1] for service in services]
                 LOGGER.debug(
@@ -244,24 +245,22 @@ class StackdriverServiceMonitoringBackend:
         LOGGER.debug(f'Found matching service "{service.name}"')
         return SSM.to_json(service)
 
-    @staticmethod
-    def build_service(slo_config):
-        """Build service JSON in Stackdriver Monitoring API from SLO
+    def build_service(self, slo_config):
+        """Build service JSON in Cloud Monitoring API from SLO
         configuration.
 
         Args:
             slo_config (dict): SLO configuration.
 
         Returns:
-            dict: Service JSON in Stackdriver Monitoring API.
+            dict: Service JSON in Cloud Monitoring API.
         """
-        service_id = SSM.build_service_id(slo_config)
+        service_id = self.build_service_id(slo_config)
         display_name = slo_config.get('service_display_name', service_id)
         service = {'display_name': display_name, 'custom': {}}
         return service
 
-    @staticmethod
-    def build_service_id(slo_config, dest_project_id=None, full=False):
+    def build_service_id(self, slo_config, dest_project_id=None, full=False):
         """Build service id from SLO configuration.
 
         Args:
@@ -274,11 +273,8 @@ class StackdriverServiceMonitoringBackend:
         Returns:
             str: Service id.
         """
-        service_name = slo_config['service_name']
-        feature_name = slo_config['feature_name']
-        backend = slo_config['backend']
-        project_id = backend['project_id']
-        measurement = backend['measurement']
+        project_id = self.project_id
+        measurement = slo_config['spec']['service_level_indicator']
         app_engine = measurement.get('app_engine')
         cluster_istio = measurement.get('cluster_istio')
         mesh_istio = measurement.get('mesh_istio')
@@ -292,7 +288,7 @@ class StackdriverServiceMonitoringBackend:
         elif cluster_istio:
             warnings.warn(
                 'ClusterIstio is deprecated in the Service Monitoring API.'
-                'It will be removed in version 2.0, please use MeshIstio '
+                'It will be removed in version 3.0, please use MeshIstio '
                 'instead', FutureWarning)
             service_id = SID_CLUSTER_ISTIO.format_map(cluster_istio)
             dest_project_id = cluster_istio['project_id']
@@ -301,8 +297,22 @@ class StackdriverServiceMonitoringBackend:
         elif cloud_endpoints:
             service_id = SID_CLOUD_ENDPOINT.format_map(cloud_endpoints)
             dest_project_id = cluster_istio['project_id']
-        else:
-            service_id = f'{service_name}-{feature_name}'
+        else:  # user-defined service id
+            service_name = slo_config['metadata']['labels'].get(
+                'service_name', '')
+            feature_name = slo_config['metadata']['labels'].get(
+                'feature_name', '')
+            service_id = slo_config['spec']['service_level_indicator'].get(
+                'service_id')
+            if not service_id:
+                if not service_name or not feature_name:
+                    raise Exception(
+                        'Service id not set in SLO configuration. Please set '
+                        'either `spec.service_level_indicator.service_id` or '
+                        'both `metadata.labels.service_name` and '
+                        '`metadata.labels.feature_name` in your SLO '
+                        'configuration.')
+                service_id = f'{service_name}-{feature_name}'
 
         if full:
             if dest_project_id:
@@ -312,7 +322,7 @@ class StackdriverServiceMonitoringBackend:
         return service_id
 
     def create_slo(self, window, slo_config):
-        """Create SLO object in Stackdriver Service Monitoring API.
+        """Create SLO object in Cloud Service Monitoring API.
 
         Args:
             window (int): Window (in seconds).
@@ -322,15 +332,15 @@ class StackdriverServiceMonitoringBackend:
             dict: Service Management API response.
         """
         slo_json = SSM.build_slo(window, slo_config)
-        slo_id = SSM.build_slo_id(window, slo_config)
-        parent = SSM.build_service_id(slo_config, full=True)
+        slo_id = self.build_slo_id(window, slo_config)
+        parent = self.build_service_id(slo_config, full=True)
         slo = self.client.create_service_level_objective(
             parent, slo_json, service_level_objective_id=slo_id)
         return SSM.to_json(slo)
 
     @staticmethod
     def build_slo(window, slo_config):  # pylint: disable=R0912,R0915
-        """Get SLO JSON representation in Service Monitoring API from SLO
+        """Get SLO JSON representation in Cloud Service Monitoring API from SLO
         configuration.
 
         Args:
@@ -340,16 +350,16 @@ class StackdriverServiceMonitoringBackend:
         Returns:
             dict: SLO JSON configuration.
         """
-        measurement = slo_config['backend'].get('measurement', {})
-        method = slo_config['backend']['method']
-        description = slo_config['slo_description']
-        target = slo_config['slo_target']
+        measurement = slo_config['spec'].get('service_level_indicator', {})
+        method = slo_config['spec']['method']
+        description = slo_config['spec']['description']
+        goal = slo_config['spec']['goal']
         minutes, _ = divmod(window, 60)
         hours, _ = divmod(minutes, 60)
         display_name = f'{description} ({hours}h)'
         slo = {
             'display_name': display_name,
-            'goal': target,
+            'goal': goal,
             'rolling_period': {
                 'seconds': window
             }
@@ -437,7 +447,7 @@ class StackdriverServiceMonitoringBackend:
         return slo
 
     def get_slo(self, window, slo_config):
-        """Get SLO object from Stackriver Service Monitoring API.
+        """Get SLO object from Cloud Service Monitoring API.
 
         Args:
             service_id (str): Service identifier.
@@ -447,10 +457,10 @@ class StackdriverServiceMonitoringBackend:
         Returns:
             dict: API response.
         """
-        service_path = SSM.build_service_id(slo_config, full=True)
+        service_path = self.build_service_id(slo_config, full=True)
         LOGGER.debug(f'Getting SLO for for "{service_path}" ...')
         slos = self.list_slos(service_path)
-        slo_local_id = SSM.build_slo_id(window, slo_config)
+        slo_local_id = self.build_slo_id(window, slo_config)
         slo_json = SSM.build_slo(window, slo_config)
         slo_json = SSM.convert_slo_to_ssm_format(slo_json)
 
@@ -467,7 +477,7 @@ class StackdriverServiceMonitoringBackend:
                     return slo
                 return self.update_slo(window, slo_config)
         LOGGER.warning('No SLO found matching configuration.')
-        LOGGER.debug(f'SLOs from Stackdriver Monitoring API: {slos}')
+        LOGGER.debug(f'SLOs from Cloud Service Monitoring API: {slos}')
         LOGGER.debug(f'SLO config converted: {slo_json}')
         return None
 
@@ -482,14 +492,13 @@ class StackdriverServiceMonitoringBackend:
             dict: API response.
         """
         slo_json = SSM.build_slo(window, slo_config)
-        slo_id = SSM.build_slo_id(window, slo_config, full=True)
+        slo_id = self.build_slo_id(window, slo_config, full=True)
         LOGGER.warning(f"Updating SLO {slo_id} ...")
         slo_json['name'] = slo_id
-        return SSM.to_json(
-            self.client.update_service_level_objective(slo_json))
+        return SSM.to_json(self.client.update_service_level_objective(slo_json))
 
     def list_slos(self, service_path):
-        """List all SLOs from Stackdriver Service Monitoring API.
+        """List all SLOs from Cloud Service Monitoring API.
 
         Args:
             service_path (str): Service path in the form
@@ -501,12 +510,12 @@ class StackdriverServiceMonitoringBackend:
         """
         slos = self.client.list_service_level_objectives(service_path)
         slos = list(slos)
-        LOGGER.debug(f"{len(slos)} SLOs found in Service Monitoring API.")
+        LOGGER.debug(f"{len(slos)} SLOs found in Cloud Service Monitoring API.")
         # LOGGER.debug(slos)
         return [SSM.to_json(slo) for slo in slos]
 
     def delete_slo(self, window, slo_config):
-        """Delete SLO from Stackdriver Monitoring API.
+        """Delete SLO from Cloud Service Monitoring API.
 
         Args:
             window (int): Window (in seconds).
@@ -515,7 +524,7 @@ class StackdriverServiceMonitoringBackend:
         Returns:
             dict: API response.
         """
-        slo_path = SSM.build_slo_id(window, slo_config, full=True)
+        slo_path = self.build_slo_id(window, slo_config, full=True)
         LOGGER.info(f'Deleting SLO "{slo_path}"')
         try:
             return self.client.delete_service_level_objective(slo_path)
@@ -525,8 +534,7 @@ class StackdriverServiceMonitoringBackend:
                 f'Skipping.')
             return None
 
-    @staticmethod
-    def build_slo_id(window, slo_config, full=False):
+    def build_slo_id(self, window, slo_config, full=False):
         """Build SLO id from SLO configuration.
 
         Args:
@@ -536,16 +544,19 @@ class StackdriverServiceMonitoringBackend:
         Returns:
             str: SLO id.
         """
-        if 'slo_id' in slo_config:
-            slo_id_part = slo_config['slo_id']
-            slo_id = f'{slo_id_part}-{window}'
-        else:
-            slo_name = slo_config['slo_name']
-            slo_id = f'{slo_name}-{window}'
+        sli = slo_config['spec']['service_level_indicator']
+        slo_name = slo_config['metadata']['labels'].get('slo_name')
+        slo_id = sli.get('slo_id', slo_name)
+        if not slo_id:
+            raise Exception(
+                'SLO id not set in SLO configuration. Please set either '
+                '`spec.service_level_indicator.slo_id` or '
+                '`metadata.labels.slo_name` in your SLO configuration.')
+        full_slo_id = f'{slo_id}-{window}'
         if full:
-            service_path = SSM.build_service_id(slo_config, full=True)
-            return f'{service_path}/serviceLevelObjectives/{slo_id}'
-        return slo_id
+            service_path = self.build_service_id(slo_config, full=True)
+            return f'{service_path}/serviceLevelObjectives/{full_slo_id}'
+        return full_slo_id
 
     @staticmethod
     def compare_slo(slo1, slo2):
@@ -601,15 +612,15 @@ class StackdriverServiceMonitoringBackend:
 
     @staticmethod
     def convert_slo_to_ssm_format(slo):
-        """Convert SLO JSON to Service Monitoring API format.
+        """Convert SLO JSON to Cloud Service Monitoring API format.
         Address edge cases, like `duration` object computation.
 
         Args:
-            slo (dict): SLO JSON object to be converted to Stackdriver Service
+            slo (dict): SLO JSON object to be converted to Cloud Service
                 Monitoring API format.
 
         Returns:
-            dict: SLO configuration in Service Monitoring API format.
+            dict: SLO configuration in Cloud Service Monitoring API format.
         """
         # Our local JSON is in snake case, convert it to Caml case.
         data = dict_snake_to_caml(slo)
@@ -654,7 +665,7 @@ class StackdriverServiceMonitoringBackend:
 
     @staticmethod
     def to_json(response):
-        """Convert a Stackdriver Service Monitoring API response to JSON
+        """Convert a Cloud Service Monitoring API response to JSON
         format.
 
         Args:
@@ -666,4 +677,4 @@ class StackdriverServiceMonitoringBackend:
         return json.loads(MessageToJson(response))
 
 
-SSM = StackdriverServiceMonitoringBackend
+SSM = CloudServiceMonitoringBackend

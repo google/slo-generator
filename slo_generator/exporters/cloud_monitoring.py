@@ -12,8 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """
-`stackdriver.py`
-Stackdriver Monitoring exporter class.
+`cloud_monitoring.py`
+Cloud Monitoring exporter class.
 """
 import logging
 
@@ -24,8 +24,9 @@ from .base import MetricsExporter
 
 LOGGER = logging.getLogger(__name__)
 
-class StackdriverExporter(MetricsExporter):
-    """Stackdriver Monitoring exporter class."""
+
+class CloudMonitoringExporter(MetricsExporter):
+    """Cloud Monitoring exporter class."""
     METRIC_PREFIX = "custom.googleapis.com/"
     REQUIRED_FIELDS = ['project_id']
 
@@ -33,22 +34,22 @@ class StackdriverExporter(MetricsExporter):
         self.client = monitoring_v3.MetricServiceClient()
 
     def export_metric(self, data):
-        """Export metric to Stackdriver Monitoring. Create metric descriptor if
+        """Export metric to Cloud Monitoring. Create metric descriptor if
         it doesn't exist.
 
         Args:
-            data (dict): Data to send to Stackdriver Monitoring.
-            project_id (str): Stackdriver Monitoring project id.
+            data (dict): Data to send to Cloud Monitoring.
+            project_id (str): Cloud Monitoring project id.
 
         Returns:
-            object: Stackdriver Monitoring API result.
+            object: Cloud Monitoring API result.
         """
         if not self.get_metric_descriptor(data):
             self.create_metric_descriptor(data)
         self.create_timeseries(data)
 
     def create_timeseries(self, data):
-        """Create Stackdriver Monitoring timeseries.
+        """Create Cloud Monitoring timeseries.
 
         Args:
             data (dict): Metric data.
@@ -75,7 +76,7 @@ class StackdriverExporter(MetricsExporter):
         # Set the metric value.
         point.value.double_value = data['value']
 
-        # Record the timeseries to Stackdriver Monitoring.
+        # Record the timeseries to Cloud Monitoring.
         project = self.client.project_path(data['project_id'])
         result = self.client.create_time_series(project, [series])
         labels = series.metric.labels
@@ -86,7 +87,7 @@ class StackdriverExporter(MetricsExporter):
         return result
 
     def get_metric_descriptor(self, data):
-        """Get Stackdriver Monitoring metric descriptor.
+        """Get Cloud Monitoring metric descriptor.
 
         Args:
             data (dict): Metric data.
@@ -102,7 +103,7 @@ class StackdriverExporter(MetricsExporter):
             return None
 
     def create_metric_descriptor(self, data):
-        """Create Stackdriver Monitoring metric descriptor.
+        """Create Cloud Monitoring metric descriptor.
 
         Args:
             data (dict): Metric data.
