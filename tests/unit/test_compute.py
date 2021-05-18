@@ -33,7 +33,7 @@ from .test_stubs import (CTX, load_fixture, load_sample, load_slo_samples,
 warnings.filterwarnings("ignore", message=_CLOUD_SDK_CREDENTIALS_WARNING)
 
 CONFIG = load_sample('config.yaml', CTX)
-STEPS = len(CONFIG['error_budget_policies']['standard']['steps'])
+STEPS = len(CONFIG['error_budget_policies']['default']['steps'])
 SLO_CONFIGS_SD = load_slo_samples('cloud_monitoring', CTX)
 SLO_CONFIGS_SDSM = load_slo_samples('cloud_service_monitoring', CTX)
 SLO_CONFIGS_PROM = load_slo_samples('prometheus', CTX)
@@ -41,6 +41,7 @@ SLO_CONFIGS_ES = load_slo_samples('elasticsearch', CTX)
 SLO_CONFIGS_DD = load_slo_samples('datadog', CTX)
 SLO_CONFIGS_DT = load_slo_samples('dynatrace', CTX)
 SLO_REPORT = load_fixture('slo_report.json')
+SLO_REPORT_V1 = load_fixture('slo_report_v1.json')
 EXPORTERS = load_fixture('exporters.yaml', CTX)
 BQ_ERROR = load_fixture('bq_error.json')
 
@@ -53,8 +54,8 @@ PUBSUB_MOCKS = [
 # Service Monitoring method to patch
 # pylint: ignore=E501
 SSM_MOCKS = [
-    "slo_generator.backends.stackdriver_service_monitoring.ServiceMonitoringServiceClient",  # noqa: E501
-    "slo_generator.backends.stackdriver_service_monitoring.SSM.to_json"
+    "slo_generator.backends.cloud_service_monitoring.ServiceMonitoringServiceClient",  # noqa: E501
+    "slo_generator.backends.cloud_service_monitoring.SSM.to_json"
 ]
 
 
@@ -160,12 +161,6 @@ class TestCompute(unittest.TestCase):
         codes = [r[0]['response']['error']['code'] for r in responses]
         self.assertTrue(all(code == 429 for code in codes))
 
-    @patch("google.api_core.grpc_helpers.create_channel",
-           return_value=mock_sd(STEPS))
-    def test_export_deprecated(self, mock):
-        with self.assertWarns(FutureWarning):
-            export(SLO_REPORT, EXPORTERS[6])
-
     def test_metrics_exporter_build_metrics(self):
         exporter = MetricsExporter()
         metric = EXPORTERS[7]['metrics'][0]
@@ -197,14 +192,14 @@ class TestCompute(unittest.TestCase):
 
     def test_metrics_exporter_build_data_labels(self):
         exporter = MetricsExporter()
-        data = SLO_REPORT
+        data = SLO_REPORT_V1
         labels = ['service_name', 'slo_name', 'metadata']
         result = exporter.build_data_labels(data, labels)
         expected = {
-            'service_name': SLO_REPORT['service_name'],
-            'slo_name': SLO_REPORT['slo_name'],
-            'env': SLO_REPORT['metadata']['env'],
-            'team': SLO_REPORT['metadata']['team']
+            'service_name': SLO_REPORT_V1['service_name'],
+            'slo_name': SLO_REPORT_V1['slo_name'],
+            'env': SLO_REPORT_V1['metadata']['env'],
+            'team': SLO_REPORT_V1['metadata']['team']
         }
         self.assertEqual(result, expected)
 

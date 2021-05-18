@@ -43,37 +43,24 @@ class TestCLI(unittest.TestCase):
     @patch('google.api_core.grpc_helpers.create_channel',
            return_value=mock_sd(8))
     def test_cli(self, mock):
-        kwargs = {
-            '-f': self.slo_config,
-            '-c': self.config,
-        }
-        all_reports = self.cli.invoke(main, **kwargs)
-        print(all_reports)
-        metadata_name = self.slo_metadata_name
-        len_first_report = len(all_reports[metadata_name])
-        self.assertIn(self.slo_metadata_name, all_reports.keys())
-        self.assertEqual(len_first_report, 4)
+        args = ['-f', self.slo_config, '-c', self.config]
+        result = self.cli.invoke(main, args)
+        self.assertEqual(result.exit_code, 0)
+        print(result.output)
 
     @patch('google.api_core.grpc_helpers.create_channel',
            return_value=mock_sd(40))
     def test_cli_folder(self, mock):
-        kwargs = {
-            '-f': f'{root}/samples/cloud_monitoring',
-            '-c': self.config,
-        }
-        all_reports = self.cli.invoke(main, **kwargs)
-        metadata_name = self.slo_metadata_name
-        len_first_report = len(all_reports[metadata_name])
-        self.assertIn(self.slo_metadata_name, all_reports.keys())
-        self.assertEqual(len_first_report, 4)
+        args = ['-f', f'{root}/samples/cloud_monitoring', '-c', self.config]
+        result = self.cli.invoke(main, args)
+        self.assertEqual(result.exit_code, 0)
+        print(result.output)
 
     def test_cli_no_config(self):
-        kwargs = {
-            '-f': f'{root}/samples',
-            '-c': f'{root}/samples/config.yaml',
-        }
-        all_reports = self.cli.invoke(main, **kwargs)
-        self.assertEqual(all_reports, {})
+        args = ['-f', f'{root}/samples', '-c', f'{root}/samples/config.yaml']
+        result = self.cli.invoke(main, args)
+        self.assertEqual(result.exit_code, 0)
+        print(result.output)
 
 
 if __name__ == '__main__':
