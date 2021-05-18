@@ -108,7 +108,7 @@ def compute(slo_config,
     Args:
         slo_config (dict): SLO configuration.
         config (dict): SLO Generator configuration.
-        timestamp (int, optional): UNIX timestamp. Defaults to now.
+        timestamp (float, optional): UNIX timestamp. Defaults to now.
         client (obj, optional): Existing metrics backend client.
         do_export (bool, optional): Enable / Disable export. Default: False.
         delete (bool, optional): Enable / Disable delete mode. Default: False.

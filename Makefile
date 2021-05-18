@@ -28,7 +28,7 @@ FLAKE8_IGNORE = E302,E203,E261
 
 ########################################################
 
-all: clean install install_test test
+all: clean install test
 
 info:
 	@echo "slo-generator version: ${VERSION}"
@@ -82,7 +82,7 @@ pylint:
 	find ./$(NAME) ./tests -name \*.py | xargs pylint --rcfile .pylintrc --ignore-patterns=test_.*?py
 
 integration:
-	slo-generator -f samples/ -c samples/config.yaml
+	slo-generator run -f samples/ -c samples/config.yaml
 
 # Docker
 docker_build:
