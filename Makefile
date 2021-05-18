@@ -19,7 +19,7 @@ PIP=pip3
 PYTHON=python3
 TWINE=twine
 COVERAGE=coverage
-NOSE_OPTS = --with-coverage --cover-package=$(NAME) --cover-erase --nologcapture
+NOSE_OPTS = --with-coverage --cover-package=$(NAME) --cover-erase --nologcapture --logging-level=ERROR
 SITELIB = $(shell $(PYTHON) -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")
 
 VERSION := $(shell grep "version = " setup.py | cut -d\  -f3)
@@ -91,7 +91,6 @@ docker_build:
 
 docker_test: docker_build
 	docker run --entrypoint "make" \
-		-e MIN_VALID_EVENTS=10 \
 		-e GOOGLE_APPLICATION_CREDENTIALS=tests/unit/fixtures/fake_credentials.json \
 		slo-generator test
 

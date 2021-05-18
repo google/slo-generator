@@ -84,9 +84,12 @@ def compute(slo_config, config, export, delete, timestamp):
 
     # Load SLO config(s)
     if Path(slo_config).is_dir():
-        slo_configs = utils.load_configs(slo_config)
+        slo_configs = utils.load_configs(slo_config,
+                                         kind='ServiceLevelObjective')
     else:
-        slo_configs = [utils.load_config(slo_config)]
+        slo_configs = [
+            utils.load_config(slo_config, kind='ServiceLevelObjective')
+        ]
 
     if not slo_configs:
         LOGGER.error(f'No SLO configs found in {slo_config}.')
@@ -95,13 +98,14 @@ def compute(slo_config, config, export, delete, timestamp):
     # Load SLO configs and compute SLO reports
     all_reports = {}
     for slo_config_dict in slo_configs:
-        name = slo_config_dict['metadata']['name']
         reports = _compute(slo_config_dict,
                            config_dict,
                            timestamp=timestamp,
                            do_export=export,
                            delete=delete)
-        all_reports[name] = reports
+        if reports:
+            name = slo_config_dict['metadata']['name']
+            all_reports[name] = reports
     end = time.time()
     duration = round(end - start, 1)
     LOGGER.info(f'Run summary | SLO Configs: {len(slo_configs)} | '

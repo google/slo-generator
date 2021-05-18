@@ -42,24 +42,32 @@ except ImportError:
 LOGGER = logging.getLogger(__name__)
 
 
-def load_configs(path, ctx=os.environ):
+def load_configs(path, ctx=os.environ, kind=None):
     """Load multiple slo-generator configs from a folder path.
 
     Args:
         path (str): Folder path.
+        ctx (dict): Context for variable replacement.
+        kind (str): Config kind filter.
 
     Returns:
         list: List of configs downloaded and parsed.
     """
-    return [load_config(str(p), ctx) for p in sorted(Path(path).glob('*.yaml'))]
+    configs = [
+        load_config(str(p), ctx=ctx, kind=kind)
+        for p in sorted(Path(path).glob('*.yaml'))
+    ]
+    return [cfg for cfg in configs if cfg]
 
 
-def load_config(path, ctx=os.environ):
+def load_config(path, ctx=os.environ, kind=None):
     """Load any slo-generator config, from a local path, a GCS URL, or directly
     from a string content.
 
     Args:
         path (str): GCS URL, file path, or data as string.
+        ctx (dict): Context for variable replacement.
+        kind (str): Config kind filter.
 
     Returns:
         dict: Config downloaded and parsed.
@@ -73,11 +81,19 @@ def load_config(path, ctx=os.environ):
                     'installed. Please install it using pip by running '
                     '`pip install google-cloud-storage`', ImportWarning)
                 sys.exit(1)
-            return parse_config(content=download_gcs_file(str(path)), ctx=ctx)
-        if abspath.is_file():
-            return parse_config(path=str(abspath.resolve()), ctx=ctx)
-        LOGGER.warning(f'Path {abspath} not found. Trying to load from string')
-        return parse_config(content=str(path), ctx=ctx)
+            config = parse_config(content=download_gcs_file(str(path)), ctx=ctx)
+        elif abspath.is_file():
+            config = parse_config(path=str(abspath.resolve()), ctx=ctx)
+        else:
+            LOGGER.warning(
+                f'Path {abspath} not found. Trying to load from string')
+            config = parse_config(content=str(path), ctx=ctx)
+
+        if kind and kind != config.get('kind', ''):
+            return
+
+        return config
+
     except OSError as exc:
         if exc.errno == errno.ENAMETOOLONG:  # filename too long, string content
             return parse_config(content=str(path), ctx=ctx)

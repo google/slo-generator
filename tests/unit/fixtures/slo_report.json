@@ -1,27 +1,25 @@
 {
-  "goal": 0.9,
-  "description": "Acked Pub/Sub messages over total number of Pub/Sub messages",
-  "exporters": ["cloud_monitoring"],
+  "alert": true,
   "backend": "cloud_monitoring",
-  "error_budget_policy_step_name": "b.Last 12 hours",
-  "error_budget_policy_target": 3.0,
-  "error_budget_remaining_minutes": -288.0,
-  "error_budget_measurement": 0.5,
-  "error_budget_burn_rate": 5.000000000000001,
-  "error_budget_minutes": 71.99999999999999,
-  "error_minutes": "360.0",
-  "consequence_message": "Page the SRE team to defend the SLO",
-  "error_budget_target": 0.09999999999999998,
-  "timestamp_human": "2019-09-05 11:55:01.004603 UTC",
-  "timestamp": 1567762279.287761,
-  "cadence": null,
-  "window": 43200,
-  "events_count": 7112,
   "bad_events_count": 3556,
-  "good_events_count": 3556,
-  "sli_measurement": 0.5,
+  "description": "Acked Pub/Sub messages over total number of Pub/Sub messages",
+  "exporters": [
+    "cloud_monitoring"
+  ],
+  "consequence_message": "Page the SRE team to defend the SLO",
+  "error_budget_burn_rate": 5.000000000000001,
+  "error_budget_burn_rate_threshold": 3,
+  "error_budget_measurement": 0.5,
+  "error_budget_policy": "default",
+  "error_budget_policy_step_name": "1h",
+  "error_budget_minutes": 71.99999999999999,
+  "error_budget_remaining_minutes": -288,
+  "error_budget_target": 0.09999999999999998,
+  "error_minutes": "360.0",
+  "events_count": 7112,
   "gap": -0.4,
-  "alert": "true",
+  "goal": 0.9,
+  "good_events_count": 3556,
   "metadata": {
     "name": "test-slo",
     "labels": {
@@ -31,5 +29,9 @@
       "env": "test",
       "team": "test"
     }
-  }
+  },
+  "sli_measurement": 0.5,
+  "timestamp": 1567762279.287761,
+  "timestamp_human": "2019-09-05 11:55:01.004603 UTC",
+  "window": 43200
 }

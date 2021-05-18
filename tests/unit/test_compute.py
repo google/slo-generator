@@ -161,35 +161,6 @@ class TestCompute(unittest.TestCase):
         codes = [r[0]['response']['error']['code'] for r in responses]
         self.assertTrue(all(code == 429 for code in codes))
 
-    def test_metrics_exporter_build_metrics(self):
-        exporter = MetricsExporter()
-        metric = EXPORTERS[7]['metrics'][0]
-        labels = {}
-        metric_labels = {
-            label: str(SLO_REPORT[label])
-            for label in DEFAULT_METRIC_LABELS
-            if label != 'metadata'
-        }
-        metadata_labels = SLO_REPORT['metadata'].items()
-        additional_labels = {
-            'good_events_count': str(SLO_REPORT['good_events_count']),
-            'bad_events_count': str(SLO_REPORT['bad_events_count']),
-        }
-        labels.update(metric_labels)
-        labels.update(additional_labels)
-        labels.update(metadata_labels)
-        metric_expected = {
-            'name': 'error_budget_burn_rate',
-            'description': "",
-            'value': SLO_REPORT['error_budget_burn_rate'],
-            'timestamp': SLO_REPORT['timestamp'],
-            'labels': labels,
-            'additional_labels': metric['additional_labels']
-        }
-        metric = exporter.build_metric(data=SLO_REPORT, metric=metric)
-        self.assertEqual(labels, metric['labels'])
-        self.assertEqual(metric, metric_expected)
-
     def test_metrics_exporter_build_data_labels(self):
         exporter = MetricsExporter()
         data = SLO_REPORT_V1

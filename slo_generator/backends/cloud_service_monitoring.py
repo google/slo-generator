@@ -150,7 +150,7 @@ class CloudServiceMonitoringBackend:
 
         # Now that we have our SLO, retrieve the TimeSeries from Cloud
         # Monitoring API for that particular SLO id.
-        metric_filter = SSM.build_slo_id(window, slo_config, full=True)
+        metric_filter = self.build_slo_id(window, slo_config, full=True)
         filter = f"select_slo_counts(\"{metric_filter}\")"
 
         # Query SLO timeseries
@@ -197,8 +197,8 @@ class CloudServiceMonitoringBackend:
             dict: Cloud Service Monitoring API response.
         """
         LOGGER.debug("Creating service ...")
-        service_json = SSM.build_service(slo_config)
-        service_id = SSM.build_service_id(slo_config)
+        service_json = self.build_service(slo_config)
+        service_id = self.build_service_id(slo_config)
         service = self.client.create_service(self.project_path,
                                              service_json,
                                              service_id=service_id)
@@ -217,7 +217,7 @@ class CloudServiceMonitoringBackend:
         """
 
         # Look for API services in workspace matching our config.
-        service_id = SSM.build_service_id(slo_config)
+        service_id = self.build_service_id(slo_config)
         services = list(self.client.list_services(self.workspace_path))
         matches = [
             service for service in services
@@ -245,8 +245,7 @@ class CloudServiceMonitoringBackend:
         LOGGER.debug(f'Found matching service "{service.name}"')
         return SSM.to_json(service)
 
-    @staticmethod
-    def build_service(slo_config):
+    def build_service(self, slo_config):
         """Build service JSON in Cloud Monitoring API from SLO
         configuration.
 
@@ -256,7 +255,7 @@ class CloudServiceMonitoringBackend:
         Returns:
             dict: Service JSON in Cloud Monitoring API.
         """
-        service_id = SSM.build_service_id(slo_config)
+        service_id = self.build_service_id(slo_config)
         display_name = slo_config.get('service_display_name', service_id)
         service = {'display_name': display_name, 'custom': {}}
         return service
@@ -289,7 +288,7 @@ class CloudServiceMonitoringBackend:
         elif cluster_istio:
             warnings.warn(
                 'ClusterIstio is deprecated in the Service Monitoring API.'
-                'It will be removed in version 2.0, please use MeshIstio '
+                'It will be removed in version 3.0, please use MeshIstio '
                 'instead', FutureWarning)
             service_id = SID_CLUSTER_ISTIO.format_map(cluster_istio)
             dest_project_id = cluster_istio['project_id']
@@ -306,14 +305,15 @@ class CloudServiceMonitoringBackend:
             service_id = slo_config['spec']['service_level_indicator'].get(
                 'service_id')
             if not service_id:
-                service_id = f'{service_name}-{feature_name}'
-
-            if not service_id == '-':
-                raise Exception(
-                    'Service id not set in SLO configuration. Please set either '
-                    '`spec.service_level_indicator.service_id` or both '
-                    '`metadata.labels.service_name` and '
-                    '`metadata.labels.feature_name` in your SLO configuration.')
+                if not service_name or not feature_name:
+                    raise Exception(
+                        'Service id not set in SLO configuration. Please set either '
+                        '`spec.service_level_indicator.service_id` or both '
+                        '`metadata.labels.service_name` and '
+                        '`metadata.labels.feature_name` in your SLO configuration.'
+                    )
+                else:
+                    service_id = f'{service_name}-{feature_name}'
 
         if full:
             if dest_project_id:
@@ -333,8 +333,8 @@ class CloudServiceMonitoringBackend:
             dict: Service Management API response.
         """
         slo_json = SSM.build_slo(window, slo_config)
-        slo_id = SSM.build_slo_id(window, slo_config)
-        parent = SSM.build_service_id(slo_config, full=True)
+        slo_id = self.build_slo_id(window, slo_config)
+        parent = self.build_service_id(slo_config, full=True)
         slo = self.client.create_service_level_objective(
             parent, slo_json, service_level_objective_id=slo_id)
         return SSM.to_json(slo)
@@ -458,10 +458,10 @@ class CloudServiceMonitoringBackend:
         Returns:
             dict: API response.
         """
-        service_path = SSM.build_service_id(slo_config, full=True)
+        service_path = self.build_service_id(slo_config, full=True)
         LOGGER.debug(f'Getting SLO for for "{service_path}" ...')
         slos = self.list_slos(service_path)
-        slo_local_id = SSM.build_slo_id(window, slo_config)
+        slo_local_id = self.build_slo_id(window, slo_config)
         slo_json = SSM.build_slo(window, slo_config)
         slo_json = SSM.convert_slo_to_ssm_format(slo_json)
 
@@ -493,7 +493,7 @@ class CloudServiceMonitoringBackend:
             dict: API response.
         """
         slo_json = SSM.build_slo(window, slo_config)
-        slo_id = SSM.build_slo_id(window, slo_config, full=True)
+        slo_id = self.build_slo_id(window, slo_config, full=True)
         LOGGER.warning(f"Updating SLO {slo_id} ...")
         slo_json['name'] = slo_id
         return SSM.to_json(self.client.update_service_level_objective(slo_json))
@@ -525,7 +525,7 @@ class CloudServiceMonitoringBackend:
         Returns:
             dict: API response.
         """
-        slo_path = SSM.build_slo_id(window, slo_config, full=True)
+        slo_path = self.build_slo_id(window, slo_config, full=True)
         LOGGER.info(f'Deleting SLO "{slo_path}"')
         try:
             return self.client.delete_service_level_objective(slo_path)
@@ -535,8 +535,7 @@ class CloudServiceMonitoringBackend:
                 f'Skipping.')
             return None
 
-    @staticmethod
-    def build_slo_id(window, slo_config, full=False):
+    def build_slo_id(self, window, slo_config, full=False):
         """Build SLO id from SLO configuration.
 
         Args:
@@ -556,7 +555,7 @@ class CloudServiceMonitoringBackend:
                 '`metadata.labels.slo_name` in your SLO configuration.')
         full_slo_id = f'{slo_id}-{window}'
         if full:
-            service_path = SSM.build_service_id(slo_config, full=True)
+            service_path = self.build_service_id(slo_config, full=True)
             return f'{service_path}/serviceLevelObjectives/{full_slo_id}'
         return full_slo_id
 

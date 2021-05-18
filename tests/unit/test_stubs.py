@@ -58,27 +58,6 @@ CTX = {
     'DYNATRACE_API_TOKEN': 'fake'
 }
 
-CUSTOM_BACKEND_CODE = """
-class DummyBackend:
-    def __init__(self, client=None, **config):
-        self.good_events = config.get('good_events', None)
-        self.bad_events = config.get('bad_events', None)
-        self.sli_value = config.get('sli', None)
-
-    def good_bad_ratio(self, timestamp, window, slo_config):
-        return (self.good_events, self.bad_events)
-
-    def sli(self, timestamp, window, slo_config):
-        return self.sli_value
-"""
-
-FAIL_EXPORTER_CODE = """
-from slo_generator.exporters.base import MetricsExporter
-class FailExporter(MetricsExporter):
-    def export_metric(self, data):
-        raise ValueError("Oops !")
-"""
-
 
 def add_dynamic(name, code, type):
     """Dynamically add a backend or exporter to slo-generator.
@@ -94,113 +73,28 @@ def add_dynamic(name, code, type):
     exec(code, mod.__dict__)
 
 
-# Add backends / exporters for testing purposes
-add_dynamic('dummy', CUSTOM_BACKEND_CODE, 'backends')
-add_dynamic('fail', FAIL_EXPORTER_CODE, 'exporters')
-
-CUSTOM_BASE_CONFIG = {
-    "service_name": "test",
-    "feature_name": "test",
-    "slo_name": "test",
-    "slo_description": "Test dummy backend",
-    "slo_target": 0.99,
-    "backend": {
-        "class": "Dummy",
-    }
-}
-
-CUSTOM_STEP = {
-    "error_budget_policy_step_name": "1 hour",
-    "measurement_window_seconds": 3600,
-    "alerting_burn_rate_threshold": 1,
-    "urgent_notification": True,
-    "overburned_consequence_message": "Page to defend the SLO",
-    "achieved_consequence_message": "Last hour on track"
-}
-
-CUSTOM_TESTS = {
-    "enough_events": {
-        'method': 'good_bad_ratio',
-        'good_events': 5,
-        'bad_events': 5,
-    },
-    "no_good_events": {
-        'method': 'good_bad_ratio',
-        'good_events': -1,
-        'bad_events': 15,
-    },
-    "no_bad_events": {
-        'method': 'good_bad_ratio',
-        'good_events': 15,
-        'bad_events': -1,
-    },
-    "valid_sli_value": {
-        'method': 'sli',
-        'good_events': -1,
-        'bad_events': -1,
-        'sli': 0.991
-    },
-    "no_events": {
-        'method': 'good_bad_ratio',
-        'good_events': 0,
-        'bad_events': 0,
-    },
-    "no_good_bad_events": {
-        'method': 'good_bad_ratio',
-        'good_events': -1,
-        'bad_events': -1,
-    },
-    "not_enough_events": {
-        'method': 'good_bad_ratio',
-        'good_events': 5,
-        'bad_events': 4,
-    },
-    "no_sli_value": {
-        'method': 'sli',
-        'good_events': -1,
-        'bad_events': -1,
-    },
-    "no_backend_response_sli": {
-        'method': 'sli',
-        'sli': None
-    },
-    "no_backend_response_ratio": {
-        'method': 'good_bad_ratio',
-        'good_events': None,
-        'bad_events': None,
-    },
-    'invalid_backend_response_type': {
-        'method': 'good_bad_ratio',
-        'good_events': {
-            'data': {
-                'value': 30
-            }
-        },
-        'bad_events': {
-            'data': {
-                'value': 400
-            }
-        },
-        'sli': None
-    }
-}
-
-
 def mock_slo_report(key):
-    """Mock SLO report config with edge cases contained in CUSTOM_TESTS.
+    """Mock SLO report config with edge cases contained in DUMMY_TESTS.
 
     Args:
-        key (str): Key identifying which config to pick from CUSTOM_TESTS.
+        key (str): Key identifying which config to pick from DUMMY_TESTS.
 
     Returns:
         dict: Dict configuration for SLOReport class.
     """
-    config = copy.deepcopy(CUSTOM_BASE_CONFIG)
-    config["backend"].update(CUSTOM_TESTS[key])
+    slo_config = load_fixture('dummy_slo_config.json')
+    ebp_step = load_fixture(
+        'dummy_config.json')['error_budget_policies']['default'][0]
+    dummy_tests = load_fixture('dummy_tests.json')
+    backend = dummy_tests[key]
+    slo_config['spec']['method'] = backend['method']
+    backend['name'] = 'dummy'
+    backend['class'] = 'Dummy'
     timestamp = time.time()
     return {
-        "config": config,
-        "step": CUSTOM_STEP,
+        "config": slo_config,
+        "backend": backend,
+        "step": ebp_step,
         "timestamp": timestamp,
         "client": None,
         "delete": False
@@ -431,6 +325,18 @@ class mock_ssm_client:
         return data
 
 
+def get_fixture_path(filename):
+    """Get path for a fixture file.
+
+    Args:
+        filename (str): Filename of file in fixtures/.
+
+    Returns:
+        str: Full path of file in fixtures/.
+    """
+    return os.path.join(TEST_DIR, "fixtures/", filename)
+
+
 def load_fixture(filename, ctx=os.environ):
     """Load a fixture from the test/fixtures/ directory and replace context
     environmental variables in it.
@@ -442,8 +348,8 @@ def load_fixture(filename, ctx=os.environ):
     Returns:
         dict: Loaded fixture.
     """
-    filename = os.path.join(TEST_DIR, "fixtures/", filename)
-    return load_config(filename, ctx=ctx)
+    path = get_fixture_path(filename)
+    return load_config(path, ctx=ctx)
 
 
 def load_sample(filename, ctx=os.environ):
@@ -472,3 +378,10 @@ def load_slo_samples(folder_path, ctx=os.environ):
         list: List of loaded SLO configs.
     """
     return load_configs(f'{SAMPLE_DIR}/{folder_path}', ctx)
+
+
+# Add custom backends / exporters for testing purposes
+DUMMY_BACKEND_CODE = open(get_fixture_path('dummy_backend.py')).read()
+FAIL_EXPORTER_CODE = open(get_fixture_path('fail_exporter.py')).read()
+add_dynamic('dummy', DUMMY_BACKEND_CODE, 'backends')
+add_dynamic('fail', FAIL_EXPORTER_CODE, 'exporters')

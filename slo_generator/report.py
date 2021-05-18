@@ -17,6 +17,7 @@ Report utilities.
 """
 
 import logging
+from click import confirm
 from dataclasses import asdict, dataclass, fields, field
 
 from slo_generator import utils
@@ -212,7 +213,7 @@ class SLOReport:
         # Delete mode activation.
         if delete and hasattr(instance, 'delete'):
             method = instance.delete
-            LOGGER.warning(f'{info} | Delete mode enabled.')
+            LOGGER.info(f'{info} | Delete mode enabled.')
 
         # Run backend method and return results.
         data = method(self.timestamp, self.window, config)

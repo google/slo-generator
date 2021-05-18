@@ -117,6 +117,10 @@ def compute(slo_config,
     if timestamp is None:
         timestamp = time.time()
 
+    if slo_config is None:
+        LOGGER.error('SLO configuration is empty')
+        return []
+
     # Get exporters, backend and error budget policy
     spec = slo_config['spec']
     exporters = get_exporters(config, spec)

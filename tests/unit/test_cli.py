@@ -42,25 +42,36 @@ class TestCLI(unittest.TestCase):
 
     @patch('google.api_core.grpc_helpers.create_channel',
            return_value=mock_sd(8))
-    def test_cli(self, mock):
-        args = ['-f', self.slo_config, '-c', self.config]
+    def test_cli_compute(self, mock):
+        args = ['compute', '-f', self.slo_config, '-c', self.config]
         result = self.cli.invoke(main, args)
         self.assertEqual(result.exit_code, 0)
-        print(result.output)
 
     @patch('google.api_core.grpc_helpers.create_channel',
            return_value=mock_sd(40))
-    def test_cli_folder(self, mock):
-        args = ['-f', f'{root}/samples/cloud_monitoring', '-c', self.config]
+    def test_cli_compute_folder(self, mock):
+        args = [
+            'compute', '-f', f'{root}/samples/cloud_monitoring', '-c',
+            self.config
+        ]
         result = self.cli.invoke(main, args)
         self.assertEqual(result.exit_code, 0)
-        print(result.output)
 
-    def test_cli_no_config(self):
-        args = ['-f', f'{root}/samples', '-c', f'{root}/samples/config.yaml']
+    def test_cli_compute_no_config(self):
+        args = [
+            'compute', '-f', f'{root}/samples', '-c',
+            f'{root}/samples/config.yaml'
+        ]
         result = self.cli.invoke(main, args)
-        self.assertEqual(result.exit_code, 0)
-        print(result.output)
+        self.assertEqual(result.exit_code, 1)
+
+    def test_cli_api(self):
+        # TODO: Write test
+        pass
+
+    def test_cli_migrate(self):
+        # TODO: Write test
+        pass
 
 
 if __name__ == '__main__':
