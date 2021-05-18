@@ -82,7 +82,13 @@ pylint:
 	find ./$(NAME) ./tests -name \*.py | xargs pylint --rcfile .pylintrc --ignore-patterns=test_.*?py
 
 integration:
-	slo-generator run -f samples/ -c samples/config.yaml
+	slo-generator compute -f samples/cloud_monitoring -c samples/config.yaml
+	slo-generator compute -f samples/cloud_service_monitoring -c samples/config.yaml
+	slo-generator compute -f samples/custom -c samples/config.yaml
+	slo-generator compute -f samples/datadog -c samples/config.yaml
+	slo-generator compute -f samples/dynatrace -c samples/config.yaml
+	slo-generator compute -f samples/elasticsearch -c samples/config.yaml
+	slo-generator compute -f samples/prometheus -c samples/config.yaml
 
 # Docker
 docker_build:
