@@ -15,7 +15,6 @@
 
 Stubs for mocking backends and exporters.
 """
-import copy
 import json
 import os
 import sys

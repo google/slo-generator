@@ -90,7 +90,7 @@ def load_config(path, ctx=os.environ, kind=None):
             config = parse_config(content=str(path), ctx=ctx)
 
         if kind and config and kind != config.get('kind', ''):
-            return
+            config = None
 
         return config
 

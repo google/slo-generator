@@ -1,3 +1,10 @@
+"""dummy_backend.py
+
+Dummy backend implementation for testing.
+"""
+# pylint:disable=missing-class-docstring,missing-function-docstring,unused-argument
+
+
 class DummyBackend:
 
     def __init__(self, client=None, **config):

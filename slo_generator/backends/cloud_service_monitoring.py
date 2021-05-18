@@ -307,13 +307,12 @@ class CloudServiceMonitoringBackend:
             if not service_id:
                 if not service_name or not feature_name:
                     raise Exception(
-                        'Service id not set in SLO configuration. Please set either '
-                        '`spec.service_level_indicator.service_id` or both '
-                        '`metadata.labels.service_name` and '
-                        '`metadata.labels.feature_name` in your SLO configuration.'
-                    )
-                else:
-                    service_id = f'{service_name}-{feature_name}'
+                        'Service id not set in SLO configuration. Please set '
+                        'either `spec.service_level_indicator.service_id` or '
+                        'both `metadata.labels.service_name` and '
+                        '`metadata.labels.feature_name` in your SLO '
+                        'configuration.')
+                service_id = f'{service_name}-{feature_name}'
 
         if full:
             if dest_project_id:

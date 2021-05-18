@@ -1,3 +1,9 @@
+"""dummy_exporter.py
+
+Dummy exporter implementation for testing.
+"""
+# pylint: disable=missing-class-docstring
+
 from slo_generator.exporters.base import MetricsExporter
 
 

@@ -110,7 +110,7 @@ docker_build:
 	docker build -t slo-generator:latest .
 
 docker_test: docker_build
-	docker run --entrypoint "make test" \
+	docker run --entrypoint "make" \
 		-e GOOGLE_APPLICATION_CREDENTIALS=tests/unit/fixtures/fake_credentials.json \
 		slo-generator test
 

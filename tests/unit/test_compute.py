@@ -23,7 +23,7 @@ from prometheus_http_client import Prometheus
 from slo_generator.backends.dynatrace import DynatraceClient
 from slo_generator.compute import compute, export
 from slo_generator.exporters.bigquery import BigQueryError
-from slo_generator.exporters.base import MetricsExporter, DEFAULT_METRIC_LABELS
+from slo_generator.exporters.base import MetricsExporter
 from .test_stubs import (CTX, load_fixture, load_sample, load_slo_samples,
                          mock_dd_metric_query, mock_dd_metric_send,
                          mock_dd_slo_get, mock_dd_slo_history, mock_dt,

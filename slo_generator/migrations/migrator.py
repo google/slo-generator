@@ -15,10 +15,9 @@
 `v1tov2.py`
 Migrate utilities for migrating slo-generator configs from v1 to v2.
 """
-# pylint: disable=line-too-long, too-many-statements, too-many-ancestors
+# pylint: disable=line-too-long, too-many-statements, too-many-ancestors, too-many-locals, too-many-nested-blocks, unused-argument
 # flake8: noqa
 import copy
-import click
 import itertools
 import pprint
 import random
@@ -27,6 +26,7 @@ import sys
 from collections import OrderedDict
 from pathlib import Path
 
+import click
 import ruamel.yaml as yaml
 
 from slo_generator import utils

@@ -51,10 +51,8 @@ def run_compute(request):
     # Get SLO config
     if API_SIGNATURE_TYPE == 'http':
         timestamp = None
-        print(type(request))
         data = str(request.get_json())
-        print(data)
-        LOGGER.info(f'Loading SLO config from Flask request')
+        LOGGER.info('Loading SLO config from Flask request')
     elif API_SIGNATURE_TYPE == 'cloudevent':
         timestamp = int(
             datetime.strptime(request["time"], TIME_FORMAT).timestamp())
@@ -62,7 +60,6 @@ def run_compute(request):
         LOGGER.info(f'Loading SLO config from Cloud Event "{request["id"]}"')
 
     slo_config = load_config(data)
-    print(slo_config)
 
     # Get slo-generator config
     LOGGER.info(f'Loading slo-generator config from {CONFIG_PATH}')
@@ -77,7 +74,8 @@ def run_compute(request):
                       client=None,
                       do_export=True)
     if API_SIGNATURE_TYPE == 'http':
-        return jsonify(reports)
+        reports = jsonify(reports)
+    return reports
 
 
 def run_export(request):

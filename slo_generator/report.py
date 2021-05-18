@@ -17,7 +17,6 @@ Report utilities.
 """
 
 import logging
-from click import confirm
 from dataclasses import asdict, dataclass, fields, field
 
 from slo_generator import utils
