@@ -1,15 +1,15 @@
-# Stackdriver Service Monitoring
+# Cloud Service Monitoring
 
 ## Backend
 
-Using the `StackdriverServiceMonitoring` backend class, you can use the
-`Stackdriver Service Monitoring API` to manage your SLOs.
+Using the `CloudServiceMonitoring` backend class, you can use the
+`Cloud Service Monitoring API` to manage your SLOs.
 
-SLOs are created from standard metrics available in Stackdriver Monitoring and
-the data is stored in `Stackdriver Service Monitoring API` (see
+SLOs are created from standard metrics available in Cloud Monitoring and
+the data is stored in `Cloud Service Monitoring API` (see
   [docs](https://cloud.google.com/monitoring/service-monitoring/using-api)).
 
-The following methods are available to compute SLOs with the `Stackdriver`
+The following methods are available to compute SLOs with the `CloudServiceMonitoring`
 backend:
 
 * `basic` to create standard SLOs for Google App Engine, Google Kubernetes
@@ -19,13 +19,13 @@ Engine, and Cloud Endpoints.
 
 ### Basic
 
-The `basic` method is used to let the `Stackdriver Service Monitoring API`
+The `basic` method is used to let the `Cloud Service Monitoring API`
 automatically generate standardized SLOs for the following GCP services:
 * **Google App Engine**
 * **Google Kubernetes Engine** (with Istio)
 * **Google Cloud Endpoints**
 
-The SLO configuration uses Stackdriver
+The SLO configuration uses Cloud Monitoring
 [GCP metrics](https://cloud.google.com/monitoring/api/metrics_gcp) and only
 requires minimal configuration compared to custom SLOs.
 
@@ -45,7 +45,7 @@ backend:
 For details on filling the `app_engine` fields, see [AppEngine](https://cloud.google.com/monitoring/api/ref_v3/rest/v3/services#appengine)
 spec.
 
-**&rightarrow; [Full SLO config](../../samples/stackdriver_service_monitoring/slo_gae_app_availability_basic.yaml)**
+**&rightarrow; [Full SLO config](../../samples/cloud_service_monitoring/slo_gae_app_availability_basic.yaml)**
 
 **Example config (Cloud Endpoint latency):**
 
@@ -56,7 +56,7 @@ backend:
   project_id:      ${STACKDRIVER_HOST_PROJECT_ID}
   measurement:
     cloud_endpoints:
-      service:     ${ENDPOINT_URL}
+      service_name     ${ENDPOINT_URL}
     latency:
       threshold:   724 # ms
 ```
@@ -80,7 +80,7 @@ backend:
 For details on filling the `mesh_istio` fields, see [MeshIstio](https://cloud.google.com/monitoring/api/ref_v3/rest/v3/services#meshistio)
 spec.
 
-**&rightarrow; [Full SLO config](../../samples/stackdriver_service_monitoring/slo_gke_app_latency_basic.yaml)**
+**&rightarrow; [Full SLO config](../../samples/cloud_service_monitoring/slo_gke_app_latency_basic.yaml)**
 
 **Example config (Istio service latency) [DEPRECATED SOON]:**
 ```yaml
@@ -101,7 +101,7 @@ backend:
 For details on filling the `cluster_istio` fields, see [ClusterIstio](https://cloud.google.com/monitoring/api/ref_v3/rest/v3/services#clusteristio)
 spec.
 
-**&rightarrow; [Full SLO config](../../samples/stackdriver_service_monitoring/slo_gke_app_latency_basic_deprecated.yaml)**
+**&rightarrow; [Full SLO config](../../samples/cloud_service_monitoring/slo_gke_app_latency_basic_deprecated.yaml)**
 
 
 ### Good / bad ratio
@@ -137,11 +137,11 @@ backend:
 You can also use the `filter_bad` field which identifies bad events instead of
 the `filter_valid` field which identifies all valid events.
 
-**&rightarrow; [Full SLO config](../../samples/stackdriver_service_monitoring/slo_gae_app_availability.yaml)**
+**&rightarrow; [Full SLO config](../../samples/cloud_service_monitoring/slo_gae_app_availability.yaml)**
 
 ## Distribution cut
 
-The `distribution_cut` method is used for Stackdriver distribution-type metrics,
+The `distribution_cut` method is used for Cloud distribution-type metrics,
 which are usually used for latency metrics.
 
 A distribution metric records the **statistical distribution of the extracted
@@ -153,7 +153,7 @@ along with the `count`, `mean`, and `sum` of squared deviation of the values.
 
 ```yaml
 backend:
-  class:          StackdriverServiceMonitoring
+  class:          CloudServiceMonitoring
   project_id:     ${STACKDRIVER_HOST_PROJECT_ID}
   method:         distribution_cut
   measurement:
@@ -169,7 +169,7 @@ backend:
 The `range_min` and `range_max` are used to specify the latency range that we
 consider 'good'.
 
-**&rightarrow; [Full SLO config](../../samples/stackdriver_service_monitoring/slo_gae_app_latency.yaml)**
+**&rightarrow; [Full SLO config](../../samples/cloud_service_monitoring/slo_gae_app_latency.yaml)**
 
 
 ## Service Monitoring API considerations
@@ -225,7 +225,7 @@ random id.
 **Custom**
 
 Custom services are the ones you create yourself using the
-`Service Monitoring API` and the `slo-generator`.
+`Cloud Service Monitoring API` and the `slo-generator`.
 
 The following conventions are used by the `slo-generator` to give a unique id
 to a custom `Service` and `Service Level Objective` objects:
@@ -253,8 +253,8 @@ to the naming convention.
 
 ### Deleting objects
 
-To delete an SLO object in `Stackdriver Monitoring API` using the
-`StackdriverServiceMonitoringBackend` class, run the `slo-generator` with the
+To delete an SLO object in `Cloud Monitoring API` using the
+`CloudServiceMonitoring` class, run the `slo-generator` with the
 `-d` (or `--delete`) flag:
 
 ```
@@ -263,10 +263,10 @@ slo-generator -f <SLO_CONFIG_PATH> -b <ERROR_BUDGET_POLICY> --delete
 
 ## Alerting
 
-See the Stackdriver Service Monitoring [docs](https://cloud.google.com/monitoring/service-monitoring/alerting-on-budget-burn-rate)
+See the Cloud Service Monitoring [docs](https://cloud.google.com/monitoring/service-monitoring/alerting-on-budget-burn-rate)
 for instructions on alerting.
 
 ### Examples
 
-Complete SLO samples using `Stackdriver Service Monitoring` are available in [ samples/stackdriver_service_monitoring](../../samples/stackdriver_service_monitoring).
+Complete SLO samples using `Cloud Service Monitoring` are available in [ samples/cloud_service_monitoring](../../samples/cloud_service_monitoring).
 Check them out !
