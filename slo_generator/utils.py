@@ -89,7 +89,7 @@ def load_config(path, ctx=os.environ, kind=None):
                 f'Path {abspath} not found. Trying to load from string')
             config = parse_config(content=str(path), ctx=ctx)
 
-        if kind and kind != config.get('kind', ''):
+        if kind and config and kind != config.get('kind', ''):
             return
 
         return config
