@@ -6,10 +6,10 @@
 # useful targets:
 #	make clean -- clean distutils
 #	make coverage -- code coverage report
-#	make flake8 -- flake8 checks
-#	make pylint -- source code checks
-#	make tests -- run all of the tests
-#	make unit -- runs the unit tests
+#	make test -- run all tests
+#	make lint -- run lint tests
+#	make unit -- runs unit tests
+#   make integration -- runs integration tests
 ########################################################
 # variable section
 
