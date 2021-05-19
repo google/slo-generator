@@ -154,11 +154,13 @@ def setup_logging():
     if DEBUG == 1:
         print(f'DEBUG mode is enabled. DEBUG={DEBUG}')
         level = logging.DEBUG
+        format_str = '%(name)s - %(levelname)s - %(message)s'
     else:
         level = logging.INFO
+        format_str = '%(levelname)s - %(message)s'
     logging.basicConfig(stream=sys.stdout,
                         level=level,
-                        format='%(name)s - %(levelname)s - %(message)s',
+                        format=format_str,
                         datefmt='%m/%d/%Y %I:%M:%S')
     logging.getLogger('googleapiclient').setLevel(logging.ERROR)
 
