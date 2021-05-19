@@ -130,8 +130,7 @@ class SLOReport:
         See https://landing.google.com/sre/workbook/chapters/implementing-slos/
         for details on the calculations.
         """
-        info = self.get_step_info()
-        LOGGER.debug(f"{info} | SLO report starting ...")
+        LOGGER.debug(f"{self.info} | SLO report starting ...")
 
         # SLI, Good count, Bad count, Gap from backend results
         sli, good_count, bad_count = self.get_sli(data)
@@ -189,8 +188,6 @@ class SLOReport:
         Returns:
             obj: Backend data.
         """
-        info = self.get_step_info()
-
         # Grab backend class and method dynamically.
         cls_name = backend.get('class')
         method = config['spec']['method']
@@ -200,27 +197,28 @@ class SLOReport:
         }
         cls = utils.get_backend_cls(cls_name)
         if not cls:
-            LOGGER.warning(f'{info} | Backend {cls_name} not loaded.')
+            LOGGER.warning(f'{self.info} | Backend {cls_name} not loaded.')
             self.valid = False
             return None
         instance = cls(client=client, **backend_cfg)
         method = getattr(instance, method)
-        LOGGER.debug(f'{info} | '
+        LOGGER.debug(f'{self.info} | '
                      f'Using backend {cls_name}.{method.__name__} (from '
                      f'SLO config file).')
 
         # Delete mode activation.
         if delete and hasattr(instance, 'delete'):
             method = instance.delete
-            LOGGER.info(f'{info} | Delete mode enabled.')
+            LOGGER.info(f'{self.info} | Delete mode enabled.')
 
         # Run backend method and return results.
         try:
             data = method(self.timestamp, self.window, config)
-            LOGGER.debug(f'{info} | Backend response: {data}')
+            LOGGER.debug(f'{self.info} | Backend response: {data}')
         except Exception as exc:  # pylint:disable=broad-except
             LOGGER.exception(exc)
-            LOGGER.error(f'{info} | Backend error occured while fetching data.')
+            LOGGER.error(
+                f'{self.info} | Backend error occured while fetching data.')
             return None
         return data
 
@@ -243,14 +241,13 @@ class SLOReport:
         Raises:
             Exception: When the backend does not return a proper result.
         """
-        info = self.get_step_info()
         if isinstance(data, tuple):  # good, bad count
             good_count, bad_count = data
             if good_count == NO_DATA:
                 good_count = 0
             if bad_count == NO_DATA:
                 bad_count = 0
-            LOGGER.debug(f'{info} | Good: {good_count} | Bad: {bad_count}')
+            LOGGER.debug(f'{self.info} | Good: {good_count} | Bad: {bad_count}')
             sli_measurement = round(good_count / (good_count + bad_count), 6)
         else:  # sli value
             sli_measurement = round(data, 6)
@@ -272,8 +269,6 @@ class SLOReport:
         Returns:
             bool: True if data is valid, False
         """
-        info = self.get_step_info()
-
         # Backend not found
         if data is None:
             return False
@@ -281,7 +276,7 @@ class SLOReport:
         # Backend result is the wrong type
         if not isinstance(data, (tuple, float, int)):
             LOGGER.error(
-                f'{info} | Backend method returned an object of type '
+                f'{self.info} | Backend method returned an object of type '
                 f'{type(data).__name__}. It should instead return a tuple '
                 '(good_count, bad_count) or a numeric SLI value (float / int).')
             return False
@@ -292,27 +287,28 @@ class SLOReport:
             # Tuple length should be 2
             if len(data) != 2:
                 LOGGER.error(
-                    f'{info} | Backend method returned a tuple with {len(data)}'
-                    ' elements. Expected 2 elements.')
+                    f'{self.info} | Backend method returned a tuple with '
+                    f'{len(data)} elements. Expected 2 elements.')
                 return False
             good, bad = data
 
             # Tuple should contain only elements of type int or float
             if not all(isinstance(n, (float, int)) for n in data):
-                LOGGER.error(f'{info} | Backend method returned'
+                LOGGER.error(f'{self.info} | Backend method returned'
                              'a tuple with some elements having '
                              'a type different than float / int')
                 return False
 
             # Tuple should not contain any element with value None.
             if good is None or bad is None:
-                LOGGER.error(f'{info} | Backend method returned a valid tuple '
-                             f'{data} but one of the values is None.')
+                LOGGER.error(
+                    f'{self.info} | Backend method returned a valid tuple '
+                    f'{data} but one of the values is None.')
                 return False
 
             # Tuple should not have NO_DATA everywhere
             if (good + bad) == (NO_DATA, NO_DATA):
-                LOGGER.error(f'{info} | Backend method returned a valid '
+                LOGGER.error(f'{self.info} | Backend method returned a valid '
                              f'tuple {data} but the good and bad count '
                              'is NO_DATA (-1).')
                 return False
@@ -320,18 +316,18 @@ class SLOReport:
             # Tuple should not have elements where the sum is inferior to our
             # minimum valid events threshold
             if (good + bad) < MIN_VALID_EVENTS:
-                LOGGER.error(f'{info} | Not enough valid events found | '
+                LOGGER.error(f'{self.info} | Not enough valid events found | '
                              f'Minimum valid events: {MIN_VALID_EVENTS}')
                 return False
 
         # Check backend float / int value
         if isinstance(data, (float, int)) and data == NO_DATA:
-            LOGGER.error(f'{info} | Backend returned NO_DATA (-1).')
+            LOGGER.error(f'{self.info} | Backend returned NO_DATA (-1).')
             return False
 
         # Check backend None
         if data is None:
-            LOGGER.error(f'{info} | Backend returned None.')
+            LOGGER.error(f'{self.info} | Backend returned None.')
             return False
 
         return True
@@ -341,8 +337,8 @@ class SLOReport:
 
         # SLI measurement should be 0 <= x <= 1
         if not 0 <= self.sli_measurement <= 1:
-            LOGGER.error(
-                f'SLI is not between 0 and 1 (value = {self.sli_measurement})')
+            LOGGER.error(f'{self.info} | SLI is not between 0 and 1 (value = '
+                         f'{self.sli_measurement})')
             return False
 
         return True
@@ -364,14 +360,13 @@ class SLOReport:
                 value = lambdas[name](value)
             setattr(self, name, value)
 
-    def get_step_info(self):
-        """Get info message describing current SLO and current Error Budget
-        Policy Step."""
+    @property
+    def info(self):
+        """Step information."""
         return f"{self.name :<32} | {self.error_budget_policy_step_name :<8}"
 
     def __str__(self):
         report = self.to_json()
-        info_str = self.get_step_info()
         goal_per = self.goal * 100
         sli_per = round(self.sli_measurement * 100, 6)
         gap = round(self.gap * 100, 2)
@@ -385,7 +380,7 @@ class SLOReport:
                       '{error_budget_burn_rate_threshold} | '
                       'Alert: {alert:<1} | Good: {good_events_count:<8} | '
                       'Bad: {bad_events_count:<8}').format_map(report)
-        full_str = f'{info_str} | {sli_str} | {result_str}'
+        full_str = f'{self.info} | {sli_str} | {result_str}'
         if COLORED_OUTPUT == 1:
             if self.alert:
                 full_str = Colors.FAIL + full_str + Colors.ENDC
