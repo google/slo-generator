@@ -2,7 +2,7 @@
 
 ## Problem
 
-**`StackdriverExporter`: Labels limit (10) reached.**
+**`cloud_monitoring` exporter: Labels limit (10) reached.**
 
 ```
 The new labels would cause the metric custom.googleapis.com/slo_target to have over 10 labels.: timeSeries[0]"
