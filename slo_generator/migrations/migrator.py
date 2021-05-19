@@ -223,6 +223,8 @@ def slo_config_v1tov2(slo_config, shared_config={}, quiet=False, verbose=0):
     backend = slo_config['backend']
     method = backend.pop('method')
     exporters = slo_config.get('exporters', [])
+    if isinstance(exporters, dict):  # single exporter, deprecated
+        exporters = [exporters]
 
     # Fill spec
     slo_config_v2['metadata']['name'] = slo_metadata_name
