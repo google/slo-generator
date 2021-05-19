@@ -43,4 +43,6 @@ htmlcov/
 *.tfstate.*.backup
 .vscode
 .env
+venv/
+.venv/
 reports/
