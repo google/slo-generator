@@ -89,9 +89,10 @@ def load_config(path, ctx=os.environ, kind=None):
                 f'Path {abspath} not found. Trying to load from string')
             config = parse_config(content=str(path), ctx=ctx)
 
-        if kind and config and kind != config.get('kind', ''):
-            config = None
-
+        # Filter on 'kind'
+        if kind:
+            if not isinstance(config, dict) or kind != config.get('kind', ''):
+                config = None
         return config
 
     except OSError as exc:
