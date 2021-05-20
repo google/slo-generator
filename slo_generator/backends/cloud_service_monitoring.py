@@ -34,7 +34,7 @@ LOGGER = logging.getLogger(__name__)
 SID_GAE = 'gae:{project_id}_{module_id}'
 SID_CLOUD_ENDPOINT = 'ist:{project_id}-{service}'
 SID_CLUSTER_ISTIO = (
-    'ist:{project_id}-zone-{location}-{cluster_name}-{service_namespace}-'
+    'ist:{project_id}-{suffix}-{location}-{cluster_name}-{service_namespace}-'
     '{service_name}')
 SID_MESH_ISTIO = ('ist:{mesh_uid}-{service_namespace}-{service_name}')
 
@@ -290,6 +290,11 @@ class CloudServiceMonitoringBackend:
                 'ClusterIstio is deprecated in the Service Monitoring API.'
                 'It will be removed in version 3.0, please use MeshIstio '
                 'instead', FutureWarning)
+            if 'location' in cluster_istio:
+                cluster_istio['suffix'] = 'location'
+            elif 'zone' in cluster_istio:
+                cluster_istio['suffix'] = 'zone'
+                cluster_istio['location'] = cluster_istio['zone']
             service_id = SID_CLUSTER_ISTIO.format_map(cluster_istio)
             dest_project_id = cluster_istio['project_id']
         elif mesh_istio:
