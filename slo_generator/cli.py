@@ -20,8 +20,8 @@ import logging
 import os
 import sys
 import time
-from importlib.metadata import version as get_package_version
 from pathlib import Path
+from pkg_resources import get_distribution
 
 import click
 from slo_generator import utils
@@ -44,7 +44,7 @@ def main(ctx, version):
     """CLI entrypoint."""
     utils.setup_logging()
     if ctx.invoked_subcommand is None or version:
-        ver = get_package_version('slo-generator')
+        ver = get_distribution('slo-generator').version
         print(f'slo-generator v{ver}')
         sys.exit(0)
 
