@@ -30,22 +30,29 @@ here = path.abspath(path.dirname(__file__))
 # Package metadata.
 name = "slo-generator"
 description = "SLO Generator"
-version = "2.0.0a0"
+version = "2.0.0dev2"
 # Should be one of:
 # 'Development Status :: 3 - Alpha'
 # 'Development Status :: 4 - Beta'
 # 'Development Status :: 5 - Production/Stable'
 release_status = "Development Status :: 3 - Alpha"
-dependencies = ['pyyaml', 'ruamel.yaml', 'python-dateutil', 'click']
+dependencies = ['pyyaml', 'ruamel.yaml', 'python-dateutil', 'click < 8.0']
 extras = {
     'api': ['Flask', 'gunicorn', 'cloudevents', 'functions-framework'],
     'prometheus': ['prometheus-client', 'prometheus-http-client'],
     'datadog': ['datadog', 'retrying==1.3.3'],
+    'dynatrace': ['requests'],
     'bigquery': [
         'google-api-python-client < 2.0.0', 'google-cloud-bigquery < 3.0.0'
     ],
     'cloud_monitoring': [
         'google-api-python-client < 2.0.0', 'google-cloud-monitoring < 2.0.0'
+    ],
+    'cloud_service_monitoring': [
+        'google-api-python-client < 2.0.0', 'google-cloud-monitoring < 2.0.0'
+    ],
+    'cloud_storage': [
+        'google-api-python-client < 2.0.0', 'google-cloud-storage'
     ],
     'pubsub': [
         'google-api-python-client < 2.0.0', 'google-cloud-pubsub==1.7.0'
