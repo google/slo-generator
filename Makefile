@@ -6,9 +6,9 @@
 # useful targets:
 #	make clean -- clean distutils
 #	make coverage -- code coverage report
-#	make test -- run all tests
-#	make lint -- run lint tests
-#	make unit -- runs unit tests
+#	make test -- run lint + unit tests
+#	make lint -- run lint tests separately
+#	make unit -- runs unit tests separately
 #   make integration -- runs integration tests
 ########################################################
 # variable section
@@ -63,8 +63,7 @@ develop:
 install: clean
 	$(PIP) install -e ."[api, datadog, prometheus, elasticsearch, pubsub, cloud_monitoring, bigquery, dev]"
 
-# Local tests
-test: install unit integration lint
+test: install unit lint
 
 unit: clean
 	nosetests $(NOSE_OPTS) tests/unit/* -v
@@ -104,7 +103,11 @@ int_es:
 int_prom:
 	slo-generator compute -f samples/prometheus -c samples/config.yaml
 
-# Docker
+# Run API locally
+run_api:
+	slo-generator api --target=run_compute --signature-type=http
+
+# Local Docker build / push
 docker_build:
 	DOCKER_BUILDKIT=1
 	docker build -t slo-generator:latest .
@@ -114,26 +117,24 @@ docker_test: docker_build
 		-e GOOGLE_APPLICATION_CREDENTIALS=tests/unit/fixtures/fake_credentials.json \
 		slo-generator test
 
-# API 
-run_api:
-	slo-generator api --target=run_compute --signature-type=cloudevent
+# Cloudbuild
+cloudbuild:
+	gcloud alpha builds submit \
+	--config=cloudbuild.yaml \
+	--project=${CLOUDBUILD_PROJECT_ID} \
+	--substitutions=_GCR_PROJECT_ID=${GCR_PROJECT_ID},_VERSION=${VERSION}
 
-docker_build_api:
-	cd slo_generator/api && \
-	pack build \
-	--builder gcr.io/buildpacks/builder:v1 \
-	--env GOOGLE_FUNCTION_SIGNATURE_TYPE=cloudevent \
-	--env GOOGLE_FUNCTION_TARGET=run_compute \
-	slo-generator-api
-
-docker_push:
-	gcloud auth configure-docker -q
-	docker tag slo-generator-api gcr.io/${PROJECT_ID}/slo-generator-api:${VERSION}
-	docker push gcr.io/${PROJECT_ID}/slo-generator-api
-
-cloudbuild_api: 
-	cd slo_generator/api && \
-	gcloud alpha builds submit --pack image=gcr.io/${PROJECT_ID}/slo-generator-api:${VERSION},env=GOOGLE_FUNCTION_SIGNATURE_TYPE=cloudevent,env=GOOGLE_FUNCTION_TARGET=run_compute
-
-deploy_api:
-	gcloud run deploy --image gcr.io/${PROJECT_ID}/slo-generator-api:${VERSION} --platform managed --set-env-vars CONFIG_URL=${CONFIG_URL} --service-account=${SERVICE_ACCOUNT}
+# Cloudrun
+cloudrun:
+	gcloud run deploy slo-generator \
+	--image gcr.io/${GCR_PROJECT_ID}/slo-generator:${VERSION} \
+	--region=${REGION} \
+	--platform managed \
+	--set-env-vars CONFIG_PATH=${CONFIG_URL} \
+	--service-account=${SERVICE_ACCOUNT} \
+	--project=${CLOUDRUN_PROJECT_ID} \
+	--command="slo-generator" \
+	--args=api \
+	--args=--signature-type="${SIGNATURE_TYPE}" \
+	--min-instances 1 \
+	--allow-unauthenticated
