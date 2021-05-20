@@ -2,20 +2,27 @@
 
 ## Backend
 
-Using the `CloudServiceMonitoring` backend class, you can use the
+Using the `cloud_service_monitoring` backend, you can use the
 `Cloud Service Monitoring API` to manage your SLOs.
+
+```yaml
+backends:
+  cloud_service_monitoring:
+    project_id: "${WORKSPACE_PROJECT_ID}"
+```
 
 SLOs are created from standard metrics available in Cloud Monitoring and
 the data is stored in `Cloud Service Monitoring API` (see
   [docs](https://cloud.google.com/monitoring/service-monitoring/using-api)).
 
-The following methods are available to compute SLOs with the `CloudServiceMonitoring`
+The following methods are available to compute SLOs with the `cloud_service_monitoring`
 backend:
 
 * `basic` to create standard SLOs for Google App Engine, Google Kubernetes
 Engine, and Cloud Endpoints.
 * `good_bad_ratio` for metrics of type `DELTA` or `CUMULATIVE`.
 * `distribution_cut` for metrics of type `DELTA` and unit `DISTRIBUTION`.
+
 
 ### Basic
 
@@ -32,15 +39,13 @@ requires minimal configuration compared to custom SLOs.
 **Example config (App Engine availability):**
 
 ```yaml
-backend:
-  class:            StackdriverServiceMonitoring
-  method:           basic
-  project_id:       ${STACKDRIVER_HOST_PROJECT_ID}
-  measurement:
-    app_engine:
-      project_id:   ${GAE_PROJECT_ID}
-      module_id:    ${GAE_MODULE_ID}
-    availability:   {}
+backend: cloud_service_monitoring
+method: basic
+service_level_indicator:
+  app_engine:
+    project_id: ${GAE_PROJECT_ID}
+    module_id: ${GAE_MODULE_ID}
+  availability: {}
 ```
 For details on filling the `app_engine` fields, see [AppEngine](https://cloud.google.com/monitoring/api/ref_v3/rest/v3/services#appengine)
 spec.
@@ -50,53 +55,47 @@ spec.
 **Example config (Cloud Endpoint latency):**
 
 ```yaml
-backend:
-  class:           StackdriverServiceMonitoring
-  method:          basic
-  project_id:      ${STACKDRIVER_HOST_PROJECT_ID}
-  measurement:
-    cloud_endpoints:
-      service_name     ${ENDPOINT_URL}
-    latency:
-      threshold:   724 # ms
+backend: cloud_service_monitoring
+method: basic
+service_level_indicator:
+  cloud_endpoints:
+    service_name: ${ENDPOINT_URL}
+  latency:
+    threshold: 724 # ms
 ```
 For details on filling the `cloud_endpoints` fields, see [CloudEndpoint](https://cloud.google.com/monitoring/api/ref_v3/rest/v3/services#cloudendpoints)
 spec.
 
-**Example config (Istio service latency) [NOT YET RELEASED]:**
+**Example config (Istio service latency):**
 ```yaml
-backend:
-  class:                 StackdriverServiceMonitoring
-  method:                basic
-  project_id:            ${STACKDRIVER_HOST_PROJECT_ID}
-  measurement:
-    mesh_istio:
-      mesh_uid:          ${GKE_MESH_UID}
-      service_namespace: ${GKE_SERVICE_NAMESPACE}
-      service_name:      ${GKE_SERVICE_NAME}
-    latency:
-      threshold:         500 # ms
+backend: cloud_service_monitoring
+method: basic
+service_level_indicator:
+  mesh_istio:
+    mesh_uid: ${GKE_MESH_UID}
+    service_namespace: ${GKE_SERVICE_NAMESPACE}
+    service_name: ${GKE_SERVICE_NAME}
+  latency:
+    threshold: 500 # ms
 ```
 For details on filling the `mesh_istio` fields, see [MeshIstio](https://cloud.google.com/monitoring/api/ref_v3/rest/v3/services#meshistio)
 spec.
 
 **&rightarrow; [Full SLO config](../../samples/cloud_service_monitoring/slo_gke_app_latency_basic.yaml)**
 
-**Example config (Istio service latency) [DEPRECATED SOON]:**
+**Example config (Istio service latency) [DEPRECATED]:**
 ```yaml
-backend:
-  class:                 StackdriverServiceMonitoring
-  method:                basic
-  project_id:            ${STACKDRIVER_HOST_PROJECT_ID}
-  measurement:
-    cluster_istio:
-      project_id:        ${GKE_PROJECT_ID}
-      location:          ${GKE_LOCATION}
-      cluster_name:      ${GKE_CLUSTER_NAME}
-      service_namespace: ${GKE_SERVICE_NAMESPACE}
-      service_name:      ${GKE_SERVICE_NAME}
-    latency:
-      threshold:         500 # ms
+backend: cloud_service_monitoring
+method: basic
+service_level_indicator:
+  cluster_istio:
+    project_id: ${GKE_PROJECT_ID}
+    location: ${GKE_LOCATION}
+    cluster_name: ${GKE_CLUSTER_NAME}
+    service_namespace: ${GKE_SERVICE_NAMESPACE}
+    service_name: ${GKE_SERVICE_NAME}
+  latency:
+    threshold: 500 # ms
 ```
 For details on filling the `cluster_istio` fields, see [ClusterIstio](https://cloud.google.com/monitoring/api/ref_v3/rest/v3/services#clusteristio)
 spec.
@@ -118,20 +117,18 @@ purposes as well (see examples).
 
 **Example config:**
 ```yaml
-backend:
-  class:          StackdriverServiceMonitoring
-  project_id:     ${STACKDRIVER_HOST_PROJECT_ID}
-  method:         good_bad_ratio
-  measurement:
-    filter_good:  >
-      project="${GAE_PROJECT_ID}"
-      metric.type="appengine.googleapis.com/http/server/response_count"
-      resource.type="gae_app"
-      metric.labels.response_code >= 200
-      metric.labels.response_code < 500
-    filter_valid: >
-      project="${GAE_PROJECT_ID}"
-      metric.type="appengine.googleapis.com/http/server/response_count"
+backend: cloud_service_monitoring
+method: good_bad_ratio
+service_level_indicator:
+  filter_good:  >
+    project="${GAE_PROJECT_ID}"
+    metric.type="appengine.googleapis.com/http/server/response_count"
+    resource.type="gae_app"
+    metric.labels.response_code >= 200
+    metric.labels.response_code < 500
+  filter_valid: >
+    project="${GAE_PROJECT_ID}"
+    metric.type="appengine.googleapis.com/http/server/response_count"
 ```
 
 You can also use the `filter_bad` field which identifies bad events instead of
@@ -152,18 +149,16 @@ along with the `count`, `mean`, and `sum` of squared deviation of the values.
 **Example config:**
 
 ```yaml
-backend:
-  class:          CloudServiceMonitoring
-  project_id:     ${STACKDRIVER_HOST_PROJECT_ID}
-  method:         distribution_cut
-  measurement:
-    filter_valid: >
-      project=${GAE_PROJECT_ID}
-      metric.type=appengine.googleapis.com/http/server/response_latencies
-      metric.labels.response_code >= 200
-      metric.labels.response_code < 500
-    range_min:    0
-    range_max:    724 # ms
+backend: cloud_service_monitoring
+method: distribution_cut
+service_level_indicator:
+  filter_valid: >
+    project=${GAE_PROJECT_ID}
+    metric.type=appengine.googleapis.com/http/server/response_latencies
+    metric.labels.response_code >= 200
+    metric.labels.response_code < 500
+  range_min: 0
+  range_max: 724 # ms
 ```
 
 The `range_min` and `range_max` are used to specify the latency range that we
@@ -175,7 +170,7 @@ consider 'good'.
 ## Service Monitoring API considerations
 
 ### Tracking objects
-Since `Stackdriver Service Monitoring API` persists `Service` and
+Since `Cloud Service Monitoring API` persists `Service` and
 `ServiceLevelObjective` objects, we need ways to keep our local SLO YAML
 configuration synced with the remote objects.
 
@@ -214,7 +209,7 @@ unique id to an auto-imported `Service`:
   * **Cluster Istio [DEPRECATED SOON]:**
 
     ```
-    ist:{project_id}-zone-{location}-{cluster_name}-{service_namespace}-{service_name}
+    ist:{project_id}-{suffix}-{location}-{cluster_name}-{service_namespace}-{service_name}
     ```
     &rightarrow; *Make sure that the `cluster_istio` block in your config has
     the correct fields corresponding to your Istio service.*
@@ -230,14 +225,14 @@ Custom services are the ones you create yourself using the
 The following conventions are used by the `slo-generator` to give a unique id
 to a custom `Service` and `Service Level Objective` objects:
 
-* `service_id = ${service_name}-${feature_name}`
+* `service_id = ${metadata.service_name}-${metadata.feature_name}`
 
-* `slo_id = ${service_name}-${feature_name}-${slo_name}-${window}`
+* `slo_id = ${metadata.service_name}-${metadata.feature_name}-${metadata.slo_name}-${window}`
 
 To keep track of those, **do not update any of the following fields** in your
 configs:
 
-  * `service_name`, `feature_name` and `slo_name` in the SLO config.
+  * `metadata.service_name`, `metadata.feature_name` and `metadata.slo_name` in the SLO config.
 
   * `window` in the Error Budget Policy.
 
@@ -246,15 +241,12 @@ If you need to make updates to any of those fields, first run the
   [#deleting-objects](#deleting-objects)), then re-run normally.
 
 To import an existing custom `Service` objects, find out your service id from
-the API and fill the `service_id` in the SLO configuration.
-
-You cannot import an existing custom `ServiceLevelObjective` unless it complies
-to the naming convention.
+the API and fill the `service_id` in the `service_level_indicator` configuration.
 
 ### Deleting objects
 
 To delete an SLO object in `Cloud Monitoring API` using the
-`CloudServiceMonitoring` class, run the `slo-generator` with the
+`cloud_service_monitoring` class, run the `slo-generator` with the
 `-d` (or `--delete`) flag:
 
 ```

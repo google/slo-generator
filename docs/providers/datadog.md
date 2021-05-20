@@ -2,15 +2,27 @@
 
 ## Backend
 
-Using the `Datadog` backend class, you can query any metrics available in
+Using the `datadog` backend class, you can query any metrics available in
 Datadog to create an SLO.
 
-The following methods are available to compute SLOs with the `Datadog`
+```yaml
+backends:
+  datadog:
+    api_key: ${DATADOG_API_KEY}
+    app_key: ${DATADOG_APP_KEY}
+```
+
+The following methods are available to compute SLOs with the `datadog`
 backend:
 
 * `good_bad_ratio` for computing good / bad metrics ratios.
 * `query_sli` for computing SLIs directly with Datadog.
 * `query_slo` for getting SLO value from Datadog SLO endpoint.
+
+Optional arguments to configure Datadog are documented in the Datadog
+`initialize` method [here](https://github.com/DataDog/datadogpy/blob/058114cc3d65483466684c96a5c23e36c3aa052e/datadog/__init__.py#L33).
+You can pass them in the `backend` section, such as specifying
+`api_host: api.datadoghq.eu` in order to use the EU site.
 
 ### Good / bad ratio
 
@@ -27,44 +39,28 @@ purposes as well (see examples).
 **Config example:**
 
 ```yaml
-backend:
-  class:   Datadog
-  method:  good_bad_ratio
-  api_key: ${DATADOG_API_KEY}
-  app_key: ${DATADOG_APP_KEY}
-  measurement:
-    filter_good: app.requests.count{http.path:/, http.status_code_class:2xx}
-    filter_valid: app.requests.count{http.path:/}
+backend: datadog
+method:  good_bad_ratio
+service_level_indicator:
+  filter_good: app.requests.count{http.path:/, http.status_code_class:2xx}
+  filter_valid: app.requests.count{http.path:/}
 ```
 **&rightarrow; [Full SLO config](../../samples/datadog/slo_dd_app_availability_ratio.yaml)**
-
-Optional arguments to configure Datadog are documented in the Datadog
-`initialize` method [here](https://github.com/DataDog/datadogpy/blob/058114cc3d65483466684c96a5c23e36c3aa052e/datadog/__init__.py#L33).
-You can pass them in the `backend` section, such as specifying
-`api_host: api.datadoghq.eu` in order to use the EU site.
 
 ### Query SLI
 
 The `query_sli` method is used to directly query the needed SLI with Datadog:
 Datadog's query language is powerful enough that it can do ratios natively.
 
-This method makes it more flexible to input any `Datadog` SLI computation and
+This method makes it more flexible to input any `datadog` SLI computation and
 eventually reduces the number of queries made to Datadog.
 
 ```yaml
-backend:
-  class:   Datadog
-  method:  query_sli
-  api_key: ${DATADOG_API_KEY}
-  app_key: ${DATADOG_APP_KEY}
-  measurement:
-    expression: sum:app.requests.count{http.path:/, http.status_code_class:2xx} / sum:app.requests.count{http.path:/}
+backend: datadog
+method: query_sli
+service_level_indicator:
+  expression: sum:app.requests.count{http.path:/, http.status_code_class:2xx} / sum:app.requests.count{http.path:/}
 ```
-
-Optional arguments to configure Datadog are documented in the Datadog
-`initialize` method [here](https://github.com/DataDog/datadogpy/blob/058114cc3d65483466684c96a5c23e36c3aa052e/datadog/__init__.py#L33).
-You can pass them in the `backend` section, such as specifying
-`api_host: api.datadoghq.eu` in order to use the EU site.
 
 **&rightarrow; [Full SLO config](../../samples/datadog/slo_dd_app_availability_query_sli.yaml)**
 
@@ -73,46 +69,43 @@ You can pass them in the `backend` section, such as specifying
 The `query_slo` method is used to directly query the needed SLO with Datadog:
 indeed, Datadog has SLO objects that you can directly refer to in your config by inputing their `slo_id`.
 
-This method makes it more flexible to input any `Datadog` SLI computation and
+This method makes it more flexible to input any `datadog` SLI computation and
 eventually reduces the number of queries made to Datadog.
 
 To query the value from Datadog SLO, simply add a `slo_id` field in the
 `measurement` section:
 
 ```yaml
-...
-backend:
-  class:   Datadog
-  method:  query_slo
-  api_key: ${DATADOG_API_KEY}
-  app_key: ${DATADOG_APP_KEY}
-  measurement:
-    slo_id:  ${DATADOG_SLO_ID}
+backend: datadog
+method: query_slo
+service_level_indicator:
+  slo_id: ${DATADOG_SLO_ID}
 ```
 
 **&rightarrow; [Full SLO config](../../samples/datadog/slo_dd_app_availability_query_slo.yaml)**
 
 ### Examples
 
-Complete SLO samples using `Datadog` are available in
+Complete SLO samples using `datadog` are available in
 [samples/datadog](../../samples/datadog). Check them out!
 
 ## Exporter
 
-The `Datadog` exporter allows to export SLO metrics to the Datadog API.
-
-**Example config:**
+The `datadog` exporter allows to export SLO metrics to the Datadog API.
 
 ```yaml
 exporters:
- - class: Datadog
+ datadog:
    api_key: ${DATADOG_API_KEY}
    app_key: ${DATADOG_APP_KEY}
 ```
+Optional arguments to configure Datadog are documented in the Datadog
+`initialize` method [here](https://github.com/DataDog/datadogpy/blob/058114cc3d65483466684c96a5c23e36c3aa052e/datadog/__init__.py#L33).
+You can pass them in the `backend` section, such as specifying
+`api_host: api.datadoghq.eu` in order to use the EU site.
 
 Optional fields:
-  * `metrics`: List of metrics to export ([see docs](../shared/metrics.md)). Defaults to [`custom:error_budget_burn_rate`, `custom:sli_measurement`].
-
+  * `metrics`: [*optional*] `list` - List of metrics to export ([see docs](../shared/metrics.md)).
 
 **&rightarrow; [Full SLO config](../../samples/datadog/slo_dd_app_availability_ratio.yaml)**
 

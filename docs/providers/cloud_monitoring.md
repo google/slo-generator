@@ -2,14 +2,21 @@
 
 ## Backend
 
-Using the `CloudMonitoring` backend class, you can query any metrics available 
-in Cloud Monitoring to create an SLO.
+Using the `cloud_monitoring` backend class, you can query any metrics available 
+in `Cloud Monitoring` to create an SLO.
 
-The following methods are available to compute SLOs with the `CloudMonitoring`
+```yaml
+backends:
+  cloud_monitoring:
+    project_id: "${WORKSPACE_PROJECT_ID}"
+```
+
+The following methods are available to compute SLOs with the `cloud_monitoring`
 backend:
 
 * `good_bad_ratio` for metrics of type `DELTA`, `GAUGE`, or `CUMULATIVE`.
 * `distribution_cut` for metrics of type `DELTA` and unit `DISTRIBUTION`.
+
 
 ### Good / bad ratio
 
@@ -23,21 +30,19 @@ SLO.
 This method is often used for availability SLOs, but can be used for other
 purposes as well (see examples).
 
-**Config example:**
+**SLO config blob:**
 ```yaml
-backend:
-  class: Stackdriver
-  project_id: "${STACKDRIVER_HOST_PROJECT_ID}"
-  method: good_bad_ratio
-  measurement:
-    filter_good: >
-      project="${GAE_PROJECT_ID}"
-      metric.type="appengine.googleapis.com/http/server/response_count"
-      metric.labels.response_code >= 200
-      metric.labels.response_code < 500
-    filter_valid: >
-      project="${GAE_PROJECT_ID}"
-      metric.type="appengine.googleapis.com/http/server/response_count"
+backend: cloud_monitoring
+method: good_bad_ratio
+service_level_indicator:
+  filter_good: >
+    project="${GAE_PROJECT_ID}"
+    metric.type="appengine.googleapis.com/http/server/response_count"
+    metric.labels.response_code >= 200
+    metric.labels.response_code < 500
+  filter_valid: >
+    project="${GAE_PROJECT_ID}"
+    metric.type="appengine.googleapis.com/http/server/response_count"
 ```
 
 You can also use the `filter_bad` field which identifies bad events instead of
@@ -47,8 +52,8 @@ the `filter_valid` field which identifies all valid events.
 
 ### Distribution cut
 
-The `distribution_cut` method is used for Cloud Monitoring distribution-type metrics,
-which are usually used for latency metrics.
+The `distribution_cut` method is used for Cloud Monitoring distribution-type 
+metrics, which are usually used for latency metrics.
 
 A distribution metric records the **statistical distribution of the extracted
 values** in **histogram buckets**. The extracted values are not recorded
@@ -62,20 +67,18 @@ boundaries:
 exponential growth factor.
 * **Explicit:** Bucket boundaries are set for each bucket using a bounds array.
 
-**Config example:**
+**SLO config blob:**
 ```yaml
-backend:
-  class: Stackdriver
-  project_id: ${STACKDRIVER_HOST_PROJECT_ID}
-  method: exponential_distribution_cut
-  measurement:
-    filter_valid: >
-      project=${GAE_PROJECT_ID} AND
-      metric.type=appengine.googleapis.com/http/server/response_latencies AND
-      metric.labels.response_code >= 200 AND
-      metric.labels.response_code < 500
-    good_below_threshold: true
-    threshold_bucket: 19
+backend: cloud_monitoring
+method: exponential_distribution_cut
+service_level_indicator:
+  filter_valid: >
+    project=${GAE_PROJECT_ID} AND
+    metric.type=appengine.googleapis.com/http/server/response_latencies AND
+    metric.labels.response_code >= 200 AND
+    metric.labels.response_code < 500
+  good_below_threshold: true
+  threshold_bucket: 19
 ```
 **&rightarrow; [Full SLO config](../../samples/cloud_monitoring/slo_gae_app_latency.yaml)**
 
@@ -84,21 +87,16 @@ how the buckets boundaries are set. Learn how to [inspect your distribution metr
 
 ## Exporter
 
-The `CloudMonitoring` exporter allows to export SLO metrics to Cloud Monitoring API.
-
-**Example config:**
-
-The following configuration will create the custom metric
-`error_budget_burn_rate` in `Cloud Monitoring`:
+The `cloud_monitoring` exporter allows to export SLO metrics to Cloud Monitoring API.
 
 ```yaml
-exporters:
-  - class: Stackdriver
-    project_id: "${STACKDRIVER_HOST_PROJECT_ID}"
+backends:
+  cloud_monitoring:
+    project_id: "${WORKSPACE_PROJECT_ID}"
 ```
 
 Optional fields:
-  * `metrics`: List of metrics to export ([see docs](../shared/metrics.md)). Defaults to [`custom:error_budget_burn_rate`, `custom:sli_measurement`].
+  * `metrics`: [*optional*] `list` - List of metrics to export ([see docs](../shared/metrics.md)).
 
 **&rightarrow; [Full SLO config](../../samples/cloud_monitoring/slo_lb_request_availability.yaml)**
 
@@ -109,6 +107,7 @@ being able to alert on them is simply useless.
 
 **Too many alerts** can be daunting, and page your SRE engineers for no valid
 reasons.
+
 **Too little alerts** can mean that your applications are not monitored at all
 (no application have 100% reliability).
 
@@ -120,15 +119,15 @@ reduce the noise and page only when it's needed.
 We will define a `Cloud Monitoring` alert that we will **filter out on the
 corresponding error budget step**.
 
-Consider the following error budget policy config:
+Consider the following error budget policy step config:
 
 ```yaml
-- error_budget_policy_step_name: 1 hour
-  measurement_window_seconds: 3600
-  alerting_burn_rate_threshold: 9
-  urgent_notification: true
-  overburned_consequence_message: Page the SRE team to defend the SLO
-  achieved_consequence_message: Last hour on track
+- name: 1 hour
+  window: 3600
+  burn_rate_threshold: 9
+  alert: true
+  message_alert: Page the SRE team to defend the SLO
+  message_ok: Last hour on track
 ```
 
 Using Cloud Monitoring UI, let's set up an alert when our error budget burn rate 
