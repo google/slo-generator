@@ -234,9 +234,8 @@ def slo_config_v1tov2(slo_config, shared_config={}, quiet=False, verbose=0):
         'slo_name': slo_config['slo_name'],
     }
     other_labels = {
-        k: v
-        for k, v in slo_config.items()
-        if k not in ['service_name', 'feature_name', 'slo_name', 'backend']
+        k: v for k, v in slo_config.items() if k not in
+        ['service_name', 'feature_name', 'slo_name', 'backend', 'exporters']
     }
     slo_config_v2['metadata']['labels'].update(other_labels)
     slo_config_v2['spec']['description'] = slo_description
