@@ -63,14 +63,14 @@ metrics:
 ```
 
 where:
-* `name`: name of the [SLO Report](../../tests/unit/fixtures/slo_report.json) 
+* `name`: name of the [SLO Report](../../tests/unit/fixtures/slo_report_v2.json) 
 field to export as a metric. The field MUST exist in the SLO report.
 * `description`: description of the metric (if the metrics exporter supports it)
 * `alias` (optional): rename the metric before writing to the monitoring 
 backend.
 * `additional_labels` (optional) allow you to specify other labels to the 
 timeseries written. Each label name must correspond to a field of the 
-[SLO Report](../../tests/unit/fixtures/slo_report.json).
+[SLO Report](../../tests/unit/fixtures/slo_report_v2.json).
 
 ## Metric exporters
 Some metrics exporters have a specific `prefix` that is pre-prepended to the 
