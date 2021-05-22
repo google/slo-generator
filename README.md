@@ -33,7 +33,7 @@ by computing important metrics:
 * **Service Level Indicator** (SLI) defined as **SLI = N<sub>good_events</sub> &#47; N<sub>valid_events</sub>**
 * **Error Budget** (EB) defined as **EB = 1 - SLI**
 * **Error Budget Burn Rate** (EBBR) defined as **EBBR = EB / EB<sub>target</sub>**
-* **... and more**, see the [example SLO report](./test/unit/../../tests/unit/fixtures/slo_report.json).
+* **... and more**, see the [example SLO report](./test/unit/../../tests/unit/fixtures/slo_report_v2.json).
 
 The **Error Budget Burn Rate** is often used for [**alerting on SLOs**](https://sre.google/workbook/alerting-on-slos/), as it demonstrates in practice to be more **reliable** and **stable** than 
 alerting directly on metrics or on **SLI > SLO** thresholds.
