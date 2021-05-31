@@ -1,0 +1,24 @@
+apiVersion: sre.google.com/v2
+kind: ServiceLevelObjective
+metadata:
+  name: pubsub-subscription-throughput
+  labels:
+    service_name: pubsub
+    feature_name: subscription
+    slo_name: throughput
+spec:
+  description: Throughput of Pub/Sub subscription
+  backend: cloud_monitoring
+  method: good_bad_ratio
+  exporters:
+  - cloud_monitoring
+  service_level_indicator:
+    filter_good: >
+      project="${PUBSUB_PROJECT_ID}"
+      metric.type="pubsub.googleapis.com/subscription/ack_message_count"
+      resource.type="pubsub_subscription"
+    filter_bad: >
+      project="${PUBSUB_PROJECT_ID}"
+      metric.type="pubsub.googleapis.com/subscription/num_outstanding_messages"
+      resource.type="pubsub_subscription"
+  goal: 0.95
