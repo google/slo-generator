@@ -22,4 +22,4 @@ backend:
   method:        query_sli
 exporters:
 - class:         custom.custom_exporter.CustomMetricExporter
-  class:         custom.custom_exporter.CustomSLOExporter
+- class:         custom.custom_exporter.CustomSLOExporter
