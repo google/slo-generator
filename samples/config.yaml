@@ -18,15 +18,9 @@ backends:
     url: ${PROMETHEUS_URL}
 
 exporters:
-  bigquery:
-    project_id: rnm-shared-monitoring
-    dataset_id: slos
-    table_id: reports
   cloud_monitoring:
     project_id: ${STACKDRIVER_HOST_PROJECT_ID}
   cloud_monitoring/test:
-    project_id: rnm-shared-monitoring
-  cloud_monitoring/test2:
     project_id: ${PUBSUB_PROJECT_ID}
   custom.custom_exporter.CustomMetricExporter: {}
   custom.custom_exporter.CustomSLOExporter: {}
@@ -73,3 +67,17 @@ error_budget_policies:
       message_alert: Freeze release, unless related to reliability or security
       message_ok: Unfreeze release, per the agreed roll-out policy
       window: 2419200
+  cloud_service_monitoring:
+    steps:
+    - name: 24 hours
+      burn_rate_threshold: 4
+      alert: true
+      message_alert: Page to defend the SLO
+      message_ok: Last 24 hours on track
+      window: 86400
+    - name: 48 hours
+      burn_rate_threshold: 2
+      alert: true
+      message_alert: Page to defend the SLO
+      message_ok: Last 48 hours on track
+      window: 172800
