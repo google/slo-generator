@@ -21,4 +21,5 @@ backend:
   class:         custom.custom_backend.CustomBackend
   method:        query_sli
 exporters:
+- class:         custom.custom_exporter.CustomMetricExporter
   class:         custom.custom_exporter.CustomSLOExporter
