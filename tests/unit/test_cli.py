@@ -17,7 +17,9 @@ import unittest
 
 from mock import patch
 
-from slo_generator.cli import cli, parse_args
+from click.testing import CliRunner
+from slo_generator.cli import main
+from slo_generator.utils import load_config
 
 from .test_stubs import CTX, mock_sd
 
@@ -26,49 +28,50 @@ root = os.path.dirname(os.path.dirname(cwd))
 
 
 class TestCLI(unittest.TestCase):
-    def setUp(self):
-        for k, v in CTX.items():
-            os.environ[k] = v
-        slo_config = f'{root}/samples/stackdriver/slo_gae_app_availability.yaml'
-        eb_policy = f'{root}/samples/error_budget_policy.yaml'
-        self.slo_config = slo_config
-        self.eb_policy = eb_policy
 
-    def test_parse_args(self):
-        args = parse_args([
-            '--slo-config', self.slo_config, '--error-budget-policy',
-            self.eb_policy, '--export'
-        ])
-        self.assertEqual(args.slo_config, self.slo_config)
-        self.assertEqual(args.error_budget_policy, self.eb_policy)
-        self.assertEqual(args.export, True)
+    def setUp(self):
+        for key, value in CTX.items():
+            os.environ[key] = value
+        slo_config = f'{root}/samples/cloud_monitoring/slo_gae_app_availability.yaml'  # noqa: E501
+        config = f'{root}/samples/config.yaml'
+        self.slo_config = slo_config
+        self.slo_metadata_name = load_config(slo_config,
+                                             ctx=CTX)['metadata']['name']
+        self.config = config
+        self.cli = CliRunner()
 
     @patch('google.api_core.grpc_helpers.create_channel',
            return_value=mock_sd(8))
-    def test_cli(self, mock):
-        args = parse_args(['-f', self.slo_config, '-b', self.eb_policy])
-        all_reports = cli(args)
-        len_first_report = len(all_reports[self.slo_config])
-        self.assertIn(self.slo_config, all_reports.keys())
-        self.assertEqual(len_first_report, 4)
+    def test_cli_compute(self, mock):
+        args = ['compute', '-f', self.slo_config, '-c', self.config]
+        result = self.cli.invoke(main, args)
+        self.assertEqual(result.exit_code, 0)
 
     @patch('google.api_core.grpc_helpers.create_channel',
            return_value=mock_sd(40))
-    def test_cli_folder(self, mock):
-        args = parse_args(
-            ['-f', f'{root}/samples/stackdriver', '-b', self.eb_policy])
-        all_reports = cli(args)
-        len_first_report = len(all_reports[self.slo_config])
-        self.assertIn(self.slo_config, all_reports.keys())
-        self.assertEqual(len_first_report, 4)
+    def test_cli_compute_folder(self, mock):
+        args = [
+            'compute', '-f', f'{root}/samples/cloud_monitoring', '-c',
+            self.config
+        ]
+        result = self.cli.invoke(main, args)
+        self.assertEqual(result.exit_code, 0)
 
-    def test_cli_no_config(self):
-        args = parse_args([
-            '-f', f'{root}/samples', '-b',
-            f'{root}/samples/error_budget_policy.yaml'
-        ])
-        all_reports = cli(args)
-        self.assertEqual(all_reports, {})
+    def test_cli_compute_no_config(self):
+        args = [
+            'compute', '-f', f'{root}/samples', '-c',
+            f'{root}/samples/config.yaml'
+        ]
+        result = self.cli.invoke(main, args)
+        self.assertEqual(result.exit_code, 1)
+
+    def test_cli_api(self):
+        # TODO: Write test
+        pass
+
+    def test_cli_migrate(self):
+        # TODO: Write test
+        pass
 
 
 if __name__ == '__main__':

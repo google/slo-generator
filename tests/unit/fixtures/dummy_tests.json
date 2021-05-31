@@ -1,0 +1,66 @@
+{
+    "enough_events": {
+        "method": "good_bad_ratio",
+        "good_events": 5,
+        "bad_events": 5,
+    },
+    "no_good_events": {
+        "method": "good_bad_ratio",
+        "good_events": -1,
+        "bad_events": 15,
+    },
+    "no_bad_events": {
+        "method": "good_bad_ratio",
+        "good_events": 15,
+        "bad_events": -1,
+    },
+    "valid_sli_value": {
+        "method": "sli",
+        "good_events": -1,
+        "bad_events": -1,
+        "sli": 0.991
+    },
+    "no_events": {
+        "method": "good_bad_ratio",
+        "good_events": 0,
+        "bad_events": 0,
+    },
+    "no_good_bad_events": {
+        "method": "good_bad_ratio",
+        "good_events": -1,
+        "bad_events": -1,
+    },
+    "not_enough_events": {
+        "method": "good_bad_ratio",
+        "good_events": 5,
+        "bad_events": 4,
+    },
+    "no_sli_value": {
+        "method": "sli",
+        "good_events": -1,
+        "bad_events": -1,
+    },
+    "no_backend_response_sli": {
+        "method": "sli",
+        "sli": null
+    },
+    "no_backend_response_ratio": {
+        "method": "good_bad_ratio",
+        "good_events": null,
+        "bad_events": null,
+    },
+    "invalid_backend_response_type": {
+        "method": "good_bad_ratio",
+        "good_events": {
+            "data": {
+                "value": 30
+            }
+        },
+        "bad_events": {
+            "data": {
+                "value": 400
+            }
+        },
+        "sli": null
+    }
+}
