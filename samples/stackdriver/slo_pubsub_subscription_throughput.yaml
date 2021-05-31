@@ -33,7 +33,3 @@ backend:
 exporters:
 - class:         Stackdriver
   project_id:    ${STACKDRIVER_HOST_PROJECT_ID}
-
-- class:         Pubsub
-  project_id:    ${PUBSUB_PROJECT_ID}
-  topic_name:    ${PUBSUB_TOPIC_NAME}

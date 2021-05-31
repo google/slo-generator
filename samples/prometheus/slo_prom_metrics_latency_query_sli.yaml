@@ -31,9 +31,5 @@ backend:
         http_request_duration_seconds_count{handler="/metrics", code=~"2.."}[window]
       )
 exporters:
-  - class:       Bigquery
-    project_id:  rnm-shared-monitoring
-    dataset_id:  slos
-    table_id:    reports
-  - class:       Stackdriver
-    project_id:  rnm-shared-monitoring
+- class: Prometheus
+  url: ${PROMETHEUS_PUSHGATEWAY_URL}
