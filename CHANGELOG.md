@@ -1,5 +1,12 @@
 # Changelog
 
+### [1.5.1](https://www.github.com/google/slo-generator/compare/v1.5.0...v1.5.1) (2021-02-12)
+
+
+### Bug Fixes
+
+* broken setuptools ([#117](https://www.github.com/google/slo-generator/issues/117)) ([f1fa346](https://www.github.com/google/slo-generator/commit/f1fa346d2b8ae618b85a44d3683aa04377bba85f))
+
 ## [1.5.0](https://www.github.com/google/slo-generator/compare/v1.4.1...v1.5.0) (2021-01-12)
 
 
