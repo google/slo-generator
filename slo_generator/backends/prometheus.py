@@ -30,6 +30,7 @@ LOGGER = logging.getLogger(__name__)
 
 class PrometheusBackend:
     """Backend for querying metrics from Prometheus."""
+
     def __init__(self, client=None, url=None, headers=None):
         self.client = client
         if not self.client:
@@ -50,8 +51,7 @@ class PrometheusBackend:
         Returns:
             float: SLI value.
         """
-        conf = slo_config['backend']
-        measurement = conf['measurement']
+        measurement = slo_config['spec']['service_level_indicator']
         expr = measurement['expression']
         response = self.query(expr, window, timestamp, operators=[])
         sli_value = PrometheusBackend.count(response)
@@ -72,11 +72,11 @@ class PrometheusBackend:
         Returns:
             tuple: A tuple of (good_count, bad_count).
         """
-        conf = slo_config['backend']
-        good = conf['measurement']['filter_good']
-        bad = conf['measurement'].get('filter_bad')
-        valid = conf['measurement'].get('filter_valid')
-        operators = conf['measurement'].get('operators', ['increase', 'sum'])
+        measurement = slo_config['spec']['service_level_indicator']
+        good = measurement['filter_good']
+        bad = measurement.get('filter_bad')
+        valid = measurement.get('filter_valid')
+        operators = measurement.get('operators', ['increase', 'sum'])
 
         # Replace window by its value in the error budget policy step
         res = self.query(good, window, timestamp, operators)
@@ -92,8 +92,7 @@ class PrometheusBackend:
         else:
             raise Exception("`filter_bad` or `filter_valid` is required.")
 
-        LOGGER.debug(f'Good events: {good_count} | '
-                     f'Bad events: {bad_count}')
+        LOGGER.debug(f'Good events: {good_count} | ' f'Bad events: {bad_count}')
 
         return (good_count, bad_count)
 
@@ -109,8 +108,7 @@ class PrometheusBackend:
         Returns:
             float: SLI value.
         """
-        conf = slo_config['backend']
-        measurement = conf['measurement']
+        measurement = slo_config['spec']['service_level_indicator']
         expr = measurement['expression']
         threshold_bucket = measurement['threshold_bucket']
         labels = {"le": threshold_bucket}
@@ -130,8 +128,7 @@ class PrometheusBackend:
                                operators=['increase', 'sum'])
         valid_count = PrometheusBackend.count(res_valid)
         bad_count = valid_count - good_count
-        LOGGER.debug(f'Good events: {good_count} | '
-                     f'Bad events: {bad_count}')
+        LOGGER.debug(f'Good events: {good_count} | ' f'Bad events: {bad_count}')
         return (good_count, bad_count)
 
     # pylint: disable=unused-argument
@@ -148,8 +145,7 @@ class PrometheusBackend:
         Returns:
             dict: Response.
         """
-        filter = PrometheusBackend._fmt_query(filter, window, operators,
-                                              labels)
+        filter = PrometheusBackend._fmt_query(filter, window, operators, labels)
         LOGGER.debug(f'Query: {filter}')
         response = self.client.query(metric=filter)
         response = json.loads(response)
