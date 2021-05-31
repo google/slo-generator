@@ -78,13 +78,13 @@ class CloudMonitoringExporter(MetricsExporter):
 
         # Record the timeseries to Cloud Monitoring.
         project = self.client.project_path(data['project_id'])
-        result = self.client.create_time_series(project, [series])
+        self.client.create_time_series(project, [series])
         labels = series.metric.labels
         LOGGER.debug(
             f"timestamp: {timestamp} value: {point.value.double_value}"
             f"{labels['service_name']}-{labels['feature_name']}-"
             f"{labels['slo_name']}-{labels['error_budget_policy_step_name']}")
-        return result
+        return None
 
     def get_metric_descriptor(self, data):
         """Get Cloud Monitoring metric descriptor.
