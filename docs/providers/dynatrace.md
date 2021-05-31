@@ -2,10 +2,17 @@
 
 ## Backend
 
-Using the `Dynatrace` backend class, you can query any metrics available in
+Using the `dynatrace` backend class, you can query any metrics available in
 Dynatrace to create an SLO.
 
-The following methods are available to compute SLOs with the `Dynatrace`
+```yaml
+backends:
+  dynatrace:
+    api_token: ${DYNATRACE_API_TOKEN}
+    api_url:   ${DYNATRACE_API_URL}
+```
+
+The following methods are available to compute SLOs with the `dynatrace`
 backend:
 
 * `good_bad_ratio` for computing good / bad metrics ratios.
@@ -25,16 +32,13 @@ purposes as well (see examples).
 **Config example:**
 
 ```yaml
-backend:
-  class:     Dynatrace
-  method:    good_bad_ratio
-  api_token: ${DYNATRACE_API_TOKEN}
-  api_url:   ${DYNATRACE_API_URL}
-  measurement:
-    query_good:  
-      metric_selector: ext:app.request_count:filter(and(eq(app,test_app),eq(env,prod),eq(status_code_class,2xx)))
-      entity_selector: type(HOST)
-    query_valid:
+backend: dynatrace
+method: good_bad_ratio
+service_level_indicator:
+  query_good:  
+    metric_selector: ext:app.request_count:filter(and(eq(app,test_app),eq(env,prod),eq(status_code_class,2xx)))
+    entity_selector: type(HOST)
+  query_valid:
       metric_selector: ext:app.request_count:filter(and(eq(app,test_app),eq(env,prod)))
       entity_selector: type(HOST)
 ```
@@ -52,16 +56,13 @@ This method can be used for latency SLOs, by defining a latency threshold.
 **Config example:**
 
 ```yaml
-backend:
-  class:     Dynatrace
-  method:    threshold
-  api_token: ${DYNATRACE_API_TOKEN}
-  api_url:   ${DYNATRACE_API_URL}
-  measurement:
-    query_valid:  
-      metric_selector: ext:app.request_latency:filter(and(eq(app,test_app),eq(env,prod),eq(status_code_class,2xx)))
-      entity_selector: type(HOST)
-    threshold: 40000 # us
+backend: dynatrace
+method: threshold
+service_level_indicator:
+  query_valid:  
+    metric_selector: ext:app.request_latency:filter(and(eq(app,test_app),eq(env,prod),eq(status_code_class,2xx)))
+    entity_selector: type(HOST)
+  threshold: 40000 # us
 ```
 **&rightarrow; [Full SLO config](../../samples/dynatrace/slo_dt_app_latency_threshold.yaml)**
 
@@ -71,24 +72,22 @@ Optional fields:
 
 ### Examples
 
-Complete SLO samples using `Dynatrace` are available in
+Complete SLO samples using `dynatrace` are available in
 [samples/dynatrace](../../samples/dynatrace). Check them out!
 
 ## Exporter
 
-The `Dynatrace` exporter allows to export SLO metrics to Dynatrace API.
-
-**Example config:**
+The `dynatrace` exporter allows to export SLO metrics to Dynatrace API.
 
 ```yaml
 exporters:
- - class:     Dynatrace
-   api_token: ${DYNATRACE_API_TOKEN}
-   api_url:   ${DYNATRACE_API_URL}
+  dynatrace:
+    api_token: ${DYNATRACE_API_TOKEN}
+    api_url: ${DYNATRACE_API_URL}
 ```
 
 Optional fields:
-  * `metrics`: List of metrics to export ([see docs](../shared/metrics.md)). Defaults to [`custom:error_budget_burn_rate`, `custom:sli_measurement`].
+  * `metrics`: List of metrics to export ([see docs](../shared/metrics.md)). Defaults to [`custom:error_budget_burn_rate`, `custom:sli_service_level_indicator`].
 
 **&rightarrow; [Full SLO config](../../samples/dynatrace/slo_dt_app_availability_ratio.yaml)**
 

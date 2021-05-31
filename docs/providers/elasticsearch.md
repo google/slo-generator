@@ -2,10 +2,17 @@
 
 ## Backend
 
-Using the `Elasticsearch` backend class, you can query any metrics available in
+Using the `elasticsearch` backend class, you can query any metrics available in
 Elasticsearch to create an SLO.
 
-The following methods are available to compute SLOs with the `Elasticsearch`
+```yaml
+backends:
+  elasticsearch:
+    api_token: ${DYNATRACE_API_TOKEN}
+    api_url: ${DYNATRACE_API_URL}
+```
+
+The following methods are available to compute SLOs with the `elasticsearch`
 backend:
 
 * `good_bad_ratio` for computing good / bad metrics ratios.
@@ -81,5 +88,5 @@ look like:
 
 ### Examples
 
-Complete SLO samples using the `Elasticsearch` backend are available in
+Complete SLO samples using the `elasticsearch` backend are available in
 [samples/elasticsearch](../../samples/elasticsearch). Check them out !
