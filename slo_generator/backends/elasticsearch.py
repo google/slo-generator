@@ -34,6 +34,7 @@ class ElasticsearchBackend:
         client (elasticsearch.ElasticSearch): Existing ES client.
         es_config (dict): ES client configuration.
     """
+
     def __init__(self, client=None, **es_config):
         self.client = client
         if self.client is None:
@@ -52,7 +53,7 @@ class ElasticsearchBackend:
         Returns:
             tuple: A tuple (good_event_count, bad_event_count)
         """
-        measurement = slo_config['backend']['measurement']
+        measurement = slo_config['spec']['service_level_indicator']
         index = measurement['index']
         query_good = measurement['query_good']
         query_bad = measurement.get('query_bad')

@@ -22,12 +22,13 @@ import time
 
 from slo_generator import utils
 from slo_generator.report import SLOReport
+from slo_generator.migrations.migrator import report_v2tov1
 
 LOGGER = logging.getLogger(__name__)
 
 
 def compute(slo_config,
-            error_budget_policy,
+            config,
             timestamp=None,
             client=None,
             do_export=False,
@@ -37,8 +38,8 @@ def compute(slo_config,
 
     Args:
         slo_config (dict): SLO configuration.
-        error_budget_policy (dict): Error Budget policy configuration.
-        timestamp (int, optional): UNIX timestamp. Defaults to now.
+        config (dict): SLO Generator configuration.
+        timestamp (float, optional): UNIX timestamp. Defaults to now.
         client (obj, optional): Existing metrics backend client.
         do_export (bool, optional): Enable / Disable export. Default: False.
         delete (bool, optional): Enable / Disable delete mode. Default: False.
@@ -47,11 +48,19 @@ def compute(slo_config,
     if timestamp is None:
         timestamp = time.time()
 
-    # Compute SLO, Error Budget, Burn rates and make report
-    exporters = slo_config.get('exporters')
+    if slo_config is None:
+        LOGGER.error('SLO configuration is empty')
+        return []
+
+    # Get exporters, backend and error budget policy
+    spec = slo_config['spec']
+    exporters = utils.get_exporters(config, spec)
+    error_budget_policy = utils.get_error_budget_policy(config, spec)
+    backend = utils.get_backend(config, spec)
     reports = []
-    for step in error_budget_policy:
+    for step in error_budget_policy['steps']:
         report = SLOReport(config=slo_config,
+                           backend=backend,
                            step=step,
                            timestamp=timestamp,
                            client=client,
@@ -73,7 +82,7 @@ def compute(slo_config,
     end = time.time()
     run_duration = round(end - start, 1)
     LOGGER.debug(pprint.pformat(reports))
-    LOGGER.debug(f'Run finished successfully in {run_duration}s.')
+    LOGGER.info(f'Run finished successfully in {run_duration}s.')
     return reports
 
 
@@ -91,6 +100,9 @@ def export(data, exporters, raise_on_error=False):
     LOGGER.debug(f'Data: {pprint.pformat(data)}')
     responses = []
 
+    # Convert data to export from v1 to v2 for backwards-compatible exports
+    data = report_v2tov1(data)
+
     # Passing one exporter as a dict will work for convenience
     if isinstance(exporters, dict):
         exporters = [exporters]
@@ -98,10 +110,13 @@ def export(data, exporters, raise_on_error=False):
     for config in exporters:
         try:
             exporter_class = config.get('class')
-            LOGGER.info(f'Exporting results to {exporter_class}')
+            instance = utils.get_exporter_cls(exporter_class)
+            if not instance:
+                continue
+            LOGGER.info(
+                f'Exporting SLO report using {exporter_class}Exporter ...')
             LOGGER.debug(f'Exporter config: {pprint.pformat(config)}')
-            exporter = utils.get_exporter_cls(exporter_class)()
-            response = exporter.export(data, **config)
+            response = instance().export(data, **config)
             if isinstance(response, list):
                 for elem in response:
                     elem['exporter'] = exporter_class
