@@ -63,23 +63,23 @@ metrics:
 ```
 
 where:
-* `name`: name of the [SLO Report](../../tests/unit/fixtures/slo_report.json) 
+* `name`: name of the [SLO Report](../../tests/unit/fixtures/slo_report_v2.json) 
 field to export as a metric. The field MUST exist in the SLO report.
 * `description`: description of the metric (if the metrics exporter supports it)
 * `alias` (optional): rename the metric before writing to the monitoring 
 backend.
 * `additional_labels` (optional) allow you to specify other labels to the 
 timeseries written. Each label name must correspond to a field of the 
-[SLO Report](../../tests/unit/fixtures/slo_report.json).
+[SLO Report](../../tests/unit/fixtures/slo_report_v2.json).
 
 ## Metric exporters
 Some metrics exporters have a specific `prefix` that is pre-prepended to the 
 metric name:
-* `StackdriverExporter` prefix: `custom.googleapis.com/`
-* `DatadogExporter` prefix: `custom:`
+* `cloud_monitoring` exporter prefix: `custom.googleapis.com/`
+* `datadog` prefix: `custom:`
 
 Some metrics exporters have a limit of `labels` that can be written to their 
 metrics timeseries:
-* `StackdriverExporter` labels limit: `10`.
+* `cloud_monitoring` labels limit: `10`.
 
 Those are standards and cannot be modified.
