@@ -19,13 +19,17 @@ import logging
 import warnings
 from abc import ABCMeta, abstractmethod
 
+from slo_generator import constants
+
 LOGGER = logging.getLogger(__name__)
 
+# Default metric labels exported by all metrics exporters
 DEFAULT_METRIC_LABELS = [
     'error_budget_policy_step_name', 'service_name', 'feature_name', 'slo_name',
     'metadata'
 ]
 
+# Default metrics that are exported by metrics exporters.
 DEFAULT_METRICS = [
     {
         'name': 'error_budget_burn_rate',
@@ -33,15 +37,17 @@ DEFAULT_METRICS = [
         'labels': DEFAULT_METRIC_LABELS
     },
     {
-        'name': 'alerting_burn_rate_threshold',
+        'name': 'error_budget_burn_rate_threshold',
         'description': 'Error Budget burn rate threshold.',
         'labels': DEFAULT_METRIC_LABELS
     },
     {
-        'name': 'events_count',
-        'description': 'Number of events',
-        'labels': DEFAULT_METRIC_LABELS + [
-            'good_events_count', 'bad_events_count']
+        'name':
+            'events_count',
+        'description':
+            'Number of events',
+        'labels':
+            DEFAULT_METRIC_LABELS + ['good_events_count', 'bad_events_count']
     },
     {
         'name': 'sli_measurement',
@@ -54,6 +60,7 @@ DEFAULT_METRICS = [
         'labels': DEFAULT_METRIC_LABELS
     },
 ]
+
 
 class MetricsExporter:
     """Abstract class to export metrics to different backends. Common format
@@ -78,7 +85,7 @@ class MetricsExporter:
         LOGGER.debug(
             f'Exporting {len(metrics)} metrics with {self.__class__.__name__}')
         for metric_cfg in metrics:
-            if isinstance(metric_cfg, str): # short form
+            if isinstance(metric_cfg, str):  # short form
                 metric_cfg = {
                     'name': metric_cfg,
                     'alias': metric_cfg,
@@ -87,11 +94,11 @@ class MetricsExporter:
                 }
             if metric_cfg['name'] == 'error_budget_burn_rate':
                 metric_cfg = MetricsExporter.use_deprecated_fields(
-                    config=config,
-                    metric=metric_cfg)
+                    config=config, metric=metric_cfg)
             metric = metric_cfg.copy()
             fields = {
-                key: value for key, value in config.items()
+                key: value
+                for key, value in config.items()
                 if key in required_fields or key in optional_fields
             }
             metric.update(fields)
@@ -99,20 +106,21 @@ class MetricsExporter:
             name = metric['name']
             labels = metric['labels']
             labels_str = ', '.join([f'{k}={v}' for k, v in labels.items()])
-            LOGGER.info(
-                f'Exporting "{name}" with {len(labels.keys())} labels: '
-                f'{labels_str}...')
             ret = self.export_metric(metric)
             metric_info = {
-                k: v for k, v in metric.items()
+                k: v
+                for k, v in metric.items()
                 if k in ['name', 'alias', 'description', 'labels']
             }
-            response = {
-                'response': ret,
-                'metric': metric_info
-            }
+            response = {'response': ret, 'metric': metric_info}
+            status = f' Export {name} {{{labels_str}}}'
             if ret and 'error' in ret:
+                status = constants.FAIL + status
+                LOGGER.error(status)
                 LOGGER.error(response)
+            else:
+                status = constants.SUCCESS + status
+                LOGGER.info(status)
             all_data.append(response)
         return all_data
 
@@ -181,7 +189,7 @@ class MetricsExporter:
 
     @staticmethod
     def use_deprecated_fields(config, metric):
-        """Old format to new format with DeprecationWarning for 2.0.0.
+        """Old format to new format with FutureWarning for 2.0.0.
 
         Update error_budget_burn_rate metric with `metric_type`,
         `metric_labels`, and `metric_description`.
