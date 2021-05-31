@@ -17,6 +17,7 @@ See:
 https://packaging.python.org/en/latest/distributing.html
 https://github.com/pypa/sampleproject
 """
+# pylint: disable=invalid-name
 
 from io import open
 from os import path
@@ -35,14 +36,30 @@ version = "1.5.1"
 # 'Development Status :: 4 - Beta'
 # 'Development Status :: 5 - Production/Stable'
 release_status = "Development Status :: 3 - Alpha"
-dependencies = [
-    'google-api-python-client < 2.0.0', 'oauth2client',
-    'google-cloud-monitoring < 2.0.0', 'google-cloud-pubsub==1.7.0',
-    'google-cloud-bigquery < 3.0.0', 'prometheus-http-client',
-    'prometheus-client', 'pyyaml', 'opencensus', 'elasticsearch',
-    'python-dateutil', 'datadog', 'retrying==1.3.3'
-]
-extras = {}
+dependencies = ['pyyaml', 'ruamel.yaml', 'python-dateutil', 'click < 8.0']
+extras = {
+    'api': ['Flask', 'gunicorn', 'cloudevents', 'functions-framework'],
+    'prometheus': ['prometheus-client', 'prometheus-http-client'],
+    'datadog': ['datadog', 'retrying==1.3.3'],
+    'dynatrace': ['requests'],
+    'bigquery': [
+        'google-api-python-client < 2.0.0', 'google-cloud-bigquery < 3.0.0'
+    ],
+    'cloud_monitoring': [
+        'google-api-python-client < 2.0.0', 'google-cloud-monitoring < 2.0.0'
+    ],
+    'cloud_service_monitoring': [
+        'google-api-python-client < 2.0.0', 'google-cloud-monitoring < 2.0.0'
+    ],
+    'cloud_storage': [
+        'google-api-python-client < 2.0.0', 'google-cloud-storage'
+    ],
+    'pubsub': [
+        'google-api-python-client < 2.0.0', 'google-cloud-pubsub==1.7.0'
+    ],
+    'elasticsearch': ['elasticsearch'],
+    'dev': ['wheel', 'flake8', 'mock', 'coverage', 'nose', 'pylint']
+}
 
 # Get the long description from the README file
 with open(path.join(here, 'README.md'), encoding='utf-8') as f:
@@ -70,6 +87,7 @@ setup(name=name,
       ],
       keywords='slo sli generator gcp',
       install_requires=dependencies,
+      extras_require=extras,
       entry_points={
           'console_scripts': ['slo-generator=slo_generator.cli:main'],
       },
