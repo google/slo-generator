@@ -290,11 +290,11 @@ class CloudServiceMonitoringBackend:
                 'ClusterIstio is deprecated in the Service Monitoring API.'
                 'It will be removed in version 3.0, please use MeshIstio '
                 'instead', FutureWarning)
-            if 'location' in cluster_istio:
-                cluster_istio['suffix'] = 'location'
-            elif 'zone' in cluster_istio:
+            if 'zone' in cluster_istio:
                 cluster_istio['suffix'] = 'zone'
                 cluster_istio['location'] = cluster_istio['zone']
+            elif 'location' in cluster_istio:
+                cluster_istio['suffix'] = 'location'
             service_id = SID_CLUSTER_ISTIO.format_map(cluster_istio)
             dest_project_id = cluster_istio['project_id']
         elif mesh_istio:

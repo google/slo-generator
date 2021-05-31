@@ -374,14 +374,16 @@ def add_to_shared_config(new_obj, shared_config, section, quiet=False):
                         fg='cyan',
                         blink=True)
                     user_input = click.prompt(
-                        f'\n{RED}{BOLD}Please give this {name} a name:{ENDC}',
+                        f'\n{RED}{BOLD}Please give this {name} a name{ENDC}',
                         type=str)
+                    former_key = key
                     key += '/' + user_input.lower()
                     if key in shared_obj.keys():
                         click.secho(
                             f'{name.capitalize()} "{key}" already exists in shared config',
                             fg='red',
                             bold=True)
+                        key = former_key
                     else:
                         valid = True
                 click.secho(f'Backend {key} was added to shared config.',
