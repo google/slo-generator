@@ -2,6 +2,10 @@ apiVersion: serving.knative.dev/v1
 kind: Service
 metadata:
   name: slo-generator
+  annotations:
+    client.knative.dev/user-image: gcr.io/${PROJECT_ID}/slo-generator:${VERSION}
+    serving.knative.dev/creator: tf-root@rnm-shared-devops.iam.gserviceaccount.com
+    serving.knative.dev/lastModifier: tf-root@rnm-shared-devops.iam.gserviceaccount.com
 spec:
   template:
     metadata:
