@@ -12,20 +12,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ---
-service_name:    dd
-feature_name:    app
-slo_name:        availability
-slo_description: 99% of app requests return a valid HTTP code
-slo_target:      0.99
+service_name:     gae
+feature_name:     app
+slo_description:  Latency of App Engine app requests < 724ms
+slo_name:         latency724ms
+slo_target:       0.999
 backend:
-  class:         Datadog
-  method:        query_sli
-  api_key:       ${DATADOG_API_KEY}
-  app_key:       ${DATADOG_APP_KEY}
-  # api_host:      api.datadoghq.eu # uncomment to use EU site
+  class:          StackdriverServiceMonitoring
+  method:         distribution_cut
+  project_id:     ${STACKDRIVER_HOST_PROJECT_ID}
   measurement:
-    query: sum:app.requests.count{http.path:/, http.status_code_class:2xx}.as_count() / sum:app.requests.count{http.path:/}.as_count()
-exporters:
-  - class:   Datadog
-    api_key: ${DATADOG_API_KEY}
-    app_key: ${DATADOG_APP_KEY}
+    filter_valid: >
+      project=${GAE_PROJECT_ID}
+      metric.type="appengine.googleapis.com/http/server/response_latencies"
+      resource.type="gae_app"
+      metric.labels.response_code >= 200
+      metric.labels.response_code < 500
+    range_min:    0
+    range_max:    724

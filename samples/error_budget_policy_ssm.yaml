@@ -12,14 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ---
-service_name:    custom
-feature_name:    test
-slo_description: 99.99% of fake requests to custom backends are valid
-slo_name:        availability-ratio
-slo_target:      0.999
-backend:
-  class:         custom.custom_backend.CustomBackend
-  method:        good_bad_ratio
-exporters:
-- class:         custom.custom_exporter.CustomMetricExporter
-  class:         custom.custom_exporter.CustomSLOExporter
+- error_budget_policy_step_name:  24 hours
+  measurement_window_seconds:     86400
+  alerting_burn_rate_threshold:   4
+  urgent_notification:            true
+  overburned_consequence_message: Page to defend the SLO
+  achieved_consequence_message:   Last 24 hours on track
+
+- error_budget_policy_step_name:  48 hours
+  measurement_window_seconds:     172800
+  alerting_burn_rate_threshold:   2
+  urgent_notification:            true
+  overburned_consequence_message: Page to defend the SLO
+  achieved_consequence_message:   Last 48 hours on track

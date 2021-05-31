@@ -12,30 +12,28 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ---
-service_name:    elk
-feature_name:    test
-slo_description: >
-  SLO for random test data generated with the
-  https://github.com/oliver006/elasticsearch-test-data
-slo_name:        errors
-slo_target:      1
+service_name:    pubsub
+feature_name:    subscription
+slo_description: Throughput of Pub/Sub subscription
+slo_name:        throughput
+slo_target:      0.95
 backend:
-  class:         Elasticsearch
-  url:           ${ELASTICSEARCH_URL}
+  class:         Stackdriver
+  project_id:    "${STACKDRIVER_HOST_PROJECT_ID}"
   method:        good_bad_ratio
   measurement:
-    index:       test_data
-    date_field:  last_updated
-    query_good:  {}
-    query_bad:
-      must:
-        term:
-          name:  JAgOZE8
-
+    filter_good: >
+      project="${PUBSUB_PROJECT_ID}"
+      metric.type="pubsub.googleapis.com/subscription/ack_message_count"
+      resource.type="pubsub_subscription"
+    filter_bad:  >
+      project="${PUBSUB_PROJECT_ID}"
+      metric.type="pubsub.googleapis.com/subscription/num_outstanding_messages"
+      resource.type="pubsub_subscription"
 exporters:
+- class:         Stackdriver
+  project_id:    ${STACKDRIVER_HOST_PROJECT_ID}
+
 - class:         Pubsub
   project_id:    ${PUBSUB_PROJECT_ID}
   topic_name:    ${PUBSUB_TOPIC_NAME}
-
-- class:         Stackdriver
-  project_id:    ${PUBSUB_PROJECT_ID}
