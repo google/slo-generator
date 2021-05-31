@@ -14,17 +14,17 @@ running it.
 The following is listing all environmental variables found in the SLO configs,
 per backend:
 
-`stackdriver/`:
-  - `STACKDRIVER_HOST_PROJECT_ID`: Stackdriver host project id.
-  - `STACKDRIVER_LOG_METRIC_NAME`: Stackdriver log-based metric name.
+`cloud_monitoring/`:
+  - `WORKSPACE_PROJECT_ID`: Cloud Monitoring host project id.
+  - `LOG_METRIC_NAME`: Cloud Logging log-based metric name.
   - `GAE_PROJECT_ID`: Google App Engine application project id.
   - `GAE_MODULE_ID`: Google App Engine application module id.
   - `PUBSUB_PROJECT_ID`: Pub/Sub project id.
   - `PUBSUB_TOPIC_NAME`: Pub/Sub topic name.
 
-`stackdriver_service_monitoring/`:
-  - `STACKDRIVER_HOST_PROJECT_ID`: Stackdriver host project id.
-  - `STACKDRIVER_LOG_METRIC_NAME`: Stackdriver log-based metric name.
+`cloud_service_monitoring/`:
+  - `WORKSPACE_PROJECT_ID`: Cloud Monitoring host project id.
+  - `LOG_METRIC_NAME`: Cloud Logging log-based metric name.
   - `GAE_PROJECT_ID`: Google App Engine application project id.
   - `GAE_MODULE_ID`: Google App Engine application module id.
   - `PUBSUB_PROJECT_ID`: Pub/Sub project id.
@@ -50,7 +50,7 @@ you're pointing to need to exist.
 
 To run one sample:
 ```
-slo-generator -f samples/stackdriver/<filename>.yaml
+slo-generator -f samples/cloud_monitoring/<filename>.yaml
 ```
 
 To run all the samples for a backend:
@@ -68,14 +68,14 @@ slo-generator -f samples/<backend> -b samples/<error_budget_policy>
 
 ### Examples
 
-##### Stackdriver
+##### Cloud Monitoring
 ```
-slo-generator -f samples/stackdriver -b error_budget_policy.yaml
+slo-generator -f samples/cloud_monitoring -b error_budget_policy.yaml
 ```
 
-##### Stackdriver Service Monitoring
+##### Cloud Service Monitoring
 ```
-slo-generator -f samples/stackdriver_service_monitoring -b error_budget_policy_ssm.yaml
+slo-generator -f samples/cloud_service_monitoring -b error_budget_policy_ssm.yaml
 ```
 
 ***Note:*** *the Error Budget Policy is different for this backend, because it only
