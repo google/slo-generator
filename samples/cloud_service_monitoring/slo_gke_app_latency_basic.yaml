@@ -1,22 +1,22 @@
-# apiVersion: sre.google.com/v2
-# kind: ServiceLevelObjective
-# metadata:
-#   name: gke-service-latency724ms
-#   labels:
-#     service_name: gke
-#     feature_name: service
-#     slo_name: latency724ms
-# spec:
-#   description: Latency of GKE service requests < 724ms
-#   error_budget_policy: cloud_service_monitoring
-#   backend: cloud_service_monitoring
-#   method: basic
-#   exporters: []
-#   service_level_indicator:
-#     mesh_istio:
-#       mesh_uid: ${GKE_MESH_UID}
-#       service_namespace: ${GKE_SERVICE_NAMESPACE}
-#       service_name: ${GKE_SERVICE_NAME}
-#     latency:
-#       threshold: 724         # ms
-#   goal: 0.999
+apiVersion: sre.google.com/v2
+kind: ServiceLevelObjective
+metadata:
+  name: gke-service-latency724ms
+  labels:
+    service_name: gke
+    feature_name: service
+    slo_name: latency724ms
+spec:
+  description: Latency of GKE service requests < 724ms
+  error_budget_policy: cloud_service_monitoring
+  backend: cloud_service_monitoring
+  method: basic
+  exporters: []
+  service_level_indicator:
+    mesh_istio:
+      mesh_uid: ${GKE_MESH_UID}
+      service_namespace: ${GKE_SERVICE_NAMESPACE}
+      service_name: ${GKE_SERVICE_NAME}
+    latency:
+      threshold: 724         # ms
+  goal: 0.999

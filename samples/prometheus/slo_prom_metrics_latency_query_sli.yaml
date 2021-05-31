@@ -1,25 +1,24 @@
 apiVersion: sre.google.com/v2
 kind: ServiceLevelObjective
 metadata:
-    name: prom-metrics-latency
-    labels:
-        service_name: prom
-        feature_name: metrics
-        slo_name: latency
+  name: prom-metrics-latency
+  labels:
+    service_name: prom
+    feature_name: metrics
+    slo_name: latency
 spec:
-    description: 99.99% of Prometheus requests return in less than 250ms
-    backend: prometheus
-    method: query_sli
-    exporters:
-      - bigquery
-      - cloud_monitoring
-    service_level_indicator:
-        expression: >
-            increase(
-              http_request_duration_seconds_bucket{handler="/metrics", code=~"2..",le="0.25"}[window]
-            )
-             / ignoring (le)
-            increase(
-              http_request_duration_seconds_count{handler="/metrics", code=~"2.."}[window]
-            )
-    goal: 0.9999
+  description: 99.99% of Prometheus requests return in less than 250ms
+  backend: prometheus
+  method: query_sli
+  exporters:
+  - prometheus
+  service_level_indicator:
+    expression: >
+      increase(
+        http_request_duration_seconds_bucket{handler="/metrics", code=~"2..",le="0.25"}[window]
+      )
+       / ignoring (le)
+      increase(
+        http_request_duration_seconds_count{handler="/metrics", code=~"2.."}[window]
+      )
+  goal: 0.9999

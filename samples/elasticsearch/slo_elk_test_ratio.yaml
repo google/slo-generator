@@ -14,7 +14,7 @@ spec:
   method: good_bad_ratio
   exporters:
   - pubsub
-  - cloud_monitoring
+  - cloud_monitoring/test
   service_level_indicator:
     index: test_data
     date_field: last_updated

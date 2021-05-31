@@ -12,7 +12,6 @@ spec:
   method: good_bad_ratio
   exporters:
   - cloud_monitoring
-  - pubsub
   service_level_indicator:
     filter_good: >
       project="${PUBSUB_PROJECT_ID}"

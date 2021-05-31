@@ -11,7 +11,7 @@ spec:
   backend: dynatrace
   method: threshold
   exporters:
-  - dynatrace
+  - dynatrace/test
   service_level_indicator:
     query_valid:
       metric_selector: ext:app.request_latency:filter(and(eq(app,test_app),eq(env,prod),eq(status_code_class,2xx)))

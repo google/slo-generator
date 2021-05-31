@@ -15,7 +15,11 @@ spec:
   service_level_indicator:
     cluster_istio:
       project_id: ${GKE_PROJECT_ID}
+<<<<<<< HEAD
       location: ${GKE_LOCATION}
+=======
+      zone: ${GKE_LOCATION}
+>>>>>>> master
       cluster_name: ${GKE_CLUSTER_NAME}
       service_namespace: ${GKE_SERVICE_NAMESPACE}
       service_name: ${GKE_SERVICE_NAME}

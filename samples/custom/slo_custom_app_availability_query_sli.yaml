@@ -12,5 +12,6 @@ spec:
   method: query_sli
   exporters:
   - custom.custom_exporter.CustomMetricExporter
+  - custom.custom_exporter.CustomSLOExporter
   service_level_indicator: {}
   goal: 0.999
