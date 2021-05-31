@@ -1,0 +1,34 @@
+---
+backends:
+  cloud_monitoring:
+    project_id: ${PROJECT_ID}
+exporters:
+  cloud_monitoring:
+    project_id: ${PROJECT_ID}
+error_budget_policies:
+  standard:
+    steps:
+      - name: 1 hour
+        window: 3600
+        burn_rate_threshold: 9
+        alert: true
+        message_alert: Page to defend the SLO
+        message_ok: Last hour on track
+      - name: 12 hours
+        window: 43200
+        burn_rate_threshold: 3
+        alert: true
+        message_alert: Page to defend the SLO
+        message_ok: Last 12 hours on track
+      - name: 7 days
+        window: 604800
+        burn_rate_threshold: 1.5
+        alert: false
+        message_alert: Dev team dedicates 25% of engineers to the reliability backlog
+        message_ok: Last week on track
+      - name: 28 days
+        window: 2419200
+        burn_rate_threshold: 1
+        alert: false
+        message_alert: Freeze release, unless related to reliability or security
+        message_ok: Unfreeze release, per the agreed roll-out policy
