@@ -84,7 +84,6 @@ class CloudMonitoringExporter(MetricsExporter):
             f"timestamp: {timestamp} value: {point.value.double_value}"
             f"{labels['service_name']}-{labels['feature_name']}-"
             f"{labels['slo_name']}-{labels['error_budget_policy_step_name']}")
-        return None
 
     def get_metric_descriptor(self, data):
         """Get Cloud Monitoring metric descriptor.
