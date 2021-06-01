@@ -4,7 +4,7 @@ on:
     tags:
       - v*.*.*
 jobs:
-  release-version:
+  release-pypi:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@master
@@ -25,3 +25,19 @@ jobs:
           TWINE_USERNAME: ${{ secrets.TWINE_USERNAME }}
           TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD }}
           TWINE_REPOSITORY_URL: https://upload.pypi.org/legacy/
+  release-gcr:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@master
+        with:
+          project_id: ${{ secrets.PROJECT_ID }}
+          service_account_key: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
+          export_default_credentials: true
+
+        - name: Build Docker container and publish on GCR
+          run: make cloudbuild
+          env:
+            GCR_PROJECT_ID: ${{ secrets.GCR_PROJECT_ID }}
+            CLOUDBUILD_PROJECT_ID: ${{ secrets.CLOUDBUILD_PROJECT_ID }}
