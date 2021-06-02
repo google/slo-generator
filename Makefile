@@ -137,4 +137,5 @@ cloudrun:
 	--args=api \
 	--args=--signature-type="${SIGNATURE_TYPE}" \
 	--min-instances 1 \
-	--allow-unauthenticated
+	--allow-unauthenticated \
+	--project=${CLOUDRUN_PROJECT_ID}
