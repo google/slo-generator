@@ -122,7 +122,8 @@ cloudbuild:
 	gcloud alpha builds submit \
 	--config=cloudbuild.yaml \
 	--project=${CLOUDBUILD_PROJECT_ID} \
-	--substitutions=_GCR_PROJECT_ID=${GCR_PROJECT_ID},_VERSION=${VERSION}
+	--substitutions=_GCR_PROJECT_ID=${GCR_PROJECT_ID},_VERSION=${VERSION} \
+	--quiet
 
 # Cloudrun
 cloudrun:
