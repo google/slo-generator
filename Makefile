@@ -118,12 +118,11 @@ docker_test: docker_build
 		slo-generator test
 
 # Cloudbuild
-cloudbuild:
+cloudbuild: gcloud_alpha
 	gcloud alpha builds submit \
 	--config=cloudbuild.yaml \
 	--project=${CLOUDBUILD_PROJECT_ID} \
-	--substitutions=_GCR_PROJECT_ID=${GCR_PROJECT_ID},_VERSION=${VERSION} \
-	--quiet
+	--substitutions=_GCR_PROJECT_ID=${GCR_PROJECT_ID},_VERSION=${VERSION}
 
 # Cloudrun
 cloudrun:
@@ -140,3 +139,6 @@ cloudrun:
 	--min-instances 1 \
 	--allow-unauthenticated \
 	--project=${CLOUDRUN_PROJECT_ID}
+
+gcloud_alpha:
+	gcloud components install alpha --quiet
