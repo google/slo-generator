@@ -1,33 +1,5 @@
 # Changelog
 
-## [2.0.0](https://www.github.com/google/slo-generator/compare/v1.5.1...v2.0.0) (2021-05-31)
-
-
-### ⚠ BREAKING CHANGES
-
-* Upgrade slo-generator CLI to Click library (#131)
-* Support slo-generator config v2 format (core changes) (#126)
-* Split dependencies by backend (#129)
-
-### Features
-
-* Add migrator for v1 to v2 migration ([#127](https://www.github.com/google/slo-generator/issues/127)) ([796442e](https://www.github.com/google/slo-generator/commit/796442e92e35d2ceeecd12635a6e1a057791427b))
-* Add slo-generator Functions Framework API ([#130](https://www.github.com/google/slo-generator/issues/130)) ([ab1d57c](https://www.github.com/google/slo-generator/commit/ab1d57c8a1b4ad1c7183e03f1cd98db136306ef2))
-* Split dependencies by backend ([#129](https://www.github.com/google/slo-generator/issues/129)) ([c640a1d](https://www.github.com/google/slo-generator/commit/c640a1d9235c9cf24243beabc5609efecbcc9d62))
-* Support slo-generator config v2 format (core changes) ([#126](https://www.github.com/google/slo-generator/issues/126)) ([bf5e6b4](https://www.github.com/google/slo-generator/commit/bf5e6b4167a7081f03ca373c11e06be70da66fd5))
-* Upgrade slo-generator CLI to Click library ([#131](https://www.github.com/google/slo-generator/issues/131)) ([5b2635b](https://www.github.com/google/slo-generator/commit/5b2635b05e6d7434f54eb95fb4d3445d88ce29f0))
-
-
-### Bug Fixes
-
-* Migrate sample configurations to v2 ([#128](https://www.github.com/google/slo-generator/issues/128)) ([bafaf51](https://www.github.com/google/slo-generator/commit/bafaf5178b827ece5da7d204e8dc982916a1ad5f))
-* Minor v2 fixes ([#142](https://www.github.com/google/slo-generator/issues/142)) ([2d48d61](https://www.github.com/google/slo-generator/commit/2d48d617e124f58e307d9ec64da44e67df9bb611))
-
-
-### Documentation
-
-* Update documentation for v2 ([#133](https://www.github.com/google/slo-generator/issues/133)) ([0a9cd38](https://www.github.com/google/slo-generator/commit/0a9cd38a507c9559ecb97b6d55eca3b8bc9d20bc))
-
 ### [1.5.1](https://www.github.com/google/slo-generator/compare/v1.5.0...v1.5.1) (2021-02-12)
 
 
