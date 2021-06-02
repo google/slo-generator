@@ -19,7 +19,6 @@ details on the Functions Framework.
 """
 import base64
 import os
-import json
 import logging
 import pprint
 
