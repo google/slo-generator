@@ -19,6 +19,7 @@ details on the Functions Framework.
 """
 import base64
 import os
+import json
 import logging
 import pprint
 
@@ -51,7 +52,7 @@ def run_compute(request):
     # Get SLO config
     if API_SIGNATURE_TYPE == 'http':
         timestamp = None
-        data = str(request.data.decode('utf-8'))
+        data = str(request.get_data().decode('utf-8'))
         LOGGER.info('Loading SLO config from Flask request')
     elif API_SIGNATURE_TYPE == 'cloudevent':
         timestamp = int(
