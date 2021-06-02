@@ -51,14 +51,13 @@ def run_compute(request):
     # Get SLO config
     if API_SIGNATURE_TYPE == 'http':
         timestamp = None
-        data = str(request.get_json())
+        data = str(request.data.decode('utf-8'))
         LOGGER.info('Loading SLO config from Flask request')
     elif API_SIGNATURE_TYPE == 'cloudevent':
         timestamp = int(
             datetime.strptime(request["time"], TIME_FORMAT).timestamp())
         data = base64.b64decode(request.data).decode('utf-8')
         LOGGER.info(f'Loading SLO config from Cloud Event "{request["id"]}"')
-
     slo_config = load_config(data)
 
     # Get slo-generator config

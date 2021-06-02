@@ -1,13 +1,16 @@
-name: release-version
+name: rc-release-version
 on:
   push:
-    tags:
-      - v*.*.*
+    branches:
+      - release-v*.*.*-rc*
 jobs:
   release-pypi:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+      - name: "Verify version is a release candidate"
+        run: |
+          cat "setup.py" | grep "version = .*-rc*"
       - uses: actions/setup-python@master
         with:
           python-version: '3.x'
