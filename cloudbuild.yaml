@@ -17,8 +17,10 @@ steps:
 - name: gcr.io/cloud-builders/docker
   id:   Build SLO generator
   args: ['build', '-t', 'gcr.io/$_GCR_PROJECT_ID/slo-generator:${_VERSION}', '.']
+- name: gcr.io/cloud-builders/docker
+  args: ['push', 'gcr.io/$_GCR_PROJECT_ID/slo-generator:${_VERSION}']
 
-- name: gcr.io/$_GCR_PROJECT_ID/slo-generator
+- name: gcr.io/$_GCR_PROJECT_ID/slo-generator:$_VERSION
   id: Run all tests
   entrypoint: make
   env:
