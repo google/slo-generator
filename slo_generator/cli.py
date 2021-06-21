@@ -165,7 +165,7 @@ def api(ctx, config, signature_type, target):
 @click.option('--glob',
               type=str,
               required=False,
-              default='**/slo_*.yaml',
+              default='**/*.yaml',
               help='Glob expression to seek SLO configs in subpaths')
 @click.option('--version',
               type=str,
