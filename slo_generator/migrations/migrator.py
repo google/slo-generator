@@ -95,6 +95,8 @@ def do_migrate(source,
         slo_config_str = source_path.open().read()
         slo_config, ind, blc = yaml.util.load_yaml_guess_indent(slo_config_str)
         curver = get_config_version(slo_config)
+        if not curver:
+            continue
 
         # Source path info
         click.secho("-" * 50)
@@ -114,6 +116,8 @@ def do_migrate(source,
         # Run vx to vy migrator method
         func = getattr(sys.modules[__name__], f"slo_config_{curver}to{version}")
         slo_config_v2 = func(slo_config, shared_config, quiet=quiet)
+        if not slo_config_v2:
+            continue
 
         # Write resulting config to target path
         extra = '(replaced)' if target_path_str == source_path_str else ''
@@ -213,6 +217,15 @@ def slo_config_v1tov2(slo_config, shared_config={}, quiet=False, verbose=0):
     slo_config_v2 = OrderedDict(copy.deepcopy(SLO_CONFIG_SCHEMA))
     slo_config_v2['apiVersion'] = 'sre.google.com/v2'
     slo_config_v2['kind'] = 'ServiceLevelObjective'
+    missing_keys = [
+        key for key in ['service_name', 'feature_name', 'slo_name', 'backend']
+        if key not in slo_config
+    ]
+    if missing_keys:
+        click.secho(
+            f'Invalid configuration: missing required key(s) {missing_keys}.',
+            fg='red')
+        return None
 
     # Get fields from old config
     slo_metadata_name = '{service_name}-{feature_name}-{slo_name}'.format(
@@ -405,6 +418,11 @@ def get_config_version(config):
     Returns:
         str: SLO config version.
     """
+    if not isinstance(config, dict):
+        click.secho(
+            'Config does not correspond to any known SLO config versions.',
+            fg='red')
+        return None
     api_version = config.get('apiVersion', '')
     kind = config.get('kind', '')
     if not kind:  # old v1 format
