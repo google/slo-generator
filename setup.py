@@ -42,21 +42,15 @@ extras = {
     'prometheus': ['prometheus-client', 'prometheus-http-client'],
     'datadog': ['datadog', 'retrying==1.3.3'],
     'dynatrace': ['requests'],
-    'bigquery': [
-        'google-api-python-client < 2.0.0', 'google-cloud-bigquery < 3.0.0'
-    ],
+    'bigquery': ['google-api-python-client <2', 'google-cloud-bigquery <3'],
     'cloud_monitoring': [
-        'google-api-python-client < 2.0.0', 'google-cloud-monitoring < 2.0.0'
+        'google-api-python-client <2', 'google-cloud-monitoring <2'
     ],
     'cloud_service_monitoring': [
-        'google-api-python-client < 2.0.0', 'google-cloud-monitoring < 2.0.0'
+        'google-api-python-client <2', 'google-cloud-monitoring <2'
     ],
-    'cloud_storage': [
-        'google-api-python-client < 2.0.0', 'google-cloud-storage'
-    ],
-    'pubsub': [
-        'google-api-python-client < 2.0.0', 'google-cloud-pubsub==1.7.0'
-    ],
+    'cloud_storage': ['google-api-python-client <2', 'google-cloud-storage'],
+    'pubsub': ['google-api-python-client <2', 'google-cloud-pubsub <2'],
     'elasticsearch': ['elasticsearch'],
     'dev': ['wheel', 'flake8', 'mock', 'coverage', 'nose', 'pylint']
 }
