@@ -18,9 +18,7 @@ RUN apt-get update && \
     build-essential \
     make \
     gcc \
-    locales \
-    libgdal20 \
-    libgdal-dev
+    locales
 ADD . /app
 WORKDIR /app
 RUN pip install -U setuptools
