@@ -48,14 +48,14 @@ jobs:
           fi
 
       - name: Build Docker container and publish on GCR [v*.*.*]
-        run: make cloudbuild
+        run: make cloudbuild || true
         env:
           GCR_PROJECT_ID: ${{ secrets.GCR_PROJECT_ID }}
           CLOUDBUILD_PROJECT_ID: ${{ secrets.CLOUDBUILD_PROJECT_ID }}
           VERSION: ${{ steps.check-tag.outputs.version }}
 
       - name: Build Docker container and publish on GCR [latest]
-        run: make cloudbuild
+        run: make cloudbuild || true
         if: ${{ steps.check-tag.outputs.match == 'true' }}
         env:
           GCR_PROJECT_ID: ${{ secrets.GCR_PROJECT_ID }}
