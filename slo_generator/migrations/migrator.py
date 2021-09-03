@@ -27,7 +27,7 @@ from collections import OrderedDict
 from pathlib import Path
 
 import click
-import ruamel.yaml as yaml
+from ruamel import yaml
 
 from slo_generator import utils
 from slo_generator.constants import (METRIC_LABELS_COMPAT,
@@ -77,7 +77,7 @@ def do_migrate(source,
     # Translate error budget policy to v2 and put into shared config
     if ebp_paths:
         ebp_func = getattr(sys.modules[__name__], f"ebp_{curver}to{version}")
-        ebp_keys = ebp_func(
+        ebp_func(
             ebp_paths,
             shared_config=shared_config,
             quiet=quiet,
@@ -206,7 +206,6 @@ def do_migrate(source,
     {RED}  [-] slo-generator -f {source_str} -b {relative_ebp_path}{ENDC}
     {GREEN}  [+] slo-generator -f {target_str} -c {target_str}/config.yaml{ENDC}
     """)
-    # TODO: Once Terraform module is released
     # 3 - [terraform] Upgrade your `terraform-google-slo` modules:
     # 3.1 - Upgrade the module `version` to 2.0.0.
     # 3.2 - Replace `error_budget_policy` field in your `slo` and `slo-pipeline` modules by `shared_config`
@@ -226,7 +225,8 @@ def exporters_v1tov2(exporters_paths, shared_config={}, quiet=False):
     """
     exp_keys = []
     for exp_path in exporters_paths:
-        content = yaml.load(open(exp_path), Loader=yaml.Loader)
+        with open(exp_path, encoding='utf-8') as conf:
+            content = yaml.load(conf, Loader=yaml.Loader)
         exporters = content
 
         # If exporters file has sections, concatenate all of them
@@ -262,7 +262,8 @@ def ebp_v1tov2(ebp_paths, shared_config={}, quiet=False):
     """
     ebp_keys = []
     for ebp_path in ebp_paths:
-        error_budget_policy = yaml.load(open(ebp_path), Loader=yaml.Loader)
+        with open(ebp_path, encoding='utf-8') as conf:
+            error_budget_policy = yaml.load(conf, Loader=yaml.Loader)
         for step in error_budget_policy:
             step['name'] = step.pop('error_budget_policy_step_name')
             step['burn_rate_threshold'] = step.pop(

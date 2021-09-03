@@ -356,7 +356,7 @@ class SLOReport:
             if name not in kwargs:
                 continue
             value = kwargs[name]
-            if name in lambdas.keys():
+            if name in lambdas:
                 value = lambdas[name](value)
             setattr(self, name, value)
 
