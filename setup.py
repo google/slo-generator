@@ -30,7 +30,7 @@ here = path.abspath(path.dirname(__file__))
 # Package metadata.
 name = "slo-generator"
 description = "SLO Generator"
-version = "1.5.1"
+version = "2.0.0-rc3"
 # Should be one of:
 # 'Development Status :: 3 - Alpha'
 # 'Development Status :: 4 - Beta'
