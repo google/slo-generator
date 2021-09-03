@@ -607,11 +607,12 @@ class CloudServiceMonitoringBackend:
         for idx, string in enumerate(difflib.ndiff(string1, string2)):
             if string[0] == ' ':
                 continue
+            last = string[-1]
             if string[0] == '-':
-                info = u'Delete "{}" from position {}'.format(string[-1], idx)
+                info = f'Delete "{last}" from position {idx}'
                 lines.append(info)
             elif string[0] == '+':
-                info = u'Add "{}" to position {}'.format(string[-1], idx)
+                info = f'Add "{last}" to position {idx}'
                 lines.append(info)
         return lines
 

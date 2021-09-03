@@ -27,7 +27,7 @@ from collections import OrderedDict
 from pathlib import Path
 
 import click
-import ruamel.yaml as yaml
+from ruamel import yaml
 
 from slo_generator import utils
 from slo_generator.constants import (METRIC_LABELS_COMPAT,
@@ -44,6 +44,7 @@ yaml.preserve_quotes = True
 def do_migrate(source,
                target,
                error_budget_policy_path,
+               exporters_path,
                glob,
                version,
                quiet=False,
@@ -53,37 +54,58 @@ def do_migrate(source,
     Args:
         source (str): Source SLO configs folder.
         target (str): Target SLO configs folder.
-        error_budget_policy_path (str): Error budget policy path.
+        error_budget_policy_path (list): Error budget policy paths.
+        exporters_path (list): Exporters paths.
         glob (str): Glob expression to add to source path.
         version (str): slo-generator major version string (e.g: v1, v2, ...)
         quiet (bool, optional): If true, do not prompt for user input.
         verbose (int, optional): Verbose level.
     """
+    curver = 'v1'
     shared_config = CONFIG_SCHEMA
     cwd = Path.cwd()
     source = Path(source).resolve()
     target = Path(target).resolve()
     source_str = source.relative_to(cwd)  # human-readable path
     target_str = target.relative_to(cwd)  # human-readable path
-    error_budget_policy_path = Path(error_budget_policy_path)
+    ebp_paths = [Path(ebp) for ebp in error_budget_policy_path]
+    exporters_paths = [Path(exp) for exp in exporters_path]
 
     # Create target folder if it doesn't exist
     target.mkdir(parents=True, exist_ok=True)
+
+    # Translate error budget policy to v2 and put into shared config
+    if ebp_paths:
+        ebp_func = getattr(sys.modules[__name__], f"ebp_{curver}to{version}")
+        ebp_func(
+            ebp_paths,
+            shared_config=shared_config,
+            quiet=quiet,
+        )
+
+    # Translate exporters to v2 and put into shared config
+    if exporters_paths:
+        exporters_func = getattr(sys.modules[__name__],
+                                 f"exporters_{curver}to{version}")
+        exp_keys = exporters_func(
+            exporters_paths,
+            shared_config=shared_config,
+            quiet=quiet,
+        )
 
     # Process SLO configs
     click.secho('=' * 50)
     click.secho(f"Migrating slo-generator configs to {version} ...",
                 fg='cyan',
                 bold=True)
-
-    paths = Path(source).glob(glob)
-
+    paths = Path(source).glob(glob)  # find all files in source path
     if not peek(paths):
         click.secho(f"{FAIL} No SLO configs found in {source}",
                     fg='red',
                     bold=True)
         sys.exit(1)
 
+    curver = ''
     for source_path in paths:
         source_path_str = source_path.relative_to(cwd)
         if source == target == cwd:
@@ -94,7 +116,7 @@ def do_migrate(source,
         target_path_str = target_path.relative_to(cwd)
         slo_config_str = source_path.open().read()
         slo_config, ind, blc = yaml.util.load_yaml_guess_indent(slo_config_str)
-        curver = get_config_version(slo_config)
+        curver = detect_config_version(slo_config)
         if not curver:
             continue
 
@@ -114,8 +136,14 @@ def do_migrate(source,
         target_path.parent.mkdir(parents=True, exist_ok=True)
 
         # Run vx to vy migrator method
-        func = getattr(sys.modules[__name__], f"slo_config_{curver}to{version}")
-        slo_config_v2 = func(slo_config, shared_config, quiet=quiet)
+        slo_func = getattr(sys.modules[__name__],
+                           f"slo_config_{curver}to{version}")
+        slo_config_v2 = slo_func(
+            slo_config,
+            shared_config=shared_config,
+            shared_exporters=exp_keys,
+            quiet=quiet,
+        )
         if not slo_config_v2:
             continue
 
@@ -133,28 +161,10 @@ def do_migrate(source,
             )
         click.secho(f'{SUCCESS} Success !', fg='green', bold=True)
 
-    # Translate error budget policy to v2 and put into shared config
-    error_budget_policy = yaml.load(open(error_budget_policy_path),
-                                    Loader=yaml.Loader)
-    for step in error_budget_policy:
-        step['name'] = step.pop('error_budget_policy_step_name')
-        step['burn_rate_threshold'] = step.pop('alerting_burn_rate_threshold')
-        step['alert'] = step.pop('urgent_notification')
-        step['message_alert'] = step.pop('overburned_consequence_message')
-        step['message_ok'] = step.pop('achieved_consequence_message')
-        step['window'] = step.pop('measurement_window_seconds')
-
-    ebp = {'steps': error_budget_policy}
-    if error_budget_policy_path.name == 'error_budget_policy.yaml':
-        ebp_key = 'default'
-    else:
-        ebp_key = error_budget_policy_path.name
-    shared_config['error_budget_policies'][ebp_key] = ebp
-    shared_config_path = target / 'config.yaml'
-    shared_config_path_str = shared_config_path.relative_to(cwd)
-
     # Write shared config to file
     click.secho('=' * 50)
+    shared_config_path = target / 'config.yaml'
+    shared_config_path_str = shared_config_path.relative_to(cwd)
     with shared_config_path.open('w') as conf:
         click.secho(
             f'Writing slo-generator config to {shared_config_path_str} ...',
@@ -171,14 +181,15 @@ def do_migrate(source,
         click.secho(f'{SUCCESS} Success !', fg='green', bold=True)
 
     # Remove error budget policy file
-    click.secho('=' * 50)
-    click.secho(f'Removing {error_budget_policy_path} ...',
-                fg='cyan',
-                bold=True)
-    error_budget_policy_path.unlink()
-    click.secho(f'{SUCCESS} Success !', fg='green', bold=True)
+    # click.secho('=' * 50)
+    # click.secho(f'Removing {error_budget_policy_path} ...',
+    #             fg='cyan',
+    #             bold=True)
+    # error_budget_policy_path.unlink()
+    # click.secho(f'{SUCCESS} Success !', fg='green', bold=True)
 
     # Print next steps
+    relative_ebp_path = ebp_paths[0].relative_to(cwd)
     click.secho('=' * 50)
     click.secho(
         f'\n{SUCCESS} Migration of `slo-generator` configs to v2 completed successfully ! Configs path: {target_str}/.\n',
@@ -192,21 +203,101 @@ def do_migrate(source,
     click.secho(f"""
     1 - Commit the updated SLO configs and your shared SLO config to version control.
     2 - [local/k8s/cloudbuild] Update your slo-generator command:
-    {RED}  [-] slo-generator -f {source_str} -b {error_budget_policy_path}{ENDC}
+    {RED}  [-] slo-generator -f {source_str} -b {relative_ebp_path}{ENDC}
     {GREEN}  [+] slo-generator -f {target_str} -c {target_str}/config.yaml{ENDC}
-    3 - [terraform] Upgrade your `terraform-google-slo` modules:
-    3.1 - Upgrade the module `version` to 2.0.0.
-    3.2 - Replace `error_budget_policy` field in your `slo` and `slo-pipeline` modules by `shared_config`
-    3.3 - Replace `error_budget_policy.yaml` local variable to `config.yaml`
     """)
+    # 3 - [terraform] Upgrade your `terraform-google-slo` modules:
+    # 3.1 - Upgrade the module `version` to 2.0.0.
+    # 3.2 - Replace `error_budget_policy` field in your `slo` and `slo-pipeline` modules by `shared_config`
+    # 3.3 - Replace `error_budget_policy.yaml` local variable to `config.yaml`
 
 
-def slo_config_v1tov2(slo_config, shared_config={}, quiet=False, verbose=0):
+def exporters_v1tov2(exporters_paths, shared_config={}, quiet=False):
+    """Translate exporters to v2 and put into shared config.
+
+    Args:
+        exporters_path (list): List of exporters file paths.
+        shared_config (dict): Shared config to add exporters to.
+        quiet (bool): Quiet mode.
+
+    Returns:
+        list: List of exporters keys added to shared config.
+    """
+    exp_keys = []
+    for exp_path in exporters_paths:
+        with open(exp_path, encoding='utf-8') as conf:
+            content = yaml.load(conf, Loader=yaml.Loader)
+        exporters = content
+
+        # If exporters file has sections, concatenate all of them
+        if isinstance(content, dict):
+            exporters = []
+            for _, value in content.items():
+                exporters.extend(value)
+            print(exporters)
+
+        # If exporter not in general config, add it and add an alias for the
+        # exporter. Refer to the alias in the SLO config file.
+        for exporter in exporters:
+            print(exporter)
+            exporter = OrderedDict(exporter)
+            exp_key = add_to_shared_config(exporter,
+                                           shared_config,
+                                           'exporters',
+                                           quiet=quiet)
+            exp_keys.append(exp_key)
+    return exp_keys
+
+
+def ebp_v1tov2(ebp_paths, shared_config={}, quiet=False):
+    """Translate error budget policies to v2 and put into shared config
+
+    Args:
+        ebp_paths (list): List of error budget policies file paths.
+        shared_config (dict): Shared config to add exporters to.
+        quiet (bool): Quiet mode.
+
+    Returns:
+        list: List of error budget policies keys added to shared config.
+    """
+    ebp_keys = []
+    for ebp_path in ebp_paths:
+        with open(ebp_path, encoding='utf-8') as conf:
+            error_budget_policy = yaml.load(conf, Loader=yaml.Loader)
+        for step in error_budget_policy:
+            step['name'] = step.pop('error_budget_policy_step_name')
+            step['burn_rate_threshold'] = step.pop(
+                'alerting_burn_rate_threshold')
+            step['alert'] = step.pop('urgent_notification')
+            step['message_alert'] = step.pop('overburned_consequence_message')
+            step['message_ok'] = step.pop('achieved_consequence_message')
+            step['window'] = step.pop('measurement_window_seconds')
+
+        ebp = {'steps': error_budget_policy}
+        if ebp_path.name == 'error_budget_policy.yaml':
+            ebp_key = 'default'
+        else:
+            ebp_key = ebp_path.stem.replace('error_budget_policy_', '')
+        ebp_key = add_to_shared_config(ebp,
+                                       shared_config,
+                                       'error_budget_policies',
+                                       ebp_key,
+                                       quiet=quiet)
+        ebp_keys.append(ebp_key)
+    return ebp_keys
+
+
+def slo_config_v1tov2(slo_config,
+                      shared_config={},
+                      shared_exporters=[],
+                      quiet=False,
+                      verbose=0):
     """Process old SLO config v1 and generate SLO config v2.
 
     Args:
         slo_config (dict): SLO Config v1.
         shared_config (dict): SLO Generator config.
+        shared_exporters (list): Shared exporters keys to add to SLO configs.
         quiet (bool): If true, do not ask for user input.
         verbose (int): Verbose level.
 
@@ -271,6 +362,10 @@ def slo_config_v1tov2(slo_config, shared_config={}, quiet=False, verbose=0):
                                        shared_config,
                                        'exporters',
                                        quiet=quiet)
+        slo_config_v2['spec']['exporters'].append(exp_key)
+
+    # Add shared exporters to slo config
+    for exp_key in shared_exporters:
         slo_config_v2['spec']['exporters'].append(exp_key)
 
     # Fill spec
@@ -341,7 +436,11 @@ def get_random_suffix():
     return ''.join(random.choices(string.digits, k=4))
 
 
-def add_to_shared_config(new_obj, shared_config, section, quiet=False):
+def add_to_shared_config(new_obj,
+                         shared_config,
+                         section,
+                         key=None,
+                         quiet=False):
     """Add an object to the shared_config.
 
     If the object with the same config already exists in the shared config,
@@ -355,13 +454,16 @@ def add_to_shared_config(new_obj, shared_config, section, quiet=False):
         new_obj (OrderedDict): Object to add to shared_config.
         shared_config (dict): Shared config to add object to.
         section (str): Section name in shared config to add the object under.
+        key (str): Key if cannot be infered.
         quiet (bool): If True, do not ask for user input.
 
     Returns:
         str: Object key in the shared config.
     """
     shared_obj = shared_config[section]
-    key = new_obj.pop('class')
+    key = key or new_obj.pop('class', None)
+    if not key:
+        raise ValueError("Object key is undefined.")
     if '.' not in key:
         key = utils.caml_to_snake(PROVIDERS_COMPAT.get(key, key))
 
@@ -409,7 +511,7 @@ def add_to_shared_config(new_obj, shared_config, section, quiet=False):
     return key
 
 
-def get_config_version(config):
+def detect_config_version(config):
     """Return version of an slo-generator config based on the format.
 
     Args:
