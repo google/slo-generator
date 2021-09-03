@@ -53,7 +53,7 @@ def do_migrate(source,
     Args:
         source (str): Source SLO configs folder.
         target (str): Target SLO configs folder.
-        error_budget_policy_path (str): Error budget policy path.
+        error_budget_policy_path (list): Error budget policy paths.
         glob (str): Glob expression to add to source path.
         version (str): slo-generator major version string (e.g: v1, v2, ...)
         quiet (bool, optional): If true, do not prompt for user input.
@@ -65,7 +65,7 @@ def do_migrate(source,
     target = Path(target).resolve()
     source_str = source.relative_to(cwd)  # human-readable path
     target_str = target.relative_to(cwd)  # human-readable path
-    error_budget_policy_path = Path(error_budget_policy_path)
+    ebp_paths = [Path(ebp) for ebp in error_budget_policy_path]
 
     # Create target folder if it doesn't exist
     target.mkdir(parents=True, exist_ok=True)
@@ -134,24 +134,25 @@ def do_migrate(source,
         click.secho(f'{SUCCESS} Success !', fg='green', bold=True)
 
     # Translate error budget policy to v2 and put into shared config
-    error_budget_policy = yaml.load(open(error_budget_policy_path),
-                                    Loader=yaml.Loader)
-    for step in error_budget_policy:
-        step['name'] = step.pop('error_budget_policy_step_name')
-        step['burn_rate_threshold'] = step.pop('alerting_burn_rate_threshold')
-        step['alert'] = step.pop('urgent_notification')
-        step['message_alert'] = step.pop('overburned_consequence_message')
-        step['message_ok'] = step.pop('achieved_consequence_message')
-        step['window'] = step.pop('measurement_window_seconds')
+    for ebp_path in ebp_paths:
+        error_budget_policy = yaml.load(open(ebp_path), Loader=yaml.Loader)
+        for step in error_budget_policy:
+            step['name'] = step.pop('error_budget_policy_step_name')
+            step['burn_rate_threshold'] = step.pop(
+                'alerting_burn_rate_threshold')
+            step['alert'] = step.pop('urgent_notification')
+            step['message_alert'] = step.pop('overburned_consequence_message')
+            step['message_ok'] = step.pop('achieved_consequence_message')
+            step['window'] = step.pop('measurement_window_seconds')
 
-    ebp = {'steps': error_budget_policy}
-    if error_budget_policy_path.name == 'error_budget_policy.yaml':
-        ebp_key = 'default'
-    else:
-        ebp_key = error_budget_policy_path.name
-    shared_config['error_budget_policies'][ebp_key] = ebp
-    shared_config_path = target / 'config.yaml'
-    shared_config_path_str = shared_config_path.relative_to(cwd)
+        ebp = {'steps': error_budget_policy}
+        if ebp_path.name == 'error_budget_policy.yaml':
+            ebp_key = 'default'
+        else:
+            ebp_key = ebp_path.stem.replace('error_budget_policy_', '')
+        shared_config['error_budget_policies'][ebp_key] = ebp
+        shared_config_path = target / 'config.yaml'
+        shared_config_path_str = shared_config_path.relative_to(cwd)
 
     # Write shared config to file
     click.secho('=' * 50)
@@ -171,12 +172,12 @@ def do_migrate(source,
         click.secho(f'{SUCCESS} Success !', fg='green', bold=True)
 
     # Remove error budget policy file
-    click.secho('=' * 50)
-    click.secho(f'Removing {error_budget_policy_path} ...',
-                fg='cyan',
-                bold=True)
-    error_budget_policy_path.unlink()
-    click.secho(f'{SUCCESS} Success !', fg='green', bold=True)
+    # click.secho('=' * 50)
+    # click.secho(f'Removing {error_budget_policy_path} ...',
+    #             fg='cyan',
+    #             bold=True)
+    # error_budget_policy_path.unlink()
+    # click.secho(f'{SUCCESS} Success !', fg='green', bold=True)
 
     # Print next steps
     click.secho('=' * 50)
