@@ -1,6 +1,7 @@
 # Deploy SLO Generator as a Cloud Run service
 
-`slo-generator` can also be deployed as a Cloud Run service by running the following steps:
+`slo-generator` can also be deployed as a Cloud Run service by following the 
+instructions below.
 
 ## Setup a Cloud Storage bucket
 
@@ -18,7 +19,8 @@ gsutil cp config.yaml gs://${BUCKET_NAME}/
 
 See sample [config.yaml](../samples/config.yaml)
 
-## Deploy service
+## Deploy the CloudRun service
+
 ```
 gcloud run deploy slo-generator \
    --image gcr.io/slo-generator-ci-a2b4/slo-generator:2.0.0-rc3 \
