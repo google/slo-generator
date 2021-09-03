@@ -163,6 +163,12 @@ def api(ctx, config, signature_type, target):
               multiple=True,
               default=['error_budget_policy.yaml'],
               help='Error budget policy path')
+@click.option('--exporters-path',
+              '-e',
+              type=click.Path(exists=True, resolve_path=True, readable=True),
+              required=False,
+              multiple=True,
+              help='Exporters path')
 @click.option('--glob',
               type=str,
               required=False,
