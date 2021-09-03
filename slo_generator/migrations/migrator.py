@@ -234,12 +234,10 @@ def exporters_v1tov2(exporters_paths, shared_config={}, quiet=False):
             exporters = []
             for _, value in content.items():
                 exporters.extend(value)
-            print(exporters)
 
         # If exporter not in general config, add it and add an alias for the
         # exporter. Refer to the alias in the SLO config file.
         for exporter in exporters:
-            print(exporter)
             exporter = OrderedDict(exporter)
             exp_key = add_to_shared_config(exporter,
                                            shared_config,

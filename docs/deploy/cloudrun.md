@@ -35,7 +35,7 @@ gcloud run deploy slo-generator \
    --allow-unauthenticated
 ```
 
-Once the deployment is finished, get the service URL.
+Once the deployment is finished, get the service URL from the log output.
 
 ## [Optional] Test an SLO
 ```
