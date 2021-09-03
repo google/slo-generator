@@ -4,36 +4,36 @@
 
 To do so, you need to build an image for the `slo-generator` and push it to `Google Container Registry` in your project.
 
-To build and push the image, run:
+## [Optional] Build and push the image to GCR
+
+If you are not allowed to use the public container image, you can build and push 
+the image to your project using CloudBuild:
 
 ```sh
 git clone https://github.com/google/slo-generator
 cd slo-generator/
-gcloud config set project <PROJECT_ID>
-gcloud builds submit --tag gcr.io/<PROJECT_ID>/slo-generator .
+export CLOUDBUILD_PROJECT_ID=<CLOUDBUILD_PROJECT_ID>
+export GCR_PROJECT_ID=<GCR_PROJECT_ID>
+make cloudbuild
 ```
 
-Once the image is built, you can call the SLO generator using the following snippet in your `cloudbuild.yaml`:
+## Run `slo-generator` as a build step
+
+Once the image is built, you can call the SLO generator using the following 
+snippet in your `cloudbuild.yaml`:
 
 ```yaml
 ---
 steps:
 
-- name: gcr.io/${_PROJECT_NAME}/slo-generator
+- name: gcr.io/slo-generator-ci-a2b4/slo-generator
+  command: slo-generator
   args:
     - -f
-    - ${_SLO_CONFIG_FILE}
-    - -b
-    - ${_ERROR_BUDGET_POLICY_FILE}
+    - slo.yaml
+    - -c
+    - config.yaml
     - --export
-```
-
-Then, in another repo containing your SLO definitions, simply run the pipeline, substituting the needed variables:
-
-```sh
-gcloud builds submit . --config=cloudbuild.yaml --substitutions \
-  _SLO_CONFIG_FILE=<YOUR_SLO_CONFIG_FILE> \
-  _ERROR_BUDGET_POLICY_FILE=<_ERROR_BUDGET_POLICY_FILE> \
 ```
 
 If your repo is a Cloud Source Repository, you can also configure a trigger for

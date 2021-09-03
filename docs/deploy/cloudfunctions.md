@@ -1,4 +1,4 @@
-# Deploy SLO Generator in Cloud Functions
+# Deploy SLO Generator in Cloud Functions [DEPRECATED]
 
 `slo-generator` is frequently used as part of an SLO Reporting Pipeline made of:
 
