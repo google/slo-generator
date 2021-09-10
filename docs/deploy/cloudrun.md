@@ -43,7 +43,7 @@ curl -X POST -H "Content-Type: text/x-yaml" --data-binary @slo.yaml ${SERVICE_UR
 curl -X POST -H "Content-Type: application/json" -d @${SLO_PATH} ${SERVICE_URL}    # json
 ```
 
-See sample [slo.yaml](../samples/cloud_monitoring/slo_gae_app_availability.yaml)
+See sample [slo.yaml](../../samples/cloud_monitoring/slo_gae_app_availability.yaml)
 
 ## Schedule SLO reports every minute
 
