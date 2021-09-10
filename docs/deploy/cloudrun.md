@@ -17,7 +17,7 @@ Upload the slo-generator configuration to the GCS bucket:
 gsutil cp config.yaml gs://${BUCKET_NAME}/
 ```
 
-See sample [config.yaml](../samples/config.yaml)
+See sample [config.yaml](../../samples/config.yaml)
 
 ## Deploy the CloudRun service
 
