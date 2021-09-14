@@ -172,7 +172,7 @@ def api(ctx, config, signature_type, target):
 @click.option('--glob',
               type=str,
               required=False,
-              default='**/*.yaml',
+              default='**/*.*(yml|yaml|json)',
               help='Glob expression to seek SLO configs in subpaths')
 @click.option('--version',
               type=str,
