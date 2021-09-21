@@ -19,8 +19,10 @@ Migrate utilities for migrating slo-generator configs from v1 to v2.
 # flake8: noqa
 import copy
 import itertools
+import os
 import pprint
 import random
+import re
 import string
 import sys
 from collections import OrderedDict
@@ -45,7 +47,6 @@ def do_migrate(source,
                target,
                error_budget_policy_path,
                exporters_path,
-               glob,
                version,
                quiet=False,
                verbose=0):
@@ -98,8 +99,8 @@ def do_migrate(source,
     click.secho(f"Migrating slo-generator configs to {version} ...",
                 fg='cyan',
                 bold=True)
-    paths = Path(source).glob(glob)  # find all files in source path
-    if not peek(paths):
+    paths = get_files(source)
+    if not paths:
         click.secho(f"{FAIL} No SLO configs found in {source}",
                     fg='red',
                     bold=True)
@@ -107,6 +108,8 @@ def do_migrate(source,
 
     curver = ''
     for source_path in paths:
+        if source_path in ebp_paths + exporters_paths:
+            continue
         source_path_str = source_path.relative_to(cwd)
         if source == target == cwd:
             target_path = target.joinpath(*source_path.relative_to(cwd).parts)
@@ -212,6 +215,21 @@ def do_migrate(source,
     # 3.3 - Replace `error_budget_policy.yaml` local variable to `config.yaml`
 
 
+def get_files(source, extensions=['yaml', 'yml', 'json']):
+    """Get all files matching extensions.
+    
+    Args:
+        extensions (list): List of extensions to match.
+
+    Returns:
+        list: List of all files matching extensions relative to source folder.
+    """
+    all_files = []
+    for ext in extensions:
+        all_files.extend(Path(source).rglob(f'*.{ext}'))
+    return all_files
+
+
 def exporters_v1tov2(exporters_paths, shared_config={}, quiet=False):
     """Translate exporters to v2 and put into shared config.
 
@@ -312,7 +330,7 @@ def slo_config_v1tov2(slo_config,
     ]
     if missing_keys:
         click.secho(
-            f'Invalid configuration: missing required key(s) {missing_keys}.',
+            f'Invalid SLO configuration: missing key(s) {missing_keys}.',
             fg='red')
         return None
 
