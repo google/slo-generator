@@ -1,8 +1,10 @@
 name: release-please
+
 on:
   push:
     branches:
       - master
+
 jobs:
   release-pr:
     runs-on: ubuntu-latest

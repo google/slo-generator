@@ -1,0 +1,62 @@
+name: deploy
+
+on:
+  push:
+    branches:
+      - master
+    tags:
+      - v*.*.*
+      - release-v*.*.*
+
+jobs:
+  cloudrun:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check release version
+        id: check-tag
+        run: |
+          echo ::set-output name=version::$(echo ${{ github.event.ref }} | cut -d / -f 3 | cut -c2-)
+          if [[ ${{ github.event.ref }} =~ ^refs/tags/v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+              echo ::set-output name=match::true
+          fi
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@master
+        with:
+          project_id: ${{ secrets.PROJECT_ID }}
+          service_account_key: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
+          export_default_credentials: true
+
+      - name: Wait for backend container build workflow
+        uses: tomchv/wait-my-workflow@v1.1.0
+        id: wait-build
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          checkName: build
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          intervalSeconds: 10
+          timeoutSeconds: 600 # 10m
+
+      - name: Do something if build isn't launch
+        if: steps.wait-build.outputs.conclusion == 'does not exist' || steps.wait-build2.outputs.conclusion == 'does not exist'
+        run: echo job does not exist && true
+
+      - name: Do something if build fail
+        if: steps.wait-build.outputs.conclusion == 'failure' || steps.wait-build2.outputs.conclusion == 'failure' 
+        run: echo fail && false # fail if build fail
+
+      - name: Do something if build timeout
+        if: steps.wait-build.outputs.conclusion == 'timed_out' || steps.wait-build2.outputs.conclusion == 'timed_out'
+        run: echo Timeout && false # fail if build time out
+
+      - name: Deploy Docker container to Cloud Run
+        run: make cloudrun
+        env:
+          GCR_PROJECT_ID: ${{ secrets.GCR_PROJECT_ID }}
+          CLOUDBUILD_PROJECT_ID: ${{ secrets.CLOUDBUILD_PROJECT_ID }}
+          CLOUDRUN_PROJECT_ID: ${{ secrets.CLOUDRUN_PROJECT_ID }}
+          VERSION: ${{ steps.check-tag.outputs.match && steps.check-tag.outputs.version || github.sha }}
+          CONFIG_URL: gs://${{ secrets.CLOUDRUN_PROJECT_ID }}/config.yaml
+          SIGNATURE_TYPE: http
+          REGION: ${{ secrets.REGION }}
+          SERVICE_ACCOUNT: ${{ secrets.CLOUDRUN_SERVICE_ACCOUNT }}
