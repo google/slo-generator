@@ -465,7 +465,7 @@ def decode_gcs_url(url):
 
 def get_files(source, extensions=['yaml', 'yml', 'json']):
     """Get all files matching extensions.
-    
+
     Args:
         extensions (list): List of extensions to match.
 
