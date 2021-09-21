@@ -19,10 +19,8 @@ Migrate utilities for migrating slo-generator configs from v1 to v2.
 # flake8: noqa
 import copy
 import itertools
-import os
 import pprint
 import random
-import re
 import string
 import sys
 from collections import OrderedDict
@@ -99,7 +97,7 @@ def do_migrate(source,
     click.secho(f"Migrating slo-generator configs to {version} ...",
                 fg='cyan',
                 bold=True)
-    paths = get_files(source)
+    paths = utils.get_files(source)
     if not paths:
         click.secho(f"{FAIL} No SLO configs found in {source}",
                     fg='red',
@@ -213,21 +211,6 @@ def do_migrate(source,
     # 3.1 - Upgrade the module `version` to 2.0.0.
     # 3.2 - Replace `error_budget_policy` field in your `slo` and `slo-pipeline` modules by `shared_config`
     # 3.3 - Replace `error_budget_policy.yaml` local variable to `config.yaml`
-
-
-def get_files(source, extensions=['yaml', 'yml', 'json']):
-    """Get all files matching extensions.
-    
-    Args:
-        extensions (list): List of extensions to match.
-
-    Returns:
-        list: List of all files matching extensions relative to source folder.
-    """
-    all_files = []
-    for ext in extensions:
-        all_files.extend(Path(source).rglob(f'*.{ext}'))
-    return all_files
 
 
 def exporters_v1tov2(exporters_paths, shared_config={}, quiet=False):

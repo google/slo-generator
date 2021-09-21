@@ -461,3 +461,18 @@ def decode_gcs_url(url):
     bucket_name = split_url[2]
     file_path = '/'.join(split_url[3:])
     return (bucket_name, file_path)
+
+
+def get_files(source, extensions=['yaml', 'yml', 'json']):
+    """Get all files matching extensions.
+    
+    Args:
+        extensions (list): List of extensions to match.
+
+    Returns:
+        list: List of all files matching extensions relative to source folder.
+    """
+    all_files = []
+    for ext in extensions:
+        all_files.extend(Path(source).rglob(f'*.{ext}'))
+    return all_files
