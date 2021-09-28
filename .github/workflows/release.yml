@@ -1,8 +1,10 @@
-name: release-version
+name: release
+
 on:
   push:
     tags:
       - v*.*.*
+
 jobs:
   release-pypi:
     runs-on: ubuntu-latest
@@ -16,9 +18,6 @@ jobs:
 
       - name: Run all tests
         run: make
-        env:
-          MIN_VALID_EVENTS: "10"
-          GOOGLE_APPLICATION_CREDENTIALS: tests/unit/fixtures/fake_credentials.json
 
       - name: Release PyPI package
         run: make deploy
@@ -26,51 +25,3 @@ jobs:
           TWINE_USERNAME: ${{ secrets.TWINE_USERNAME }}
           TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD }}
           TWINE_REPOSITORY_URL: https://upload.pypi.org/legacy/
-
-  release-gcr:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-
-      - name: Set up Cloud SDK
-        uses: google-github-actions/setup-gcloud@master
-        with:
-          project_id: ${{ secrets.PROJECT_ID }}
-          service_account_key: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
-          export_default_credentials: true
-
-      - name: Check release version
-        id: check-tag
-        run: |
-          echo ::set-output name=version::$(echo ${{ github.event.ref }} | cut -d / -f 3 | cut -c2-)
-          if [[ ${{ github.event.ref }} =~ ^refs/tags/v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-              echo ::set-output name=match::true
-          fi
-
-      - name: Build Docker container and publish on GCR [v*.*.*]
-        run: make cloudbuild || true
-        env:
-          GCR_PROJECT_ID: ${{ secrets.GCR_PROJECT_ID }}
-          CLOUDBUILD_PROJECT_ID: ${{ secrets.CLOUDBUILD_PROJECT_ID }}
-          VERSION: ${{ steps.check-tag.outputs.version }}
-
-      - name: Build Docker container and publish on GCR [latest]
-        run: make cloudbuild || true
-        if: ${{ steps.check-tag.outputs.match == 'true' }}
-        env:
-          GCR_PROJECT_ID: ${{ secrets.GCR_PROJECT_ID }}
-          CLOUDBUILD_PROJECT_ID: ${{ secrets.CLOUDBUILD_PROJECT_ID }}
-          VERSION: latest
-
-      - name: Deploy Docker container to Cloud Run
-        run: make cloudrun
-        if: ${{ steps.check-tag.outputs.match == 'true' }}
-        env:
-          GCR_PROJECT_ID: ${{ secrets.GCR_PROJECT_ID }}
-          CLOUDBUILD_PROJECT_ID: ${{ secrets.CLOUDBUILD_PROJECT_ID }}
-          CLOUDRUN_PROJECT_ID: ${{ secrets.CLOUDRUN_PROJECT_ID }}
-          VERSION: ${{ steps.check-tag.outputs.version }}
-          CONFIG_URL: gs://${{ secrets.CLOUDRUN_PROJECT_ID }}/config.yaml
-          SIGNATURE_TYPE: http
-          REGION: ${{ secrets.REGION }}
-          SERVICE_ACCOUNT: ${{ secrets.CLOUDRUN_SERVICE_ACCOUNT }}
