@@ -5,7 +5,7 @@
 Version `v2` of the slo-generator introduces some changes to the structure of 
 the SLO configurations.
 
-To migrate your SLO configurations from v1 to v3, please execute the following 
+To migrate your SLO configurations from v1 to v2, please execute the following 
 instructions:
 
 **Upgrade `slo-generator`:**
