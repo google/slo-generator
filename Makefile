@@ -21,6 +21,8 @@ TWINE=twine
 COVERAGE=coverage
 NOSE_OPTS = --with-coverage --cover-package=$(NAME) --cover-erase --nologcapture --logging-level=ERROR
 SITELIB = $(shell $(PYTHON) -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")
+MIN_VALID_EVENTS ?= 10
+GOOGLE_APPLICATION_CREDENTIALS ?= tests/unit/fixtures/fake_credentials.json
 
 VERSION := $(shell grep "version = " setup.py | cut -d\  -f3)
 
