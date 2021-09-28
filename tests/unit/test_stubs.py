@@ -54,7 +54,8 @@ CTX = {
     'DATADOG_APP_KEY': 'fake',
     'DATADOG_SLO_ID': 'fake',
     'DYNATRACE_API_URL': 'fake',
-    'DYNATRACE_API_TOKEN': 'fake'
+    'DYNATRACE_API_TOKEN': 'fake',
+    'DYNATRACE_SLO_ID': 'fake'
 }
 
 
@@ -233,6 +234,9 @@ def mock_dt(*args, **kwargs):
 
     elif args[0] == 'get' and args[1] == 'metrics/query':
         return load_fixture('dt_timeseries_get.json')
+
+    elif args[0] == 'get' and args[1].startswith('slo/'):
+        return load_fixture('dt_slo_get.json')
 
     elif args[0] == 'post' and args[1] == 'entity/infrastructure/custom':
         return load_fixture('dt_metric_send.json')

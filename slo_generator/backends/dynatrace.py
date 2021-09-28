@@ -40,6 +40,27 @@ class DynatraceBackend:
         if client is None:
             self.client = DynatraceClient(api_url, api_token)
 
+    def query_sli(self, timestamp, window, slo_config):
+        """Query SLI value from a given Dynatrace SLO.
+
+        Args:
+            timestamp (int): UNIX timestamp.
+            window (int): Window (in seconds).
+            slo_config (dict): SLO configuration.
+
+        Returns:
+            float: SLI value.
+        """
+        conf = slo_config['backend']
+        start = (timestamp - window) * 1000
+        end = timestamp * 1000
+        measurement = conf['measurement']
+        slo_id = measurement['slo_id']
+        data = self.retrieve_slo(start, end, slo_id)
+        LOGGER.debug(f"Result SLO: {pprint.pformat(data)}")
+        sli_value = round(data['evaluatedPercentage'] / 100, 4)
+        return sli_value
+
     def good_bad_ratio(self, timestamp, window, slo_config):
         """Query SLI value from good and valid queries.
 
@@ -125,6 +146,30 @@ class DynatraceBackend:
                                    version='v2',
                                    **params)
 
+    def retrieve_slo(self,
+                     start,
+                     end,
+                     slo_id):
+        """Query Dynatrace SLO V2.
+
+        Args:
+            start (int): Start timestamp (in milliseconds).
+            end (int): End timestamp (in milliseconds).
+            slo_id (int): SLO ID.
+
+        Returns:
+            dict: Dynatrace API response.
+        """
+        params = {
+            'from': start,
+            'to': end
+        }
+        endpoint = 'slo/' + slo_id
+        return self.client.request('get',
+                                   endpoint,
+                                   version='v2',
+                                   **params)
+
     @staticmethod
     def count(response):
         """Count events in time series data.
@@ -199,7 +244,11 @@ def retry_http(response):
         bool: True to retry, False otherwise.
     """
     retry_codes = [429]
-    code = int(response.get('error', {}).get('code', 200))
+    returned_code = response.get('error', {})
+    if isinstance(returned_code, str):
+        code = 200
+    else:
+        code = int(returned_code.get('code', 200))
     return code in retry_codes
 
 
@@ -262,6 +311,7 @@ class DynatraceClient:
             response = req(url, headers=headers, json=post_data)
         else:
             response = req(url, headers=headers)
+        LOGGER.debug(f'Response: {response}')
         data = DynatraceClient.to_json(response)
         next_page_key = data.get('nextPageKey')
         if next_page_key:
