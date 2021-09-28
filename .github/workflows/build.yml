@@ -12,7 +12,6 @@ jobs:
   cloudbuild:
     runs-on: ubuntu-latest
     environment: prod
-    concurrency: prod
     steps:
       - uses: actions/checkout@master
       - uses: actions/setup-python@v2
