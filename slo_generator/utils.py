@@ -138,7 +138,7 @@ def parse_config(path=None, content=None, ctx=os.environ):
         return content
 
     if path:
-        with Path(path).open() as config:
+        with Path(path).open(encoding='utf8') as config:
             content = config.read()
     if ctx:
         content = replace_env_vars(content, ctx)
@@ -198,7 +198,9 @@ def get_human_time(timestamp, timezone=None):
     dt_tz = dt_utc.replace(tzinfo=to_zone)
     timeformat = '%Y-%m-%dT%H:%M:%S.%f%z'
     date_str = datetime.strftime(dt_tz, timeformat)
-    date_str = "{0}:{1}".format(date_str[:-2], date_str[-2:])
+    core_str = date_str[:-2]
+    tz_str = date_str[-2:]
+    date_str = f'{core_str}:{tz_str}'
     return date_str
 
 
