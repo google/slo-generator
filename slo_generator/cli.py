@@ -169,11 +169,6 @@ def api(ctx, config, signature_type, target):
               required=False,
               multiple=True,
               help='Exporters path')
-@click.option('--glob',
-              type=str,
-              required=False,
-              default='**/*.*(yml|yaml|json)',
-              help='Glob expression to seek SLO configs in subpaths')
 @click.option('--version',
               type=str,
               required=False,
