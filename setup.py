@@ -17,9 +17,11 @@ See:
 https://packaging.python.org/en/latest/distributing.html
 https://github.com/pypa/sampleproject
 """
+# pylint: disable=invalid-name
 
 from io import open
 from os import path
+import sys
 
 from setuptools import find_packages, setup
 
@@ -28,25 +30,36 @@ here = path.abspath(path.dirname(__file__))
 # Package metadata.
 name = "slo-generator"
 description = "SLO Generator"
-version = "1.5.0"
+version = "1.5.1"
 # Should be one of:
 # 'Development Status :: 3 - Alpha'
 # 'Development Status :: 4 - Beta'
 # 'Development Status :: 5 - Production/Stable'
 release_status = "Development Status :: 3 - Alpha"
-dependencies = [
-    'google-api-python-client < 2.0.0', 'oauth2client',
-    'google-cloud-monitoring < 2.0.0', 'google-cloud-pubsub==1.7.0',
-    'google-cloud-bigquery < 3.0.0', 'prometheus-http-client',
-    'prometheus-client', 'pyyaml', 'opencensus', 'elasticsearch',
-    'python-dateutil', 'datadog', 'retrying==1.3.3'
-]
-extras = {}
+dependencies = ['pyyaml', 'ruamel.yaml', 'python-dateutil', 'click < 8.0']
+extras = {
+    'api': ['Flask', 'gunicorn', 'cloudevents', 'functions-framework'],
+    'prometheus': ['prometheus-client', 'prometheus-http-client'],
+    'datadog': ['datadog', 'retrying==1.3.3'],
+    'dynatrace': ['requests'],
+    'bigquery': ['google-api-python-client <2', 'google-cloud-bigquery <3'],
+    'cloud_monitoring': [
+        'google-api-python-client <2', 'google-cloud-monitoring <2'
+    ],
+    'cloud_service_monitoring': [
+        'google-api-python-client <2', 'google-cloud-monitoring <2'
+    ],
+    'cloud_storage': ['google-api-python-client <2', 'google-cloud-storage'],
+    'pubsub': ['google-api-python-client <2', 'google-cloud-pubsub <2'],
+    'elasticsearch': ['elasticsearch'],
+    'dev': ['wheel', 'flake8', 'mock', 'coverage', 'nose', 'pylint']
+}
 
 # Get the long description from the README file
 with open(path.join(here, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
+sys.dont_write_bytecode = True
 setup(name=name,
       version=version,
       description=description,
@@ -68,6 +81,7 @@ setup(name=name,
       ],
       keywords='slo sli generator gcp',
       install_requires=dependencies,
+      extras_require=extras,
       entry_points={
           'console_scripts': ['slo-generator=slo_generator.cli:main'],
       },

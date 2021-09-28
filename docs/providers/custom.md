@@ -41,14 +41,20 @@ class CustomBackend:
 
 
 In order to call the `good_bad_ratio` method in the custom backend above, the 
-`backend` block would look like this:
+`backends` block would look like this:
 
 ```yaml
-backend:
-  class:  custom.custom_backend.CustomBackend # relative Python path to the backend. Make sure  __init__.py is created in subdirectories for this to work.
-  method: good_bad_ratio                      # name of the method to run
-  arg_1:  test_arg_1                          # passed to kwargs in __init__
-  arg_2:  test_arg_2                          # passed to kwargs in __init__
+backends:
+  custom.custom_backend.CustomBackend: # relative Python path to the backend. Make sure  __init__.py is created in subdirectories for this to work.
+    arg_1:  test_arg_1     # passed to kwargs in __init__
+    arg_2:  test_arg_2     # passed to kwargs in __init__
+```
+
+The `spec` section in the SLO config would look like:
+```yaml
+backend: custom.custom_backend.CustomBackend
+method: good_bad_ratio # name of the method to run
+service_level_indicator: {}
 ```
 
 **&rightarrow; [Full SLO config](../../samples/custom/slo_custom_app_availability_ratio.yaml)**
@@ -92,10 +98,17 @@ class CustomExporter:
 
 and the corresponding `exporters` section in your SLO config:
 
+The `exporters` block in the shared config would look like this:
+
 ```yaml
 exporters:
-- class: custom.custom_exporter.CustomExporter
-  arg_1: test
+  custom.custom_exporter.CustomExporter: # relative Python path to the backend. Make sure  __init__.py is created in subdirectories for this to work.
+    arg_1:  test_arg_1     # passed to kwargs in __init__
+```
+
+The `spec` section in the SLO config would look like:
+```yaml
+exporters: [custom.custom_exporter.CustomExporter]
 ```
 
 ### Metrics
@@ -103,7 +116,9 @@ exporters:
 A metrics exporter:
 
 * must inherit from `slo_generator.exporters.base.MetricsExporter`.
-* must implement the `export_metric` method which exports **one** metric as a dict like:
+* must implement the `export_metric` method which exports **one** metric. 
+The `export_metric` function takes a metric dict as input, such as:
+
     ```py
     {
         "name": <METRIC_NAME>,
@@ -129,13 +144,13 @@ class CustomExporter(MetricsExporter): # derive from base class
     """Custom exporter."""
 
     def export_metric(self, data):
-        """Export data to Stackdriver Monitoring.
+        """Export data to Custom Monitoring API.
 
         Args:
             data (dict): Metric data.
 
         Returns:
-            object: Stackdriver Monitoring API result.
+            object: Custom Monitoring API result.
         """
         # implement how to export 1 metric here...
         return {
@@ -144,11 +159,12 @@ class CustomExporter(MetricsExporter): # derive from base class
         }
 ```
 
-and the exporters section in your SLO config:
+The `exporters` block in the shared config would look like this:
+
 ```yaml
 exporters:
-  - class: custom.custom_exporter.CustomExporter
-    arg_1: test
+  custom.custom_exporter.CustomExporter: # relative Python path to the backend. Make sure  __init__.py is created in subdirectories for this to work.
+    arg_1:  test_arg_1     # passed to kwargs in __init__
 ```
 
 **Note:**

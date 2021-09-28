@@ -23,12 +23,14 @@ import pprint
 import google.api_core
 from google.cloud import bigquery
 
-from slo_generator.constants import DRY_RUN
+from slo_generator import constants
 
 LOGGER = logging.getLogger(__name__)
 
+
 class BigqueryExporter:
     """BigQuery exporter class."""
+
     def __init__(self):
         self.client = bigquery.Client(project='unset')
 
@@ -66,22 +68,21 @@ class BigqueryExporter:
                                       dataset_id,
                                       table_id,
                                       schema=TABLE_SCHEMA)
-        row_ids = "%s%s%s%s%s" % (data['service_name'], data['feature_name'],
-                                  data['slo_name'], data['timestamp_human'],
-                                  data['window'])
+        row_ids_fmt = '{service_name}{feature_name}{slo_name}{timestamp_human}{window}'  # pylint: disable=line-too-long # noqa: E501
+        row_ids = row_ids_fmt.format(**data)
 
         # Format user metadata if needed
         json_data = {k: v for k, v in data.items() if k in schema_fields}
         metadata = json_data.get('metadata', {})
         if isinstance(metadata, dict):
-            metadata_fields = [
-                {'key': key, 'value': value}
-                for key, value in metadata.items()
-            ]
+            metadata_fields = [{
+                'key': key,
+                'value': value
+            } for key, value in metadata.items()]
             json_data['metadata'] = metadata_fields
 
         # Write results to BQ table
-        if DRY_RUN:
+        if constants.DRY_RUN:
             LOGGER.info(f'[DRY RUN] Writing data to BigQuery: \n{json_data}')
             return []
         LOGGER.debug(f'Writing data to BigQuery:\n{json_data}')
@@ -90,9 +91,12 @@ class BigqueryExporter:
             json_rows=[json_data],
             row_ids=[row_ids],
             retry=google.api_core.retry.Retry(deadline=30))
+        status = f' Export data to {str(table_ref)}'
         if results != []:
+            status = constants.FAIL + status
             raise BigQueryError(results)
-
+        status = constants.SUCCESS + status
+        LOGGER.info(status)
         return results
 
     @staticmethod
@@ -111,12 +115,15 @@ class BigqueryExporter:
             subschema = []
             if 'fields' in row:
                 subschema = [
-                    bigquery.SchemaField(subrow['name'], subrow['type'],
+                    bigquery.SchemaField(subrow['name'],
+                                         subrow['type'],
                                          mode=subrow['mode'])
                     for subrow in row['fields']
                 ]
-            field = bigquery.SchemaField(row['name'], row['type'],
-                                         mode=row['mode'], fields=subschema)
+            field = bigquery.SchemaField(row['name'],
+                                         row['type'],
+                                         mode=row['mode'],
+                                         fields=subschema)
             final_schema.append(field)
         return final_schema
 
@@ -140,7 +147,7 @@ class BigqueryExporter:
         LOGGER.debug(f'Table schema: {pyschema}')
         table = bigquery.Table(table_name, schema=pyschema)
         table.time_partitioning = bigquery.TimePartitioning(
-            type_=bigquery.TimePartitioningType.DAY, )
+            type_=bigquery.TimePartitioningType.DAY,)
         return self.client.create_table(table)
 
     def update_schema(self, table_ref, keep=[]):
@@ -161,7 +168,8 @@ class BigqueryExporter:
 
         # Fields in TABLE_SCHEMA to add / remove
         updated_fields = [
-            field['name'] for field in TABLE_SCHEMA
+            field['name']
+            for field in TABLE_SCHEMA
             if field not in existing_schema
         ]
         extra_remote_fields = [
@@ -179,7 +187,7 @@ class BigqueryExporter:
         if updated_fields:
             LOGGER.info(f'Updated BigQuery fields: {updated_fields}')
             table.schema = BigqueryExporter.build_schema(TABLE_SCHEMA)
-            if DRY_RUN:
+            if constants.DRY_RUN:
                 LOGGER.info('[DRY RUN] Updating BigQuery schema.')
             else:
                 LOGGER.info('Updating BigQuery schema.')
@@ -187,12 +195,14 @@ class BigqueryExporter:
                 self.client.update_table(table, ['schema'])
         return table
 
+
 class BigQueryError(Exception):
     """Exception raised whenever a BigQuery error happened.
 
     Args:
         errors (list): List of errors.
     """
+
     def __init__(self, errors):
         super().__init__(BigQueryError._format(errors))
         self.errors = errors
@@ -321,10 +331,14 @@ TABLE_SCHEMA = [{
     'type': 'BOOLEAN',
     'mode': 'NULLABLE'
 }, {
-    'name': 'metadata',
-    'description': None,
-    'type': 'RECORD',
-    'mode': 'REPEATED',
+    'name':
+        'metadata',
+    'description':
+        None,
+    'type':
+        'RECORD',
+    'mode':
+        'REPEATED',
     'fields': [{
         'description': None,
         'name': 'key',

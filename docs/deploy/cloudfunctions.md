@@ -1,4 +1,4 @@
-# Deploy SLO Generator in Cloud Functions
+# Deploy SLO Generator in Cloud Functions [DEPRECATED]
 
 `slo-generator` is frequently used as part of an SLO Reporting Pipeline made of:
 
@@ -9,8 +9,8 @@
 
 
 Other components can be added to make results available to other destinations:
-* A **Cloud Function** to export SLO reports (e.g: to BigQuery and Stackdriver Monitoring), running `slo-generator`.
-* A **Stackdriver Monitoring Policy** to alert on high budget Burn Rates.
+* A **Cloud Function** to export SLO reports (e.g: to BigQuery and Cloud Monitoring), running `slo-generator`.
+* A **Cloud Monitoring Policy** to alert on high budget Burn Rates.
 
 Below is a diagram of what this pipeline looks like:
 
@@ -22,9 +22,9 @@ Below is a diagram of what this pipeline looks like:
 
 * **Historical analytics** by analyzing SLO data in Bigquery.
 
-* **Real-time alerting** by setting up Stackdriver Monitoring alerts based on
+* **Real-time alerting** by setting up Cloud Monitoring alerts based on
 wanted SLOs.
 
 * **Real-time, daily, monthly, yearly dashboards** by streaming BigQuery SLO reports to DataStudio (see [here](datastudio_slo_report.md)) and building dashboards.
 
-An example of pipeline automation with Terraform can be found in the corresponding  [Terraform module](https://github.com/terraform-google-modules/terraform-google-slo/tree/master/examples/simple_example).
+An example of pipeline automation with Terraform can be found in the corresponding  [Terraform module](https://github.com/terraform-google-modules/terraform-google-slo/tree/master/examples/slo-generator/simple_example).

@@ -1,0 +1,440 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "properties": {
+    "backends": {
+      "type": "object",
+      "properties": {
+        "cloud_monitoring": {
+          "type": "object",
+          "properties": {
+            "project_id": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "project_id"
+          ]
+        },
+        "cloud_service_monitoring": {
+          "type": "object",
+          "properties": {
+            "project_id": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "project_id"
+          ]
+        },
+        "custom.custom_backend.CustomBackend": {
+          "type": "object"
+        },
+        "datadog": {
+          "type": "object",
+          "properties": {
+            "api_key": {
+              "type": "string"
+            },
+            "app_key": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "api_key",
+            "app_key"
+          ]
+        },
+        "dynatrace": {
+          "type": "object",
+          "properties": {
+            "api_url": {
+              "type": "string"
+            },
+            "api_token": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "api_url",
+            "api_token"
+          ]
+        },
+        "elasticsearch": {
+          "type": "object",
+          "properties": {
+            "url": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "url"
+          ]
+        },
+        "prometheus": {
+          "type": "object",
+          "properties": {
+            "url": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "url"
+          ]
+        }
+      },
+      "required": [
+        "cloud_monitoring",
+        "cloud_service_monitoring",
+        "custom.custom_backend.CustomBackend",
+        "datadog",
+        "dynatrace",
+        "elasticsearch",
+        "prometheus"
+      ]
+    },
+    "exporters": {
+      "type": "object",
+      "properties": {
+        "cloud_monitoring": {
+          "type": "object",
+          "properties": {
+            "project_id": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "project_id"
+          ]
+        },
+        "cloud_monitoring/test": {
+          "type": "object",
+          "properties": {
+            "project_id": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "project_id"
+          ]
+        },
+        "custom.custom_exporter.CustomMetricExporter": {
+          "type": "object"
+        },
+        "custom.custom_exporter.CustomSLOExporter": {
+          "type": "object"
+        },
+        "datadog": {
+          "type": "object",
+          "properties": {
+            "api_key": {
+              "type": "string"
+            },
+            "app_key": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "api_key",
+            "app_key"
+          ]
+        },
+        "dynatrace": {
+          "type": "object",
+          "properties": {
+            "api_url": {
+              "type": "string"
+            },
+            "api_token": {
+              "type": "string"
+            },
+            "metric_timeseries_id": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "api_url",
+            "api_token",
+            "metric_timeseries_id"
+          ]
+        },
+        "dynatrace/test": {
+          "type": "object",
+          "properties": {
+            "api_url": {
+              "type": "string"
+            },
+            "api_token": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "api_url",
+            "api_token"
+          ]
+        },
+        "prometheus": {
+          "type": "object",
+          "properties": {
+            "url": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "url"
+          ]
+        },
+        "pubsub": {
+          "type": "object",
+          "properties": {
+            "project_id": {
+              "type": "string"
+            },
+            "topic_name": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "project_id",
+            "topic_name"
+          ]
+        }
+      },
+      "required": [
+        "cloud_monitoring",
+        "cloud_monitoring/test",
+        "custom.custom_exporter.CustomMetricExporter",
+        "custom.custom_exporter.CustomSLOExporter",
+        "datadog",
+        "dynatrace",
+        "dynatrace/test",
+        "prometheus",
+        "pubsub"
+      ]
+    },
+    "error_budget_policies": {
+      "type": "object",
+      "properties": {
+        "default": {
+          "type": "object",
+          "properties": {
+            "steps": {
+              "type": "array",
+              "items": [{
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "type": "string"
+                    },
+                    "burn_rate_threshold": {
+                      "type": "integer"
+                    },
+                    "alert": {
+                      "type": "boolean"
+                    },
+                    "message_alert": {
+                      "type": "string"
+                    },
+                    "message_ok": {
+                      "type": "string"
+                    },
+                    "window": {
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "name",
+                    "burn_rate_threshold",
+                    "alert",
+                    "message_alert",
+                    "message_ok",
+                    "window"
+                  ]
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "type": "string"
+                    },
+                    "burn_rate_threshold": {
+                      "type": "integer"
+                    },
+                    "alert": {
+                      "type": "boolean"
+                    },
+                    "message_alert": {
+                      "type": "string"
+                    },
+                    "message_ok": {
+                      "type": "string"
+                    },
+                    "window": {
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "name",
+                    "burn_rate_threshold",
+                    "alert",
+                    "message_alert",
+                    "message_ok",
+                    "window"
+                  ]
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "type": "string"
+                    },
+                    "burn_rate_threshold": {
+                      "type": "number"
+                    },
+                    "alert": {
+                      "type": "boolean"
+                    },
+                    "message_alert": {
+                      "type": "string"
+                    },
+                    "message_ok": {
+                      "type": "string"
+                    },
+                    "window": {
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "name",
+                    "burn_rate_threshold",
+                    "alert",
+                    "message_alert",
+                    "message_ok",
+                    "window"
+                  ]
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "type": "string"
+                    },
+                    "burn_rate_threshold": {
+                      "type": "integer"
+                    },
+                    "alert": {
+                      "type": "boolean"
+                    },
+                    "message_alert": {
+                      "type": "string"
+                    },
+                    "message_ok": {
+                      "type": "string"
+                    },
+                    "window": {
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "name",
+                    "burn_rate_threshold",
+                    "alert",
+                    "message_alert",
+                    "message_ok",
+                    "window"
+                  ]
+                }
+              ]
+            }
+          },
+          "required": [
+            "steps"
+          ]
+        },
+        "cloud_service_monitoring": {
+          "type": "object",
+          "properties": {
+            "steps": {
+              "type": "array",
+              "items": [{
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "type": "string"
+                    },
+                    "burn_rate_threshold": {
+                      "type": "integer"
+                    },
+                    "alert": {
+                      "type": "boolean"
+                    },
+                    "message_alert": {
+                      "type": "string"
+                    },
+                    "message_ok": {
+                      "type": "string"
+                    },
+                    "window": {
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "name",
+                    "burn_rate_threshold",
+                    "alert",
+                    "message_alert",
+                    "message_ok",
+                    "window"
+                  ]
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "type": "string"
+                    },
+                    "burn_rate_threshold": {
+                      "type": "integer"
+                    },
+                    "alert": {
+                      "type": "boolean"
+                    },
+                    "message_alert": {
+                      "type": "string"
+                    },
+                    "message_ok": {
+                      "type": "string"
+                    },
+                    "window": {
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "name",
+                    "burn_rate_threshold",
+                    "alert",
+                    "message_alert",
+                    "message_ok",
+                    "window"
+                  ]
+                }
+              ]
+            }
+          },
+          "required": [
+            "steps"
+          ]
+        }
+      },
+      "required": [
+        "default",
+        "cloud_service_monitoring"
+      ]
+    }
+  },
+  "required": [
+    "backends",
+    "exporters",
+    "error_budget_policies"
+  ]
+}

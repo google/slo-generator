@@ -15,10 +15,10 @@ jobs:
           architecture: 'x64'
 
       - name: Install dependencies
-        run: make install_test install
+        run: make install
 
       - name: Run lint test
-        run: make flake8 pylint
+        run: make lint
 
   unit:
     runs-on: ubuntu-latest
@@ -30,13 +30,23 @@ jobs:
           architecture: 'x64'
 
       - name: Install dependencies
-        run: make install_test install
+        run: make install
 
       - name: Run unittests
-        run: make unittest
+        run: make unit
         env:
           MIN_VALID_EVENTS: "10"
           GOOGLE_APPLICATION_CREDENTIALS: tests/unit/fixtures/fake_credentials.json
 
       - name: Run coverage report
-        run: make coverage_report
+        run: make coverage
+
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+      - uses: docker-practice/actions-setup-docker@master
+      - name: Build Docker image
+        run: make docker_build
+      - name: Run Docker tests
+        run: make docker_test

@@ -1,0 +1,15 @@
+{
+    "backends": {
+        "dummy": {}
+    },
+    "error_budget_policies": {
+        "default": [{
+            "name": "1 hour",
+            "window": 3600,
+            "burn_rate_threshold": 1,
+            "alert": true,
+            "message_alert": "Page to defend the SLO",
+            "message_ok": "Last hour on track"
+        }]
+    }
+}

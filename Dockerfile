@@ -15,14 +15,13 @@
 FROM python:3.7-slim
 RUN apt-get update && \
     apt-get install -y \
-        build-essential \
-        make \
-        gcc \
-        locales \
-        libgdal20 \
-        libgdal-dev
+    build-essential \
+    make \
+    gcc \
+    locales
 ADD . /app
 WORKDIR /app
 RUN pip install -U setuptools
-RUN python setup.py install
+RUN pip install ."[api, datadog, dynatrace, prometheus, elasticsearch, pubsub, cloud_monitoring, cloud_service_monitoring, cloud_storage, bigquery, dev]"
 ENTRYPOINT [ "slo-generator" ]
+CMD ["-v"]
