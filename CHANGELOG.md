@@ -1,5 +1,44 @@
 # Changelog
 
+## [2.0.0](https://www.github.com/google/slo-generator/compare/v1.5.1...v2.0.0) (2021-09-28)
+
+
+### ⚠ BREAKING CHANGES
+
+* Upgrade slo-generator CLI to Click library (#131)
+* Support slo-generator config v2 format (core changes) (#126)
+* Split dependencies by backend (#129)
+
+### Features
+
+* add Dynatrace method to query SLO ([#116](https://www.github.com/google/slo-generator/issues/116)) ([0148e99](https://www.github.com/google/slo-generator/commit/0148e99c5830081e59db6321767bef3c84bddad4))
+* Add migrator for v1 to v2 migration ([#127](https://www.github.com/google/slo-generator/issues/127)) ([796442e](https://www.github.com/google/slo-generator/commit/796442e92e35d2ceeecd12635a6e1a057791427b))
+* Add slo-generator Functions Framework API ([#130](https://www.github.com/google/slo-generator/issues/130)) ([ab1d57c](https://www.github.com/google/slo-generator/commit/ab1d57c8a1b4ad1c7183e03f1cd98db136306ef2))
+* add slo-generator JSON schemas ([#169](https://www.github.com/google/slo-generator/issues/169)) ([33e461b](https://www.github.com/google/slo-generator/commit/33e461b7aa34ce533f1e50b1f2c8ff1048f613f2))
+* Split dependencies by backend ([#129](https://www.github.com/google/slo-generator/issues/129)) ([c640a1d](https://www.github.com/google/slo-generator/commit/c640a1d9235c9cf24243beabc5609efecbcc9d62))
+* Support slo-generator config v2 format (core changes) ([#126](https://www.github.com/google/slo-generator/issues/126)) ([bf5e6b4](https://www.github.com/google/slo-generator/commit/bf5e6b4167a7081f03ca373c11e06be70da66fd5))
+* Upgrade slo-generator CLI to Click library ([#131](https://www.github.com/google/slo-generator/issues/131)) ([5b2635b](https://www.github.com/google/slo-generator/commit/5b2635b05e6d7434f54eb95fb4d3445d88ce29f0))
+
+
+### Bug Fixes
+
+* Migrate sample configurations to v2 ([#128](https://www.github.com/google/slo-generator/issues/128)) ([bafaf51](https://www.github.com/google/slo-generator/commit/bafaf5178b827ece5da7d204e8dc982916a1ad5f))
+* Migrator and dependency issues fixes ([#160](https://www.github.com/google/slo-generator/issues/160)) ([51b956b](https://www.github.com/google/slo-generator/commit/51b956b85e7769725c46be3579cc51c4b02bd333))
+* migrator glob catch .yml, .yaml and .json ext ([0d44dc6](https://www.github.com/google/slo-generator/commit/0d44dc6f64dba2e6e263699c658ff88864e367a3))
+* migrator not listing all files ([#167](https://www.github.com/google/slo-generator/issues/167)) ([c34ba68](https://www.github.com/google/slo-generator/commit/c34ba6881b38e713a3d0eb6ade7026a0ea0bd193))
+* migrator target path locations ([#171](https://www.github.com/google/slo-generator/issues/171)) ([2f7a07d](https://www.github.com/google/slo-generator/commit/2f7a07d49f40c46a6b63f82195914245aba73a6f))
+* Minor v2 fixes ([#142](https://www.github.com/google/slo-generator/issues/142)) ([2d48d61](https://www.github.com/google/slo-generator/commit/2d48d617e124f58e307d9ec64da44e67df9bb611))
+* Support JSON or text data in API ([#147](https://www.github.com/google/slo-generator/issues/147)) ([93a8c9f](https://www.github.com/google/slo-generator/commit/93a8c9f90626460dbe96567f3c3cd6920dbefd78))
+* update migrator to fail softly when invalid YAMLs are found ([#154](https://www.github.com/google/slo-generator/issues/154)) ([507302e](https://www.github.com/google/slo-generator/commit/507302e69f7065c5e114c9d9a72fa22f648cf83b))
+* v2 deployment fixes ([#143](https://www.github.com/google/slo-generator/issues/143)) ([1f03ee2](https://www.github.com/google/slo-generator/commit/1f03ee226de29249bccb854ae097708be5aed709))
+
+
+### Documentation
+
+* Add Cloudrun docs ([#165](https://www.github.com/google/slo-generator/issues/165)) ([223830b](https://www.github.com/google/slo-generator/commit/223830bb2395076f455fcd17ce1f9a9ebd1b6579))
+* add pointers to v1 docs and v1 to v2 migration ([e96c625](https://www.github.com/google/slo-generator/commit/e96c62516dad50786766db484eb3f2da9eee7dc2))
+* Update documentation for v2 ([#133](https://www.github.com/google/slo-generator/issues/133)) ([0a9cd38](https://www.github.com/google/slo-generator/commit/0a9cd38a507c9559ecb97b6d55eca3b8bc9d20bc))
+
 ### [1.5.1](https://www.github.com/google/slo-generator/compare/v1.5.0...v1.5.1) (2021-02-12)
 
 
