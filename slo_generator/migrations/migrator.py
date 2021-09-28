@@ -165,7 +165,7 @@ def do_migrate(source,
     click.secho('=' * 50)
     shared_config_path = target / 'config.yaml'
     shared_config_path_str = shared_config_path.relative_to(cwd)
-    with shared_config_path.open('w') as conf:
+    with shared_config_path.open('w', encoding='utf8') as conf:
         click.secho(
             f'Writing slo-generator config to {shared_config_path_str} ...',
             fg='cyan',
