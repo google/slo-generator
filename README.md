@@ -94,8 +94,8 @@ where:
 Once the API is up-and-running, you can `HTTP POST` SLO configurations (YAML or JSON) to it:
 
 ```
-curl -X POST -H "Content-Type: text/x-yaml" --data-binary @slo.yaml ${SERVICE_URL} # yaml SLO config
-curl -X POST -H "Content-Type: application/json" -d @slo.json ${SERVICE_URL} # json SLO config
+curl -X POST -H "Content-Type: text/x-yaml" --data-binary @slo.yaml localhost:8080 # yaml SLO config
+curl -X POST -H "Content-Type: application/json" -d @slo.json localhost:8080 # json SLO config
 ```
 
 ***Notes:***
