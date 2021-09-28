@@ -109,12 +109,11 @@ def do_migrate(source,
         if source_path in ebp_paths + exporters_paths:
             continue
         source_path_str = source_path.relative_to(cwd)
-        if source == target == cwd:
-            target_path = target.joinpath(*source_path.relative_to(cwd).parts)
-        else:
-            target_path = target.joinpath(
-                *source_path.relative_to(cwd).parts[1:])
-        target_path_str = target_path.relative_to(cwd)
+        target_path = utils.get_target_path(source,
+                                            target,
+                                            source_path,
+                                            mkdir=True)
+        target_path_str = target_path.resolve().relative_to(cwd)
         slo_config_str = source_path.open().read()
         slo_config, ind, blc = yaml.util.load_yaml_guess_indent(slo_config_str)
         curver = detect_config_version(slo_config)
@@ -142,7 +141,7 @@ def do_migrate(source,
         slo_config_v2 = slo_func(
             slo_config,
             shared_config=shared_config,
-            shared_exporters=exp_keys,
+            shared_exporters=exp_keys if exporters_paths else [],
             quiet=quiet,
         )
         if not slo_config_v2:

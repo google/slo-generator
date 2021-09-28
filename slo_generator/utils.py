@@ -478,3 +478,27 @@ def get_files(source, extensions=['yaml', 'yml', 'json']):
     for ext in extensions:
         all_files.extend(Path(source).rglob(f'*.{ext}'))
     return all_files
+
+
+def get_target_path(source_dir, target_dir, relative_path, mkdir=True):
+    """Get target file path from a source directory, a target directory and a
+    path relative to the source directory.
+
+    Args:
+        source_dir (Path): path to source directory.
+        target_dir (pathlib.Path): path to target directory.
+        relative_path (pathlib.Path): path relative to source directory.
+        mkdir (bool): Create directory structure for target path.
+
+    Returns:
+        pathlib.Path: path to target file.
+    """
+    source_dir = source_dir.resolve()
+    target_dir = target_dir.resolve()
+    relative_path = relative_path.relative_to(source_dir)
+    common_path = os.path.commonpath([source_dir, target_dir])
+    target_path = common_path / target_dir.relative_to(
+        common_path) / relative_path
+    if mkdir:
+        target_path.parent.mkdir(parents=True, exist_ok=True)
+    return target_path
