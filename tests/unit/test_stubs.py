@@ -54,7 +54,8 @@ CTX = {
     'DATADOG_APP_KEY': 'fake',
     'DATADOG_SLO_ID': 'fake',
     'DYNATRACE_API_URL': 'fake',
-    'DYNATRACE_API_TOKEN': 'fake'
+    'DYNATRACE_API_TOKEN': 'fake',
+    'DYNATRACE_SLO_ID': 'fake'
 }
 
 
