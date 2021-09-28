@@ -58,7 +58,7 @@ jobs:
           GCR_PROJECT_ID: ${{ secrets.GCR_PROJECT_ID }}
           CLOUDBUILD_PROJECT_ID: ${{ secrets.CLOUDBUILD_PROJECT_ID }}
           CLOUDRUN_PROJECT_ID: ${{ secrets.CLOUDRUN_PROJECT_ID }}
-          VERSION: ${{ steps.check-tag.outputs.match && steps.check-tag.outputs.version || github.sha }}
+          VERSION: ${{ steps.check-tag.outputs.match == 'true' && steps.check-tag.outputs.version || github.sha }}
           CONFIG_URL: gs://${{ secrets.CLOUDRUN_PROJECT_ID }}/config.yaml
           SIGNATURE_TYPE: http
           REGION: ${{ secrets.REGION }}
