@@ -30,12 +30,12 @@ jobs:
           service_account_key: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
           export_default_credentials: true
 
-      - name: Wait for backend container build workflow
+      - name: Wait for container image build
         uses: tomchv/wait-my-workflow@v1.1.0
         id: wait-build
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          checkName: build
+          checkName: cloudbuild
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
           intervalSeconds: 10
           timeoutSeconds: 600 # 10m
