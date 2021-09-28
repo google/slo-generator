@@ -6,7 +6,6 @@ on:
       - master
     tags:
       - v*.*.*
-      - release-v*.*.*
 
 jobs:
   cloudrun:
