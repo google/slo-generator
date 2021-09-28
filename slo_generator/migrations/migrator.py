@@ -152,7 +152,7 @@ def do_migrate(source,
         extra = '(replaced)' if target_path_str == source_path_str else ''
         click.secho(
             f"{RIGHT_ARROW} {GREEN}{target_path_str}{ENDC} [{version}] {extra}")
-        with target_path.open('w') as conf:
+        with target_path.open('w', encoding='utf8') as conf:
             yaml.round_trip_dump(
                 slo_config_v2,
                 conf,
@@ -166,7 +166,7 @@ def do_migrate(source,
     click.secho('=' * 50)
     shared_config_path = target / 'config.yaml'
     shared_config_path_str = shared_config_path.relative_to(cwd)
-    with shared_config_path.open('w') as conf:
+    with shared_config_path.open('w', encoding='utf8') as conf:
         click.secho(
             f'Writing slo-generator config to {shared_config_path_str} ...',
             fg='cyan',
@@ -318,8 +318,8 @@ def slo_config_v1tov2(slo_config,
         return None
 
     # Get fields from old config
-    slo_metadata_name = '{service_name}-{feature_name}-{slo_name}'.format(
-        **slo_config)
+    slo_metadata_name_fmt = '{service_name}-{feature_name}-{slo_name}'
+    slo_metadata_name = slo_metadata_name_fmt.format(**slo_config)
     slo_description = slo_config.pop('slo_description')
     slo_target = slo_config.pop('slo_target')
     service_level_indicator = slo_config['backend'].pop('measurement', {})
@@ -421,7 +421,7 @@ def report_v2tov1(report):
 
         # If a key in the default label mapping is passed, use the default
         # label mapping
-        elif key in METRIC_LABELS_COMPAT.keys():
+        elif key in METRIC_LABELS_COMPAT:
             mapped_report.update({METRIC_LABELS_COMPAT[key]: value})
 
         # Otherwise, write the label as is
