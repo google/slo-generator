@@ -4,9 +4,9 @@ on:
   push:
     branches:
       - master
+      - deploy-*
     tags:
       - v*.*.*
-      - release-v*.*.*
     pull_request:
 jobs:
   cloudbuild:
