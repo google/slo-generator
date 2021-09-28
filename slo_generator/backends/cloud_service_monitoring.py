@@ -452,7 +452,7 @@ class CloudServiceMonitoringBackend:
         return slo
 
     def get_slo(self, window, slo_config):
-        """Get SLO object from Cloud Service Monitoring API.
+        """Get SLO object from Cloud Service Monssitoring API.
 
         Args:
             service_id (str): Service identifier.
@@ -666,7 +666,7 @@ class CloudServiceMonitoringBackend:
         if duration_seconds.is_integer():
             duration_str = int(duration_seconds)
         else:
-            duration_str = "{:0.3f}".format(duration_seconds)
+            duration_str = f'{duration_seconds:0.3f}'
         return str(duration_str) + 's'
 
     @staticmethod
