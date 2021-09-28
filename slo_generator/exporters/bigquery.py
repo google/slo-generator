@@ -68,9 +68,8 @@ class BigqueryExporter:
                                       dataset_id,
                                       table_id,
                                       schema=TABLE_SCHEMA)
-        row_ids = "%s%s%s%s%s" % (data['service_name'], data['feature_name'],
-                                  data['slo_name'], data['timestamp_human'],
-                                  data['window'])
+        row_ids_fmt = '{service_name}{feature_name}{slo_name}{timestamp_human}{window}'  # pylint: disable=line-too-long # noqa: E501
+        row_ids = row_ids_fmt.format(**data)
 
         # Format user metadata if needed
         json_data = {k: v for k, v in data.items() if k in schema_fields}

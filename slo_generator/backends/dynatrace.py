@@ -254,8 +254,8 @@ class DynatraceClient:
         }
         if name:
             url += f'/{name}'
-        params_str = "&".join(
-            "%s=%s" % (k, v) for k, v in params.items() if v is not None)
+        params_str = '&'.join(
+            f'{key}={val}' for key, val in params.items() if val is not None)
         url += f'?{params_str}'
         LOGGER.debug(f'Running "{method}" request to {url} ...')
         if method in ['put', 'post']:
