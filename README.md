@@ -91,7 +91,12 @@ slo-generator api -c <SHARED_CONFIG_PATH>
 where:
   * `<SHARED_CONFIG_PATH>` is the [Shared configuration](#shared-configuration) file path or GCS URL.
 
-Once the API is up-and-running, you can `HTTP POST` SLO configurations to it.
+Once the API is up-and-running, you can `HTTP POST` SLO configurations (YAML or JSON) to it:
+
+```
+curl -X POST -H "Content-Type: text/x-yaml" --data-binary @slo.yaml ${SERVICE_URL} # yaml SLO config
+curl -X POST -H "Content-Type: application/json" -d @slo.json ${SERVICE_URL} # json SLO config
+```
 
 ***Notes:***
 * The API responds by default to HTTP requests. An alternative mode is to 
