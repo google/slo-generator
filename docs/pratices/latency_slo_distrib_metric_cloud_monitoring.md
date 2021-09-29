@@ -97,7 +97,7 @@ Aggregator 99th:
 
 ![aggregator 99th](../images/latency_aggregator99th.png)
 
-The value of 125 ms returned by the graph and close in the [gSuite Sheet](https://docs.google.com/spreadsheets/d/1pvGC_BW1l0D1D8GJY8I3H4QL76xVQ8t0QF_dIQ5lg5I/edit?usp=sharing) to the 128ms high border of bucket number 14
+The value of 125 ms returned by the graph is close in the [Google Sheet](https://docs.google.com/spreadsheets/d/1pvGC_BW1l0D1D8GJY8I3H4QL76xVQ8t0QF_dIQ5lg5I/edit?usp=sharing) to the 128ms high border of bucket number 14.
 
 We can define the following 2 latency SLOs by specifying the threshold_bucket value in the yaml config
 
