@@ -3,7 +3,7 @@
 ## A - Define a latency SLI-SLO homogeneously with the any other SLIs-SLOs
 
 SLI = Service Level Indicator
-SLO Service Level Objective
+SLO = Service Level Objective
 
 **Best practice:** define ALL SLI-SLOs on the same model: **SLI (%) = good events count / valid events count**, for a given timeframe.
 
