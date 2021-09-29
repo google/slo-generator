@@ -5,7 +5,7 @@
 SLI = Service Level Indicator
 SLO Service Level Objective
 
-**Best practice:** define ALL SLI-SLOs on the same model:% = good events / valid events, for a given timeframe.
+**Best practice:** define ALL SLI-SLOs on the same model: **SLI (%) = good events count / valid events count**, for a given timeframe.
 
 Implementing this best practice means to define a latency SLI as the proportion (%) of event served faster than xx ms / valid events
 
