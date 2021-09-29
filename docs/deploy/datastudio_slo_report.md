@@ -90,7 +90,7 @@ and clicking on the "Make a Copy" button just left of the "Create Report" button
 
 From the BQ connector settings page use "My projects" search and select your SLO-generator project ID, then your dataset, usually `slo_reports`, then table "reports".
 
-#### Step 3
+##### Step 3
 
 Hit the RECONNECT button top right.The message `Configuration has changed. Do you want to apply the changes?` appears indicating no fields changed. Hit APPLY.  
 ![copy this report](../images/config_has_changed.png)
