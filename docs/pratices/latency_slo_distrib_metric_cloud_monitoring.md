@@ -62,7 +62,7 @@ The response contains the latency distribution [Bucket Options](https://cloud.go
 This looks like:
 
 ```json
-'bucketOptions': {'exponentialBuckets': {'growthFactor': 1.4142135623730951,
+{"bucketOptions": {"exponentialBuckets": {"growthFactor": 1.4142135623730951,
                                          'numFiniteBuckets': 64,
                                          'scale': 1.0}},
 ```
