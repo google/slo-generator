@@ -112,7 +112,7 @@ and selecting the table "last_report" from your project, your dataset.
 
 Open the report template from this URL: <https://datastudio.google.com/reporting/964e185c-6ca0-4ed8-809d-425e22568aa0> check you are in view mode, and click on the "Make a Copy" button between the fullscreen button and the refresh button on top right of the screen.
 
-### Step B
+#### Step B
 
 Point the "New Data source" to the two newly created data sources from the above steps and click `Copy Report`.
 
