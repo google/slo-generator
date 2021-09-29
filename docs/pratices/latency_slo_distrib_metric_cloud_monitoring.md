@@ -64,7 +64,7 @@ This looks like:
 ```json
 {"bucketOptions": {"exponentialBuckets": {"growthFactor": 1.4142135623730951,
                                          "numFiniteBuckets": 64,
-                                         "scale": 1.0}},
+                                         "scale": 1.0}}}```
 
 Once we have the type of buckets (Explicit, Linear, Exponential) we can calculate the min and max values ​​of each bucket of the distribution type metric.
 
