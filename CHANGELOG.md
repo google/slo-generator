@@ -1,5 +1,19 @@
 # Changelog
 
+### [2.0.1](https://www.github.com/google/slo-generator/compare/v2.0.0...v2.0.1) (2021-09-29)
+
+
+### Bug Fixes
+
+* yaml loader security issue ([#173](https://www.github.com/google/slo-generator/issues/173)) ([36318be](https://www.github.com/google/slo-generator/commit/36318beab1b85d14bb860e45bea186b184690d5d))
+
+
+### Documentation
+
+* add cURL example ([4d6c215](https://www.github.com/google/slo-generator/commit/4d6c215c88a968d61f472c296b281495748a0f84))
+* update badges ([b63fac8](https://www.github.com/google/slo-generator/commit/b63fac866dff0e6fd85c4b961330b9201e57ea18))
+* update readme ([50ce1bf](https://www.github.com/google/slo-generator/commit/50ce1bf81d7c6a97da52cf167b1d3ee8100ddd90))
+
 ## [2.0.0](https://www.github.com/google/slo-generator/compare/v1.5.1...v2.0.0) (2021-09-28)
 
 
