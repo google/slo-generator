@@ -1,0 +1,18 @@
+apiVersion: sre.google.com/v2
+kind: ServiceLevelObjective
+metadata:
+    name: dd-app-availability
+    labels:
+        service_name: dd
+        feature_name: app
+        slo_name: availability
+spec:
+    description: 99% of app requests return a valid HTTP code
+    backend: datadog
+    method: good_bad_ratio
+    exporters:
+      - datadog
+    service_level_indicator:
+        query_good: app.requests.count{http.path:/, http.status_code_class:2xx}
+        query_valid: app.requests.count{http.path:/}
+    goal: 0.99

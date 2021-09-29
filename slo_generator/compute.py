@@ -22,12 +22,13 @@ import time
 
 from slo_generator import utils
 from slo_generator.report import SLOReport
+from slo_generator.migrations.migrator import report_v2tov1
 
 LOGGER = logging.getLogger(__name__)
 
 
 def compute(slo_config,
-            error_budget_policy,
+            config,
             timestamp=None,
             client=None,
             do_export=False,
@@ -37,20 +38,29 @@ def compute(slo_config,
 
     Args:
         slo_config (dict): SLO configuration.
-        error_budget_policy (dict): Error Budget policy configuration.
-        timestamp (int, optional): UNIX timestamp. Defaults to now.
+        config (dict): SLO Generator configuration.
+        timestamp (float, optional): UNIX timestamp. Defaults to now.
         client (obj, optional): Existing metrics backend client.
         do_export (bool, optional): Enable / Disable export. Default: False.
         delete (bool, optional): Enable / Disable delete mode. Default: False.
     """
+    start = time.time()
     if timestamp is None:
         timestamp = time.time()
 
-    # Compute SLO, Error Budget, Burn rates and make report
-    exporters = slo_config.get('exporters')
+    if slo_config is None:
+        LOGGER.error('SLO configuration is empty')
+        return []
+
+    # Get exporters, backend and error budget policy
+    spec = slo_config['spec']
+    exporters = utils.get_exporters(config, spec)
+    error_budget_policy = utils.get_error_budget_policy(config, spec)
+    backend = utils.get_backend(config, spec)
     reports = []
-    for step in error_budget_policy:
+    for step in error_budget_policy['steps']:
         report = SLOReport(config=slo_config,
+                           backend=backend,
                            step=step,
                            timestamp=timestamp,
                            client=client,
@@ -64,15 +74,19 @@ def compute(slo_config,
 
         LOGGER.info(report)
         json_report = report.to_json()
-        reports.append(json_report)
 
         if exporters is not None and do_export is True:
-            export(json_report, exporters)
-
+            responses = export(json_report, exporters)
+            json_report['exporters'] = responses
+        reports.append(json_report)
+    end = time.time()
+    run_duration = round(end - start, 1)
+    LOGGER.debug(pprint.pformat(reports))
+    LOGGER.info(f'Run finished successfully in {run_duration}s.')
     return reports
 
 
-def export(data, exporters):
+def export(data, exporters, raise_on_error=False):
     """Export data using selected exporters.
 
     Args:
@@ -84,17 +98,33 @@ def export(data, exporters):
     """
     LOGGER.debug(f'Exporters: {pprint.pformat(exporters)}')
     LOGGER.debug(f'Data: {pprint.pformat(data)}')
-    results = []
+    responses = []
+
+    # Convert data to export from v1 to v2 for backwards-compatible exports
+    data = report_v2tov1(data)
 
     # Passing one exporter as a dict will work for convenience
     if isinstance(exporters, dict):
         exporters = [exporters]
 
     for config in exporters:
-        LOGGER.debug(f'Exporter config: {pprint.pformat(config)}')
-        exporter_class = config.get('class')
-        LOGGER.info(f'Exporting results to {exporter_class}')
-        exporter = utils.get_exporter_cls(exporter_class)()
-        ret = exporter.export(data, **config)
-        results.append(ret)
-        LOGGER.debug(f'Exporter return: {pprint.pformat(ret)}')
+        try:
+            exporter_class = config.get('class')
+            instance = utils.get_exporter_cls(exporter_class)
+            if not instance:
+                continue
+            LOGGER.info(
+                f'Exporting SLO report using {exporter_class}Exporter ...')
+            LOGGER.debug(f'Exporter config: {pprint.pformat(config)}')
+            response = instance().export(data, **config)
+            if isinstance(response, list):
+                for elem in response:
+                    elem['exporter'] = exporter_class
+            responses.append(response)
+        except Exception as exc:  # pylint: disable=broad-except
+            LOGGER.critical(exc, exc_info=True)
+            LOGGER.error(f'{exporter_class}Exporter failed. Passing.')
+            if raise_on_error:
+                raise exc
+            responses.append(exc)
+    return responses

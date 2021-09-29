@@ -1,0 +1,103 @@
+{
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "$ref": "#/definitions/ServiceLevelObjective",
+    "definitions": {
+        "ServiceLevelObjective": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "apiVersion": {
+                    "type": "string"
+                },
+                "kind": {
+                    "type": "string"
+                },
+                "metadata": {
+                    "$ref": "#/definitions/Metadata"
+                },
+                "spec": {
+                    "$ref": "#/definitions/Spec"
+                }
+            },
+            "required": [
+                "apiVersion",
+                "kind",
+                "metadata",
+                "spec"
+            ],
+            "title": "ServiceLevelObjective"
+        },
+        "Metadata": {
+            "type": "object",
+            "additionalProperties": true,
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "labels": {
+                    "$ref": "#/definitions/Labels"
+                }
+            },
+            "required": [
+                "name"
+            ],
+            "title": "Metadata"
+        },
+        "Labels": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {},
+            "required": [],
+            "title": "Labels"
+        },
+        "Spec": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "backend": {
+                    "type": "string"
+                },
+                "method": {
+                    "type": "string"
+                },
+                "exporters": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "service_level_indicator": {
+                    "$ref": "#/definitions/ServiceLevelIndicator"
+                },
+                "goal": {
+                    "type": "number"
+                }
+            },
+            "required": [
+                "backend",
+                "description",
+                "goal",
+                "method",
+                "service_level_indicator"
+            ],
+            "title": "Spec"
+        },
+        "ServiceLevelIndicator": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "filter_good": {
+                    "type": "string"
+                },
+                "filter_valid": {
+                    "type": "string"
+                }
+            },
+            "required": [],
+            "title": "ServiceLevelIndicator"
+        }
+    }
+}

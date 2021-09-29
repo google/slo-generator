@@ -17,92 +17,70 @@ Stackdriver Monitoring exporter class.
 """
 import logging
 
-from prometheus_client import CollectorRegistry, Gauge, push_to_gateway
+from prometheus_client import CollectorRegistry, Gauge, pushadd_to_gateway
 from prometheus_client.exposition import basic_auth_handler, default_handler
 
+from .base import MetricsExporter
+
 LOGGER = logging.getLogger(__name__)
-DEFAULT_METRIC_TYPE = "error_budget_burn_rate"
-DEFAULT_METRIC_DESCRIPTION = ("Speed at which the error budget for a given"
-                              "aggregation window is consumed")
-DEFAULT_PUSHGATEWAY_URL = "http://localhost:9091"
 DEFAULT_PUSHGATEWAY_JOB = "slo-generator"
 
-
-class PrometheusExporter:
+class PrometheusExporter(MetricsExporter):
     """Prometheus exporter class."""
+    REQUIRED_FIELDS = ['url']
+    OPTIONAL_FIELDS = ['job', 'username', 'password']
 
     def __init__(self):
         self.username = None
         self.password = None
 
-    def export(self, data, **config):
+    def export_metric(self, data):
         """Export data to Prometheus.
 
         Args:
-            data (dict): Data to send to Prometheus.
-            config (dict): Prometheus config.
-                url (str, optional): Prometheus URL.
-                custom_metric_type (str, optional): Custom metric type.
-                custom_metric_unit (str, optional): Custom metric unit.
-                custom_metric_description (str, optional): Custom metric
-                    description.
+            data (dict): Metric data.
 
         Returns:
             object: Prometheus API result.
         """
-        self.create_timeseries(data, **config)
+        self.create_timeseries(data)
 
-    def create_timeseries(self, data, **config):
+    def create_timeseries(self, data):
         """Create Prometheus timeseries.
 
         Args:
-            data (dict): Data to send to Prometheus.
-            config (dict): Metric / exporter config.
+            data (dict): Metric data.
 
         Returns:
             object: Metric descriptor.
         """
-        metric_type = config.get('metric_type', DEFAULT_METRIC_TYPE)
-        metric_description = config.get('metric_description',
-                                        DEFAULT_METRIC_DESCRIPTION)
-        prometheus_push_url = config.get('url', DEFAULT_PUSHGATEWAY_URL)
-        prometheus_push_job_name = config.get('job', DEFAULT_PUSHGATEWAY_JOB)
-        burn_rate = data['error_budget_burn_rate']
+        name = data['name']
+        description = data['description']
+        prometheus_push_url = data['url']
+        prometheus_push_job_name = data.get('job', DEFAULT_PUSHGATEWAY_JOB)
+        value = data['value']
 
         # Write timeseries w/ metric labels.
-        labels = {
-            'service_name':
-                data['service_name'],
-            'feature_name':
-                data['feature_name'],
-            'slo_name':
-                data['slo_name'],
-            'window':
-                str(data['window']),
-            'error_budget_policy_step_name':
-                str(data['error_budget_policy_step_name']),
-            'alerting_burn_rate_threshold':
-                str(data['alerting_burn_rate_threshold']),
-        }
+        labels = data['labels']
         registry = CollectorRegistry()
-        gauge = Gauge(metric_type,
-                      metric_description,
+        gauge = Gauge(name,
+                      description,
                       registry=registry,
                       labelnames=labels.keys())
-        gauge.labels(*labels.values()).set(burn_rate)
+        gauge.labels(*labels.values()).set(value)
 
         # Handle headers
         handler = default_handler
-        if 'username' in config and 'password' in config:
-            self.username = config['username']
-            self.password = config['password']
+        if 'username' in data and 'password' in data:
+            self.username = data['username']
+            self.password = data['password']
             handler = PrometheusExporter.auth_handler
 
-        return push_to_gateway(prometheus_push_url,
-                               job=prometheus_push_job_name,
-                               grouping_key=labels,
-                               registry=registry,
-                               handler=handler)
+        return pushadd_to_gateway(prometheus_push_url,
+                                  job=prometheus_push_job_name,
+                                  grouping_key=labels,
+                                  registry=registry,
+                                  handler=handler)
 
     def auth_handler(self, url, method, timeout, headers, data):
         """Handles authentication for pushing to Prometheus gateway.

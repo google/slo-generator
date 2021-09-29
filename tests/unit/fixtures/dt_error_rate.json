@@ -1,0 +1,6 @@
+{
+    "error": {
+        "code": 429,
+        "message": "Rate limit of 50 requests/minute exceeded! Reset time: 2020-10-23 09:28:15 GMT (1603445295737)"
+    }
+}

@@ -1,0 +1,39 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: slo-generator
+  annotations:
+    client.knative.dev/user-image: gcr.io/${PROJECT_ID}/slo-generator:${VERSION}
+    serving.knative.dev/creator: tf-root@rnm-shared-devops.iam.gserviceaccount.com
+    serving.knative.dev/lastModifier: tf-root@rnm-shared-devops.iam.gserviceaccount.com
+spec:
+  template:
+    metadata:
+      name: slo-generator
+      annotations:
+        client.knative.dev/user-image: gcr.io/${PROJECT_ID}/slo-generator:${VERSION}
+        autoscaling.knative.dev/minScale: '1'
+        autoscaling.knative.dev/maxScale: '100'
+    spec:
+      containerConcurrency: 80
+      timeoutSeconds: 300
+      containers:
+      - image: gcr.io/${PROJECT_ID}/slo-generator:${VERSION}
+        command:
+        - slo-generator
+        args:
+        - api
+        - --signature-type=http
+        ports:
+        - name: http1
+          containerPort: 8080
+        env:
+        - name: CONFIG_PATH
+          value: gs://${PROJECT_ID}/config.yaml
+        resources:
+          limits:
+            cpu: 1000m
+            memory: 512Mi
+  traffic:
+  - percent: 100
+    latestRevision: true

@@ -15,19 +15,24 @@
 `bigquery.py`
 BigQuery exporter class.
 """
+import io
 import json
 import logging
+import pprint
 
 import google.api_core
 from google.cloud import bigquery
+
+from slo_generator import constants
 
 LOGGER = logging.getLogger(__name__)
 
 
 class BigqueryExporter:
     """BigQuery exporter class."""
+
     def __init__(self):
-        self.client = bigquery.Client(project="unset")
+        self.client = bigquery.Client(project='unset')
 
     def export(self, data, **config):
         """Export results to BigQuery.
@@ -54,26 +59,73 @@ class BigqueryExporter:
         self.client.project = project_id
         table_ref = self.client.dataset(dataset_id).table(table_id)
         schema_fields = [element['name'] for element in TABLE_SCHEMA]
+        keep_fields = config.get('keep_fields', [])
         try:
             table = self.client.get_table(table_ref)
+            table = self.update_schema(table_ref, keep=keep_fields)
         except google.api_core.exceptions.NotFound:
             table = self.create_table(project_id,
                                       dataset_id,
                                       table_id,
                                       schema=TABLE_SCHEMA)
-        row_ids = "%s%s%s%s%s" % (data["service_name"], data["feature_name"],
-                                  data["slo_name"], data["timestamp_human"],
-                                  data["window"])
+        row_ids_fmt = '{service_name}{feature_name}{slo_name}{timestamp_human}{window}'  # pylint: disable=line-too-long # noqa: E501
+        row_ids = row_ids_fmt.format(**data)
+
+        # Format user metadata if needed
         json_data = {k: v for k, v in data.items() if k in schema_fields}
+        metadata = json_data.get('metadata', {})
+        if isinstance(metadata, dict):
+            metadata_fields = [{
+                'key': key,
+                'value': value
+            } for key, value in metadata.items()]
+            json_data['metadata'] = metadata_fields
+
+        # Write results to BQ table
+        if constants.DRY_RUN:
+            LOGGER.info(f'[DRY RUN] Writing data to BigQuery: \n{json_data}')
+            return []
+        LOGGER.debug(f'Writing data to BigQuery:\n{json_data}')
         results = self.client.insert_rows_json(
             table,
             json_rows=[json_data],
             row_ids=[row_ids],
             retry=google.api_core.retry.Retry(deadline=30))
+        status = f' Export data to {str(table_ref)}'
         if results != []:
+            status = constants.FAIL + status
             raise BigQueryError(results)
-
+        status = constants.SUCCESS + status
+        LOGGER.info(status)
         return results
+
+    @staticmethod
+    def build_schema(schema):
+        """Takes a schema defined as JSON (see TABLE_SCHEMA definition below)
+        and convert it to a BigQuery schema.
+
+        Args:
+            schema (list): JSON Schema.
+
+        Returns:
+            list: BigQuery schema.
+        """
+        final_schema = []
+        for row in schema:
+            subschema = []
+            if 'fields' in row:
+                subschema = [
+                    bigquery.SchemaField(subrow['name'],
+                                         subrow['type'],
+                                         mode=subrow['mode'])
+                    for subrow in row['fields']
+                ]
+            field = bigquery.SchemaField(row['name'],
+                                         row['type'],
+                                         mode=row['mode'],
+                                         fields=subschema)
+            final_schema.append(field)
+        return final_schema
 
     def create_table(self, project_id, dataset_id, table_id, schema=None):
         """Creates a BigQuery table from a schema.
@@ -83,20 +135,65 @@ class BigqueryExporter:
             dataset_id (str): Dataset id.
             table_id (str): Table id to create.
             schema (dict): BigQuery table schema in JSON format.
+
+        Returns:
+            obj: BigQuery table object.
         """
         if schema is not None:
             schema = TABLE_SCHEMA
-        pyschema = [
-            bigquery.SchemaField(row['name'], row['type'], mode=row['mode'])
-            for row in schema
-        ]
-
-        table_name = f"{project_id}.{dataset_id}.{table_id}"
-        LOGGER.info(f"Creating table {table_name}", table_name)
+        pyschema = BigqueryExporter.build_schema(schema)
+        table_name = f'{project_id}.{dataset_id}.{table_id}'
+        LOGGER.info(f'Creating table {table_name}')
+        LOGGER.debug(f'Table schema: {pyschema}')
         table = bigquery.Table(table_name, schema=pyschema)
         table.time_partitioning = bigquery.TimePartitioning(
-            type_=bigquery.TimePartitioningType.DAY, )
+            type_=bigquery.TimePartitioningType.DAY,)
         return self.client.create_table(table)
+
+    def update_schema(self, table_ref, keep=[]):
+        """Updates a BigQuery table schema if needed.
+
+        Args:
+            table_ref (str): BigQuery table reference.
+            keep (list): List of fields to remote schema fields to keep.
+
+        Returns:
+            obj: BigQuery table object.
+        """
+        table = self.client.get_table(table=table_ref)
+        iostream = io.StringIO('')
+        self.client.schema_to_json(table.schema, iostream)
+        existing_schema = json.loads(iostream.getvalue())
+        LOGGER.debug(f'Existing schema: {pprint.pformat(existing_schema)}')
+
+        # Fields in TABLE_SCHEMA to add / remove
+        updated_fields = [
+            field['name']
+            for field in TABLE_SCHEMA
+            if field not in existing_schema
+        ]
+        extra_remote_fields = [
+            field for field in existing_schema
+            if field not in TABLE_SCHEMA and field['name'] in keep
+        ]
+
+        # If extra remote fields are detected in existing schema, update our
+        # TABLE_SCHEMA with those
+        if extra_remote_fields:
+            LOGGER.info(f'Extra remote BigQuery fields: {extra_remote_fields}')
+            TABLE_SCHEMA.extend(extra_remote_fields)
+
+        # If new fields are detected in TABLE_SCHEMA, update BigQuery schema
+        if updated_fields:
+            LOGGER.info(f'Updated BigQuery fields: {updated_fields}')
+            table.schema = BigqueryExporter.build_schema(TABLE_SCHEMA)
+            if constants.DRY_RUN:
+                LOGGER.info('[DRY RUN] Updating BigQuery schema.')
+            else:
+                LOGGER.info('Updating BigQuery schema.')
+                LOGGER.debug(f'New schema: {pprint.pformat(table.schema)}')
+                self.client.update_table(table, ['schema'])
+        return table
 
 
 class BigQueryError(Exception):
@@ -105,6 +202,7 @@ class BigQueryError(Exception):
     Args:
         errors (list): List of errors.
     """
+
     def __init__(self, errors):
         super().__init__(BigQueryError._format(errors))
         self.errors = errors
@@ -118,118 +216,138 @@ class BigQueryError(Exception):
 
 
 TABLE_SCHEMA = [{
-    "description": "",
-    "name": "service_name",
-    "type": "STRING",
-    "mode": "REQUIRED"
+    'description': None,
+    'name': 'service_name',
+    'type': 'STRING',
+    'mode': 'REQUIRED'
 }, {
-    "description": "",
-    "name": "feature_name",
-    "type": "STRING",
-    "mode": "REQUIRED"
+    'description': None,
+    'name': 'feature_name',
+    'type': 'STRING',
+    'mode': 'REQUIRED'
 }, {
-    "description": "",
-    "name": "slo_name",
-    "type": "STRING",
-    "mode": "REQUIRED"
+    'description': None,
+    'name': 'slo_name',
+    'type': 'STRING',
+    'mode': 'REQUIRED'
 }, {
-    "description": "",
-    "name": "slo_target",
-    "type": "FLOAT64",
-    "mode": "NULLABLE"
+    'description': None,
+    'name': 'slo_target',
+    'type': 'FLOAT',
+    'mode': 'NULLABLE'
 }, {
-    "description": "",
-    "name": "slo_description",
-    "type": "STRING",
-    "mode": "REQUIRED"
+    'description': None,
+    'name': 'slo_description',
+    'type': 'STRING',
+    'mode': 'REQUIRED'
 }, {
-    "description": "",
-    "name": "error_budget_policy_step_name",
-    "type": "STRING",
-    "mode": "NULLABLE"
+    'description': None,
+    'name': 'error_budget_policy_step_name',
+    'type': 'STRING',
+    'mode': 'NULLABLE'
 }, {
-    "description": "",
-    "name": "error_budget_remaining_minutes",
-    "type": "FLOAT64",
-    "mode": ""
+    'description': None,
+    'name': 'error_budget_remaining_minutes',
+    'type': 'FLOAT',
+    'mode': 'NULLABLE'
 }, {
-    "description": "",
-    "name": "consequence_message",
-    "type": "STRING",
-    "mode": "NULLABLE"
+    'description': None,
+    'name': 'consequence_message',
+    'type': 'STRING',
+    'mode': 'NULLABLE'
 }, {
-    "description": "",
-    "name": "error_budget_minutes",
-    "type": "FLOAT64",
-    "mode": "NULLABLE"
+    'description': None,
+    'name': 'error_budget_minutes',
+    'type': 'FLOAT',
+    'mode': 'NULLABLE'
 }, {
-    "description": "",
-    "name": "error_minutes",
-    "type": "FLOAT64",
-    "mode": "NULLABLE"
+    'description': None,
+    'name': 'error_minutes',
+    'type': 'FLOAT',
+    'mode': 'NULLABLE'
 }, {
-    "description": "",
-    "name": "error_budget_target",
-    "type": "FLOAT64",
-    "mode": "NULLABLE"
+    'description': None,
+    'name': 'error_budget_target',
+    'type': 'FLOAT',
+    'mode': 'NULLABLE'
 }, {
-    "description": "",
-    "name": "timestamp_human",
-    "type": "TIMESTAMP",
-    "mode": "REQUIRED"
+    'description': None,
+    'name': 'timestamp_human',
+    'type': 'TIMESTAMP',
+    'mode': 'REQUIRED'
 }, {
-    "description": "",
-    "name": "timestamp",
-    "type": "FLOAT64",
-    "mode": "NULLABLE"
+    'description': None,
+    'name': 'timestamp',
+    'type': 'FLOAT',
+    'mode': 'NULLABLE'
 }, {
-    "description": "",
-    "name": "cadence",
-    "type": "STRING",
-    "mode": "NULLABLE"
+    'description': None,
+    'name': 'cadence',
+    'type': 'STRING',
+    'mode': 'NULLABLE'
 }, {
-    "description": "",
-    "name": "window",
-    "type": "INT64",
-    "mode": "REQUIRED"
+    'description': None,
+    'name': 'window',
+    'type': 'INTEGER',
+    'mode': 'REQUIRED'
 }, {
-    "description": "",
-    "name": "bad_events_count",
-    "type": "INT64",
-    "mode": "NULLABLE"
+    'description': None,
+    'name': 'bad_events_count',
+    'type': 'INTEGER',
+    'mode': 'NULLABLE'
 }, {
-    "description": "",
-    "name": "good_events_count",
-    "type": "INT64",
-    "mode": "NULLABLE"
+    'description': None,
+    'name': 'good_events_count',
+    'type': 'INTEGER',
+    'mode': 'NULLABLE'
 }, {
-    "description": "",
-    "name": "sli_measurement",
-    "type": "FLOAT64",
-    "mode": "NULLABLE"
+    'description': None,
+    'name': 'sli_measurement',
+    'type': 'FLOAT',
+    'mode': 'NULLABLE'
 }, {
-    "description": "",
-    "name": "gap",
-    "type": "FLOAT64",
-    "mode": "NULLABLE"
+    'description': None,
+    'name': 'gap',
+    'type': 'FLOAT',
+    'mode': 'NULLABLE'
 }, {
-    "description": "",
-    "name": "error_budget_measurement",
-    "type": "FLOAT64",
-    "mode": "NULLABLE"
+    'description': None,
+    'name': 'error_budget_measurement',
+    'type': 'FLOAT',
+    'mode': 'NULLABLE'
 }, {
-    "description": "",
-    "name": "error_budget_burn_rate",
-    "type": "FLOAT64",
-    "mode": "NULLABLE"
+    'description': None,
+    'name': 'error_budget_burn_rate',
+    'type': 'FLOAT',
+    'mode': 'NULLABLE'
 }, {
-    "description": "",
-    "name": "alerting_burn_rate_threshold",
-    "type": "FLOAT64",
-    "mode": "NULLABLE"
+    'description': None,
+    'name': 'alerting_burn_rate_threshold',
+    'type': 'FLOAT',
+    'mode': 'NULLABLE'
 }, {
-    "description": "",
-    "name": "alert",
-    "type": "BOOL",
-    "mode": "NULLABLE"
+    'description': None,
+    'name': 'alert',
+    'type': 'BOOLEAN',
+    'mode': 'NULLABLE'
+}, {
+    'name':
+        'metadata',
+    'description':
+        None,
+    'type':
+        'RECORD',
+    'mode':
+        'REPEATED',
+    'fields': [{
+        'description': None,
+        'name': 'key',
+        'type': 'STRING',
+        'mode': 'NULLABLE'
+    }, {
+        'description': None,
+        'name': 'value',
+        'type': 'STRING',
+        'mode': 'NULLABLE'
+    }]
 }]

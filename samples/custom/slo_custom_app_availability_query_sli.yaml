@@ -1,0 +1,17 @@
+apiVersion: sre.google.com/v2
+kind: ServiceLevelObjective
+metadata:
+  name: custom-test-availability-sli
+  labels:
+    service_name: custom
+    feature_name: test
+    slo_name: availability-sli
+spec:
+  description: 99.99% of fake requests to custom backends are valid
+  backend: custom.custom_backend.CustomBackend
+  method: query_sli
+  exporters:
+  - custom.custom_exporter.CustomMetricExporter
+  - custom.custom_exporter.CustomSLOExporter
+  service_level_indicator: {}
+  goal: 0.999

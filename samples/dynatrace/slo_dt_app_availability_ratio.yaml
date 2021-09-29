@@ -1,0 +1,22 @@
+apiVersion: sre.google.com/v2
+kind: ServiceLevelObjective
+metadata:
+  name: dt-app-availability
+  labels:
+    service_name: dt
+    feature_name: app
+    slo_name: availability
+spec:
+  description: 99.9% of app requests return a good HTTP code
+  backend: dynatrace
+  method: good_bad_ratio
+  exporters:
+  - dynatrace
+  service_level_indicator:
+    query_good:
+      metric_selector: ext:app.request_count:filter(and(eq(app,test_app),eq(env,prod),eq(status_code_class,2xx)))
+      entity_selector: type(HOST)
+    query_valid:
+      metric_selector: ext:app.request_count:filter(and(eq(app,test_app),eq(env,prod)))
+      entity_selector: type(HOST)
+  goal: 0.999

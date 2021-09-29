@@ -15,27 +15,34 @@
 import unittest
 import warnings
 
+from datadog.api import Metric, ServiceLevelObjective
 from elasticsearch import Elasticsearch
 from google.auth._default import _CLOUD_SDK_CREDENTIALS_WARNING
 from mock import MagicMock, patch
 from prometheus_http_client import Prometheus
-
+from slo_generator.backends.dynatrace import DynatraceClient
 from slo_generator.compute import compute, export
 from slo_generator.exporters.bigquery import BigQueryError
-
+from slo_generator.exporters.base import MetricsExporter
 from .test_stubs import (CTX, load_fixture, load_sample, load_slo_samples,
-                         mock_es, mock_prom, mock_sd, mock_ssm_client)
+                         mock_dd_metric_query, mock_dd_metric_send,
+                         mock_dd_slo_get, mock_dd_slo_history, mock_dt,
+                         mock_dt_errors, mock_es, mock_prom, mock_sd,
+                         mock_ssm_client)
 
 warnings.filterwarnings("ignore", message=_CLOUD_SDK_CREDENTIALS_WARNING)
 
-ERROR_BUDGET_POLICY = load_sample('error_budget_policy.yaml', **CTX)
-STEPS = len(ERROR_BUDGET_POLICY)
-SLO_CONFIGS_SD = load_slo_samples('stackdriver', **CTX)
-SLO_CONFIGS_SDSM = load_slo_samples('stackdriver_service_monitoring', **CTX)
-SLO_CONFIGS_PROM = load_slo_samples('prometheus', **CTX)
-SLO_CONFIGS_ES = load_slo_samples('elasticsearch', **CTX)
-SLO_REPORT = load_fixture('slo_report.json')
-EXPORTERS = load_fixture('exporters.yaml', **CTX)
+CONFIG = load_sample('config.yaml', CTX)
+STEPS = len(CONFIG['error_budget_policies']['default']['steps'])
+SLO_CONFIGS_SD = load_slo_samples('cloud_monitoring', CTX)
+SLO_CONFIGS_SDSM = load_slo_samples('cloud_service_monitoring', CTX)
+SLO_CONFIGS_PROM = load_slo_samples('prometheus', CTX)
+SLO_CONFIGS_ES = load_slo_samples('elasticsearch', CTX)
+SLO_CONFIGS_DD = load_slo_samples('datadog', CTX)
+SLO_CONFIGS_DT = load_slo_samples('dynatrace', CTX)
+SLO_REPORT = load_fixture('slo_report_v2.json')
+SLO_REPORT_V1 = load_fixture('slo_report_v1.json')
+EXPORTERS = load_fixture('exporters.yaml', CTX)
 BQ_ERROR = load_fixture('bq_error.json')
 
 # Pub/Sub methods to patch
@@ -47,18 +54,20 @@ PUBSUB_MOCKS = [
 # Service Monitoring method to patch
 # pylint: ignore=E501
 SSM_MOCKS = [
-    "slo_generator.backends.stackdriver_service_monitoring.ServiceMonitoringServiceClient",  # noqa: E501
-    "slo_generator.backends.stackdriver_service_monitoring.SSM.to_json"
+    "slo_generator.backends.cloud_service_monitoring.ServiceMonitoringServiceClient",  # noqa: E501
+    "slo_generator.backends.cloud_service_monitoring.SSM.to_json"
 ]
 
 
 class TestCompute(unittest.TestCase):
+    maxDiff = None
+
     @patch('google.api_core.grpc_helpers.create_channel',
            return_value=mock_sd(2 * STEPS * len(SLO_CONFIGS_SD)))
     def test_compute_stackdriver(self, mock):
         for config in SLO_CONFIGS_SD:
             with self.subTest(config=config):
-                compute(config, ERROR_BUDGET_POLICY)
+                compute(config, CONFIG)
 
     @patch(SSM_MOCKS[0], return_value=mock_ssm_client())
     @patch(SSM_MOCKS[1],
@@ -68,7 +77,7 @@ class TestCompute(unittest.TestCase):
     def test_compute_ssm(self, *mocks):
         for config in SLO_CONFIGS_SDSM:
             with self.subTest(config=config):
-                compute(config, ERROR_BUDGET_POLICY)
+                compute(config, CONFIG)
 
     @patch(SSM_MOCKS[0], return_value=mock_ssm_client())
     @patch(SSM_MOCKS[1],
@@ -80,22 +89,33 @@ class TestCompute(unittest.TestCase):
     def test_compute_ssm_delete_export(self, *mocks):
         for config in SLO_CONFIGS_SDSM:
             with self.subTest(config=config):
-                compute(config,
-                        ERROR_BUDGET_POLICY,
-                        delete=True,
-                        do_export=True)
+                compute(config, CONFIG, delete=True, do_export=True)
 
     @patch.object(Prometheus, 'query', mock_prom)
     def test_compute_prometheus(self):
         for config in SLO_CONFIGS_PROM:
             with self.subTest(config=config):
-                compute(config, ERROR_BUDGET_POLICY)
+                compute(config, CONFIG)
 
     @patch.object(Elasticsearch, 'search', mock_es)
     def test_compute_elasticsearch(self):
         for config in SLO_CONFIGS_ES:
             with self.subTest(config=config):
-                compute(config, ERROR_BUDGET_POLICY)
+                compute(config, CONFIG)
+
+    @patch.object(Metric, 'query', mock_dd_metric_query)
+    @patch.object(ServiceLevelObjective, 'history', mock_dd_slo_history)
+    @patch.object(ServiceLevelObjective, 'get', mock_dd_slo_get)
+    def test_compute_datadog(self):
+        for config in SLO_CONFIGS_DD:
+            with self.subTest(config=config):
+                compute(config, CONFIG)
+
+    @patch.object(DynatraceClient, 'request', side_effect=mock_dt)
+    def test_compute_dynatrace(self, mock):
+        for config in SLO_CONFIGS_DT:
+            with self.subTest(config=config):
+                compute(config, CONFIG)
 
     @patch(PUBSUB_MOCKS[0])
     @patch(PUBSUB_MOCKS[1])
@@ -109,21 +129,74 @@ class TestCompute(unittest.TestCase):
 
     @patch("google.cloud.bigquery.Client.get_table")
     @patch("google.cloud.bigquery.Client.create_table")
+    @patch("google.cloud.bigquery.Client.update_table")
     @patch("google.cloud.bigquery.Client.insert_rows_json", return_value=[])
-    def test_export_bigquery(self, mock_bq, mock_bq_2, mock_bq_3):
+    def test_export_bigquery(self, *mocks):
         export(SLO_REPORT, EXPORTERS[2])
 
     @patch("google.cloud.bigquery.Client.get_table")
     @patch("google.cloud.bigquery.Client.create_table")
+    @patch("google.cloud.bigquery.Client.update_table")
     @patch("google.cloud.bigquery.Client.insert_rows_json",
            return_value=BQ_ERROR)
-    def test_export_bigquery_error(self, mock_bq, mock_bq_2, mock_bq_3):
+    def test_export_bigquery_error(self, *mocks):
         with self.assertRaises(BigQueryError):
-            export(SLO_REPORT, EXPORTERS[2])
+            export(SLO_REPORT, EXPORTERS[2], raise_on_error=True)
 
     @patch("prometheus_client.push_to_gateway")
     def test_export_prometheus(self, mock):
         export(SLO_REPORT, EXPORTERS[3])
+
+    @patch.object(Metric, 'send', mock_dd_metric_send)
+    def test_export_datadog(self):
+        export(SLO_REPORT, EXPORTERS[4])
+
+    @patch.object(DynatraceClient, 'request', side_effect=mock_dt)
+    def test_export_dynatrace(self, mock):
+        export(SLO_REPORT, EXPORTERS[5])
+
+    @patch.object(DynatraceClient, 'request', side_effect=mock_dt_errors)
+    def test_export_dynatrace_error(self, mock):
+        responses = export(SLO_REPORT, EXPORTERS[5])
+        codes = [r[0]['response']['error']['code'] for r in responses]
+        self.assertTrue(all(code == 429 for code in codes))
+
+    def test_metrics_exporter_build_data_labels(self):
+        exporter = MetricsExporter()
+        data = SLO_REPORT_V1
+        labels = ['service_name', 'slo_name', 'metadata']
+        result = exporter.build_data_labels(data, labels)
+        expected = {
+            'service_name': SLO_REPORT_V1['service_name'],
+            'slo_name': SLO_REPORT_V1['slo_name'],
+            'env': SLO_REPORT_V1['metadata']['env'],
+            'team': SLO_REPORT_V1['metadata']['team']
+        }
+        self.assertEqual(result, expected)
+
+    @patch("google.api_core.grpc_helpers.create_channel",
+           return_value=mock_sd(STEPS))
+    @patch("google.cloud.bigquery.Client.get_table")
+    @patch("google.cloud.bigquery.Client.create_table")
+    @patch("google.cloud.bigquery.Client.update_table")
+    @patch("google.cloud.bigquery.Client.insert_rows_json",
+           return_value=BQ_ERROR)
+    def test_export_multiple_error(self, *mocks):
+        exporters = [EXPORTERS[1], EXPORTERS[2]]
+        results = export(SLO_REPORT, exporters)
+        self.assertTrue(isinstance(results[-1], BigQueryError))
+
+    @patch("google.api_core.grpc_helpers.create_channel",
+           return_value=mock_sd(STEPS))
+    @patch("google.cloud.bigquery.Client.get_table")
+    @patch("google.cloud.bigquery.Client.create_table")
+    @patch("google.cloud.bigquery.Client.update_table")
+    @patch("google.cloud.bigquery.Client.insert_rows_json",
+           return_value=BQ_ERROR)
+    def test_export_multiple_error_raise(self, *mocks):
+        exporters = [EXPORTERS[1], EXPORTERS[2]]
+        with self.assertRaises(BigQueryError):
+            export(SLO_REPORT, exporters, raise_on_error=True)
 
 
 if __name__ == '__main__':

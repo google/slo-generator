@@ -1,0 +1,37 @@
+{
+  "from_date": 1601567823000,
+  "group_by": [],
+  "message": "",
+  "query": "sum:system.disk.used{*} / sum:system.disk.total{*}",
+  "res_type": "time_series",
+  "resp_version": 1,
+  "series": [
+    {
+      "aggr": "sum",
+      "attributes": {},
+      "display_name": "(system.disk.used / system.disk.total)",
+      "end": 1601571419000,
+      "expression": "(sum:system.disk.used{*} / sum:system.disk.total{*})",
+      "interval": 20,
+      "length": 179,
+      "metric": "(system.disk.used / system.disk.total)",
+      "pointlist": [
+        [
+          1601567840000,
+          0.1853508224854845
+        ],
+        [
+          1601571400000,
+          0.18535713648676658
+        ]
+      ],
+      "query_index": 0,
+      "scope": "*",
+      "start": 1601567840000,
+      "tag_set": [],
+      "unit": null
+    }
+  ],
+  "status": "ok",
+  "to_date": 1601571423000
+}

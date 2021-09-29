@@ -1,0 +1,30 @@
+name: release
+
+on:
+  push:
+    tags:
+      - v*.*.*
+
+jobs:
+  release-pypi:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/setup-python@master
+        with:
+          python-version: '3.x'
+          architecture: 'x64'
+
+      - name: Run all tests
+        run: make
+        env:
+          MIN_VALID_EVENTS: "10"
+          GOOGLE_APPLICATION_CREDENTIALS: tests/unit/fixtures/fake_credentials.json
+
+      - name: Release PyPI package
+        run: make deploy
+        env:
+          TWINE_USERNAME: ${{ secrets.TWINE_USERNAME }}
+          TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD }}
+          TWINE_REPOSITORY_URL: https://upload.pypi.org/legacy/

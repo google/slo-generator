@@ -1,0 +1,19 @@
+{
+    "kind": "ServiceLevelObjective",
+    "version": "sre.google.com/v2",
+    "metadata": {
+        "name": "test-test-test",
+        "labels": {
+            "service_name": "test",
+            "feature_name": "test",
+            "slo_name": "test"
+        }
+    },
+    "spec": {
+        "description": "Test dummy backend",
+        "goal": 0.99,
+        "backend": "dummy",
+        "method": "good_bad_ratio",
+        "service_level_indicator": {}
+    }
+}

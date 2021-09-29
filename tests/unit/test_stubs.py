@@ -15,20 +15,21 @@
 
 Stubs for mocking backends and exporters.
 """
-import copy
 import json
 import os
+import sys
 import time
+from types import ModuleType
 
 from google.cloud.monitoring_v3.proto import metric_service_pb2
-
-from slo_generator.utils import list_slo_configs, parse_config
+from slo_generator.utils import load_configs, load_config
 
 TEST_DIR = os.path.dirname(os.path.abspath(__file__))
 SAMPLE_DIR = os.path.join(os.path.dirname(os.path.dirname(TEST_DIR)),
                           "samples/")
 
 CTX = {
+    'PROJECT_ID': 'fake',
     'PUBSUB_PROJECT_ID': 'fake',
     'PUBSUB_TOPIC_NAME': 'fake',
     'GAE_PROJECT_ID': 'fake',
@@ -48,142 +49,52 @@ CTX = {
     'BIGQUERY_PROJECT_ID': 'fake',
     'BIGQUERY_TABLE_ID': 'fake',
     'BIGQUERY_DATASET_ID': 'fake',
-    'BIGQUERY_TABLE_NAME': 'fake'
+    'BIGQUERY_TABLE_NAME': 'fake',
+    'DATADOG_API_KEY': 'fake',
+    'DATADOG_APP_KEY': 'fake',
+    'DATADOG_SLO_ID': 'fake',
+    'DYNATRACE_API_URL': 'fake',
+    'DYNATRACE_API_TOKEN': 'fake',
+    'DYNATRACE_SLO_ID': 'fake'
 }
 
-CUSTOM_BACKEND_CODE = """
-class DummyBackend:
-    def __init__(self, client=None, **config):
-        self.good_events = config.get('good_events', None)
-        self.bad_events = config.get('bad_events', None)
-        self.sli_value = config.get('sli', None)
 
-    def good_bad_ratio(self, timestamp, window, slo_config):
-        return (self.good_events, self.bad_events)
+def add_dynamic(name, code, type):
+    """Dynamically add a backend or exporter to slo-generator.
 
-    def sli(self, timestamp, window, slo_config):
-        return self.sli_value
-"""
-
-
-def add_dummy_backend():
-    """Dynamically adds DummyBackend to slo-generator. The DummyBackend is
-    appended in a submodule, and can be imported using:
-
-    >>> import slo_generator.backends.dummy.DummyBackend
+    Args:
+        name (str): Name of backend / exporter.
+        code (str): Backend / exporter code.
+        type (str): 'backends' or 'exporters'.
     """
-    import sys
-    from types import ModuleType
-    mod = ModuleType('dummy')
-    sys.modules['slo_generator.backends.dummy'] = mod
-    exec(CUSTOM_BACKEND_CODE, mod.__dict__)
-
-
-add_dummy_backend()  # Adds backend `slo_generator.backends.dummy.Dummybackend
-
-CUSTOM_BASE_CONFIG = {
-    "service_name": "test",
-    "feature_name": "test",
-    "slo_name": "test",
-    "slo_description": "Test dummy backend",
-    "slo_target": 0.99,
-    "backend": {
-        "class": "Dummy",
-    }
-}
-
-CUSTOM_STEP = {
-    "error_budget_policy_step_name": "1 hour",
-    "measurement_window_seconds": 3600,
-    "alerting_burn_rate_threshold": 1,
-    "urgent_notification": True,
-    "overburned_consequence_message": "Page to defend the SLO",
-    "achieved_consequence_message": "Last hour on track"
-}
-
-CUSTOM_TESTS = {
-    "enough_events": {
-        'method': 'good_bad_ratio',
-        'good_events': 5,
-        'bad_events': 5,
-    },
-    "no_good_events": {
-        'method': 'good_bad_ratio',
-        'good_events': -1,
-        'bad_events': 15,
-    },
-    "no_bad_events": {
-        'method': 'good_bad_ratio',
-        'good_events': 15,
-        'bad_events': -1,
-    },
-    "valid_sli_value": {
-        'method': 'sli',
-        'good_events': -1,
-        'bad_events': -1,
-        'sli': 0.991
-    },
-    "no_events": {
-        'method': 'good_bad_ratio',
-        'good_events': 0,
-        'bad_events': 0,
-    },
-    "no_good_bad_events": {
-        'method': 'good_bad_ratio',
-        'good_events': -1,
-        'bad_events': -1,
-    },
-    "not_enough_events": {
-        'method': 'good_bad_ratio',
-        'good_events': 5,
-        'bad_events': 4,
-    },
-    "no_sli_value": {
-        'method': 'sli',
-        'good_events': -1,
-        'bad_events': -1,
-    },
-    "no_backend_response_sli": {
-        'method': 'sli',
-        'sli': None
-    },
-    "no_backend_response_ratio": {
-        'method': 'good_bad_ratio',
-        'good_events': None,
-        'bad_events': None,
-    },
-    'invalid_backend_response_type': {
-        'method': 'good_bad_ratio',
-        'good_events': {
-            'data': {
-                'value': 30
-            }
-        },
-        'bad_events': {
-            'data': {
-                'value': 400
-            }
-        },
-        'sli': None
-    }
-}
+    mod = ModuleType(name)
+    module_name = f'slo_generator.{type}.{name}'
+    sys.modules[module_name] = mod
+    exec(code, mod.__dict__)
 
 
 def mock_slo_report(key):
-    """Mock SLO report config with edge cases contained in CUSTOM_TESTS.
+    """Mock SLO report config with edge cases contained in DUMMY_TESTS.
 
     Args:
-        key (str): Key identifying which config to pick from CUSTOM_TESTS.
+        key (str): Key identifying which config to pick from DUMMY_TESTS.
 
     Returns:
         dict: Dict configuration for SLOReport class.
     """
-    config = copy.deepcopy(CUSTOM_BASE_CONFIG)
-    config["backend"].update(CUSTOM_TESTS[key])
+    slo_config = load_fixture('dummy_slo_config.json')
+    ebp_step = load_fixture(
+        'dummy_config.json')['error_budget_policies']['default'][0]
+    dummy_tests = load_fixture('dummy_tests.json')
+    backend = dummy_tests[key]
+    slo_config['spec']['method'] = backend['method']
+    backend['name'] = 'dummy'
+    backend['class'] = 'Dummy'
     timestamp = time.time()
     return {
-        "config": config,
-        "step": CUSTOM_STEP,
+        "config": slo_config,
+        "backend": backend,
+        "step": ebp_step,
         "timestamp": timestamp,
         "client": None,
         "delete": False
@@ -193,6 +104,7 @@ def mock_slo_report(key):
 # pylint: disable=too-few-public-methods
 class MultiCallableStub:
     """Stub for the grpc.UnaryUnaryMultiCallable interface."""
+
     def __init__(self, method, channel_stub):
         self.method = method
         self.channel_stub = channel_stub
@@ -215,6 +127,7 @@ class MultiCallableStub:
 # pylint: disable=R0903
 class ChannelStub:
     """Stub for the grpc.Channel interface."""
+
     def __init__(self, responses=[]):
         self.responses = responses
         self.requests = []
@@ -294,6 +207,59 @@ def mock_es(self, index, body):
     return {'hits': {'total': {'value': 120}}}
 
 
+def mock_dd_metric_query(*args, **kwargs):
+    """Mock Datadog response for datadog.api.Metric.query."""
+    return load_fixture('dd_timeseries.json')
+
+
+def mock_dd_slo_history(*args, **kwargs):
+    """Mock Datadog response for datadog.api.ServiceLevelObjective.history."""
+    return load_fixture('dd_slo_history.json')
+
+
+def mock_dd_slo_get(*args, **kwargs):
+    """Mock Datadog response for datadog.api.ServiceLevelObjective.get."""
+    return load_fixture('dd_slo.json')
+
+
+def mock_dd_metric_send(*args, **kwargs):
+    """Mock Datadog response for datadog.api.Metric.send."""
+    return load_fixture('dd_success.json')
+
+
+def mock_dt(*args, **kwargs):
+    """Mock Dynatrace response."""
+    if args[0] == 'get' and args[1] == 'timeseries':
+        return load_fixture('dt_metric_get.json')
+
+    elif args[0] == 'get' and args[1] == 'metrics/query':
+        return load_fixture('dt_timeseries_get.json')
+
+    elif args[0] == 'get' and args[1].startswith('slo/'):
+        return load_fixture('dt_slo_get.json')
+
+    elif args[0] == 'post' and args[1] == 'entity/infrastructure/custom':
+        return load_fixture('dt_metric_send.json')
+
+    elif args[0] == 'put' and args[1] == 'timeseries':
+        return {}
+
+
+def mock_dt_errors(*args, **kwargs):
+    """Mock Dynatrace response with errors."""
+    if args[0] == 'get' and args[1] == 'timeseries':
+        return load_fixture('dt_metric_get.json')
+
+    elif args[0] == 'get' and args[1] == 'metrics/query':
+        return load_fixture('dt_timeseries_get.json')
+
+    elif args[0] == 'post' and args[1] == 'entity/infrastructure/custom':
+        return load_fixture('dt_error_rate.json')
+
+    elif args[0] == 'put' and args[1] == 'timeseries':
+        return load_fixture('dt_error_rate.json')
+
+
 class dotdict(dict):
     """dot.notation access to dictionary attributes"""
     __getattr__ = dict.get
@@ -319,6 +285,7 @@ def dotize(data):
 
 class mock_ssm_client:
     """Fake Service Monitoring API client."""
+
     def __init__(self):
         self.services = [dotize(s) for s in load_fixture('ssm_services.json')]
         self.service_level_objectives = [
@@ -361,7 +328,19 @@ class mock_ssm_client:
         return data
 
 
-def load_fixture(filename, **ctx):
+def get_fixture_path(filename):
+    """Get path for a fixture file.
+
+    Args:
+        filename (str): Filename of file in fixtures/.
+
+    Returns:
+        str: Full path of file in fixtures/.
+    """
+    return os.path.join(TEST_DIR, "fixtures/", filename)
+
+
+def load_fixture(filename, ctx=os.environ):
     """Load a fixture from the test/fixtures/ directory and replace context
     environmental variables in it.
 
@@ -372,11 +351,11 @@ def load_fixture(filename, **ctx):
     Returns:
         dict: Loaded fixture.
     """
-    filename = os.path.join(TEST_DIR, "fixtures/", filename)
-    return parse_config(filename, ctx)
+    path = get_fixture_path(filename)
+    return load_config(path, ctx=ctx)
 
 
-def load_sample(filename, **ctx):
+def load_sample(filename, ctx=os.environ):
     """Load a sample from the samples/ directory and replace context
     environmental variables in it.
 
@@ -388,10 +367,10 @@ def load_sample(filename, **ctx):
         dict: Loaded sample.
     """
     filename = os.path.join(SAMPLE_DIR, filename)
-    return parse_config(filename, ctx)
+    return load_config(filename, ctx=ctx)
 
 
-def load_slo_samples(folder_path, **ctx):
+def load_slo_samples(folder_path, ctx=os.environ):
     """List and load all SLO samples from folder path.
 
     Args:
@@ -401,7 +380,11 @@ def load_slo_samples(folder_path, **ctx):
     Returns:
         list: List of loaded SLO configs.
     """
-    return [
-        load_sample(filename, **ctx)
-        for filename in list_slo_configs(f'{SAMPLE_DIR}/{folder_path}')
-    ]
+    return load_configs(f'{SAMPLE_DIR}/{folder_path}', ctx)
+
+
+# Add custom backends / exporters for testing purposes
+DUMMY_BACKEND_CODE = open(get_fixture_path('dummy_backend.py')).read()
+FAIL_EXPORTER_CODE = open(get_fixture_path('fail_exporter.py')).read()
+add_dynamic('dummy', DUMMY_BACKEND_CODE, 'backends')
+add_dynamic('fail', FAIL_EXPORTER_CODE, 'exporters')

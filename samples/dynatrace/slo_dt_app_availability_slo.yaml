@@ -1,0 +1,17 @@
+apiVersion: sre.google.com/v2
+kind: ServiceLevelObjective
+metadata:
+  name: dt-app-availability
+  labels:
+    service_name: dt
+    feature_name: app
+    slo_name: availability
+spec:
+  description: 99.9% of app requests return a good HTTP code
+  backend: dynatrace
+  method: query_sli
+  exporters:
+  - dynatrace
+  service_level_indicator:
+    slo_id: ${DYNATRACE_SLO_ID}
+  goal: 0.999
