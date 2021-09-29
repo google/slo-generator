@@ -75,7 +75,7 @@ As an example let’s use AppEngine latency (see above): exponential type, grow 
 
 **The SLI-SLO threshold MUST be aligned with one of the border values, since we are blind between 2 borders** (see the trade off distributive explained above).
 
- In SLO Generator we directly indicate the number of the bucket corresponding to the value of the top fontiere of the bucket as in this [yaml example](https://github.com/GoogleCloudPlatform/professional-services/blob/master/tools/slo-generator/samples/stackdriver/slo_gae_app_latency.yaml)
+ In SLO Generator we directly indicate the number of the bucket corresponding to the value of the top fontiere of the bucket as in this [yaml example](https://github.com/google/slo-generator/blob/master/tools/slo-generator/samples/stackdriver/slo_gae_app_latency.yaml)
 
 ## D - Choose a border value for each latency SLO
 
