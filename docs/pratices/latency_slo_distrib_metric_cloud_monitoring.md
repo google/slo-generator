@@ -53,7 +53,7 @@ There are different ways of doing distributions in Cloud Operation Monitoring: *
 
 Olivier Cervello's [gmon](https://github.com/GoogleCloudPlatform/professional-services/tree/master/tools/gmon)'s tool helps to inspect some data points of the last time series recorded on a metric
 
-example: gmon metrics inspect [loadbalancing.googleapis.com/https/backend_latencies](http://loadbalancing.googleapis.com/https/backend_latencies) -p &lt;PROJECT_ID> --window 240
+Example: `gmon metrics inspect loadbalancing.googleapis.com/https/backend_latencies -p <PROJECT_ID> --window 240`
 
 Adapt the window size until you get data points, just one is enough.
 
