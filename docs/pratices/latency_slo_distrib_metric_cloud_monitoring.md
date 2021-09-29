@@ -15,7 +15,7 @@ Example:
 * Authentication response 900ms = 99%
 * Authentication response 4s = 99.99%
 
-**It is therefore key to indicate the threshold in duration in the title of the SLI-SLO, since the value of a proportion (%) is always non-dimensional.**
+**It is therefore key to indicate the latency threshold (in ms) in the title of the SLI-SLO, since the value of a proportion (%) is always non-dimensional.**
 
 Having a 50% goal (aka SLO) is OK for very short latency (the median actually). Not all latency SLOs are necessarily a collection of 9.
 
