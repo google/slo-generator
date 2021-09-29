@@ -79,7 +79,7 @@ BQ Data Viewer roles.
 
 #### 1.a. `report` data source
 
-#### Step 1
+##### Step 1
 
 Make a copy of the following data source (copy & paste the below link in a browser)
 <https://datastudio.google.com/datasources/24648dbe-fa29-48bf-9227-7e8673319968>
