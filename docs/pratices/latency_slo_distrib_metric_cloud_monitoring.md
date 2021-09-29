@@ -41,7 +41,7 @@ So in this perspective your question "how to do a latency SLO at the 99th percen
 
 ## B- Use distribution-type metrics for latency
 
-It is often too expensive for the monitoring system to record the latency of each response served.
+It is often too expensive for the monitoring system to record the latency of each response served (full distribution).
 
 In order to limit the number of data points we use distributions, i.e. an aggregate which counts how many requests have been served with a latency between 2 values ​​(lower and upper limit)
 
