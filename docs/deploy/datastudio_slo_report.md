@@ -86,7 +86,7 @@ Make a copy of the following data source (copy & paste the below link in a brows
 and clicking on the "Make a Copy" button just left of the "Create Report" button.  
 ![copy this report](../images/copy_button.png)
 
-#### Step 2
+##### Step 2
 
 From the BQ connector settings page use "My projects" search and select your SLO-generator project ID, then your dataset, usually `slo_reports`, then table "reports".
 
