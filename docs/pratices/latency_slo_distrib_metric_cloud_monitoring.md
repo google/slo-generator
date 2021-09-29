@@ -91,7 +91,7 @@ Aggregator 50th:
 
 ![aggregator 50th](../images/latency_aggregator50th.png)
 
-The value of 6 ms returned by the graph and close in the [gSuite Sheet](https://docs.google.com/spreadsheets/d/1pvGC_BW1l0D1D8GJY8I3H4QL76xVQ8t0QF_dIQ5lg5I/edit?usp=sharing) to the 8 ms high border of bucket number 6
+The value of 6 ms returned by the graph is close in the [Google Sheet](https://docs.google.com/spreadsheets/d/1pvGC_BW1l0D1D8GJY8I3H4QL76xVQ8t0QF_dIQ5lg5I/edit?usp=sharing) to the 8 ms high border of bucket number 6.
 
 Aggregator 99th:
 
