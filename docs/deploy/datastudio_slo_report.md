@@ -95,7 +95,7 @@ From the BQ connector settings page use "My projects" search and select your SLO
 Hit the RECONNECT button top right.The message `Configuration has changed. Do you want to apply the changes?` appears indicating no fields changed. Hit APPLY.  
 ![copy this report](../images/config_has_changed.png)
 
-#### Step 4
+##### Step 4
 
 Change the data source name at the top left corner from "Copy of..." to something appropriate.
 You can close this browser window now.
