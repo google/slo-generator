@@ -47,7 +47,7 @@ In order to limit the number of data points we use in distributions, monitoring 
 
 We lose precision, but we gain a stable storage of time series regardless of the volume of qps (query per sec).
 
-## C- Find the typical bucket of the distribution metric and the associated border values
+## C - Find the typical bucket of the distribution metric and the associated border values
 
 There are different ways of doing distributions in Cloud Operation Monitoring: **linear, custom or exponential**. These are the [Bucket Options](https://cloud.google.com/monitoring/api/ref_v3/rest/v3/TypedValue#bucketoptions) of the DISTRIBUTION type metrics.
 
