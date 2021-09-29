@@ -51,7 +51,7 @@ We lose precision, but we gain a stable storage of time series regardless of the
 
 There are different ways of doing distributions in Cloud Operation Monitoring: **linear, custom or exponential**. These are the [Bucket Options](https://cloud.google.com/monitoring/api/ref_v3/rest/v3/TypedValue#bucketoptions) of the DISTRIBUTION type metrics.
 
-Olivier Cervello [gmon](https://github.com/GoogleCloudPlatform/professional-services/tree/master/tools/gmon)'s tool helps to inspect some data points of the last time series recorded on a metric
+Olivier Cervello's [gmon](https://github.com/GoogleCloudPlatform/professional-services/tree/master/tools/gmon)'s tool helps to inspect some data points of the last time series recorded on a metric
 
 example: gmon metrics inspect [loadbalancing.googleapis.com/https/backend_latencies](http://loadbalancing.googleapis.com/https/backend_latencies) -p &lt;PROJECT_ID> --window 240
 
