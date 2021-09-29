@@ -71,7 +71,7 @@ Once we have the type of buckets (Explicit, Linear, Exponential) we can calculat
 
 As an example let’s use AppEngine latency (see above): exponential type, grow factor is square root of 2, 64 finite buckets, so 66 in total (+ and - l infinity)
 
- This [gSuite Sheet](https://docs.google.com/spreadsheets/d/1pvGC_BW1l0D1D8GJY8I3H4QL76xVQ8t0QF_dIQ5lg5I/edit?usp=sharing)  allows to calculate the border values ​​of each bucket of an exponential distribution knowing these parameters (growfactor, numFiniteBuckets and scale)
+ This [Google Sheet](https://docs.google.com/spreadsheets/d/1pvGC_BW1l0D1D8GJY8I3H4QL76xVQ8t0QF_dIQ5lg5I/edit?usp=sharing)  allows to calculate the border values ​​of each bucket of an exponential distribution knowing these parameters (growfactor, numFiniteBuckets and scale)
 
 **The SLI-SLO threshold MUST be aligned with one of the border values, since we are blind between 2 borders** (see the trade off distributive explained above).
 
