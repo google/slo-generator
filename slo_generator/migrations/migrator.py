@@ -226,7 +226,7 @@ def exporters_v1tov2(exporters_paths, shared_config={}, quiet=False):
     exp_keys = []
     for exp_path in exporters_paths:
         with open(exp_path, encoding='utf-8') as conf:
-            content = yaml.load(conf, Loader=yaml.Loader)
+            content = yaml.load(conf, Loader=yaml.SafeLoader)
         exporters = content
 
         # If exporters file has sections, concatenate all of them
@@ -261,7 +261,7 @@ def ebp_v1tov2(ebp_paths, shared_config={}, quiet=False):
     ebp_keys = []
     for ebp_path in ebp_paths:
         with open(ebp_path, encoding='utf-8') as conf:
-            error_budget_policy = yaml.load(conf, Loader=yaml.Loader)
+            error_budget_policy = yaml.load(conf, Loader=yaml.SafeLoader)
         for step in error_budget_policy:
             step['name'] = step.pop('error_budget_policy_step_name')
             step['burn_rate_threshold'] = step.pop(
