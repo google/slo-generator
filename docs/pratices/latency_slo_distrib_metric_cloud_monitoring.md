@@ -57,7 +57,7 @@ Example: `gmon metrics inspect loadbalancing.googleapis.com/https/backend_latenc
 
 Adapt the window size until you get data points, just one is enough.
 
-The response contains the latency distribution [Bucket Options](https://cloud.google.com/monitoring/api/ref_v3/rest/v3/TypedValue#bucketoptions). (This information is not returned by the GET on the metric descriptor, c for that we need an inspect time series)
+The response contains the latency distribution [Bucket Options](https://cloud.google.com/monitoring/api/ref_v3/rest/v3/TypedValue#bucketoptions). (Note: this information is not returned by the GET on the metric descriptor, so we need an inspect the timeseries data)
 
 This looks like:
 
