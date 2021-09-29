@@ -39,7 +39,7 @@ Alternative approach:
 
 So in this perspective your question "how to do a latency SLO at the 99th percentile?" will <span class="x x-first x-last">become </span>"What is the threshold in <span class="x x-first x-last">`ms`</span> which results in a proportion close to 99%?"
 
-## B- Use distribution-type metrics for latency
+## B - Use distribution-type metrics for latency
 
 It is often too expensive for the monitoring system to record the latency of each response served (full distribution).
 
