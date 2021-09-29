@@ -63,7 +63,7 @@ This looks like:
 
 ```json
 {"bucketOptions": {"exponentialBuckets": {"growthFactor": 1.4142135623730951,
-                                         'numFiniteBuckets': 64,
+                                         "numFiniteBuckets": 64,
                                          'scale': 1.0}},
 ```
 
