@@ -43,7 +43,7 @@ So in this perspective your question "how to do a latency SLO at the 99th percen
 
 It is often too expensive for the monitoring system to record the latency of each response served (full distribution).
 
-In order to limit the number of data points we use distributions, i.e. an aggregate which counts how many requests have been served with a latency between 2 values ​​(lower and upper limit)
+In order to limit the number of data points we use in distributions, monitoring backends usually keep an aggregate counting how many requests have been served with a latency between 2 values ​​(lower and upper limit).
 
 We lose precision, but we gain a stable storage of time series regardless of the volume of qps (query per sec)
 
