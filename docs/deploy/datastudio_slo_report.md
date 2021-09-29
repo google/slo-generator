@@ -100,7 +100,7 @@ Hit the RECONNECT button top right.The message `Configuration has changed. Do yo
 Change the data source name at the top left corner from "Copy of..." to something appropriate.
 You can close this browser window now.
 
-### 1.b `last_report` data source
+#### 1.b. `last_report` data source
 
 Repeat the previous steps for the second data source starting by using this URL:
 <https://datastudio.google.com/datasources/e21bfc1b-70c7-46e9-b851-652c6ce0eb15>
