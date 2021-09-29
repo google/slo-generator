@@ -17,7 +17,7 @@ Example:
 
 **It is therefore key to indicate the latency threshold (in ms) in the title of the SLI-SLO, since the value of a proportion (%) is always non-dimensional.**
 
-Having a 50% goal (aka SLO) is OK for very short latency (the median actually). Not all latency SLOs are necessarily a collection of 9.
+Having a 50% goal (aka SLO) is OK for very small latencies (the median actually). Not all latency SLOs are necessarily expressed with 9s.
 
 That being said, some monitoring systems may represent the latency in the other direction: for a given percentage (median, 99th) what is the max value of the threshold?
 
