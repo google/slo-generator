@@ -106,7 +106,7 @@ Repeat the previous steps for the second data source starting by using this URL:
 <https://datastudio.google.com/datasources/e21bfc1b-70c7-46e9-b851-652c6ce0eb15>
 and selecting the table "last_report" from your project, your dataset.
 
-## 2 Copy the report template
+### 2. Copy the report template
 
 #### Step A
 
