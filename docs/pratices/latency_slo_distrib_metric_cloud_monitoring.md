@@ -104,4 +104,4 @@ We can define the following 2 latency SLOs by specifying the threshold_bucket va
 * **Latency 8 ms** (threshold_bucket **6**) SLO=50%
 * **Latency 128 ms** (threshold_bucket **14**) SLO=99%
 
-This will make 2 SLI-SLO definitions using two [yaml files](https://github.com/GoogleCloudPlatform/professional-services/blob/master/tools/slo-generator/samples/stackdriver/slo_gae_app_latency.yaml) in SLO Generator.
+This will make 2 SLI-SLO definitions using two [yaml files](https://github.com/google/slo-generator/blob/master/tools/slo-generator/samples/stackdriver/slo_gae_app_latency.yaml) in SLO Generator.
