@@ -19,7 +19,7 @@ Example:
 
 Having a 50% goal (aka SLO) is OK for very small latencies (the median actually). Not all latency SLOs are necessarily expressed with 9s.
 
-That being said, some monitoring systems may represent the latency in the other direction: for a given percentage (median, 99th) what is the max value of the threshold?
+That being said, some monitoring systems may represent the latency in the other direction (see [here](../providers/datadog.md#datadog-api-considerations). In this case, the question is: "For a given percentile (median, 95th, 99th) what is the max value of the threshold?"
 
 It is indeed the same curve, but in one case we give X the abscissa, i.e. the percentile and the system answers Y the ordinate (the duration), in the other case we give Y l 'ordinate and the system answers X the abscissa.
 
