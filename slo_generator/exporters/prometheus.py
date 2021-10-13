@@ -12,8 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """
-`stackdriver.py`
-Stackdriver Monitoring exporter class.
+`prometheus.py`
+Prometheus Push Gateway exporter class.
 """
 import logging
 
