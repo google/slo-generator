@@ -22,9 +22,10 @@ additional labels: `good_events_count` and `bad_events_count`.
   For instance, if the SLO config contains the following metadata:
   ```yaml
   metadata:
-    env: dev
-    team: devrel
-    site: us
+    labels:
+      env: dev
+      team: devrel
+      site: us
   ```
   The `env`, `team`, and `site` label will be available in the exported metric
   automatically.
