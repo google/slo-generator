@@ -39,6 +39,8 @@ exporters:
   pubsub:
     project_id: ${PUBSUB_PROJECT_ID}
     topic_name: ${PUBSUB_TOPIC_NAME}
+  prometheus_remote_write:
+    url: ${PROMETHEUS_REMOTE_WRITE_URL}
 
 error_budget_policies:
   default:

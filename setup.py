@@ -40,6 +40,7 @@ dependencies = ['pyyaml', 'ruamel.yaml', 'python-dateutil', 'click < 8.0']
 extras = {
     'api': ['Flask', 'gunicorn', 'cloudevents', 'functions-framework'],
     'prometheus': ['prometheus-client', 'prometheus-http-client'],
+    'prometheus_remote_write': ['requests', 'python-snappy', 'protobuf'],
     'datadog': ['datadog', 'retrying==1.3.3'],
     'dynatrace': ['requests'],
     'bigquery': ['google-api-python-client <2', 'google-cloud-bigquery <3'],

@@ -24,7 +24,8 @@ SITELIB = $(shell $(PYTHON) -c "from distutils.sysconfig import get_python_lib; 
 
 VERSION ?= $(shell grep "version = " setup.py | cut -d\  -f3)
 
-FLAKE8_IGNORE = E302,E203,E261
+# W503 and W504 are mutually exclusive
+FLAKE8_IGNORE = E302,E203,E261,W503
 
 ########################################################
 
@@ -61,7 +62,7 @@ develop:
 	$(PIP) install -e .
 
 install: clean
-	$(PIP) install -e ."[api, datadog, prometheus, elasticsearch, pubsub, cloud_monitoring, bigquery, dev]"
+	$(PIP) install -e ."[api, datadog, prometheus, elasticsearch, pubsub, cloud_monitoring, bigquery, dev, prometheus_remote_write]"
 
 test: install unit lint
 
@@ -74,11 +75,11 @@ coverage:
 lint: flake8 pylint
 
 flake8:
-	flake8 --ignore=$(FLAKE8_IGNORE) $(NAME)/ --max-line-length=80
+	flake8 --ignore=$(FLAKE8_IGNORE) --exclude slo_generator/exporters/gen/ $(NAME)/ --max-line-length=80
 	flake8 --ignore=$(FLAKE8_IGNORE),E402 tests/ --max-line-length=80
 
 pylint:
-	find ./$(NAME) ./tests -name \*.py | xargs pylint --rcfile .pylintrc --ignore-patterns=test_.*?py
+	find ./$(NAME) ./tests -name \*.py | xargs pylint --rcfile .pylintrc --ignore-patterns=test_.*?py,.*_pb2.py
 
 integration: int_cm int_csm int_custom int_dd int_dt int_es int_prom
 

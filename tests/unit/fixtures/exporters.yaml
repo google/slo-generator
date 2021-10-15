@@ -43,3 +43,6 @@
           # data labels
           - good_events_count
           - bad_events_count
+
+  - class: PrometheusRemoteWrite
+    url: ${PROMETHEUS_REMOTE_WRITE_URL}

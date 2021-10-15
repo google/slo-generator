@@ -1,13 +1,13 @@
 # Copyright 2019 Google Inc.
 #
-# Licensed under the Apache License, Version 2.0 (the "License");
+# Licensed under the Apache License, Version 2.0 (the 'License');
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
 #
 #            http://www.apache.org/licenses/LICENSE-2.0
 #
 # Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
+# distributed under the License is distributed on an 'AS IS' BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
@@ -22,11 +22,12 @@ import time
 from types import ModuleType
 
 from google.cloud.monitoring_v3.proto import metric_service_pb2
+from requests.models import Response
 from slo_generator.utils import load_configs, load_config
 
 TEST_DIR = os.path.dirname(os.path.abspath(__file__))
 SAMPLE_DIR = os.path.join(os.path.dirname(os.path.dirname(TEST_DIR)),
-                          "samples/")
+                          'samples/')
 
 CTX = {
     'PROJECT_ID': 'fake',
@@ -55,7 +56,8 @@ CTX = {
     'DATADOG_SLO_ID': 'fake',
     'DYNATRACE_API_URL': 'fake',
     'DYNATRACE_API_TOKEN': 'fake',
-    'DYNATRACE_SLO_ID': 'fake'
+    'DYNATRACE_SLO_ID': 'fake',
+    'PROMETHEUS_REMOTE_WRITE_URL': 'http://localhost:9300/api/v1/push'
 }
 
 
@@ -92,12 +94,12 @@ def mock_slo_report(key):
     backend['class'] = 'Dummy'
     timestamp = time.time()
     return {
-        "config": slo_config,
-        "backend": backend,
-        "step": ebp_step,
-        "timestamp": timestamp,
-        "client": None,
-        "delete": False
+        'config': slo_config,
+        'backend': backend,
+        'step': ebp_step,
+        'timestamp': timestamp,
+        'client': None,
+        'delete': False
     }
 
 
@@ -165,7 +167,7 @@ def mock_sd(nresp=1):
         ChannelStub: Mocked gRPC channel stub.
     """
     timeserie = load_fixture('time_series_proto.json')
-    response = {"next_page_token": "", "time_series": [timeserie]}
+    response = {'next_page_token': '', 'time_series': [timeserie]}
     return mock_grpc_stub(
         response=response,
         proto_method=metric_service_pb2.ListTimeSeriesResponse,
@@ -259,6 +261,22 @@ def mock_dt_errors(*args, **kwargs):
     elif args[0] == 'put' and args[1] == 'timeseries':
         return load_fixture('dt_error_rate.json')
 
+def mock_prom_remote_response(*args, **kwargs):
+    response_content = None
+    response_content = json.dumps('post response OK')
+    response = Response()
+    response.status_code = 200
+    response._content = str.encode(response_content)
+    return response
+
+def mock_prom_remote_error(*args, **kwargs):
+    response_content = None
+    response_content = json.dumps('post response ERROR')
+    response = Response()
+    response.status_code = 409
+    response._content = str.encode(response_content)
+    return response
+
 
 class dotdict(dict):
     """dot.notation access to dictionary attributes"""
@@ -337,7 +355,7 @@ def get_fixture_path(filename):
     Returns:
         str: Full path of file in fixtures/.
     """
-    return os.path.join(TEST_DIR, "fixtures/", filename)
+    return os.path.join(TEST_DIR, 'fixtures/', filename)
 
 
 def load_fixture(filename, ctx=os.environ):

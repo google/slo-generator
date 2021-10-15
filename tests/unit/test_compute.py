@@ -1,19 +1,20 @@
 # Copyright 2019 Google Inc.
 #
-# Licensed under the Apache License, Version 2.0 (the "License");
+# Licensed under the Apache License, Version 2.0 (the 'License');
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
 #
 #            http://www.apache.org/licenses/LICENSE-2.0
 #
 # Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
+# distributed under the License is distributed on an 'AS IS' BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
 import unittest
 import warnings
+import copy
 
 from datadog.api import Metric, ServiceLevelObjective
 from elasticsearch import Elasticsearch
@@ -24,13 +25,26 @@ from slo_generator.backends.dynatrace import DynatraceClient
 from slo_generator.compute import compute, export
 from slo_generator.exporters.bigquery import BigQueryError
 from slo_generator.exporters.base import MetricsExporter
-from .test_stubs import (CTX, load_fixture, load_sample, load_slo_samples,
-                         mock_dd_metric_query, mock_dd_metric_send,
-                         mock_dd_slo_get, mock_dd_slo_history, mock_dt,
-                         mock_dt_errors, mock_es, mock_prom, mock_sd,
-                         mock_ssm_client)
+from .test_stubs import (
+    CTX,
+    load_fixture,
+    load_sample,
+    load_slo_samples,
+    mock_dd_metric_query,
+    mock_dd_metric_send,
+    mock_dd_slo_get,
+    mock_dd_slo_history,
+    mock_dt,
+    mock_dt_errors,
+    mock_es,
+    mock_prom,
+    mock_sd,
+    mock_ssm_client,
+    mock_prom_remote_response,
+    mock_prom_remote_error,
+)
 
-warnings.filterwarnings("ignore", message=_CLOUD_SDK_CREDENTIALS_WARNING)
+warnings.filterwarnings('ignore', message=_CLOUD_SDK_CREDENTIALS_WARNING)
 
 CONFIG = load_sample('config.yaml', CTX)
 STEPS = len(CONFIG['error_budget_policies']['default']['steps'])
@@ -47,43 +61,53 @@ BQ_ERROR = load_fixture('bq_error.json')
 
 # Pub/Sub methods to patch
 PUBSUB_MOCKS = [
-    "google.cloud.pubsub_v1.gapic.publisher_client.PublisherClient.publish",
-    "google.cloud.pubsub_v1.publisher.futures.Future.result"
+    'google.cloud.pubsub_v1.gapic.publisher_client.PublisherClient.publish',
+    'google.cloud.pubsub_v1.publisher.futures.Future.result',
 ]
 
 # Service Monitoring method to patch
 # pylint: ignore=E501
 SSM_MOCKS = [
-    "slo_generator.backends.cloud_service_monitoring.ServiceMonitoringServiceClient",  # noqa: E501
-    "slo_generator.backends.cloud_service_monitoring.SSM.to_json"
+    'slo_generator.backends.cloud_service_monitoring.ServiceMonitoringServiceClient',  # noqa: E501
+    'slo_generator.backends.cloud_service_monitoring.SSM.to_json',
 ]
 
 
 class TestCompute(unittest.TestCase):
     maxDiff = None
 
-    @patch('google.api_core.grpc_helpers.create_channel',
-           return_value=mock_sd(2 * STEPS * len(SLO_CONFIGS_SD)))
+    @patch(
+        'google.api_core.grpc_helpers.create_channel',
+        return_value=mock_sd(2 * STEPS * len(SLO_CONFIGS_SD)),
+    )
     def test_compute_stackdriver(self, mock):
         for config in SLO_CONFIGS_SD:
             with self.subTest(config=config):
                 compute(config, CONFIG)
 
     @patch(SSM_MOCKS[0], return_value=mock_ssm_client())
-    @patch(SSM_MOCKS[1],
-           return_value=MagicMock(side_effect=mock_ssm_client.to_json))
-    @patch('google.api_core.grpc_helpers.create_channel',
-           return_value=mock_sd(2 * STEPS * len(SLO_CONFIGS_SDSM)))
+    @patch(
+        SSM_MOCKS[1],
+        return_value=MagicMock(side_effect=mock_ssm_client.to_json),
+    )
+    @patch(
+        'google.api_core.grpc_helpers.create_channel',
+        return_value=mock_sd(2 * STEPS * len(SLO_CONFIGS_SDSM)),
+    )
     def test_compute_ssm(self, *mocks):
         for config in SLO_CONFIGS_SDSM:
             with self.subTest(config=config):
                 compute(config, CONFIG)
 
     @patch(SSM_MOCKS[0], return_value=mock_ssm_client())
-    @patch(SSM_MOCKS[1],
-           return_value=MagicMock(side_effect=mock_ssm_client.to_json))
-    @patch('google.api_core.grpc_helpers.create_channel',
-           return_value=mock_sd(2 * STEPS * len(SLO_CONFIGS_SDSM)))
+    @patch(
+        SSM_MOCKS[1],
+        return_value=MagicMock(side_effect=mock_ssm_client.to_json),
+    )
+    @patch(
+        'google.api_core.grpc_helpers.create_channel',
+        return_value=mock_sd(2 * STEPS * len(SLO_CONFIGS_SDSM)),
+    )
     @patch(PUBSUB_MOCKS[0])
     @patch(PUBSUB_MOCKS[1])
     def test_compute_ssm_delete_export(self, *mocks):
@@ -122,28 +146,31 @@ class TestCompute(unittest.TestCase):
     def test_export_pubsub(self, mock_pubsub, mock_pubsub_res):
         export(SLO_REPORT, EXPORTERS[0])
 
-    @patch("google.api_core.grpc_helpers.create_channel",
-           return_value=mock_sd(STEPS))
+    @patch(
+        'google.api_core.grpc_helpers.create_channel',
+        return_value=mock_sd(STEPS),
+    )
     def test_export_stackdriver(self, mock):
         export(SLO_REPORT, EXPORTERS[1])
 
-    @patch("google.cloud.bigquery.Client.get_table")
-    @patch("google.cloud.bigquery.Client.create_table")
-    @patch("google.cloud.bigquery.Client.update_table")
-    @patch("google.cloud.bigquery.Client.insert_rows_json", return_value=[])
+    @patch('google.cloud.bigquery.Client.get_table')
+    @patch('google.cloud.bigquery.Client.create_table')
+    @patch('google.cloud.bigquery.Client.update_table')
+    @patch('google.cloud.bigquery.Client.insert_rows_json', return_value=[])
     def test_export_bigquery(self, *mocks):
         export(SLO_REPORT, EXPORTERS[2])
 
-    @patch("google.cloud.bigquery.Client.get_table")
-    @patch("google.cloud.bigquery.Client.create_table")
-    @patch("google.cloud.bigquery.Client.update_table")
-    @patch("google.cloud.bigquery.Client.insert_rows_json",
-           return_value=BQ_ERROR)
+    @patch('google.cloud.bigquery.Client.get_table')
+    @patch('google.cloud.bigquery.Client.create_table')
+    @patch('google.cloud.bigquery.Client.update_table')
+    @patch(
+        'google.cloud.bigquery.Client.insert_rows_json', return_value=BQ_ERROR
+    )
     def test_export_bigquery_error(self, *mocks):
         with self.assertRaises(BigQueryError):
             export(SLO_REPORT, EXPORTERS[2], raise_on_error=True)
 
-    @patch("prometheus_client.push_to_gateway")
+    @patch('prometheus_client.push_to_gateway')
     def test_export_prometheus(self, mock):
         export(SLO_REPORT, EXPORTERS[3])
 
@@ -170,33 +197,167 @@ class TestCompute(unittest.TestCase):
             'service_name': SLO_REPORT_V1['service_name'],
             'slo_name': SLO_REPORT_V1['slo_name'],
             'env': SLO_REPORT_V1['metadata']['env'],
-            'team': SLO_REPORT_V1['metadata']['team']
+            'team': SLO_REPORT_V1['metadata']['team'],
         }
         self.assertEqual(result, expected)
 
-    @patch("google.api_core.grpc_helpers.create_channel",
-           return_value=mock_sd(STEPS))
-    @patch("google.cloud.bigquery.Client.get_table")
-    @patch("google.cloud.bigquery.Client.create_table")
-    @patch("google.cloud.bigquery.Client.update_table")
-    @patch("google.cloud.bigquery.Client.insert_rows_json",
-           return_value=BQ_ERROR)
+    @patch(
+        'google.api_core.grpc_helpers.create_channel',
+        return_value=mock_sd(STEPS),
+    )
+    @patch('google.cloud.bigquery.Client.get_table')
+    @patch('google.cloud.bigquery.Client.create_table')
+    @patch('google.cloud.bigquery.Client.update_table')
+    @patch(
+        'google.cloud.bigquery.Client.insert_rows_json', return_value=BQ_ERROR
+    )
     def test_export_multiple_error(self, *mocks):
         exporters = [EXPORTERS[1], EXPORTERS[2]]
         results = export(SLO_REPORT, exporters)
         self.assertTrue(isinstance(results[-1], BigQueryError))
 
-    @patch("google.api_core.grpc_helpers.create_channel",
-           return_value=mock_sd(STEPS))
-    @patch("google.cloud.bigquery.Client.get_table")
-    @patch("google.cloud.bigquery.Client.create_table")
-    @patch("google.cloud.bigquery.Client.update_table")
-    @patch("google.cloud.bigquery.Client.insert_rows_json",
-           return_value=BQ_ERROR)
+    @patch(
+        'google.api_core.grpc_helpers.create_channel',
+        return_value=mock_sd(STEPS),
+    )
+    @patch('google.cloud.bigquery.Client.get_table')
+    @patch('google.cloud.bigquery.Client.create_table')
+    @patch('google.cloud.bigquery.Client.update_table')
+    @patch(
+        'google.cloud.bigquery.Client.insert_rows_json', return_value=BQ_ERROR
+    )
     def test_export_multiple_error_raise(self, *mocks):
         exporters = [EXPORTERS[1], EXPORTERS[2]]
         with self.assertRaises(BigQueryError):
             export(SLO_REPORT, exporters, raise_on_error=True)
+
+    @patch('requests.post', side_effect=mock_prom_remote_response)
+    def test_export_prometheus_remote_write(self, mock):
+        export(SLO_REPORT, EXPORTERS[7], raise_on_error=True)
+
+    @patch('requests.post', side_effect=mock_prom_remote_error)
+    def test_export_prometheus_remote_write_err(self, mock):
+        responses = export(SLO_REPORT, EXPORTERS[7])
+        codes = [r[0]['response'].status_code for r in responses]
+        self.assertTrue(all(code == 409 for code in codes))
+
+    def test_export_prom_remote_write_invalid_data(self):
+        data = {}
+        with self.assertRaises(KeyError):
+            export(data, EXPORTERS[7], raise_on_error=True)
+
+    @patch('requests.post', side_effect=mock_prom_remote_response)
+    def test_export_prometheus_remote_write_auth_good(self, mock):
+        exporter = copy.deepcopy(EXPORTERS[7])
+        exporter['username'] = 'foo'
+        exporter['password'] = 'bar'
+        export(SLO_REPORT, exporter, raise_on_error=True)
+
+    @patch('requests.post', side_effect=mock_prom_remote_response)
+    def test_export_prometheus_remote_write_auth_bad(self, mock):
+        exporter = copy.deepcopy(EXPORTERS[7])
+        exporter['username'] = 'foo'
+        with self.assertRaises(ValueError) as exc:
+            export(SLO_REPORT, exporter, raise_on_error=True)
+        self.assertEqual(
+            str(exc.exception), 'must have password for Basic Auth'
+        )
+
+    @patch('requests.post', side_effect=mock_prom_remote_response)
+    def test_export_prometheus_remote_write_auth_bad2(self, mock):
+        exporter = copy.deepcopy(EXPORTERS[7])
+        exporter['password'] = 'bar'
+        with self.assertRaises(ValueError) as exc:
+            export(SLO_REPORT, exporter, raise_on_error=True)
+        self.assertEqual(
+            str(exc.exception), 'must have username for Basic Auth'
+        )
+
+    @patch('requests.post', side_effect=mock_prom_remote_response)
+    def test_export_prometheus_remote_write_headers(self, mock):
+        exporter = copy.deepcopy(EXPORTERS[7])
+        exporter['headers'] = {'foo': 'bar', 'baz': 'qux'}
+        export(SLO_REPORT, exporter, raise_on_error=True)
+
+    @patch('requests.post', side_effect=mock_prom_remote_response)
+    def test_export_prometheus_remote_write_headers_bad(self, mock):
+        exporter = copy.deepcopy(EXPORTERS[7])
+        exporter['headers'] = 'foo'
+        with self.assertRaises(ValueError) as exc:
+            export(SLO_REPORT, exporter, raise_on_error=True)
+        self.assertEqual(
+            str(exc.exception), 'additional headers must be a Dict[str, str]'
+        )
+
+    @patch('requests.post', side_effect=mock_prom_remote_response)
+    def test_export_prometheus_remote_write_timeout(self, mock):
+        exporter = copy.deepcopy(EXPORTERS[7])
+        exporter['timeout'] = '123'
+        export(SLO_REPORT, exporter, raise_on_error=True)
+
+    @patch('requests.post', side_effect=mock_prom_remote_response)
+    def test_export_prometheus_remote_write_timeout_bad(self, mock):
+        exporter = copy.deepcopy(EXPORTERS[7])
+        exporter['timeout'] = 'foo'
+        with self.assertRaises(ValueError) as exc:
+            export(SLO_REPORT, exporter, raise_on_error=True)
+        self.assertEqual(str(exc.exception), 'timeout must be an integer')
+
+    @patch('requests.post', side_effect=mock_prom_remote_response)
+    def test_export_prometheus_remote_write_timeout_bad2(self, mock):
+        exporter = copy.deepcopy(EXPORTERS[7])
+        exporter['timeout'] = '-123'
+        with self.assertRaises(ValueError) as exc:
+            export(SLO_REPORT, exporter, raise_on_error=True)
+        self.assertEqual(str(exc.exception), 'timeout must be >0')
+
+    @patch('requests.post', side_effect=mock_prom_remote_response)
+    def test_export_prometheus_remote_write_tls_config(self, mock):
+        exporter = copy.deepcopy(EXPORTERS[7])
+        exporter['tls_config'] = {
+            'insecure_skip_verify': True,
+            'ca_file': 'path_to_ca_file',
+            'cert_file': 'foo',
+            'key_file': 'bar',
+        }
+        export(SLO_REPORT, exporter, raise_on_error=True)
+
+    @patch('requests.post', side_effect=mock_prom_remote_response)
+    def test_export_prometheus_remote_write_tls_config_bad_arg(self, mock):
+        exporter = copy.deepcopy(EXPORTERS[7])
+        exporter['tls_config'] = 'foo'
+        with self.assertRaises(ValueError) as exc:
+            export(SLO_REPORT, exporter, raise_on_error=True)
+        self.assertEqual(
+            str(exc.exception), 'tls_config must be a Dict[str,str]'
+        )
+
+    @patch('requests.post', side_effect=mock_prom_remote_response)
+    def test_export_prometheus_remote_write_tls_config_bad_skip(self, mock):
+        exporter = copy.deepcopy(EXPORTERS[7])
+        exporter['tls_config'] = {
+            'insecure_skip_verify': 'foobar',
+        }
+        with self.assertRaises(ValueError) as exc:
+            export(SLO_REPORT, exporter, raise_on_error=True)
+        self.assertEqual(
+            str(exc.exception), 'insecure_skip_verify must be a boolean'
+        )
+
+    @patch('requests.post', side_effect=mock_prom_remote_response)
+    def test_export_prometheus_remote_write_tls_config_bad_cert_only(
+        self, mock
+    ):
+        exporter = copy.deepcopy(EXPORTERS[7])
+        exporter['tls_config'] = {
+            'cert_file': 'foobar',
+        }
+        with self.assertRaises(ValueError) as exc:
+            export(SLO_REPORT, exporter, raise_on_error=True)
+        self.assertEqual(
+            str(exc.exception),
+            'both cert and key are required for custom TLS config',
+        )
 
 
 if __name__ == '__main__':
