@@ -24,6 +24,9 @@ SITELIB = $(shell $(PYTHON) -c "from distutils.sysconfig import get_python_lib; 
 
 VERSION ?= $(shell grep "version = " setup.py | cut -d\  -f3)
 
+OS := $(shell uname)
+
+
 # W503 and W504 are mutually exclusive
 FLAKE8_IGNORE = E302,E203,E261,W503
 
@@ -63,6 +66,14 @@ develop:
 
 install: clean
 	$(PIP) install -e ."[api, datadog, prometheus, elasticsearch, pubsub, cloud_monitoring, bigquery, dev, prometheus_remote_write]"
+ifeq ($(OS),Darwin)
+	@echo "running on MacOs, installing snappy headers with brew"
+	brew install snappy
+else
+	@echo "running on Linux, assuming Ubuntu, installing snappy headers with apt"
+	sudo apt install libsnappy-dev -y
+endif
+
 
 test: install unit lint
 
