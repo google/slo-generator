@@ -65,15 +65,14 @@ develop:
 	$(PIP) install -e .
 
 install: clean
-	$(PIP) install -e ."[api, datadog, prometheus, elasticsearch, pubsub, cloud_monitoring, bigquery, dev, prometheus_remote_write]"
 ifeq ($(OS),Darwin)
 	@echo "running on MacOs, installing snappy headers with brew"
 	brew install snappy
 else
 	@echo "running on Linux, assuming Ubuntu, installing snappy headers with apt"
-	sudo apt install libsnappy-dev -y
+	sudo apt install libsnappy-dev -y || apt install libsnappy-dev -y
 endif
-
+	$(PIP) install -e ."[api, datadog, prometheus, elasticsearch, pubsub, cloud_monitoring, bigquery, dev, prometheus_remote_write]"
 
 test: install unit lint
 
