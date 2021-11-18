@@ -183,7 +183,7 @@ class MetricsExporter:
         for label in nested_labels:
             data_labels.update({k: str(v) for k, v in data[label].items()})
         for label in flat_labels:
-            data_labels.update({label: str(data[label])})
+            data_labels[label] = str(data[label])
         LOGGER.debug(f'Data labels: {data_labels}')
         return data_labels
 
