@@ -7,7 +7,6 @@ on:
       - deploy-*
     tags:
       - v*.*.*
-  pull_request:
 jobs:
   cloudbuild:
     runs-on: ubuntu-latest
