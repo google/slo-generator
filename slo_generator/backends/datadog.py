@@ -95,8 +95,7 @@ class DatadogBackend:
         query = self._fmt_query(query, window)
         response = self.client.Metric.query(start=start, end=end, query=query)
         LOGGER.debug(f"Result valid: {pprint.pformat(response)}")
-        sli_value = DatadogBackend.count(response, average=True)
-        return sli_value
+        return DatadogBackend.count(response, average=True)
 
     def query_slo(self, timestamp, window, slo_config):
         """Query SLO value from a given Datadog SLO.
