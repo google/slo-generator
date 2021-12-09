@@ -92,7 +92,7 @@ class BigqueryExporter:
             row_ids=[row_ids],
             retry=google.api_core.retry.Retry(deadline=30))
         status = f' Export data to {str(table_ref)}'
-        if results != []:
+        if results:
             status = constants.FAIL + status
             raise BigQueryError(results)
         status = constants.SUCCESS + status
