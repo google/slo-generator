@@ -89,13 +89,14 @@ def load_config(path, ctx=os.environ, kind=None):
             config = parse_config(content=str(path), ctx=ctx)
 
         # Filter on 'kind'
-        if kind:
-            if not isinstance(config, dict) or kind != config.get('kind', ''):
-                config = None
+        if kind and (
+            not isinstance(config, dict) or kind != config.get('kind', '')
+        ):
+            config = None
         return config
 
     except OSError as exc:
-        if exc.errno == errno.ENAMETOOLONG:  # filename too long, string content
+        if exc.errno == errno.ENAMETOOLONG:
             return parse_config(content=str(path), ctx=ctx)
         raise
 
