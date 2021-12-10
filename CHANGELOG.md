@@ -1,5 +1,20 @@
 # Changelog
 
+### [2.0.2](https://www.github.com/google/slo-generator/compare/v2.0.1...v2.0.2) (2021-12-10)
+
+
+### Bug Fixes
+
+* bigquery exporter lint ([#183](https://www.github.com/google/slo-generator/issues/183)) ([9710b06](https://www.github.com/google/slo-generator/commit/9710b068ea8bc419c571b90ef11ec2469c3c511a))
+* Set Python version to 3.9 ([#179](https://www.github.com/google/slo-generator/issues/179)) ([c433fb9](https://www.github.com/google/slo-generator/commit/c433fb9588660cc4f6b1b724b0b896988a96b9c6))
+
+
+### Documentation
+
+* correct bigquery.md ([#182](https://www.github.com/google/slo-generator/issues/182)) ([3ba32a1](https://www.github.com/google/slo-generator/commit/3ba32a15923660e0f0f82e341cea782d8e300d59))
+* How to define a latency SLI-SLO from an exponential distribution metric in Cloud Monitoring ([#56](https://www.github.com/google/slo-generator/issues/56)) ([8346c47](https://www.github.com/google/slo-generator/commit/8346c479471ab57f0630255876eb7ba656544ab6))
+* improve datastudio md ([#54](https://www.github.com/google/slo-generator/issues/54)) ([4c8e8a2](https://www.github.com/google/slo-generator/commit/4c8e8a21d7e5d261a37b747b95ee7ce13032a722))
+
 ### [2.0.1](https://www.github.com/google/slo-generator/compare/v2.0.0...v2.0.1) (2021-09-29)
 
 
