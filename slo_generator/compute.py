@@ -72,9 +72,9 @@ def compute(slo_config,
         if delete:  # delete mode is enabled
             continue
 
+        json_report = report.to_json()
         if exporters is not None and do_export is True:
-            responses = export(report, exporters)
-            json_report = report.to_json()
+            responses = export(json_report, exporters)
             json_report['exporters'] = responses
         reports.append(json_report)
     end = time.time()
@@ -84,20 +84,19 @@ def compute(slo_config,
     return reports
 
 
-def export(slo_report, exporters, raise_on_error=False):
+def export(data, exporters, raise_on_error=False):
     """Export SLO report using selected exporters.
 
     Args:
-        slo_report (slo_generator.report.SLOReport): SLO Report.
+        data (dict): SLO Report dict.
         exporters (list): List of exporter configurations.
 
     Returns:
         obj: Return values from exporters output.
     """
-    data = slo_report.to_json()
     LOGGER.debug(f'Exporters: {pprint.pformat(exporters)}')
     LOGGER.debug(f'Data: {pprint.pformat(data)}')
-    slo_info = slo_report.info
+    slo_info = data['metadata']['name']
     responses = []
 
     # Convert data to export from v1 to v2 for backwards-compatible exports
