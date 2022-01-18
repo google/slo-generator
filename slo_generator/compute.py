@@ -72,6 +72,7 @@ def compute(slo_config,
         if delete:  # delete mode is enabled
             continue
 
+        LOGGER.info(report)
         json_report = report.to_json()
         if exporters is not None and do_export is True:
             responses = export(json_report, exporters)
@@ -85,10 +86,10 @@ def compute(slo_config,
 
 
 def export(data, exporters, raise_on_error=False):
-    """Export SLO report using selected exporters.
+    """Export data using selected exporters.
 
     Args:
-        data (dict): SLO Report dict.
+        data (dict): Data to export.
         exporters (list): List of exporter configurations.
 
     Returns:
