@@ -55,7 +55,7 @@ def load_configs(path, ctx=os.environ, kind=None):
     """
     configs = [
         load_config(str(p), ctx=ctx, kind=kind)
-        for p in sorted(Path(path).rglob('*.yaml'))
+        for p in sorted(Path(path).glob('*.yaml'))
     ]
     return [cfg for cfg in configs if cfg]
 
