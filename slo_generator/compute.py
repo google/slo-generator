@@ -94,13 +94,14 @@ def export(slo_report, exporters, raise_on_error=False):
     Returns:
         obj: Return values from exporters output.
     """
+    data = slo_report.to_json()
     LOGGER.debug(f'Exporters: {pprint.pformat(exporters)}')
     LOGGER.debug(f'Data: {pprint.pformat(data)}')
     slo_info = slo_report.info
     responses = []
 
     # Convert data to export from v1 to v2 for backwards-compatible exports
-    data = report_v2tov1(report.to_json())
+    data = report_v2tov1(data)
 
     # Passing one exporter as a dict will work for convenience
     if isinstance(exporters, dict):
