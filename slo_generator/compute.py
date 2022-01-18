@@ -114,7 +114,7 @@ def export(slo_report, exporters, raise_on_error=False):
             if not instance:
                 continue
             LOGGER.info(
-                f'{slo_info} | Exporting SLO report using {exporter_class}Exporter ...')
+                f'{slo_info} | Exporting data using {exporter_class}Exporter ...')
             LOGGER.debug(f'Exporter config: {pprint.pformat(config)}')
             response = instance().export(data, **config)
             if isinstance(response, list):
@@ -124,6 +124,6 @@ def export(slo_report, exporters, raise_on_error=False):
         except Exception as exc:  # pylint: disable=broad-except
             if raise_on_error:
                 raise exc
-            LOGGER.exception(f'{slo_info} | {exporter_class}Exporter failed. Passing.')
+            LOGGER.exception(f'{slo_info} | {exporter_class}Exporter failed.')
             responses.append(exc)
     return responses
