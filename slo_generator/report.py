@@ -215,9 +215,8 @@ class SLOReport:
         try:
             data = method(self.timestamp, self.window, config)
             LOGGER.debug(f'{self.info} | Backend response: {data}')
-        except Exception as exc:  # pylint:disable=broad-except
-            LOGGER.exception(exc)
-            LOGGER.error(
+        except Exception:  # pylint:disable=broad-except
+            LOGGER.exception(
                 f'{self.info} | Backend error occured while fetching data.')
             return None
         return data
