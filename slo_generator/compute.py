@@ -84,11 +84,11 @@ def compute(slo_config,
     return reports
 
 
-def export(data, exporters, raise_on_error=False):
-    """Export data using selected exporters.
+def export(slo_report, exporters, raise_on_error=False):
+    """Export SLO report using selected exporters.
 
     Args:
-        data (dict): Data to export.
+        slo_report (slo_generator.report.SLOReport): SLO Report.
         exporters (list): List of exporter configurations.
 
     Returns:
@@ -96,10 +96,11 @@ def export(data, exporters, raise_on_error=False):
     """
     LOGGER.debug(f'Exporters: {pprint.pformat(exporters)}')
     LOGGER.debug(f'Data: {pprint.pformat(data)}')
+    slo_info = slo_report.info
     responses = []
 
     # Convert data to export from v1 to v2 for backwards-compatible exports
-    data = report_v2tov1(data)
+    data = report_v2tov1(report.to_json())
 
     # Passing one exporter as a dict will work for convenience
     if isinstance(exporters, dict):
@@ -112,7 +113,7 @@ def export(data, exporters, raise_on_error=False):
             if not instance:
                 continue
             LOGGER.info(
-                f'Exporting SLO report using {exporter_class}Exporter ...')
+                f'{slo_info} | Exporting SLO report using {exporter_class}Exporter ...')
             LOGGER.debug(f'Exporter config: {pprint.pformat(config)}')
             response = instance().export(data, **config)
             if isinstance(response, list):
@@ -120,9 +121,8 @@ def export(data, exporters, raise_on_error=False):
                     elem['exporter'] = exporter_class
             responses.append(response)
         except Exception as exc:  # pylint: disable=broad-except
-            LOGGER.critical(exc, exc_info=True)
-            LOGGER.error(f'{exporter_class}Exporter failed. Passing.')
             if raise_on_error:
                 raise exc
+            LOGGER.exception(f'{slo_info} | {exporter_class}Exporter failed. Passing.')
             responses.append(exc)
     return responses
