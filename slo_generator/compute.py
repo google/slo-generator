@@ -114,7 +114,7 @@ def export(slo_report, exporters, raise_on_error=False):
             if not instance:
                 continue
             LOGGER.info(
-                f'{slo_info} | Exporting data using {exporter_class}Exporter ...')
+                f'{slo_info} | Exporting using {exporter_class}Exporter ...')
             LOGGER.debug(f'Exporter config: {pprint.pformat(config)}')
             response = instance().export(data, **config)
             if isinstance(response, list):
