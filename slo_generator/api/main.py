@@ -21,15 +21,12 @@ import base64
 import os
 import logging
 import pprint
-import requests
 
 from datetime import datetime
 from flask import jsonify
 
 import yaml
-import json
 
-from google.cloud import storage
 from slo_generator.compute import compute, export
 from slo_generator.utils import setup_logging, load_config, get_exporters
 
@@ -40,29 +37,6 @@ TIME_FORMAT = '%Y-%m-%dT%H:%M:%SZ'
 API_SIGNATURE_TYPE = os.environ['GOOGLE_FUNCTION_SIGNATURE_TYPE']
 setup_logging()
 
-def postSlo(slo_config):
-    # Commit file in repo 
-    headers = {
-        'Accept': 'application/json',
-        'Content-Type' : 'application/json'
-    }
-    base_url = "http://localhost:8080"
-    response = requests.post(base_url, json=slo_config, headers=headers)
-    json_data = json.loads(response.text)
-    LOGGER.debug(json_data)
-    return json_data
-
-
-def cloud_batch() : 
-    timestamp = int(
-       datetime.strptime(request["time"], TIME_FORMAT).timestamp())
-    data = base64.b64decode(request.data).decode('utf-8')
-    storage_client = storage.Client() 
-    slos = storage_client.list_blobs(data)
-    for slo in slos:
-        path_slo= "gs://" + data + "/" + slo.name
-        reports=postSlo(path_slo)
-    return reports
 
 def run_compute(request):
     """Run slo-generator compute function. Can be configured to export data as
@@ -75,7 +49,6 @@ def run_compute(request):
         list: List of SLO reports.
     """
     # Get SLO config
-    print("ici")
     if API_SIGNATURE_TYPE == 'http':
         timestamp = None
         data = str(request.get_data().decode('utf-8'))
@@ -85,51 +58,23 @@ def run_compute(request):
             datetime.strptime(request["time"], TIME_FORMAT).timestamp())
         data = base64.b64decode(request.data).decode('utf-8')
         LOGGER.info(f'Loading SLO config from Cloud Event "{request["id"]}"')
-    elif API_SIGNATURE_TYPE == 'cloudbatch':
-        timestamp = int(
-            datetime.strptime(request["time"], TIME_FORMAT).timestamp())
-        data = base64.b64decode(request.data).decode('utf-8')
-        LOGGER.info(f'Loading SLO config from Cloud Batch"{request["id"]}"')
+    slo_config = load_config(data)
 
-    if API_SIGNATURE_TYPE != 'cloudbatch':
-        slo_config = load_config(data)
+    # Get slo-generator config
+    LOGGER.info(f'Loading slo-generator config from {CONFIG_PATH}')
+    config = load_config(CONFIG_PATH)
 
-        # Get slo-generator config
-        LOGGER.info(f'Loading slo-generator config from {CONFIG_PATH}')
-        config = load_config(CONFIG_PATH)
-
-        # Compute SLO report
-        LOGGER.debug(f'Config: {pprint.pformat(config)}')
-        LOGGER.debug(f'SLO Config: {pprint.pformat(slo_config)}')
-        reports = compute(slo_config,
-                        config,
-                        timestamp=timestamp,
-                        client=None,
-                        do_export=True)
-        if API_SIGNATURE_TYPE == 'http':
-            reports = jsonify(reports)
-        return reports
-    elif API_SIGNATURE_TYPE == 'cloudbatch':
-        storage_client = storage.Client()
-        slos = storage_client.list_blobs(data)
-        for slo in slos:
-            slo_config = load_config(slo)
-
-            # Get slo-generator config
-            LOGGER.info(f'Loading slo-generator config from {CONFIG_PATH}')
-            config = load_config(CONFIG_PATH)
-
-            # Compute SLO report
-            LOGGER.debug(f'Config: {pprint.pformat(config)}')
-            LOGGER.debug(f'SLO Config: {pprint.pformat(slo_config)}')
-            reports = compute(slo_config,
-                            config,
-                            timestamp=timestamp,
-                            client=None,
-                            do_export=True)
-
-            LOGGER.info(f'Loading slo-generator config from {CONFIG_PATH}')
-        return reports
+    # Compute SLO report
+    LOGGER.debug(f'Config: {pprint.pformat(config)}')
+    LOGGER.debug(f'SLO Config: {pprint.pformat(slo_config)}')
+    reports = compute(slo_config,
+                      config,
+                      timestamp=timestamp,
+                      client=None,
+                      do_export=True)
+    if API_SIGNATURE_TYPE == 'http':
+        reports = jsonify(reports)
+    return reports
 
 
 def run_export(request):
@@ -164,7 +109,3 @@ def run_export(request):
 
     # Export data
     export(slo_report, exporters)
-
-
-bucket_name = "v2_1h"
-run_compute(bucket_name)
