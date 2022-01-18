@@ -72,11 +72,9 @@ def compute(slo_config,
         if delete:  # delete mode is enabled
             continue
 
-        LOGGER.info(report)
-        json_report = report.to_json()
-
         if exporters is not None and do_export is True:
-            responses = export(json_report, exporters)
+            responses = export(report, exporters)
+            json_report = report.to_json()
             json_report['exporters'] = responses
         reports.append(json_report)
     end = time.time()
