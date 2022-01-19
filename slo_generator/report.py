@@ -386,7 +386,7 @@ class SLOReport:
     def __str__(self):
         report = self.to_json()
         if not self.valid:
-            errors_str = '|'.join(self.errors)
+            errors_str = ' | '.join(self.errors)
             return f'{self.info} | {errors_str}'
         goal_per = self.goal * 100
         sli_per = round(self.sli_measurement * 100, 6)
