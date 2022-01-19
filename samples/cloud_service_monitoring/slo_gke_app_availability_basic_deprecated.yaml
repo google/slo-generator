@@ -1,11 +1,11 @@
 apiVersion: sre.google.com/v2
 kind: ServiceLevelObjective
 metadata:
-  name: gke-service-availability
+  name: gke-service-availability-deprecated
   labels:
     service_name: gke
     feature_name: service
-    slo_name: availability
+    slo_name: availability-deprecated
 spec:
   description: Availability of GKE service
   error_budget_policy: cloud_service_monitoring

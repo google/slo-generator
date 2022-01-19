@@ -100,6 +100,8 @@ def export(data, exporters, raise_on_error=False):
     LOGGER.debug(f'Exporters: {pprint.pformat(exporters)}')
     LOGGER.debug(f'Data: {pprint.pformat(data)}')
     name = data['metadata']['name']
+    ebp_step = data['error_budget_policy_step_name']
+    info = f'{name :<32} | {ebp_step :<8}'
     errors = []
 
     # Convert data to export from v1 to v2 for backwards-compatible exports
@@ -111,17 +113,18 @@ def export(data, exporters, raise_on_error=False):
 
     for exporter in exporters:
         try:
-            exporter_class = exporter.get('class')
-            instance = utils.get_exporter_cls(exporter_class)
+            cls = exporter.get('class')
+            instance = utils.get_exporter_cls(cls)
             if not instance:
-                raise ImportError(f'Exporter {exporter_class} not found.')
+                raise ImportError(f'Exporter {cls} not found.')
             LOGGER.debug(f'Exporter config: {pprint.pformat(exporter)}')
             instance().export(data, **exporter)
+            LOGGER.info(f'{info} | SLO Report sent to {cls} successfully.')
         except Exception as exc:  # pylint: disable=broad-except
             if raise_on_error:
                 raise exc
             tbk = utils.fmt_traceback(exc)
-            error = f'{exporter_class}Exporter failed. | {tbk}'
-            LOGGER.error(f'{name} | {error}')
+            error = f'{cls}Exporter failed. | {tbk}'
+            LOGGER.error(f'{info} | {error}')
             errors.append(error)
     return errors
