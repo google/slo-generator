@@ -1,11 +1,11 @@
 apiVersion: sre.google.com/v2
 kind: ServiceLevelObjective
 metadata:
-  name: gke-service-latency724ms
+  name: gke-service-latency724ms-deprecated
   labels:
     service_name: gke
     feature_name: service
-    slo_name: latency724ms
+    slo_name: latency724ms-deprecated
 spec:
   description: Latency of GKE service requests < 724ms
   error_budget_policy: cloud_service_monitoring

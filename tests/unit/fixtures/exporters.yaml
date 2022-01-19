@@ -16,7 +16,7 @@
     project_id: ${PUBSUB_PROJECT_ID}
     topic_name: ${PUBSUB_TOPIC_NAME}
 
-  - class:      Stackdriver
+  - class:      CloudMonitoring
     project_id: ${STACKDRIVER_HOST_PROJECT_ID}
 
   - class:      Bigquery
@@ -35,7 +35,7 @@
     api_url:    ${DYNATRACE_API_URL}
     api_token:  ${DYNATRACE_API_TOKEN}
 
-  - class: Stackdriver
+  - class: CloudMonitoring
     project_id: ${STACKDRIVER_HOST_PROJECT_ID}
     metrics:
       - name: error_budget_burn_rate

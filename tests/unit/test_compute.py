@@ -183,8 +183,10 @@ class TestCompute(unittest.TestCase):
            return_value=BQ_ERROR)
     def test_export_multiple_error(self, *mocks):
         exporters = [EXPORTERS[1], EXPORTERS[2]]
-        results = export(SLO_REPORT, exporters)
-        self.assertTrue(isinstance(results[-1], BigQueryError))
+        errors = export(SLO_REPORT, exporters)
+        self.assertEqual(len(errors), 1)
+        self.assertIn('BigQueryError', errors[0])
+        self.assertIn('BigqueryExporter failed', errors[0])
 
     @patch("google.api_core.grpc_helpers.create_channel",
            return_value=mock_sd(STEPS))
@@ -196,6 +198,11 @@ class TestCompute(unittest.TestCase):
     def test_export_multiple_error_raise(self, *mocks):
         exporters = [EXPORTERS[1], EXPORTERS[2]]
         with self.assertRaises(BigQueryError):
+            export(SLO_REPORT, exporters, raise_on_error=True)
+
+    def test_export_wrong_class(self):
+        exporters = [{'class': 'Unknown'}]
+        with self.assertRaises(ImportError):
             export(SLO_REPORT, exporters, raise_on_error=True)
 
 

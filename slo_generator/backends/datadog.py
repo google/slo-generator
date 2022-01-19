@@ -182,6 +182,5 @@ class DatadogBackend:
                 return sum(values) / len(values)
             return sum(values)
         except (IndexError, AttributeError) as exception:
-            LOGGER.warning("Couldn't find any values in timeseries response")
             LOGGER.debug(exception)
             return 0  # no events in timeseries

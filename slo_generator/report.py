@@ -80,6 +80,7 @@ class SLOReport:
 
     # Data validation
     valid: bool
+    errors: list[str] = field(default_factory=list)
 
     def __init__(self,
                  config,
@@ -107,6 +108,7 @@ class SLOReport:
             step['burn_rate_threshold'])
         self.timestamp_human = utils.get_human_time(timestamp)
         self.valid = True
+        self.errors = []
 
         # Get backend results
         data = self.run_backend(config, backend, client=client, delete=delete)
@@ -225,9 +227,7 @@ class SLOReport:
             data = method(self.timestamp, self.window, config)
             LOGGER.debug(f'{self.info} | Backend response: {data}')
         except Exception as exc:  # pylint:disable=broad-except
-            LOGGER.exception(exc)
-            LOGGER.error(
-                f'{self.info} | Backend error occured while fetching data.')
+            self.errors.append(utils.fmt_traceback(exc))
             return None
         return data
 
@@ -265,6 +265,14 @@ class SLOReport:
 
     def to_json(self):
         """Serialize dataclass to JSON."""
+        if not self.valid:
+            ebp_name = self.error_budget_policy_step_name
+            return {
+                'metadata': self.metadata,
+                'errors': self.errors,
+                'error_budget_policy_step_name': ebp_name,
+                'valid': self.valid
+            }
         return asdict(self)
 
     # pylint: disable=too-many-return-statements
@@ -284,10 +292,11 @@ class SLOReport:
 
         # Backend result is the wrong type
         if not isinstance(data, (tuple, float, int)):
-            LOGGER.error(
-                f'{self.info} | Backend method returned an object of type '
+            error = (
+                f'Backend method returned an object of type '
                 f'{type(data).__name__}. It should instead return a tuple '
                 '(good_count, bad_count) or a numeric SLI value (float / int).')
+            self.errors.append(error)
             return False
 
         # Good / Bad tuple
@@ -295,48 +304,56 @@ class SLOReport:
 
             # Tuple length should be 2
             if len(data) != 2:
-                LOGGER.error(
-                    f'{self.info} | Backend method returned a tuple with '
-                    f'{len(data)} elements. Expected 2 elements.')
+                error = (
+                    f'Backend method returned a tuple with {len(data)} items.'
+                    f'Expected 2 items.')
+                self.errors.append(error)
                 return False
             good, bad = data
 
             # Tuple should contain only elements of type int or float
             if not all(isinstance(n, (float, int)) for n in data):
-                LOGGER.error(f'{self.info} | Backend method returned'
-                             'a tuple with some elements having '
-                             'a type different than float / int')
+                error = (
+                    'Backend method returned a tuple with some elements having'
+                    ' a type different than float or int')
+                self.errors.append(error)
                 return False
 
             # Tuple should not contain any element with value None.
             if good is None or bad is None:
-                LOGGER.error(
-                    f'{self.info} | Backend method returned a valid tuple '
-                    f'{data} but one of the values is None.')
+                error = (
+                    f'Backend method returned a valid tuple {data} but one of '
+                    'the values is None.')
+                self.errors.append(error)
                 return False
 
             # Tuple should not have NO_DATA everywhere
             if (good + bad) == (NO_DATA, NO_DATA):
-                LOGGER.error(f'{self.info} | Backend method returned a valid '
-                             f'tuple {data} but the good and bad count '
-                             'is NO_DATA (-1).')
+                error = (
+                    f'Backend method returned a valid tuple {data} but the '
+                    'good and bad count is NO_DATA (-1).')
+                self.errors.append(error)
                 return False
 
             # Tuple should not have elements where the sum is inferior to our
             # minimum valid events threshold
             if (good + bad) < MIN_VALID_EVENTS:
-                LOGGER.error(f'{self.info} | Not enough valid events found | '
-                             f'Minimum valid events: {MIN_VALID_EVENTS}')
+                error = (
+                    f'Not enough valid events found. Minimum valid events: '
+                    f'{MIN_VALID_EVENTS}')
+                self.errors.append(error)
                 return False
 
         # Check backend float / int value
         if isinstance(data, (float, int)) and data == NO_DATA:
-            LOGGER.error(f'{self.info} | Backend returned NO_DATA (-1).')
+            error = 'Backend returned NO_DATA (-1).'
+            self.errors.append(error)
             return False
 
         # Check backend None
         if data is None:
-            LOGGER.error(f'{self.info} | Backend returned None.')
+            error = 'Backend returned None.'
+            self.errors.append(error)
             return False
 
         return True
@@ -346,8 +363,9 @@ class SLOReport:
 
         # SLI measurement should be 0 <= x <= 1
         if not 0 <= self.sli_measurement <= 1:
-            LOGGER.error(f'{self.info} | SLI is not between 0 and 1 (value = '
-                         f'{self.sli_measurement})')
+            error = (
+                f'SLI is not between 0 and 1 (value = {self.sli_measurement})')
+            self.errors.append(error)
             return False
 
         return True
@@ -376,6 +394,9 @@ class SLOReport:
 
     def __str__(self):
         report = self.to_json()
+        if not self.valid:
+            errors_str = ' | '.join(self.errors)
+            return f'{self.info} | {errors_str}'
         goal_per = self.goal * 100
         sli_per = round(self.sli_measurement * 100, 6)
         gap = round(self.gap * 100, 2)
