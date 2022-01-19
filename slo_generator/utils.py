@@ -503,3 +503,14 @@ def get_target_path(source_dir, target_dir, relative_path, mkdir=True):
     if mkdir:
         target_path.parent.mkdir(parents=True, exist_ok=True)
     return target_path
+
+def fmt_traceback(exc):
+    """Format exception to be human-friendly.
+
+    Args:
+        exc (Exception): Exception to format.
+
+    Returns:
+        str: Formatted exception.
+    """
+    return exc.__class__.__name__ + str(exc).replace("\n", " ")
