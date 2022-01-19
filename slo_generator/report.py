@@ -57,17 +57,17 @@ class SLOReport:
     events_count: int = 0
     bad_events_count: int = 0
     good_events_count: int = 0
-    gap: float = -1
+    gap: float
 
     # Error budget
     error_budget_policy_step_name: str
-    error_budget_target: float = -1
-    error_budget_measurement: float = -1
-    error_budget_burn_rate: float = -1
-    error_budget_burn_rate_threshold: float = -1
-    error_budget_minutes: float = -1
-    error_budget_remaining_minutes: float = -1
-    error_minutes: float = -1
+    error_budget_target: float
+    error_budget_measurement: float
+    error_budget_burn_rate: float
+    error_budget_burn_rate_threshold: float
+    error_budget_minutes: float
+    error_budget_remaining_minutes: float
+    error_minutes: float
 
     # Global (from error budget policy)
     timestamp: int
@@ -75,7 +75,7 @@ class SLOReport:
     window: int
     alert: bool
 
-    consequence_message: str = ''
+    consequence_message: str
 
     # Data validation
     valid: bool
