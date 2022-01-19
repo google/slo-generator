@@ -235,7 +235,6 @@ class CloudServiceMonitoringBackend:
                 sids = [service.name.split("/")[-1] for service in services]
                 LOGGER.debug(
                     f'List of services in workspace {self.project_id}: {sids}')
-                LOGGER.error(msg)
                 raise Exception(msg)
             LOGGER.error(msg)
             return None
