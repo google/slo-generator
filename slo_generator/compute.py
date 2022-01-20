@@ -65,19 +65,20 @@ def compute(slo_config,
                            timestamp=timestamp,
                            client=client,
                            delete=delete)
+        json_report = report.to_json()
 
         if not report.valid:
+            LOGGER.error(report)
+            reports.append(json_report)
             continue
 
         if delete:  # delete mode is enabled
             continue
 
         LOGGER.info(report)
-        json_report = report.to_json()
-
         if exporters is not None and do_export is True:
-            responses = export(json_report, exporters)
-            json_report['exporters'] = responses
+            errors = export(json_report, exporters)
+            json_report['errors'].extend(errors)
         reports.append(json_report)
     end = time.time()
     run_duration = round(end - start, 1)
@@ -94,11 +95,14 @@ def export(data, exporters, raise_on_error=False):
         exporters (list): List of exporter configurations.
 
     Returns:
-        obj: Return values from exporters output.
+        list: List of export errors.
     """
     LOGGER.debug(f'Exporters: {pprint.pformat(exporters)}')
     LOGGER.debug(f'Data: {pprint.pformat(data)}')
-    responses = []
+    name = data['metadata']['name']
+    ebp_step = data['error_budget_policy_step_name']
+    info = f'{name :<32} | {ebp_step :<8}'
+    errors = []
 
     # Convert data to export from v1 to v2 for backwards-compatible exports
     data = report_v2tov1(data)
@@ -107,24 +111,20 @@ def export(data, exporters, raise_on_error=False):
     if isinstance(exporters, dict):
         exporters = [exporters]
 
-    for config in exporters:
+    for exporter in exporters:
         try:
-            exporter_class = config.get('class')
-            instance = utils.get_exporter_cls(exporter_class)
+            cls = exporter.get('class')
+            instance = utils.get_exporter_cls(cls)
             if not instance:
-                continue
-            LOGGER.info(
-                f'Exporting SLO report using {exporter_class}Exporter ...')
-            LOGGER.debug(f'Exporter config: {pprint.pformat(config)}')
-            response = instance().export(data, **config)
-            if isinstance(response, list):
-                for elem in response:
-                    elem['exporter'] = exporter_class
-            responses.append(response)
+                raise ImportError(f'Exporter {cls} not found.')
+            LOGGER.debug(f'Exporter config: {pprint.pformat(exporter)}')
+            instance().export(data, **exporter)
+            LOGGER.info(f'{info} | SLO Report sent to {cls} successfully.')
         except Exception as exc:  # pylint: disable=broad-except
-            LOGGER.critical(exc, exc_info=True)
-            LOGGER.error(f'{exporter_class}Exporter failed. Passing.')
             if raise_on_error:
                 raise exc
-            responses.append(exc)
-    return responses
+            tbk = utils.fmt_traceback(exc)
+            error = f'{cls}Exporter failed. | {tbk}'
+            LOGGER.error(f'{info} | {error}')
+            errors.append(error)
+    return errors

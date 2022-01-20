@@ -1,11 +1,11 @@
 apiVersion: sre.google.com/v2
 kind: ServiceLevelObjective
 metadata:
-  name: gae-app-latency724ms
+  name: gae-app-latency724ms-basic
   labels:
     service_name: gae
     feature_name: app
-    slo_name: latency724ms
+    slo_name: latency724ms-basic
 spec:
   description: Latency of App Engine app requests < 724ms
   error_budget_policy: cloud_service_monitoring

@@ -89,13 +89,14 @@ def load_config(path, ctx=os.environ, kind=None):
             config = parse_config(content=str(path), ctx=ctx)
 
         # Filter on 'kind'
-        if kind:
-            if not isinstance(config, dict) or kind != config.get('kind', ''):
-                config = None
+        if kind and (
+            not isinstance(config, dict) or kind != config.get('kind', '')
+        ):
+            config = None
         return config
 
     except OSError as exc:
-        if exc.errno == errno.ENAMETOOLONG:  # filename too long, string content
+        if exc.errno == errno.ENAMETOOLONG:
             return parse_config(content=str(path), ctx=ctx)
         raise
 
@@ -502,3 +503,14 @@ def get_target_path(source_dir, target_dir, relative_path, mkdir=True):
     if mkdir:
         target_path.parent.mkdir(parents=True, exist_ok=True)
     return target_path
+
+def fmt_traceback(exc):
+    """Format exception to be human-friendly.
+
+    Args:
+        exc (Exception): Exception to format.
+
+    Returns:
+        str: Formatted exception.
+    """
+    return exc.__class__.__name__ + str(exc).replace("\n", " ")

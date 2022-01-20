@@ -19,8 +19,6 @@ import logging
 import warnings
 from abc import ABCMeta, abstractmethod
 
-from slo_generator import constants
-
 LOGGER = logging.getLogger(__name__)
 
 # Default metric labels exported by all metrics exporters
@@ -81,7 +79,6 @@ class MetricsExporter:
         metrics = config.get('metrics', DEFAULT_METRICS)
         required_fields = getattr(self, 'REQUIRED_FIELDS', [])
         optional_fields = getattr(self, 'OPTIONAL_FIELDS', [])
-        all_data = []
         LOGGER.debug(
             f'Exporting {len(metrics)} metrics with {self.__class__.__name__}')
         for metric_cfg in metrics:
@@ -103,26 +100,7 @@ class MetricsExporter:
             }
             metric.update(fields)
             metric = self.build_metric(data, metric)
-            name = metric['name']
-            labels = metric['labels']
-            labels_str = ', '.join([f'{k}={v}' for k, v in labels.items()])
-            ret = self.export_metric(metric)
-            metric_info = {
-                k: v
-                for k, v in metric.items()
-                if k in ['name', 'alias', 'description', 'labels']
-            }
-            response = {'response': ret, 'metric': metric_info}
-            status = f' Export {name} {{{labels_str}}}'
-            if ret and 'error' in ret:
-                status = constants.FAIL + status
-                LOGGER.error(status)
-                LOGGER.error(response)
-            else:
-                status = constants.SUCCESS + status
-                LOGGER.info(status)
-            all_data.append(response)
-        return all_data
+            self.export_metric(metric)
 
     def build_metric(self, data, metric):
         """Build a metric from current data and metric configuration.
@@ -183,7 +161,7 @@ class MetricsExporter:
         for label in nested_labels:
             data_labels.update({k: str(v) for k, v in data[label].items()})
         for label in flat_labels:
-            data_labels.update({label: str(data[label])})
+            data_labels[label] = str(data[label])
         LOGGER.debug(f'Data labels: {data_labels}')
         return data_labels
 

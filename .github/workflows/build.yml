@@ -7,7 +7,6 @@ on:
       - deploy-*
     tags:
       - v*.*.*
-    pull_request:
 jobs:
   cloudbuild:
     runs-on: ubuntu-latest
@@ -15,7 +14,9 @@ jobs:
     steps:
       - uses: actions/checkout@master
       - uses: actions/setup-python@v2
-
+        with:
+          python-version: '3.9'
+          architecture: 'x64'
       - name: Check release version
         id: check-tag
         run: |
