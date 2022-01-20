@@ -11,7 +11,8 @@ spec:
   error_budget_policy: cloud_service_monitoring
   backend: cloud_service_monitoring
   method: good_bad_ratio
-  exporters: []
+  exporters:
+  - cloud_monitoring
   service_level_indicator:
     filter_good: >
       project=${GAE_PROJECT_ID}

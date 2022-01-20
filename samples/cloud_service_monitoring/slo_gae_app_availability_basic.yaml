@@ -1,11 +1,11 @@
 apiVersion: sre.google.com/v2
 kind: ServiceLevelObjective
 metadata:
-  name: gae-app-availability
+  name: gae-app-availability-basic
   labels:
     service_name: gae
     feature_name: app
-    slo_name: availability
+    slo_name: availability-basic
 spec:
   description: Availability of App Engine app
   error_budget_policy: cloud_service_monitoring

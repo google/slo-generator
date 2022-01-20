@@ -10,7 +10,7 @@ to improve on the long-run (months, years).
 
 ```yaml
 exporters:
-  - class: Bigquery
+  bigquery:
     project_id: "${BIGQUERY_HOST_PROJECT}"
     dataset_id: "${BIGQUERY_DATASET_ID}"
     table_id: "${BIGQUERY_TABLE_ID}"
