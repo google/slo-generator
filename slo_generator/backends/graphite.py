@@ -30,7 +30,6 @@ LOGGER = logging.getLogger(__name__)
 
 class GraphiteBackend:
     """Backend for querying metrics from Datadog.
-
     Args:
         client (obj, optional): Existing `requests.Session` to pass.
         api_url (str): Graphite API URL.
@@ -44,17 +43,15 @@ class GraphiteBackend:
     def threshold(self, timestamp, window, slo_config):
         """Compute SLI by counting the number of values below and above a
         threshold.
-
         Args:
             timestamp (int): UNIX timestamp.
             window (int): Window (in seconds).
             slo_config (dict): SLO configuration.
-
         Returns:
             tuple: Good event count, Bad event count.
         """
         conf = slo_config['spec']
-        measurement = conf['measurement']
+        measurement = conf['service_level_indicator']
         start = (timestamp - window)
         end = timestamp
         metric = measurement['metric']
@@ -71,11 +68,9 @@ class GraphiteBackend:
               end,
               metric):
         """Query Graphite Metrics V2.
-
         Args:
             start (int): Start timestamp (in milliseconds).
             end (int): End timestamp (in milliseconds).
-
         Returns:
             dict: Graphite API response.
         """
@@ -93,12 +88,10 @@ class GraphiteBackend:
     def count_threshold(response, threshold, good_below_threshold=True):
         """Create 2 buckets based on response and a value threshold, and return
         number of events contained in each bucket.
-
         Args:
             response (dict): Graphite API response.
             threshold (int): Threshold.
             good_below_threshold (bool): If true, good events are < threshold.
-
         Returns:
             tuple: Number of good events, Number of bad events.
         """
@@ -133,7 +126,6 @@ class GraphiteBackend:
 
 class GraphiteClient:
     """Small wrapper around requests to query Graphite API.
-
     Args:
         api_url (str): Graphite API URL.
     """
@@ -148,12 +140,10 @@ class GraphiteClient:
                 metric,
                 **params):
         """Request Graphite API.
-
         Args:
             method (str): Requests method between ['post', 'put', 'get'].
             endpoint (str): API endpoint.
             params (dict): Params to send with request.
-
         Returns:
             obj: API response.
         """
@@ -183,10 +173,8 @@ class GraphiteClient:
     def to_json(resp):
         """Decode JSON response from Python requests response as utf-8 and
         replace \n characters.
-
         Args:
             resp (requests.Response): API response.
-
         Returns:
             dict: API JSON response.
         """

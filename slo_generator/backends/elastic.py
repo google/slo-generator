@@ -37,11 +37,11 @@ class ElasticsearchBackend:
         client (elasticsearch.ElasticSearch): Existing ES client.
         es_config (dict): ES client configuration.
     """
-    def __init__(self, client=None, url=None, **es_config):
+
+    def __init__(self, client=None, **es_config):
         self.client = client
         if self.client is None:
-            #self.client = Elasticsearch(**es_config)
-            self.client = ElasticsearchClient(url)
+            self.client = Elasticsearch(**es_config)
 
     # pylint: disable=unused-argument
     def good_bad_ratio(self, timestamp, window, slo_config):
@@ -56,7 +56,7 @@ class ElasticsearchBackend:
         Returns:
             tuple: A tuple (good_event_count, bad_event_count)
         """
-        measurement = slo_config['backend']['measurement']
+        measurement = slo_config['spec']['service_level_indicator']
         index = measurement['index']
         query_good = measurement['query_good']
         query_bad = measurement.get('query_bad')
@@ -86,16 +86,14 @@ class ElasticsearchBackend:
 
     def query_slo(self, timestamp, window, slo_config):
         """Query SLO value from a given Datadog SLO.
-
         Args:
             timestamp (int): UNIX timestamp.
             window (int): Window (in seconds).
             slo_config (dict): SLO configuration.
-
         Returns:
             tuple: Good event count, bad event count.
         """
-        measurement = slo_config['backend']['measurement']
+        measurement = slo_config['spec']['service_level_indicator']
         index = measurement['index']
         slo = measurement['slo']
         query_filter = measurement['filter']
@@ -115,6 +113,7 @@ class ElasticsearchBackend:
         LOGGER.debug(sli_value)
         return sli_value
 
+
     def query(self, index, body):
         """Query ElasticSearch server.
 
@@ -129,24 +128,18 @@ class ElasticsearchBackend:
 
     def query_json(self, index, body):
         """Query ElasticSearch server.
-
         Args:
             index (str): Index to query.
             body (dict): Query body.
-
         Returns:
             dict: Response.
         """
         return self.client.request('post',index=index, body=body)
-
-
-    @staticmethod
+    
     def value_slo(response, slo):
         """Count event in Prometheus response.
-
         Args:
             response (dict): Prometheus query response.
-
         Returns:
             int: Event count.
         """
@@ -159,8 +152,7 @@ class ElasticsearchBackend:
         except KeyError as exception:
             LOGGER.warning("Couldn't find any values in timeseries response")
             LOGGER.debug(exception, exc_info=True)
-            return NO_DATA
-
+            return 
 
     @staticmethod
     def count(response):
@@ -216,52 +208,13 @@ class ElasticsearchBackend:
         return body
 
 
-    @staticmethod
-    def build_query_slo(query, sort, size, use_range, window, date_field=DEFAULT_DATE_FIELD):
-        """Build ElasticSearch query.
-
-        Add window to existing query.
-        Replace window for different error budget steps on-the-fly.
-
-        Args:
-            body (dict): Existing query body.
-            window (int): Window in seconds.
-            date_field (str): Field to filter time on (must be an ElasticSearch
-                field of type `date`. Defaults to `@timestamp` (Logstash-
-                generated date field).
-
-        Returns:
-            dict: Query body with range clause added.
-        """
-        if query is None:
-            return None
-        body = {"query": {"bool" : {"must" : [query]}}}
-        range_query = {
-            f"{date_field}": {
-                "gte": f"now-{window}s/s",
-                "lt": "now/s"
-            }
-        }
-
-        # Add the range query on top,
-        if (use_range == "True"):
-            body = {"query": {"bool": {"must" : [query] , "filter": [{ "range": range_query}]}}}
-        body["sort"] = sort
-        body["size"] = size
-        LOGGER.debug(body)
-        return body
-
-
 ES = ElasticsearchBackend
 
 def retry_http(response):
         """Retry on specific HTTP errors:
-
            * 429: Rate limited to 50 reqs/minute.
-
         Args:
              response (dict): Dynatrace API response.
-
         Returns:
             bool: True to retry, False otherwise.
         """
@@ -276,7 +229,6 @@ def retry_http(response):
 
 class ElasticsearchClient:
     """Small wrapper around requests to query Elasticsearch API.
-
     Args:
         api_url (str): Elasticsearch API URL.
         api_token (str): Elasticsearch token.
@@ -297,7 +249,6 @@ class ElasticsearchClient:
                 body=None,
                 ):
         """Request Dynatrace API.
-
         Args:
             method (str): Requests method between ['post', 'put', 'get'].
             endpoint (str): API endpoint.
@@ -306,7 +257,6 @@ class ElasticsearchClient:
             post_data (dict): JSON data.
             key (str): Key to extract data from JSON response.
             params (dict): Params to send with request.
-
         Returns:
             obj: API response.
         """
@@ -330,10 +280,8 @@ class ElasticsearchClient:
     def to_json(resp):
         """Decode JSON response from Python requests response as utf-8 and
         replace \n characters.
-
         Args:
             resp (requests.Response): API response.
-
         Returns:
             dict: API JSON response.
         """
