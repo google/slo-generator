@@ -38,10 +38,11 @@ class ElasticsearchBackend:
         es_config (dict): ES client configuration.
     """
 
-    def __init__(self, client=None, **es_config):
+    def __init__(self, client=None, url=None, **es_config):
         self.client = client
         if self.client is None:
-            self.client = Elasticsearch(**es_config)
+            #self.client = Elasticsearch(**es_config)
+            self.client = ElasticsearchClient(url)
 
     # pylint: disable=unused-argument
     def good_bad_ratio(self, timestamp, window, slo_config):
