@@ -206,7 +206,6 @@ class CloudMonitoringBackend:
         try:
             return timeseries[0].points[0].value.int64_value
         except (IndexError, AttributeError) as exception:
-            LOGGER.warning("Couldn't find any values in timeseries response")
             LOGGER.debug(exception, exc_info=True)
             return NO_DATA  # no events in timeseries
 

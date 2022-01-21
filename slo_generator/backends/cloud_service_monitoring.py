@@ -235,7 +235,6 @@ class CloudServiceMonitoringBackend:
                 sids = [service.name.split("/")[-1] for service in services]
                 LOGGER.debug(
                     f'List of services in workspace {self.project_id}: {sids}')
-                LOGGER.error(msg)
                 raise Exception(msg)
             LOGGER.error(msg)
             return None
@@ -257,8 +256,7 @@ class CloudServiceMonitoringBackend:
         """
         service_id = self.build_service_id(slo_config)
         display_name = slo_config.get('service_display_name', service_id)
-        service = {'display_name': display_name, 'custom': {}}
-        return service
+        return {'display_name': display_name, 'custom': {}}
 
     def build_service_id(self, slo_config, dest_project_id=None, full=False):
         """Build service id from SLO configuration.

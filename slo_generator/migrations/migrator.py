@@ -421,11 +421,9 @@ def report_v2tov1(report):
         # If a key in the default label mapping is passed, use the default
         # label mapping
         elif key in METRIC_LABELS_COMPAT:
-            mapped_report.update({METRIC_LABELS_COMPAT[key]: value})
-
-        # Otherwise, write the label as is
+            mapped_report[METRIC_LABELS_COMPAT[key]] = value
         else:
-            mapped_report.update({key: value})
+            mapped_report[key] = value
     return mapped_report
 
 

@@ -30,7 +30,7 @@ here = path.abspath(path.dirname(__file__))
 # Package metadata.
 name = "slo-generator"
 description = "SLO Generator"
-version = "2.0.1"
+version = "2.1.0"
 # Should be one of:
 # 'Development Status :: 3 - Alpha'
 # 'Development Status :: 4 - Beta'
@@ -44,10 +44,10 @@ extras = {
     'dynatrace': ['requests'],
     'bigquery': ['google-api-python-client <2', 'google-cloud-bigquery <3'],
     'cloud_monitoring': [
-        'google-api-python-client <2', 'google-cloud-monitoring <2'
+        'google-api-python-client <2', 'google-cloud-monitoring ==1.1.0'
     ],
     'cloud_service_monitoring': [
-        'google-api-python-client <2', 'google-cloud-monitoring <2'
+        'google-api-python-client <2', 'google-cloud-monitoring ==1.1.0'
     ],
     'cloud_storage': ['google-api-python-client <2', 'google-cloud-storage'],
     'pubsub': ['google-api-python-client <2', 'google-cloud-pubsub <2'],
