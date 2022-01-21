@@ -137,6 +137,7 @@ class ElasticsearchBackend:
         """
         return self.client.request('post',index=index, body=body)
     
+    @staticmethod
     def value_slo(response, slo):
         """Count event in Prometheus response.
         Args:
@@ -208,6 +209,37 @@ class ElasticsearchBackend:
 
         return body
 
+    @staticmethod
+    def build_query_slo(query, sort, size, use_range, window, date_field=DEFAULT_DATE_FIELD):
+        """Build ElasticSearch query.
+        Add window to existing query.
+        Replace window for different error budget steps on-the-fly.
+        Args:
+            body (dict): Existing query body.
+            window (int): Window in seconds.
+            date_field (str): Field to filter time on (must be an ElasticSearch
+                field of type `date`. Defaults to `@timestamp` (Logstash-
+                generated date field).
+        Returns:
+            dict: Query body with range clause added.
+        """
+        if query is None:
+            return None
+        body = {"query": {"bool" : {"must" : [query]}}}
+        range_query = {
+            f"{date_field}": {
+                "gte": f"now-{window}s/s",
+                "lt": "now/s"
+            }
+        }
+
+        # Add the range query on top,
+        if (use_range == "True"):
+            body = {"query": {"bool": {"must" : [query] , "filter": [{ "range": range_query}]}}}
+        body["sort"] = sort
+        body["size"] = size
+        LOGGER.debug(body)
+        return body
 
 ES = ElasticsearchBackend
 
