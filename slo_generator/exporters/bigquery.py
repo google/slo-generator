@@ -68,8 +68,6 @@ class BigqueryExporter:
                                       dataset_id,
                                       table_id,
                                       schema=TABLE_SCHEMA)
-        row_ids_fmt = '{service_name}{feature_name}{slo_name}{timestamp_human}{window}'  # pylint: disable=line-too-long # noqa: E501
-        row_ids = row_ids_fmt.format(**data)
 
         # Format user metadata if needed
         json_data = {k: v for k, v in data.items() if k in schema_fields}
@@ -89,7 +87,6 @@ class BigqueryExporter:
         results = self.client.insert_rows_json(
             table,
             json_rows=[json_data],
-            row_ids=[row_ids],
             retry=google.api_core.retry.Retry(deadline=30))
         status = f' Export data to {str(table_ref)}'
         if results:
