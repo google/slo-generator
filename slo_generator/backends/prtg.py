@@ -51,8 +51,8 @@ class PrtgBackend:
         Returns:
             tuple: Good event count, Bad event count.
         """
-        conf = slo_config['backend']
-        measurement = conf['measurement']
+        conf = slo_config['spec']
+        measurement = conf['service_level_indicator']
         timestamp = time.time()
         start = (timestamp - window)
         start = datetime.fromtimestamp(start)
@@ -80,7 +80,7 @@ class PrtgBackend:
             tuple: Good event count, Bad event count.
         """
         conf = slo_config['spec']
-        measurement = conf['measurement']
+        measurement = conf['service_level_indicator']
         timestamp = time.time()
         start = (timestamp - window)
         start = datetime.fromtimestamp(start)
@@ -103,8 +103,8 @@ class PrtgBackend:
         Returns:
             tuple: Good event count, Bad event count.
         """
-        conf = slo_config['backend']
-        measurement = conf['measurement']
+        conf = slo_config['spec']
+        measurement = conf['service_level_indicator']
         timestamp = time.time()
         start = (timestamp - window)
         start = datetime.fromtimestamp(start)
