@@ -118,9 +118,16 @@ def compute(slo_config, config, export, delete, timestamp):
 @main.command()
 @click.pass_context
 @click.option('--config',
+              '-c',
               envvar='CONFIG_PATH',
               required=True,
               help='slo-generator configuration file path.')
+@click.option('--exporters',
+              '-e',
+              envvar='EXPORTERS',
+              required=False,
+              default='',
+              help='List of exporters to send data to')
 @click.option('--signature-type',
               envvar='GOOGLE_FUNCTION_SIGNATURE_TYPE',
               default='http',
@@ -130,10 +137,11 @@ def compute(slo_config, config, export, delete, timestamp):
               envvar='GOOGLE_FUNCTION_SIGNATURE_TYPE',
               default='run_compute',
               help='Target function name')
-def api(ctx, config, signature_type, target):
+def api(ctx, config, exporters, signature_type, target):
     """Run an API that can receive requests (supports both 'http' and
     'cloudevents' signature types)."""
     from functions_framework._cli import _cli
+    os.environ['EXPORTERS'] = exporters
     os.environ['CONFIG_PATH'] = config
     os.environ['GOOGLE_FUNCTION_SIGNATURE_TYPE'] = signature_type
     os.environ['GOOGLE_FUNCTION_TARGET'] = target

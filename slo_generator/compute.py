@@ -104,9 +104,6 @@ def export(data, exporters, raise_on_error=False):
     info = f'{name :<32} | {ebp_step :<8}'
     errors = []
 
-    # Convert data to export from v1 to v2 for backwards-compatible exports
-    data = report_v2tov1(data)
-
     # Passing one exporter as a dict will work for convenience
     if isinstance(exporters, dict):
         exporters = [exporters]
@@ -118,6 +115,12 @@ def export(data, exporters, raise_on_error=False):
             if not instance:
                 raise ImportError(f'Exporter {cls} not found.')
             LOGGER.debug(f'Exporter config: {pprint.pformat(exporter)}')
+
+            # Convert data to export from v1 to v2 for backwards-compatible 
+            # exports, except for Pub/Sub where we need the v2 format.
+            if not (cls == 'PubsubExporter' and exporter.get('v2', True)):
+                data = report_v2tov1(data)
+
             instance().export(data, **exporter)
             LOGGER.info(f'{info} | SLO Report sent to {cls} successfully.')
         except Exception as exc:  # pylint: disable=broad-except

@@ -1,4 +1,6 @@
 ---
+default_exporters: [cloud_monitoring]
+default_backend: cloud_monitoring
 
 backends:
   cloud_monitoring:

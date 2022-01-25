@@ -84,9 +84,9 @@ Use `slo-generator compute --help` to list all available arguments.
 ### API usage
 
 On top of the CLI, the `slo-generator` can also be run as an API using the Cloud 
-Functions Framework SDK (Flask):
+Functions Framework SDK (Flask) using the `api` subcommand:
 ```
-slo-generator api -c <SHARED_CONFIG_PATH>
+slo-generator api --config <SHARED_CONFIG_PATH>
 ```
 where:
   * `<SHARED_CONFIG_PATH>` is the [Shared configuration](#shared-configuration) file path or GCS URL.
@@ -98,12 +98,7 @@ curl -X POST -H "Content-Type: text/x-yaml" --data-binary @slo.yaml localhost:80
 curl -X POST -H "Content-Type: application/json" -d @slo.json localhost:8080 # json SLO config
 ```
 
-***Notes:***
-* The API responds by default to HTTP requests. An alternative mode is to 
-respond to [`CloudEvents`](https://cloudevents.io/) instead, by setting 
-`--signature-type cloudevent`.
-
-* Use `--target export` to run the API in export mode only (former `slo-pipeline`).
+To read more about the API, see [docs/shared/api.md](./docs/shared/api.md).
 
 ## Configuration
 

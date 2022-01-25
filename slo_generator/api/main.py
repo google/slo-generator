@@ -23,20 +23,37 @@ import logging
 import pprint
 
 from datetime import datetime
-from flask import jsonify
-
-import yaml
+from flask import jsonify, make_response
 
 from slo_generator.compute import compute, export
 from slo_generator.utils import setup_logging, load_config, get_exporters
 
 CONFIG_PATH = os.environ['CONFIG_PATH']
-EXPORTERS_PATH = os.environ.get('EXPORTERS_PATH', None)
+EXPORTERS = os.environ.get('EXPORTERS', '').split(',')
 LOGGER = logging.getLogger(__name__)
 TIME_FORMAT = '%Y-%m-%dT%H:%M:%SZ'
 API_SIGNATURE_TYPE = os.environ['GOOGLE_FUNCTION_SIGNATURE_TYPE']
 setup_logging()
 
+def process_req(request):
+    """Process incoming request.
+
+    Args:  
+        request (cloudevent.CloudEvent, flask.Request): Request object.
+
+    Returns:
+        tuple: Tuple (data: dict, timestamp: int)
+    """
+    if API_SIGNATURE_TYPE == 'cloudevent':
+        timestamp = int(
+            datetime.strptime(request["time"], TIME_FORMAT).timestamp())
+        data = base64.b64decode(request.data).decode('utf-8')
+        LOGGER.info(f'Loading SLO config from Cloud Event "{request["id"]}"')
+    elif API_SIGNATURE_TYPE == 'http':
+        timestamp = None
+        data = str(request.get_data().decode('utf-8'))
+        LOGGER.info('Loading SLO config from HTTP request')
+    return data, timestamp
 
 def run_compute(request):
     """Run slo-generator compute function. Can be configured to export data as
@@ -49,15 +66,7 @@ def run_compute(request):
         list: List of SLO reports.
     """
     # Get SLO config
-    if API_SIGNATURE_TYPE == 'cloudevent':
-        timestamp = int(
-            datetime.strptime(request["time"], TIME_FORMAT).timestamp())
-        data = base64.b64decode(request.data).decode('utf-8')
-        LOGGER.info(f'Loading SLO config from Cloud Event "{request["id"]}"')
-    elif API_SIGNATURE_TYPE == 'http':
-        timestamp = None
-        data = str(request.get_data().decode('utf-8'))
-        LOGGER.info('Loading SLO config from Flask request')
+    data, timestamp = process_req(request)
     slo_config = load_config(data)
 
     # Get slo-generator config
@@ -65,8 +74,8 @@ def run_compute(request):
     config = load_config(CONFIG_PATH)
 
     # Compute SLO report
-    LOGGER.debug(f'Config: {pprint.pformat(config)}')
-    LOGGER.debug(f'SLO Config: {pprint.pformat(slo_config)}')
+    LOGGER.info(f'Config: {pprint.pformat(config)}')
+    LOGGER.info(f'SLO Config: {pprint.pformat(slo_config)}')
     reports = compute(slo_config,
                       config,
                       timestamp=timestamp,
@@ -87,25 +96,54 @@ def run_export(request):
     Returns:
         list: List of SLO reports.
     """
+    if request.method != 'POST':
+        return make_response({
+            "error": "Endpoint allows only POST requests"
+        }, 500)
+
     # Get export data
-    if API_SIGNATURE_TYPE == 'http':
-        slo_report = request.get_json()
-    elif API_SIGNATURE_TYPE == 'cloudevent':
-        slo_report = yaml.safe_load(base64.b64decode(request.data))
+    data, timestamp = process_req(request)
+    slo_report = load_config(data)
+    if not slo_report:
+        return make_response({
+            "error": "SLO report is empty."
+        })
 
     # Get SLO config
-    LOGGER.info(f'Downloading SLO config from {CONFIG_PATH}')
+    LOGGER.info(f'Loading slo-generator config from {CONFIG_PATH}')
     config = load_config(CONFIG_PATH)
+    default_exporters = config.get('default_exporters', [])
 
-    # Build exporters list
-    if EXPORTERS_PATH:
-        LOGGER.info(f'Loading exporters from {EXPORTERS_PATH}')
-        exporters = load_config(EXPORTERS_PATH)
+    # Construct exporters block
+    spec = {}
+    if not default_exporters and not EXPORTERS:
+        error = (
+            'No default exporters set for `default_exporters` in shared config '
+            f'at {CONFIG_PATH}; and --exporters was not passed to the CLI.'
+        )
+        return make_response({
+            'error': error
+        }, 500)
+    elif not EXPORTERS:
+        spec = {'exporters': EXPORTERS}
     else:
-        LOGGER.info(f'Loading exporters from SLO report data {EXPORTERS_PATH}')
-        exporters = slo_report['exporters']
-    spec = {"exporters": exporters}
+        spec = {'exporters': default_exporters}
     exporters = get_exporters(config, spec)
 
     # Export data
-    export(slo_report, exporters)
+    errors = export(slo_report, exporters)
+    name = slo_report['metadata']['name']
+    step = slo_report['error_budget_policy_step_name']
+    exporters_str = exporters.split(',')
+    if errors:
+        errors_str = errors.split(';')
+        LOGGER.error(f"{name} | {step} | Export to {exporters_str} failed. | {errors_str}")
+    else:
+        LOGGER.info(f"{name} | {step} | Export to {exporters_str} successful.")
+
+    if API_SIGNATURE_TYPE == 'http':
+        return jsonify({
+            "errors": errors
+        })
+
+    return errors
