@@ -111,6 +111,7 @@ def export(data, exporters, raise_on_error=False):
     for exporter in exporters:
         try:
             cls = exporter.get('class')
+            name = exporter.get('name')
             instance = utils.get_exporter_cls(cls)
             if not instance:
                 raise ImportError(f'Exporter {cls} not found.')
@@ -127,7 +128,7 @@ def export(data, exporters, raise_on_error=False):
             if raise_on_error:
                 raise exc
             tbk = utils.fmt_traceback(exc)
-            error = f'{cls}Exporter failed. | {tbk}'
+            error = f'{cls}Exporter "{name}" failed. | {tbk}'
             LOGGER.error(f'{info} | {error}')
             errors.append(error)
     return errors

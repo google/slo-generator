@@ -85,7 +85,7 @@ def load_config(path, ctx=os.environ, kind=None):
         elif abspath.is_file():
             config = parse_config(path=str(abspath.resolve()), ctx=ctx)
         else:
-            LOGGER.warning(f'Path {path} not found. Trying to load from string')
+            LOGGER.debug(f'Path {path} not found. Trying to load from string')
             config = parse_config(content=str(path), ctx=ctx)
 
         # Filter on 'kind'

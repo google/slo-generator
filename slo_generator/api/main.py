@@ -134,9 +134,9 @@ def run_export(request):
     errors = export(slo_report, exporters)
     name = slo_report['metadata']['name']
     step = slo_report['error_budget_policy_step_name']
-    exporters_str = exporters.split(',')
+    exporters_str = ';'.join(spec['exporters'])
     if errors:
-        errors_str = errors.split(';')
+        errors_str = ';'.join(errors)
         LOGGER.error(f"{name} | {step} | Export to {exporters_str} failed. | {errors_str}")
     else:
         LOGGER.info(f"{name} | {step} | Export to {exporters_str} successful.")
