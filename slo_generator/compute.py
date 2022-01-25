@@ -107,7 +107,9 @@ def export(data, exporters, raise_on_error=False):
     # Passing one exporter as a dict will work for convenience
     if isinstance(exporters, dict):
         exporters = [exporters]
-
+    if not exporters:
+        errors.append(f'{info} | No exporters were found.')
+    
     for exporter in exporters:
         try:
             cls = exporter.get('class')
@@ -130,5 +132,6 @@ def export(data, exporters, raise_on_error=False):
             tbk = utils.fmt_traceback(exc)
             error = f'{cls}Exporter "{name}" failed. | {tbk}'
             LOGGER.error(f'{info} | {error}')
+            LOGGER.exception(exc)
             errors.append(error)
     return errors

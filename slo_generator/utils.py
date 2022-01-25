@@ -220,8 +220,8 @@ def get_exporters(config, spec):
     exporters = []
     for exporter in spec_exporters:
         if exporter not in all_exporters.keys():
-            LOGGER.warning(
-                f'Exporter "{exporter}" not found in config. Skipping.')
+            LOGGER.error(
+                f'Exporter "{exporter}" not found in config.')
             continue
         exporter_data = all_exporters[exporter]
         exporter_data['name'] = exporter
@@ -516,4 +516,4 @@ def fmt_traceback(exc):
     Returns:
         str: Formatted exception.
     """
-    return exc.__class__.__name__ + str(exc).replace("\n", " ")
+    return exc.__class__.__name__ + ": " + str(exc).replace("\n", " ")

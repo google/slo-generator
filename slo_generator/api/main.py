@@ -21,6 +21,7 @@ import base64
 import os
 import logging
 import pprint
+import time
 
 from datetime import datetime
 from flask import jsonify, make_response
@@ -50,7 +51,7 @@ def process_req(request):
         data = base64.b64decode(request.data).decode('utf-8')
         LOGGER.info(f'Loading SLO config from Cloud Event "{request["id"]}"')
     elif API_SIGNATURE_TYPE == 'http':
-        timestamp = None
+        timestamp = int(time.time())
         data = str(request.get_data().decode('utf-8'))
         LOGGER.info('Loading SLO config from HTTP request')
     return data, timestamp
@@ -109,6 +110,9 @@ def run_export(request):
             "error": "SLO report is empty."
         })
 
+    # Set timestamp from request if missing in report
+    slo_report['timestamp'] = slo_report.get('timestamp', timestamp)
+
     # Get SLO config
     LOGGER.info(f'Loading slo-generator config from {CONFIG_PATH}')
     config = load_config(CONFIG_PATH)
@@ -124,7 +128,7 @@ def run_export(request):
         return make_response({
             'error': error
         }, 500)
-    elif not EXPORTERS:
+    elif EXPORTERS:
         spec = {'exporters': EXPORTERS}
     else:
         spec = {'exporters': default_exporters}
@@ -132,15 +136,6 @@ def run_export(request):
 
     # Export data
     errors = export(slo_report, exporters)
-    name = slo_report['metadata']['name']
-    step = slo_report['error_budget_policy_step_name']
-    exporters_str = ';'.join(spec['exporters'])
-    if errors:
-        errors_str = ';'.join(errors)
-        LOGGER.error(f"{name} | {step} | Export to {exporters_str} failed. | {errors_str}")
-    else:
-        LOGGER.info(f"{name} | {step} | Export to {exporters_str} successful.")
-
     if API_SIGNATURE_TYPE == 'http':
         return jsonify({
             "errors": errors
