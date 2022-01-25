@@ -51,10 +51,9 @@ class DynatraceBackend:
         Returns:
             float: SLI value.
         """
-        conf = slo_config['backend']
+        measurement = slo_config['spec']['service_level_indicator']
         start = (timestamp - window) * 1000
         end = timestamp * 1000
-        measurement = conf['measurement']
         slo_id = measurement['slo_id']
         data = self.retrieve_slo(start, end, slo_id)
         LOGGER.debug(f"Result SLO: {pprint.pformat(data)}")
