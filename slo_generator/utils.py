@@ -249,8 +249,11 @@ def get_backend(config, spec):
         sys.exit(0)
     backend_data = all_backends[spec_backend]
     backend_data['name'] = spec_backend
-    backend_data['class'] = capitalize(snake_to_caml(
-        spec_backend.split('/')[0]))
+    if '.' in spec_backend: # custom backend
+        backend_data['class'] = spec_backend
+    else: # built-in backend
+        backend_data['class'] = capitalize(snake_to_caml(
+            spec_backend.split('/')[0]))
     return backend_data
 
 
