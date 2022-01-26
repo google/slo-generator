@@ -52,6 +52,7 @@ extras = {
     'cloud_storage': ['google-api-python-client <2', 'google-cloud-storage'],
     'pubsub': ['google-api-python-client <2', 'google-cloud-pubsub <2'],
     'elasticsearch': ['elasticsearch'],
+    'cloudevent': ['cloudevents'],
     'dev': ['wheel', 'flake8', 'mock', 'coverage', 'nose', 'pylint']
 }
 

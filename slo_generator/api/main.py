@@ -95,7 +95,6 @@ def run_export(request):
     if cli_exporters:
         cli_exporters = cli_exporters.split(',')
 
-
     # Construct exporters block
     spec = {}
     if not default_exporters and not cli_exporters:

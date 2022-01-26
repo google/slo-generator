@@ -114,7 +114,7 @@ def export(data, exporters, raise_on_error=False):
     if isinstance(exporters, dict):
         exporters = [exporters]
     if not exporters:
-        error = f'No exporters were found.'
+        error = 'No exporters were found.'
         LOGGER.error(f'{info} | {error}')
         errors.append(error)
 
