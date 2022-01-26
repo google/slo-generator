@@ -133,7 +133,7 @@ def process_req(request):
     """
     if API_SIGNATURE_TYPE == 'cloudevent':
         cloudevent = request
-        cloudevent_type = cloudevent._attributes['type']
+        cloudevent_type = cloudevent._attributes['type'] # pylint: disable=W0212
         timestamp = decode_cloudevent_timestamp(cloudevent)
         if cloudevent_type == 'google.cloud.pubsub.topic.v1.messagePublished':
             LOGGER.info('Decoding base64-encoded data')

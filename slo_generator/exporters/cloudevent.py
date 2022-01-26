@@ -20,12 +20,10 @@ import requests
 
 from cloudevents.http import CloudEvent, to_structured
 
-from .base import MetricsExporter
-
 LOGGER = logging.getLogger(__name__)
 
 # pylint: disable=too-few-public-methods
-class CloudeventExporter(MetricsExporter):
+class CloudeventExporter:
     """Cloudevent exporter class.
 
     Args:
@@ -34,6 +32,7 @@ class CloudeventExporter(MetricsExporter):
     """
     REQUIRED_FIELDS = ['service_url']
 
+    # pylint: disable=R0201
     def export(self, data, **config):
         """Export data as CloudEvent to an HTTP service receiving cloud events.
 
@@ -48,5 +47,5 @@ class CloudeventExporter(MetricsExporter):
         event = CloudEvent(attributes, data)
         headers, data = to_structured(event)
         service_url = config['service_url']
-        r = requests.post(service_url, headers=headers, data=data)
-        r.raise_for_status()
+        resp = requests.post(service_url, headers=headers, data=data)
+        resp.raise_for_status()

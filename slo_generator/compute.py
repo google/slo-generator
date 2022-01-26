@@ -130,7 +130,7 @@ def export(data, exporters, raise_on_error=False):
             # Convert data to export from v1 to v2 for backwards-compatible
             # exports, except for Pub/Sub where we need the v2 format.
             json_data = data
-            if cls != 'Pubsub' and cls != 'Cloudevent':
+            if cls not in ('Pubsub', 'Cloudevent'):
                 LOGGER.info(f'{info} | Converting SLO report to v1.')
                 json_data = report_v2tov1(data)
             instance().export(json_data, **exporter)
