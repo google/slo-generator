@@ -49,7 +49,7 @@ class SLOReport:
     description: str
     goal: str
     backend: str
-    exporters: list
+    exporters: list = field(default_factory=list)
     error_budget_policy: str = 'default'
 
     # SLI
@@ -91,6 +91,7 @@ class SLOReport:
 
         # Init dataclass fields from SLO config and Error Budget Policy
         spec = config['spec']
+        self.exporters = []
         self.__set_fields(**spec,
                           **step,
                           lambdas={

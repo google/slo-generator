@@ -137,8 +137,7 @@ cloudrun:
 	--args=api \
 	--args=--signature-type="${SIGNATURE_TYPE}" \
 	--min-instances 1 \
-	--allow-unauthenticated \
-	--project=${CLOUDRUN_PROJECT_ID}
+	--allow-unauthenticated
 
 gcloud_alpha:
 	gcloud components install alpha --quiet
