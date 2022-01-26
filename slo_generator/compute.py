@@ -20,6 +20,7 @@ import logging
 import pprint
 import time
 
+from slo_generator import constants
 from slo_generator import utils
 from slo_generator.report import SLOReport
 from slo_generator.migrations.migrator import report_v2tov1
@@ -129,7 +130,7 @@ def export(data, exporters, raise_on_error=False):
             # Convert data to export from v1 to v2 for backwards-compatible
             # exports, except for Pub/Sub where we need the v2 format.
             json_data = data
-            if cls not in ('Pubsub', 'Cloudevent'):
+            if cls not in constants.V2_EXPORTERS:
                 LOGGER.info(f'{info} | Converting SLO report to v1.')
                 json_data = report_v2tov1(data)
             instance().export(json_data, **exporter)
