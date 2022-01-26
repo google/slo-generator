@@ -137,7 +137,11 @@ def compute(slo_config, config, export, delete, timestamp):
               envvar='GOOGLE_FUNCTION_SIGNATURE_TYPE',
               default='run_compute',
               help='Target function name')
-def api(ctx, config, exporters, signature_type, target):
+@click.option('--port',
+              '-p',
+              default=8080,
+              help='HTTP port')
+def api(ctx, config, exporters, signature_type, target, port):
     """Run an API that can receive requests (supports both 'http' and
     'cloudevents' signature types)."""
     from functions_framework._cli import _cli
@@ -148,7 +152,8 @@ def api(ctx, config, exporters, signature_type, target):
     ctx.invoke(_cli,
                target=target,
                source=Path(__file__).parent / 'api' / 'main.py',
-               signature_type=signature_type)
+               signature_type=signature_type,
+               port=port)
 
 
 @main.command()

@@ -79,7 +79,7 @@ The `slo-generator` has an `HTTPExporter` that you can use to send SLO reports
 to the instance running in this mode.
 
 ```
-gcloud run deploy slo-generator \
+gcloud run deploy slo-generator-export \
    --image gcr.io/slo-generator-ci-a2b4/slo-generator:latest \
    --region=europe-west1 \
    --project=${PROJECT_ID} \

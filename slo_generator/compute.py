@@ -55,6 +55,11 @@ def compute(slo_config,
     # Get exporters, backend and error budget policy
     spec = slo_config['spec']
     exporters = utils.get_exporters(config, spec)
+    default_exporters_spec = {
+        "exporters": config.get('default_exporters', [])
+    }
+    default_exporters = utils.get_exporters(config, default_exporters_spec)
+    exporters.extend(x for x in default_exporters if x not in exporters)
     error_budget_policy = utils.get_error_budget_policy(config, spec)
     backend = utils.get_backend(config, spec)
     reports = []
@@ -99,6 +104,7 @@ def export(data, exporters, raise_on_error=False):
     """
     LOGGER.debug(f'Exporters: {pprint.pformat(exporters)}')
     LOGGER.debug(f'Data: {pprint.pformat(data)}')
+    print(data)
     name = data['metadata']['name']
     ebp_step = data['error_budget_policy_step_name']
     info = f'{name :<32} | {ebp_step :<8}'
@@ -108,8 +114,10 @@ def export(data, exporters, raise_on_error=False):
     if isinstance(exporters, dict):
         exporters = [exporters]
     if not exporters:
-        errors.append(f'{info} | No exporters were found.')
-    
+        error = f'No exporters were found.'
+        LOGGER.error(f'{info} | {error}')
+        errors.append(error)
+
     for exporter in exporters:
         try:
             cls = exporter.get('class')
@@ -119,13 +127,14 @@ def export(data, exporters, raise_on_error=False):
                 raise ImportError(f'Exporter {cls} not found.')
             LOGGER.debug(f'Exporter config: {pprint.pformat(exporter)}')
 
-            # Convert data to export from v1 to v2 for backwards-compatible 
+            # Convert data to export from v1 to v2 for backwards-compatible
             # exports, except for Pub/Sub where we need the v2 format.
-            if not (cls == 'PubsubExporter' and exporter.get('v2', True)):
-                data = report_v2tov1(data)
-
-            instance().export(data, **exporter)
-            LOGGER.info(f'{info} | SLO Report sent to {cls} successfully.')
+            json_data = data
+            if cls != 'Pubsub' and cls != 'Cloudevent':
+                LOGGER.info(f'{info} | Converting SLO report to v1.')
+                json_data = report_v2tov1(data)
+            instance().export(json_data, **exporter)
+            LOGGER.info(f'{info} | SLO report sent to {cls} successfully.')
         except Exception as exc:  # pylint: disable=broad-except
             if raise_on_error:
                 raise exc

@@ -19,6 +19,9 @@ import json
 import logging
 
 from google.cloud import pubsub_v1
+from cloudevents.http import CloudEvent, to_structured
+
+from itsdangerous import base64_encode
 
 from slo_generator import constants
 
@@ -47,8 +50,9 @@ class PubsubExporter:  # pylint: disable=too-few-public-methods
         topic_name = config['topic_name']
         topic_path = self.publisher.topic_path(project_id, topic_name)
         data = json.dumps(data, indent=4)
-        data = data.encode('utf-8')
-        res = self.publisher.publish(topic_path, data=data).result()
+        data = base64_encode(data)
+        attrs = config.get('attributes', {})
+        res = self.publisher.publish(topic_path, data=data, **attrs).result()
         status = f' Export data to {topic_path}'
         if not isinstance(res, str):
             status = constants.FAIL + status

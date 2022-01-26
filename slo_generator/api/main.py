@@ -30,31 +30,10 @@ from slo_generator.compute import compute, export
 from slo_generator.utils import setup_logging, load_config, get_exporters
 
 CONFIG_PATH = os.environ['CONFIG_PATH']
-EXPORTERS = os.environ.get('EXPORTERS', '').split(',')
 LOGGER = logging.getLogger(__name__)
 TIME_FORMAT = '%Y-%m-%dT%H:%M:%SZ'
 API_SIGNATURE_TYPE = os.environ['GOOGLE_FUNCTION_SIGNATURE_TYPE']
 setup_logging()
-
-def process_req(request):
-    """Process incoming request.
-
-    Args:  
-        request (cloudevent.CloudEvent, flask.Request): Request object.
-
-    Returns:
-        tuple: Tuple (data: dict, timestamp: int)
-    """
-    if API_SIGNATURE_TYPE == 'cloudevent':
-        timestamp = int(
-            datetime.strptime(request["time"], TIME_FORMAT).timestamp())
-        data = base64.b64decode(request.data).decode('utf-8')
-        LOGGER.info(f'Loading SLO config from Cloud Event "{request["id"]}"')
-    elif API_SIGNATURE_TYPE == 'http':
-        timestamp = int(time.time())
-        data = str(request.get_data().decode('utf-8'))
-        LOGGER.info('Loading SLO config from HTTP request')
-    return data, timestamp
 
 def run_compute(request):
     """Run slo-generator compute function. Can be configured to export data as
@@ -75,8 +54,8 @@ def run_compute(request):
     config = load_config(CONFIG_PATH)
 
     # Compute SLO report
-    LOGGER.info(f'Config: {pprint.pformat(config)}')
-    LOGGER.info(f'SLO Config: {pprint.pformat(slo_config)}')
+    LOGGER.debug(f'Config: {pprint.pformat(config)}')
+    LOGGER.debug(f'SLO Config: {pprint.pformat(slo_config)}')
     reports = compute(slo_config,
                       config,
                       timestamp=timestamp,
@@ -97,11 +76,6 @@ def run_export(request):
     Returns:
         list: List of SLO reports.
     """
-    if request.method != 'POST':
-        return make_response({
-            "error": "Endpoint allows only POST requests"
-        }, 500)
-
     # Get export data
     data, timestamp = process_req(request)
     slo_report = load_config(data)
@@ -117,10 +91,14 @@ def run_export(request):
     LOGGER.info(f'Loading slo-generator config from {CONFIG_PATH}')
     config = load_config(CONFIG_PATH)
     default_exporters = config.get('default_exporters', [])
+    cli_exporters = os.environ.get('EXPORTERS', None)
+    if cli_exporters:
+        cli_exporters = cli_exporters.split(',')
+
 
     # Construct exporters block
     spec = {}
-    if not default_exporters and not EXPORTERS:
+    if not default_exporters and not cli_exporters:
         error = (
             'No default exporters set for `default_exporters` in shared config '
             f'at {CONFIG_PATH}; and --exporters was not passed to the CLI.'
@@ -128,11 +106,13 @@ def run_export(request):
         return make_response({
             'error': error
         }, 500)
-    elif EXPORTERS:
-        spec = {'exporters': EXPORTERS}
+    if cli_exporters:
+        spec = {'exporters': cli_exporters}
     else:
         spec = {'exporters': default_exporters}
+    LOGGER.info(spec)
     exporters = get_exporters(config, spec)
+    LOGGER.info(exporters)
 
     # Export data
     errors = export(slo_report, exporters)
@@ -142,3 +122,45 @@ def run_export(request):
         })
 
     return errors
+
+def process_req(request):
+    """Process incoming request.
+
+    Args:
+        request (cloudevent.CloudEvent, flask.Request): Request object.
+
+    Returns:
+        tuple: Tuple (data: dict, timestamp: int)
+    """
+    if API_SIGNATURE_TYPE == 'cloudevent':
+        cloudevent = request
+        cloudevent_type = cloudevent._attributes['type']
+        timestamp = decode_cloudevent_timestamp(cloudevent)
+        if cloudevent_type == 'google.cloud.pubsub.topic.v1.messagePublished':
+            LOGGER.info('Decoding base64-encoded data')
+            data = base64.b64decode(cloudevent.data).decode('utf-8')
+        else:
+            data = str(cloudevent.data)
+        LOGGER.info(f'Loading config from Cloud Event "{cloudevent["id"]}"')
+    elif API_SIGNATURE_TYPE == 'http':
+        timestamp = int(time.time())
+        data = str(request.get_data().decode('utf-8'))
+        LOGGER.info('Loading config from HTTP request')
+    return data, timestamp
+
+def decode_cloudevent_timestamp(cloudevent):
+    """Decode timestamp from CloudEvent to a UNIX timestamp integer.
+
+    Args:
+        cloudevent.CloudEvent: CloudEvent object.
+
+    Returns:
+        int: UNIX timestamp.
+    """
+    try:
+        timestamp = int(
+            datetime.fromisoformat(cloudevent["time"]).timestamp())
+    except ValueError:
+        timestamp = int(
+            datetime.strptime(cloudevent["time"], TIME_FORMAT).timestamp())
+    return timestamp
