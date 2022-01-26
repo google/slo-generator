@@ -104,7 +104,6 @@ def export(data, exporters, raise_on_error=False):
     """
     LOGGER.debug(f'Exporters: {pprint.pformat(exporters)}')
     LOGGER.debug(f'Data: {pprint.pformat(data)}')
-    print(data)
     name = data['metadata']['name']
     ebp_step = data['error_budget_policy_step_name']
     info = f'{name :<32} | {ebp_step :<8}'

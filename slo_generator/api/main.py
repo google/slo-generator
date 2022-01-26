@@ -21,9 +21,7 @@ import base64
 import os
 import logging
 import pprint
-import time
 
-from datetime import datetime
 from flask import jsonify, make_response
 
 from slo_generator.compute import compute, export
@@ -46,7 +44,7 @@ def run_compute(request):
         list: List of SLO reports.
     """
     # Get SLO config
-    data, timestamp = process_req(request)
+    data = process_req(request)
     slo_config = load_config(data)
 
     # Get slo-generator config
@@ -58,7 +56,6 @@ def run_compute(request):
     LOGGER.debug(f'SLO Config: {pprint.pformat(slo_config)}')
     reports = compute(slo_config,
                       config,
-                      timestamp=timestamp,
                       client=None,
                       do_export=True)
     if API_SIGNATURE_TYPE == 'http':
@@ -77,26 +74,23 @@ def run_export(request):
         list: List of SLO reports.
     """
     # Get export data
-    data, timestamp = process_req(request)
+    data = process_req(request)
     slo_report = load_config(data)
     if not slo_report:
         return make_response({
             "error": "SLO report is empty."
         })
 
-    # Set timestamp from request if missing in report
-    slo_report['timestamp'] = slo_report.get('timestamp', timestamp)
-
     # Get SLO config
     LOGGER.info(f'Loading slo-generator config from {CONFIG_PATH}')
     config = load_config(CONFIG_PATH)
+
+    # Construct exporters block
+    spec = {}
     default_exporters = config.get('default_exporters', [])
     cli_exporters = os.environ.get('EXPORTERS', None)
     if cli_exporters:
         cli_exporters = cli_exporters.split(',')
-
-    # Construct exporters block
-    spec = {}
     if not default_exporters and not cli_exporters:
         error = (
             'No default exporters set for `default_exporters` in shared config '
@@ -109,9 +103,7 @@ def run_export(request):
         spec = {'exporters': cli_exporters}
     else:
         spec = {'exporters': default_exporters}
-    LOGGER.info(spec)
     exporters = get_exporters(config, spec)
-    LOGGER.info(exporters)
 
     # Export data
     errors = export(slo_report, exporters)
@@ -129,37 +121,17 @@ def process_req(request):
         request (cloudevent.CloudEvent, flask.Request): Request object.
 
     Returns:
-        tuple: Tuple (data: dict, timestamp: int)
+        str: Message content.
     """
     if API_SIGNATURE_TYPE == 'cloudevent':
         cloudevent = request
-        cloudevent_type = cloudevent._attributes['type'] # pylint: disable=W0212
-        timestamp = decode_cloudevent_timestamp(cloudevent)
-        if cloudevent_type == 'google.cloud.pubsub.topic.v1.messagePublished':
-            LOGGER.info('Decoding base64-encoded data')
-            data = base64.b64decode(cloudevent.data).decode('utf-8')
+        if 'message' in cloudevent.data: # PubSub enveloppe
+            content = base64.b64decode(cloudevent.data['message']['data'])
+            data = str(content.decode('utf-8'))
         else:
             data = str(cloudevent.data)
         LOGGER.info(f'Loading config from Cloud Event "{cloudevent["id"]}"')
     elif API_SIGNATURE_TYPE == 'http':
-        timestamp = int(time.time())
         data = str(request.get_data().decode('utf-8'))
         LOGGER.info('Loading config from HTTP request')
-    return data, timestamp
-
-def decode_cloudevent_timestamp(cloudevent):
-    """Decode timestamp from CloudEvent to a UNIX timestamp integer.
-
-    Args:
-        cloudevent.CloudEvent: CloudEvent object.
-
-    Returns:
-        int: UNIX timestamp.
-    """
-    try:
-        timestamp = int(
-            datetime.fromisoformat(cloudevent["time"]).timestamp())
-    except ValueError:
-        timestamp = int(
-            datetime.strptime(cloudevent["time"], TIME_FORMAT).timestamp())
-    return timestamp
+    return data
