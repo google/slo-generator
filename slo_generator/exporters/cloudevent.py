@@ -18,7 +18,10 @@ CloudEvents exporter class.
 import logging
 import requests
 
+import google.auth.transport.requests
+
 from cloudevents.http import CloudEvent, to_structured
+from google.oauth2.id_token import fetch_id_token
 
 LOGGER = logging.getLogger(__name__)
 
@@ -31,6 +34,7 @@ class CloudeventExporter:
         service_url (str): Cloudevent receiver service URL.
     """
     REQUIRED_FIELDS = ['service_url']
+    OPTIONAL_FIELDS = ['auth']
 
     # pylint: disable=R0201
     def export(self, data, **config):
@@ -47,5 +51,16 @@ class CloudeventExporter:
         event = CloudEvent(attributes, data)
         headers, data = to_structured(event)
         service_url = config['service_url']
+        if 'auth' in config:
+            auth = config['auth']
+            id_token = None
+            if 'token' in auth:
+                id_token = auth['token']
+            elif auth.get('google_service_account_auth', False): # Google oauth
+                auth = google.auth.transport.requests.Request()
+                id_token = fetch_id_token(auth, service_url)
+            if id_token:
+                headers["Authorization"] = f'Bearer {id_token}'
+            LOGGER.info(headers)
         resp = requests.post(service_url, headers=headers, data=data)
         resp.raise_for_status()
