@@ -135,7 +135,8 @@ def export(data, exporters, raise_on_error=False):
                 json_data = report_v2tov1(data)
             LOGGER.debug(f'{info} | SLO report: {json_data}')
             response = instance().export(json_data, **exporter)
-            LOGGER.info(f'{info} | SLO report sent to {cls} successfully.')
+            LOGGER.info(
+                f'{info} | SLO report sent to "{name}" exporter successfully.')
             LOGGER.debug(f'{info} | {response}')
         except Exception as exc:  # pylint: disable=broad-except
             if raise_on_error:
