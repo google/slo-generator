@@ -63,3 +63,4 @@ class CloudeventExporter:
                 headers["Authorization"] = f'Bearer {id_token}'
         resp = requests.post(service_url, headers=headers, data=data)
         resp.raise_for_status()
+        return resp

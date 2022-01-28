@@ -21,6 +21,7 @@ import collections
 import errno
 import importlib
 import logging
+from multiprocessing.sharedctypes import Value
 import os
 import pprint
 import re
@@ -144,6 +145,11 @@ def parse_config(path=None, content=None, ctx=os.environ):
     if ctx:
         content = replace_env_vars(content, ctx)
     data = yaml.safe_load(content)
+    if isinstance(data, str):
+        error = (
+            'Error serializing config into dict. This might be due to a syntax '
+            'error in the YAML / JSON config file.')
+        LOGGER.error(error)
 
     LOGGER.debug(pprint.pformat(data))
     return data

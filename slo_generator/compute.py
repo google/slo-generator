@@ -128,13 +128,15 @@ def export(data, exporters, raise_on_error=False):
             LOGGER.debug(f'Exporter config: {pprint.pformat(exporter)}')
 
             # Convert data to export from v1 to v2 for backwards-compatible
-            # exports, except for Pub/Sub where we need the v2 format.
+            # exporters such as BigQuery.
             json_data = data
             if cls not in constants.V2_EXPORTERS:
-                LOGGER.info(f'{info} | Converting SLO report to v1.')
+                LOGGER.debug(f'{info} | Converting SLO report to v1.')
                 json_data = report_v2tov1(data)
-            instance().export(json_data, **exporter)
+            LOGGER.debug(f'{info} | SLO report: {json_data}')
+            response = instance().export(json_data, **exporter)
             LOGGER.info(f'{info} | SLO report sent to {cls} successfully.')
+            LOGGER.debug(f'{info} | {response}')
         except Exception as exc:  # pylint: disable=broad-except
             if raise_on_error:
                 raise exc

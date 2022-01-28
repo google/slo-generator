@@ -57,7 +57,7 @@ def main(ctx, version):
               help='SLO config path')
 @click.option('--config',
               '-c',
-              type=click.Path(exists=True),
+              type=click.Path(),
               default='config.yaml',
               show_default=True,
               help='slo-generator config path')
