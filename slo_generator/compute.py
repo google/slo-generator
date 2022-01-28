@@ -124,7 +124,7 @@ def export(data, exporters, raise_on_error=False):
             name = exporter.get('name')
             instance = utils.get_exporter_cls(cls)
             if not instance:
-                raise ImportError(f'Exporter {cls} not found.')
+                raise ImportError(f'Exporter not found in shared config.')
             LOGGER.debug(f'Exporter config: {pprint.pformat(exporter)}')
 
             # Convert data to export from v1 to v2 for backwards-compatible
