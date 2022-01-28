@@ -1,5 +1,5 @@
 ---
-default_exporters: [pubsub]
+default_exporters: [cloudevent]
 backends:
   cloud_monitoring:
     project_id: ${STACKDRIVER_HOST_PROJECT_ID}
