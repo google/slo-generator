@@ -26,10 +26,12 @@ import pprint
 import re
 import sys
 import warnings
-import yaml
+
+from pathlib import Path
 
 from dateutil import tz
-from pathlib import Path
+
+import yaml
 
 from slo_generator.constants import DEBUG
 
