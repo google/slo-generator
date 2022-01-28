@@ -21,16 +21,15 @@ import collections
 import errno
 import importlib
 import logging
-from multiprocessing.sharedctypes import Value
 import os
 import pprint
 import re
 import sys
 import warnings
-from pathlib import Path
+import yaml
 
 from dateutil import tz
-import yaml
+from pathlib import Path
 
 from slo_generator.constants import DEBUG
 
