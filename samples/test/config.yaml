@@ -1,0 +1,19 @@
+default_exporters: [pubsub]
+backends:
+  cloud_monitoring:
+    project_id: rnm-slo-cloudevent-test
+exporters:
+  cloudevent:
+    service_url: https://slo-generator-export-757by753yq-ew.a.run.app
+  pubsub:
+    project_id: rnm-slo-cloudevent-test
+    topic_name: slos
+error_budget_policies:
+  default:
+    steps:
+    - name: 1 hour
+      burn_rate_threshold: 9
+      alert: true
+      message_alert: Page to defend the SLO
+      message_ok: Last hour on track
+      window: 3600

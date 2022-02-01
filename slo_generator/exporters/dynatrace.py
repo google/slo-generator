@@ -55,9 +55,7 @@ class DynatraceExporter(MetricsExporter):
         if code == 404:
             LOGGER.warning("Custom metric doesn't exist. Creating it.")
             metric = self.create_custom_metric(data)
-        LOGGER.debug(f'Custom metric: {metric}')
         response = self.create_timeseries(data)
-        LOGGER.debug(f'API Response: {response}')
         return response
 
     def create_timeseries(self, data):

@@ -49,7 +49,7 @@ class SLOReport:
     description: str
     goal: str
     backend: str
-    exporters: list
+    exporters: list = field(default_factory=list)
     error_budget_policy: str = 'default'
 
     # SLI
@@ -91,6 +91,7 @@ class SLOReport:
 
         # Init dataclass fields from SLO config and Error Budget Policy
         spec = config['spec']
+        self.exporters = []
         self.__set_fields(**spec,
                           **step,
                           lambdas={
@@ -319,7 +320,7 @@ class SLOReport:
                 return False
 
             # Tuple should not have NO_DATA everywhere
-            if (good + bad) == (NO_DATA, NO_DATA):
+            if (good, bad) == (NO_DATA, NO_DATA):
                 error = (
                     f'Backend method returned a valid tuple {data} but the '
                     'good and bad count is NO_DATA (-1).')
@@ -330,8 +331,8 @@ class SLOReport:
             # minimum valid events threshold
             if (good + bad) < MIN_VALID_EVENTS:
                 error = (
-                    f'Not enough valid events found. Minimum valid events: '
-                    f'{MIN_VALID_EVENTS}')
+                    f'Not enough valid events ({good + bad}) found. Minimum '
+                    f'valid events: {MIN_VALID_EVENTS}.')
                 self.errors.append(error)
                 return False
 

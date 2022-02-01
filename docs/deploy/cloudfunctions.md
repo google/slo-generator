@@ -2,7 +2,7 @@
 
 `slo-generator` is frequently used as part of an SLO Reporting Pipeline made of:
 
-* A **Cloud Scheduler** triggering an event every X minutes.
+* A **Cloud Scheduler** triggering an SLO computation every X minutes.
 * A **PubSub topic**, triggered by the Cloud Scheduler event.
 * A **Cloud Function**, triggered by the PubSub topic, running `slo-generator`.
 * A **PubSub topic** to stream computation results.

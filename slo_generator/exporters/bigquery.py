@@ -88,12 +88,8 @@ class BigqueryExporter:
             table,
             json_rows=[json_data],
             retry=google.api_core.retry.Retry(deadline=30))
-        status = f' Export data to {str(table_ref)}'
         if results:
-            status = constants.FAIL + status
             raise BigQueryError(results)
-        status = constants.SUCCESS + status
-        LOGGER.info(status)
         return results
 
     @staticmethod
@@ -161,7 +157,8 @@ class BigqueryExporter:
         iostream = io.StringIO('')
         self.client.schema_to_json(table.schema, iostream)
         existing_schema = json.loads(iostream.getvalue())
-        LOGGER.debug(f'Existing schema: {pprint.pformat(existing_schema)}')
+        existing_fields = [field['name'] for field in existing_schema]
+        LOGGER.debug(f'Existing fields: {existing_fields}')
 
         # Fields in TABLE_SCHEMA to add / remove
         updated_fields = [
@@ -213,136 +210,106 @@ class BigQueryError(Exception):
 
 
 TABLE_SCHEMA = [{
-    'description': None,
     'name': 'service_name',
     'type': 'STRING',
     'mode': 'REQUIRED'
 }, {
-    'description': None,
     'name': 'feature_name',
     'type': 'STRING',
     'mode': 'REQUIRED'
 }, {
-    'description': None,
     'name': 'slo_name',
     'type': 'STRING',
     'mode': 'REQUIRED'
 }, {
-    'description': None,
     'name': 'slo_target',
     'type': 'FLOAT',
     'mode': 'NULLABLE'
 }, {
-    'description': None,
     'name': 'slo_description',
     'type': 'STRING',
     'mode': 'REQUIRED'
 }, {
-    'description': None,
     'name': 'error_budget_policy_step_name',
     'type': 'STRING',
     'mode': 'NULLABLE'
 }, {
-    'description': None,
     'name': 'error_budget_remaining_minutes',
     'type': 'FLOAT',
     'mode': 'NULLABLE'
 }, {
-    'description': None,
     'name': 'consequence_message',
     'type': 'STRING',
     'mode': 'NULLABLE'
 }, {
-    'description': None,
     'name': 'error_budget_minutes',
     'type': 'FLOAT',
     'mode': 'NULLABLE'
 }, {
-    'description': None,
     'name': 'error_minutes',
     'type': 'FLOAT',
     'mode': 'NULLABLE'
 }, {
-    'description': None,
     'name': 'error_budget_target',
     'type': 'FLOAT',
     'mode': 'NULLABLE'
 }, {
-    'description': None,
     'name': 'timestamp_human',
     'type': 'TIMESTAMP',
     'mode': 'REQUIRED'
 }, {
-    'description': None,
     'name': 'timestamp',
     'type': 'FLOAT',
     'mode': 'NULLABLE'
 }, {
-    'description': None,
     'name': 'cadence',
     'type': 'STRING',
     'mode': 'NULLABLE'
 }, {
-    'description': None,
     'name': 'window',
     'type': 'INTEGER',
     'mode': 'REQUIRED'
 }, {
-    'description': None,
     'name': 'bad_events_count',
     'type': 'INTEGER',
     'mode': 'NULLABLE'
 }, {
-    'description': None,
     'name': 'good_events_count',
     'type': 'INTEGER',
     'mode': 'NULLABLE'
 }, {
-    'description': None,
     'name': 'sli_measurement',
     'type': 'FLOAT',
     'mode': 'NULLABLE'
 }, {
-    'description': None,
     'name': 'gap',
     'type': 'FLOAT',
     'mode': 'NULLABLE'
 }, {
-    'description': None,
     'name': 'error_budget_measurement',
     'type': 'FLOAT',
     'mode': 'NULLABLE'
 }, {
-    'description': None,
     'name': 'error_budget_burn_rate',
     'type': 'FLOAT',
     'mode': 'NULLABLE'
 }, {
-    'description': None,
     'name': 'alerting_burn_rate_threshold',
     'type': 'FLOAT',
     'mode': 'NULLABLE'
 }, {
-    'description': None,
     'name': 'alert',
     'type': 'BOOLEAN',
     'mode': 'NULLABLE'
 }, {
-    'name':
-        'metadata',
-    'description':
-        None,
-    'type':
-        'RECORD',
-    'mode':
-        'REPEATED',
+    'name': 'metadata',
+    'type': 'RECORD',
+    'mode': 'REPEATED',
     'fields': [{
-        'description': None,
         'name': 'key',
         'type': 'STRING',
         'mode': 'NULLABLE'
     }, {
-        'description': None,
         'name': 'value',
         'type': 'STRING',
         'mode': 'NULLABLE'

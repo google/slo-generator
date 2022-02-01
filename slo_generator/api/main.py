@@ -19,24 +19,21 @@ details on the Functions Framework.
 """
 import base64
 import os
+import json
 import logging
 import pprint
+import requests
 
-from datetime import datetime
-from flask import jsonify
-
-import yaml
+from flask import jsonify, make_response
 
 from slo_generator.compute import compute, export
 from slo_generator.utils import setup_logging, load_config, get_exporters
 
 CONFIG_PATH = os.environ['CONFIG_PATH']
-EXPORTERS_PATH = os.environ.get('EXPORTERS_PATH', None)
 LOGGER = logging.getLogger(__name__)
 TIME_FORMAT = '%Y-%m-%dT%H:%M:%SZ'
 API_SIGNATURE_TYPE = os.environ['GOOGLE_FUNCTION_SIGNATURE_TYPE']
 setup_logging()
-
 
 def run_compute(request):
     """Run slo-generator compute function. Can be configured to export data as
@@ -48,28 +45,28 @@ def run_compute(request):
     Returns:
         list: List of SLO reports.
     """
-    # Get SLO config
-    if API_SIGNATURE_TYPE == 'cloudevent':
-        timestamp = int(
-            datetime.strptime(request["time"], TIME_FORMAT).timestamp())
-        data = base64.b64decode(request.data).decode('utf-8')
-        LOGGER.info(f'Loading SLO config from Cloud Event "{request["id"]}"')
-    elif API_SIGNATURE_TYPE == 'http':
-        timestamp = None
-        data = str(request.get_data().decode('utf-8'))
-        LOGGER.info('Loading SLO config from Flask request')
-    slo_config = load_config(data)
-
     # Get slo-generator config
     LOGGER.info(f'Loading slo-generator config from {CONFIG_PATH}')
     config = load_config(CONFIG_PATH)
+
+    # Process request
+    data = process_req(request)
+    batch_mode = request.args.get('batch', False)
+    if batch_mode:
+        if not API_SIGNATURE_TYPE == 'http':
+            raise ValueError(
+                'Batch mode works only when --signature-type is set to "http".')
+        process_batch_req(request, data, config)
+        return jsonify([])
+
+    # Load SLO config
+    slo_config = load_config(data)
 
     # Compute SLO report
     LOGGER.debug(f'Config: {pprint.pformat(config)}')
     LOGGER.debug(f'SLO Config: {pprint.pformat(slo_config)}')
     reports = compute(slo_config,
                       config,
-                      timestamp=timestamp,
                       client=None,
                       do_export=True)
     if API_SIGNATURE_TYPE == 'http':
@@ -88,24 +85,120 @@ def run_export(request):
         list: List of SLO reports.
     """
     # Get export data
-    if API_SIGNATURE_TYPE == 'http':
-        slo_report = request.get_json()
-    elif API_SIGNATURE_TYPE == 'cloudevent':
-        slo_report = yaml.safe_load(base64.b64decode(request.data))
+    data = process_req(request)
+    slo_report = load_config(data)
+    if not slo_report:
+        return make_response({
+            "error": "SLO report is empty."
+        })
 
     # Get SLO config
-    LOGGER.info(f'Downloading SLO config from {CONFIG_PATH}')
+    LOGGER.info(f'Loading slo-generator config from {CONFIG_PATH}')
     config = load_config(CONFIG_PATH)
 
-    # Build exporters list
-    if EXPORTERS_PATH:
-        LOGGER.info(f'Loading exporters from {EXPORTERS_PATH}')
-        exporters = load_config(EXPORTERS_PATH)
+    # Construct exporters block
+    spec = {}
+    default_exporters = config.get('default_exporters', [])
+    cli_exporters = os.environ.get('EXPORTERS', None)
+    if cli_exporters:
+        cli_exporters = cli_exporters.split(',')
+    if not default_exporters and not cli_exporters:
+        error = (
+            'No default exporters set for `default_exporters` in shared config '
+            f'at {CONFIG_PATH}; and --exporters was not passed to the CLI.'
+        )
+        return make_response({
+            'error': error
+        }, 500)
+    if cli_exporters:
+        spec = {'exporters': cli_exporters}
     else:
-        LOGGER.info(f'Loading exporters from SLO report data {EXPORTERS_PATH}')
-        exporters = slo_report['exporters']
-    spec = {"exporters": exporters}
+        spec = {'exporters': default_exporters}
     exporters = get_exporters(config, spec)
 
     # Export data
-    export(slo_report, exporters)
+    errors = export(slo_report, exporters)
+    if API_SIGNATURE_TYPE == 'http':
+        return jsonify({
+            "errors": errors
+        })
+
+    return errors
+
+def process_req(request):
+    """Process incoming request.
+
+    Args:
+        request (cloudevent.CloudEvent, flask.Request): Request object.
+
+    Returns:
+        str: Message content.
+    """
+    if API_SIGNATURE_TYPE == 'cloudevent':
+        LOGGER.info(f'Loading config from Cloud Event "{request["id"]}"')
+        if 'message' in request.data: # PubSub enveloppe
+            LOGGER.info('Unwrapping Pubsub enveloppe')
+            content = base64.b64decode(request.data['message']['data'])
+            data = str(content.decode('utf-8')).strip()
+        else:
+            data = str(request.data)
+    elif API_SIGNATURE_TYPE == 'http':
+        data = str(request.get_data().decode('utf-8'))
+        LOGGER.info('Loading config from HTTP request')
+        json_data = convert_json(data)
+        if json_data and 'message' in json_data: # PubSub enveloppe
+            LOGGER.info('Unwrapping Pubsub enveloppe')
+            content = base64.b64decode(json_data['message']['data'])
+            data = str(content.decode('utf-8')).strip()
+    LOGGER.debug(data)
+    return data
+
+def convert_json(data):
+    """Convert string to JSON if possible or return None otherwise.
+
+    Args:
+        data (str): Data.
+
+    Returns:
+        dict: Loaded dict.
+    """
+    try:
+        return json.loads(data)
+    except ValueError:
+        return None
+
+def process_batch_req(request, data, config):
+    """Process batch request. Split list of ;-delimited URLs and make one
+    request per URL.
+
+    Args:
+        request (cloudevent.CloudEvent, flask.Request): Request object.
+        data (str): Incoming data.
+        config (dict): SLO generator config.
+
+    Returns:
+        list: List of API responses.
+    """
+    LOGGER.info(
+        'Batch request detected. Splitting body and sending individual '
+        'requests separately.')
+    urls = data.split(';')
+    service_url = request.base_url
+    headers = {'User-Agent': 'slo-generator'}
+    if 'Authorization' in request.headers:
+        headers['Authorization'] = request.headers['Authorization']
+        service_url = service_url.replace('http:', 'https:') # force HTTPS auth
+    for url in urls:
+        if 'pubsub_batch_handler' in config:
+            LOGGER.info(f'Sending {url} to pubsub batch handler.')
+            from google.cloud import pubsub_v1 # pylint: disable=C0415
+            exporter_conf = config.get('pubsub_batch_handler')
+            client = pubsub_v1.PublisherClient()
+            project_id = exporter_conf['project_id']
+            topic_name = exporter_conf['topic_name']
+            topic_path = client.topic_path(project_id, topic_name)
+            data = url.encode('utf-8')
+            client.publish(topic_path, data=data).result()
+        else: # http
+            LOGGER.info(f'Sending {url} to HTTP batch handler.')
+            requests.post(service_url, headers=headers, data=url)
