@@ -21,7 +21,7 @@ import requests
 import json
 from retrying import retry
 
-from elasticsearch import Elasticsearch
+#from elasticsearch import Elasticsearch
 
 from slo_generator.constants import NO_DATA
 
