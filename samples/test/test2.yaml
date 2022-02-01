@@ -1,0 +1,24 @@
+apiVersion: sre.google.com/v2
+kind: ServiceLevelObjective
+metadata:
+  name: slo-generator-availability
+  labels:
+    service_name: slo
+    feature_name: generator
+    slo_name: availability
+spec:
+  description: Availability of slo-generator
+  backend: cloud_monitoring
+  method: good_bad_ratio
+  exporters: []
+  service_level_indicator:
+    filter_good: >
+      metric.type="run.googleapis.com/request_count"
+      project="rnm-slo-cloudevent-test"
+      metric.labels.response_code_class="2xx"
+      resource.labels.service_name="slo-generator"
+    filter_valid: >
+      metric.type="run.googleapis.com/request_count"
+      project="rnm-slo-cloudevent-test"
+      resource.labels.service_name="slo-generator"
+  goal: 0.95
