@@ -38,7 +38,9 @@ version = "2.1.0"
 release_status = "Development Status :: 3 - Alpha"
 dependencies = ['pyyaml', 'ruamel.yaml', 'python-dateutil', 'click < 8.0']
 extras = {
-    'api': ['Flask', 'gunicorn', 'cloudevents', 'functions-framework'],
+    'api': [
+        'Flask', 'gunicorn', 'cloudevents', 'functions-framework', 'requests'
+    ],
     'prometheus': ['prometheus-client', 'prometheus-http-client'],
     'datadog': ['datadog', 'retrying==1.3.3'],
     'dynatrace': ['requests'],

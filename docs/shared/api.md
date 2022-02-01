@@ -27,11 +27,13 @@ The API has two modes of functioning that can be controlled using the
 **SLO config**, an **SLO config path**, or a **SLO config GCS URL** in the 
 request body:
 ```
-curl -X POST -H "Content-Type: text/x-yaml" --data-binary /path/to/slo_config.yaml <SERVICE_URL> # SLO config (YAML)
-curl -X POST -H "Content-Type: application/json" -d @/path/to/slo_config.json <SERVICE_URL>  # SLO config (JSON)
+curl -X POST --data-binary /path/to/slo_config.yaml <SERVICE_URL> # SLO config (YAML)
+curl -X POST -d @/path/to/slo_config.json <SERVICE_URL>  # SLO config (JSON)
 curl -X POST -d "/path/to/slo_config.yaml" <SERVICE_URL> # SLO config path on disk (service needs to be able to load the path on the target machine).
 curl -X POST -d "gs://<GCS_BUCKET_NAME>/slo.yaml" <SERVICE_URL> # SLO config GCS URL.
+curl -X POST -d "gs://<GCS_BUCKET_NAME>/slo.yaml;gs://GCS_BUCKET_NAME/slo2.yaml" <SERVICE_URL>/?batch=true # SLO configs GCS URLs (batch mode).
 ```
+***Note:*** The last request (batch mode) allows to send multiple file URLs that will be split and re-send to the service individually, or send to PubSub if a section `batch_pubsub_handler` is found in the slo-generator config. This section is populated the same as a [pubsub exporter](../providers/pubsub.md).
 
 * `--signature-type=cloudevent`: can receive HTTP POST requests wrapped in a 
 [CloudEvent message](https://github.com/cloudevents/spec/blob/v1.0.1/spec.md#example),
