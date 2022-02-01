@@ -59,7 +59,7 @@ PROVIDERS_COMPAT = {
 METRIC_LABELS_COMPAT = {
     'goal': 'slo_target',
     'description': 'slo_description',
-    'burn_rate_threshold': 'alerting_burn_rate_threshold'
+    'error_budget_burn_rate_threshold': 'alerting_burn_rate_threshold'
 }
 
 # Fields that used to be specified in top-level of YAML config are now specified
