@@ -154,7 +154,7 @@ class ElasticsearchBackend:
         except KeyError as exception:
             LOGGER.warning("Couldn't find any values in timeseries response")
             LOGGER.debug(exception, exc_info=True)
-            return 
+            return NO_DATA
 
     @staticmethod
     def count(response):
