@@ -8,10 +8,10 @@ metadata:
     slo_name: availability-sli
 spec:
   description: 99.99% of fake requests to custom backends are valid
-  backend: custom.custom_backend.CustomBackend
+  backend: samples.custom.custom_backend.CustomBackend
   method: query_sli
   exporters:
-  - custom.custom_exporter.CustomMetricExporter
-  - custom.custom_exporter.CustomSLOExporter
+  - samples.custom.custom_exporter.CustomMetricExporter
+  - samples.custom.custom_exporter.CustomSLOExporter
   service_level_indicator: {}
   goal: 0.999
