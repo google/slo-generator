@@ -241,7 +241,7 @@ class ElasticBackend:
         LOGGER.debug(body)
         return body
 
-ES = ElasticsearchBackend
+ES = ElasticBackend
 
 def retry_http(response):
         """Retry on specific HTTP errors:
