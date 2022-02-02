@@ -68,8 +68,8 @@ In this mode, the API accepts an
 or in a base64-encoded string under the `message.data` enveloppe., and exports that 
 data to the required exporters.
 
-If `--signature-type cloudevent` is passed, the POST request data is wrapped 
-into a [CloudEvent message](https://github.com/cloudevents/spec/blob/v1.0.1/spec.md#example) 
+If `--signature-type cloudevent` is passed, the POST request data needs to be 
+wrapped into a [CloudEvent message](https://github.com/cloudevents/spec/blob/v1.0.1/spec.md#example) 
 under the `data` key. See the next section to see in which setups this is used.
 
 The exporters which are used for the export are configured using the 
