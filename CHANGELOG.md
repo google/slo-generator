@@ -1,5 +1,25 @@
 # Changelog
 
+## [2.2.0](https://www.github.com/google/slo-generator/compare/v2.1.0...v2.2.0) (2022-02-02)
+
+
+### Features
+
+* add batch mode, better error reporting, cloud run docs ([#204](https://www.github.com/google/slo-generator/issues/204)) ([d305a63](https://www.github.com/google/slo-generator/commit/d305a63d2b3566815b6be6a04605a4d2beddf197))
+
+
+### Bug Fixes
+
+* alerting burn rate threshold null in BQ ([#201](https://www.github.com/google/slo-generator/issues/201)) ([d25f0f3](https://www.github.com/google/slo-generator/commit/d25f0f397fbe79f6fd265a5905952743f9a7a9ff))
+* custom backend path for integration tests ([#203](https://www.github.com/google/slo-generator/issues/203)) ([7268dc1](https://www.github.com/google/slo-generator/commit/7268dc1d843d3cf8bf3388f42590e6e6fba4ed86))
+* dynatrace slo import ([#198](https://www.github.com/google/slo-generator/issues/198)) ([df86234](https://www.github.com/google/slo-generator/commit/df86234db3dc14e91c7ebc31c29974e9d312834d))
+* remove row_ids to solve de-duplication issues ([#200](https://www.github.com/google/slo-generator/issues/200)) ([56d9b9b](https://www.github.com/google/slo-generator/commit/56d9b9bc551e1e37f6070ed1fe61cbaab1620f39))
+
+
+### Documentation
+
+* clarify API export-only docs ([#206](https://www.github.com/google/slo-generator/issues/206)) ([7c449c3](https://www.github.com/google/slo-generator/commit/7c449c32321f0fff3690c6177e3a85340afff2c8))
+
 ## [2.1.0](https://www.github.com/google/slo-generator/compare/v2.0.1...v2.1.0) (2022-01-19)
 
 
