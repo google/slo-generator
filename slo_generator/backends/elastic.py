@@ -30,7 +30,7 @@ LOGGER = logging.getLogger(__name__)
 DEFAULT_DATE_FIELD = '@timestamp'
 
 
-class ElasticsearchBackend:
+class ElasticBackend:
     """Backend for querying metrics from ElasticSearch.
 
     Args:
@@ -260,7 +260,7 @@ def retry_http(response):
 
 
 
-class ElasticsearchClient:
+class ElasticClient:
     """Small wrapper around requests to query Elasticsearch API.
     Args:
         api_url (str): Elasticsearch API URL.
