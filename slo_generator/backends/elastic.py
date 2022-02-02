@@ -42,7 +42,7 @@ class ElasticBackend:
         self.client = client
         if self.client is None:
             #self.client = Elasticsearch(**es_config)
-            self.client = ElasticsearchClient(url)
+            self.client = ElasticClient(url)
 
     # pylint: disable=unused-argument
     def good_bad_ratio(self, timestamp, window, slo_config):
