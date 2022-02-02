@@ -306,7 +306,7 @@ class ElasticClient:
         else:
             response = req(url, headers=headers, verify=False)
             LOGGER.debug(f'Response: {response}')
-        data = ElasticsearchClient.to_json(response)
+        data = ElasticClient.to_json(response)
         return data
 
     @staticmethod
