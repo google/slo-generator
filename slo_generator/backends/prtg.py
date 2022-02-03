@@ -287,9 +287,9 @@ class PrtgClient:
         self.url = api_url.rstrip('/')
         self.token = api_passhash
 
-    @retry(retry_on_result=retry_http,
-           wait_exponential_multiplier=1000,
-           wait_exponential_max=10000)
+    #@retry(retry_on_result=retry_http,
+    #       wait_exponential_multiplier=1000,
+    #       wait_exponential_max=10000)
     def request(self,
                 method,
                 endpoint,
