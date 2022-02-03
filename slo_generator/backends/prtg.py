@@ -325,9 +325,15 @@ class PrtgClient:
         url += f'?{params_str}'
         LOGGER.debug(f'PRTG url: {url}')
         if method in ['put', 'post']:
-            response = req(url, headers=headers, json=post_data)
+            try:
+                response = req(url, headers=headers, json=post_data, timeout=480)
+            except requests.Timeout:
+                print("PRTG timeout -> url : " + url)
         else:
-            response = req(url, headers=headers)
+            try:
+                response = req(url, headers=headers, timeout=480)
+            except requests.Timeout:
+                print("PRTG timeout -> url : " + url)
         data = PrtgClient.to_json(response)
         #LOGGER.debug(f'Data from PRTG: {data}')
         return data
