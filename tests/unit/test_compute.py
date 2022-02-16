@@ -147,6 +147,9 @@ class TestCompute(unittest.TestCase):
     def test_export_prometheus(self, mock):
         export(SLO_REPORT, EXPORTERS[3])
 
+    def test_export_prometheus_self(self):
+        export(SLO_REPORT, EXPORTERS[7])
+
     @patch.object(Metric, 'send', mock_dd_metric_send)
     def test_export_datadog(self):
         export(SLO_REPORT, EXPORTERS[4])

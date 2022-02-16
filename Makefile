@@ -105,7 +105,7 @@ int_prom:
 
 # Run API locally
 run_api:
-	slo-generator api --target=run_compute --signature-type=http
+	slo-generator api --target=run_compute --signature-type=http -c samples/config.yaml
 
 # Local Docker build / push
 docker_build:

@@ -42,6 +42,7 @@ exporters:
   pubsub:
     project_id: ${PUBSUB_PROJECT_ID}
     topic_name: ${PUBSUB_TOPIC_NAME}
+  prometheus_self: { }
 
 error_budget_policies:
   default:
