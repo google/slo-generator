@@ -209,7 +209,7 @@ class PrtgBackend:
             ]
             points_above = [
                 point['Ping Time'] for point in datapoints
-                elif point['Ping Time'] is not None and type(point['Ping Time']) is float and point['Ping Time'] > threshold
+                if point['Ping Time'] is not None and type(point['Ping Time']) is float and point['Ping Time'] > threshold
             ]
             below.extend(points_below)
             above.extend(points_above)
