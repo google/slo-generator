@@ -94,8 +94,8 @@ class PrtgBackend:
         response = self.query_historicdata(start=start, end=end, probe_id=probe_id)
         LOGGER.debug(f"Result valid: {pprint.pformat(response)}")
         return PrtgBackend.count_threshold_PING(response,
-                                                threshold,
-                                                good_below_threshold)
+                                                    threshold,
+                                                    good_below_threshold)
         
     def availability(self, timestamp, window, slo_config):
         """Compute SLI by counting the number of values below and above a
