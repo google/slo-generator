@@ -216,7 +216,13 @@ class PrtgBackend:
                             elif point['Avg. Round Trip Time (RTT)'] is not None and type(point['Avg. Round Trip Time (RTT)']) is float and point['Avg. Round Trip Time (RTT)'] > threshold :
                                 points_above.append(point['Avg. Round Trip Time (RTT)'])
                         except:
-                            LOGGER.warning("Couldn't find any points in timeseries response")
+                            try:    
+                                if point['Ping Time Avg'] is not None and type(point['Ping Time Avg']) is float and point['Ping Time Avg'] <= threshold :
+                                    points_below.append(point['Ping Time Avg'])
+                                elif point['Ping Time Avg'] is not None and type(point['Ping Time Avg']) is float and point['Ping Time Avg'] > threshold :
+                                    points_above.append(point['Ping Time Avg'])
+                            except:
+                                LOGGER.warning("Couldn't find any points in timeseries response")
 
             below.extend(points_below)
             above.extend(points_above)
