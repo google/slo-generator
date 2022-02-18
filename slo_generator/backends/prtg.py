@@ -257,20 +257,25 @@ class PrtgBackend:
             datapoints = response['histdata']
             below = []
             above = []
+            points_below = []
+            points_above = []
             
             for point in datapoints :
                 if point['Ping Time'] is not None and type(point['Ping Time']) is float and point['Ping Time'] <= threshold :
-                    below.append(point['Ping Time'])
+                    points_below.append(point['Ping Time'])
                 elif point['Execution Time'] is not None and type(point['Execution Time']) is float and point['Execution Time'] <= threshold :
-                    below.append(point['Execution Time'])
+                    points_below.append(point['Execution Time'])
                 elif point['Avg. Round Trip Time (RTT)'] is not None and type(point['Avg. Round Trip Time (RTT)']) is float and point['Avg. Round Trip Time (RTT)'] <= threshold :
-                    below.append(point['Avg. Round Trip Time (RTT)'])
+                    points_below.append(point['Avg. Round Trip Time (RTT)'])
                 elif point['Ping Time'] is not None and type(point['Ping Time']) is float and point['Ping Time'] > threshold :
-                    above.append(point['Ping Time'])
+                    points_above.append(point['Ping Time'])
                 elif point['Execution Time'] is not None and type(point['Execution Time']) is float and point['Execution Time'] > threshold :
-                    above.append(point['Execution Time'])
+                    points_above.append(point['Execution Time'])
                 elif point['Avg. Round Trip Time (RTT)'] is not None and type(point['Avg. Round Trip Time (RTT)']) is float and point['Avg. Round Trip Time (RTT)'] > threshold :
-                    above.append(point['Avg. Round Trip Time (RTT)'])
+                    points_above.append(point['Avg. Round Trip Time (RTT)'])
+            
+            below.extend(points_below)
+            above.extend(points_above)
 
             if good_below_threshold:
                 return len(below), len(above)
