@@ -69,34 +69,6 @@ class PrtgBackend:
                                                 threshold,
                                                 good_below_threshold)
 
-    def latency_Ping(self, timestamp, window, slo_config):
-        """Compute SLI by counting the number of values below and above a
-        threshold.
-        Args:
-            timestamp (int): UNIX timestamp.
-            window (int): Window (in seconds).
-            slo_config (dict): SLO configuration.
-        Returns:
-            tuple: Good event count, Bad event count.
-        """
-        conf = slo_config['spec']
-        measurement = conf['service_level_indicator']
-        timestamp = time.time()
-        start = (timestamp - window)
-        start = datetime.fromtimestamp(start)
-        start = start.strftime('%Y-%m-%dT%H:%M:%S')
-        end = timestamp
-        end = datetime.fromtimestamp(end)
-        end = end.strftime('%Y-%m-%dT%H:%M:%S')
-        probe_id = measurement['probe_id']
-        threshold = measurement['threshold']
-        good_below_threshold = measurement.get('good_below_threshold', True)
-        response = self.query_historicdata(start=start, end=end, probe_id=probe_id)
-        LOGGER.debug(f"Result valid: {pprint.pformat(response)}")
-        return PrtgBackend.count_threshold_Ping(response,
-                                                    threshold,
-                                                    good_below_threshold)
-
     def availability(self, timestamp, window, slo_config):
         """Compute SLI by counting the number of values below and above a
         threshold.
@@ -222,41 +194,6 @@ class PrtgBackend:
             datapoints = response['histdata']
             below = []
             above = []
-            
-            points_below = [
-                point['Avg. Round Trip Time (RTT)'] for point in datapoints
-                if point['Avg. Round Trip Time (RTT)'] is not None and type(point['Avg. Round Trip Time (RTT)']) is float and point['Avg. Round Trip Time (RTT)'] < threshold
-            ]
-            points_above = [
-                point['Avg. Round Trip Time (RTT)'] for point in datapoints
-                if point['Avg. Round Trip Time (RTT)'] is not None and type(point['Avg. Round Trip Time (RTT)']) is float and point['Avg. Round Trip Time (RTT)'] > threshold
-            ]
-            below.extend(points_below)
-            above.extend(points_above)
-
-            if good_below_threshold:
-                return len(below), len(above)
-            return len(above), len(below)
-        except (IndexError, KeyError, ZeroDivisionError) as exception:
-            LOGGER.warning("Couldn't find any values in timeseries response")
-            LOGGER.debug(exception)
-            return NO_DATA, NO_DATA  # no events in timeseries
-
-    @staticmethod
-    def count_threshold_Ping(response, threshold, good_below_threshold=True):
-        """Create 2 buckets based on response and a value threshold, and return
-        number of events contained in each bucket.
-        Args:
-            response (dict): PRTG API response.
-            threshold (int): Threshold.
-            good_below_threshold (bool): If true, good events are < threshold.
-        Returns:
-            tuple: Number of good events, Number of bad events.
-        """
-        try:
-            datapoints = response['histdata']
-            below = []
-            above = []
             points_below = []
             points_above = []
             
@@ -280,7 +217,7 @@ class PrtgBackend:
                                 points_above.append(point['Avg. Round Trip Time (RTT)'])
                         except:
                             LOGGER.warning("Couldn't find any points in timeseries response")
-            
+
             below.extend(points_below)
             above.extend(points_above)
 
