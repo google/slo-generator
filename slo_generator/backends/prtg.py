@@ -261,18 +261,31 @@ class PrtgBackend:
             points_above = []
             
             for point in datapoints :
-                if point['Ping Time'] is not None and type(point['Ping Time']) is float and point['Ping Time'] <= threshold :
-                    points_below.append(point['Ping Time'])
-                elif point['Execution Time'] is not None and type(point['Execution Time']) is float and point['Execution Time'] <= threshold :
-                    points_below.append(point['Execution Time'])
-                elif point['Avg. Round Trip Time (RTT)'] is not None and type(point['Avg. Round Trip Time (RTT)']) is float and point['Avg. Round Trip Time (RTT)'] <= threshold :
-                    points_below.append(point['Avg. Round Trip Time (RTT)'])
-                elif point['Ping Time'] is not None and type(point['Ping Time']) is float and point['Ping Time'] > threshold :
-                    points_above.append(point['Ping Time'])
-                elif point['Execution Time'] is not None and type(point['Execution Time']) is float and point['Execution Time'] > threshold :
-                    points_above.append(point['Execution Time'])
-                elif point['Avg. Round Trip Time (RTT)'] is not None and type(point['Avg. Round Trip Time (RTT)']) is float and point['Avg. Round Trip Time (RTT)'] > threshold :
-                    points_above.append(point['Avg. Round Trip Time (RTT)'])
+                try:
+                    if point['Ping Time'] is not None and type(point['Ping Time']) is float and point['Ping Time'] <= threshold :
+                        points_below.append(point['Ping Time'])
+                except:
+                    try:
+                        if point['Execution Time'] is not None and type(point['Execution Time']) is float and point['Execution Time'] <= threshold :
+                            points_below.append(point['Execution Time'])
+                    except:
+                        try:    
+                            if point['Avg. Round Trip Time (RTT)'] is not None and type(point['Avg. Round Trip Time (RTT)']) is float and point['Avg. Round Trip Time (RTT)'] <= threshold :
+                                points_below.append(point['Avg. Round Trip Time (RTT)'])
+                        except:
+                            try:
+                                if point['Ping Time'] is not None and type(point['Ping Time']) is float and point['Ping Time'] > threshold :
+                                    points_above.append(point['Ping Time'])
+                            except:
+                                try:
+                                    if point['Execution Time'] is not None and type(point['Execution Time']) is float and point['Execution Time'] > threshold :
+                                        points_above.append(point['Execution Time'])
+                                except:
+                                    try:
+                                        if point['Avg. Round Trip Time (RTT)'] is not None and type(point['Avg. Round Trip Time (RTT)']) is float and point['Avg. Round Trip Time (RTT)'] > threshold :
+                                            points_above.append(point['Avg. Round Trip Time (RTT)'])
+                                    except:
+                                        LOGGER.warning("Couldn't find any values in timeseries response")
             
             below.extend(points_below)
             above.extend(points_above)
