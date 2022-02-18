@@ -258,16 +258,19 @@ class PrtgBackend:
             below = []
             above = []
             
-            points_below = [
-                point['Ping Time'] for point in datapoints
-                if point['Ping Time'] is not None and type(point['Ping Time']) is float and point['Ping Time'] < threshold
-            ]
-            points_above = [
-                point['Ping Time'] for point in datapoints
-                if point['Ping Time'] is not None and type(point['Ping Time']) is float and point['Ping Time'] > threshold
-            ]
-            below.extend(points_below)
-            above.extend(points_above)
+            for point in datapoints :
+                if point['Ping Time'] is not None and type(point['Ping Time']) is float and point['Ping Time'] <= threshold :
+                    below.extend(point['Ping Time'])
+                elif point['Execution Time'] is not None and type(point['Execution Time']) is float and point['Execution Time'] <= threshold :
+                    below.extend(point['Execution Time'])
+                elif point['Avg. Round Trip Time (RTT)'] is not None and type(point['Avg. Round Trip Time (RTT)']) is float and point['Avg. Round Trip Time (RTT)'] <= threshold :
+                    below.extend(point['Avg. Round Trip Time (RTT)'])
+                elif point['Ping Time'] is not None and type(point['Ping Time']) is float and point['Ping Time'] > threshold :
+                    above.extend(point['Ping Time'])
+                elif point['Execution Time'] is not None and type(point['Execution Time']) is float and point['Execution Time'] > threshold :
+                    above.extend(point['Execution Time'])
+                elif point['Avg. Round Trip Time (RTT)'] is not None and type(point['Avg. Round Trip Time (RTT)']) is float and point['Avg. Round Trip Time (RTT)'] > threshold :
+                    above.extend(point['Avg. Round Trip Time (RTT)'])
 
             if good_below_threshold:
                 return len(below), len(above)
