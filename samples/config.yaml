@@ -1,4 +1,5 @@
 ---
+default_exporters: [cloudevent]
 
 backends:
   cloud_monitoring:
@@ -18,6 +19,8 @@ backends:
     url: ${PROMETHEUS_URL}
 
 exporters:
+  cloudevent:
+    service_url: "http://localhost:8081"
   cloud_monitoring:
     project_id: ${STACKDRIVER_HOST_PROJECT_ID}
   cloud_monitoring/test:
