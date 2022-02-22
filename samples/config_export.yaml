@@ -1,0 +1,9 @@
+---
+default_exporters: [bigquery]
+exporters:
+  bigquery:
+    project_id: ${BIGQUERY_PROJECT_ID}
+    dataset_id: ${BIGQUERY_DATASET_ID}
+    table_id: ${BIGQUERY_TABLE_ID}
+  cloud_monitoring:
+    project_id: ${STACKDRIVER_HOST_PROJECT_ID}

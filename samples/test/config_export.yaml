@@ -1,0 +1,6 @@
+default_exporters: [bigquery]
+exporters:
+  bigquery:
+    project_id: rnm-slo-cloudevent-test
+    dataset_id: slos
+    table_id: reports
