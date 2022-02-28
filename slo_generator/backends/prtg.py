@@ -196,6 +196,7 @@ class PrtgBackend:
             above = []
             points_below = []
             points_above = []
+            point_average = None
             
             for point in datapoints :
                 try:
@@ -204,23 +205,31 @@ class PrtgBackend:
                     elif point['Ping Time'] is not None and type(point['Ping Time']) is float and point['Ping Time'] > threshold :
                         points_above.append(point['Ping Time'])
                 except:
-                    try:
-                        if point['Average'] is not None and type(point['Average']) is float and point['Average'] <= threshold :
-                            points_below.append(point['Average'])
-                        elif point['Average'] is not None and type(point['Average']) is float and point['Average'] > threshold :
-                            points_above.append(point['Average'])
+                    try:    
+                        if point['Avg. Round Trip Time (RTT)'] is not None and type(point['Avg. Round Trip Time (RTT)']) is float and point['Avg. Round Trip Time (RTT)'] <= threshold :
+                            points_below.append(point['Avg. Round Trip Time (RTT)'])
+                        elif point['Avg. Round Trip Time (RTT)'] is not None and type(point['Avg. Round Trip Time (RTT)']) is float and point['Avg. Round Trip Time (RTT)'] > threshold :
+                            points_above.append(point['Avg. Round Trip Time (RTT)'])
                     except:
                         try:    
-                            if point['Avg. Round Trip Time (RTT)'] is not None and type(point['Avg. Round Trip Time (RTT)']) is float and point['Avg. Round Trip Time (RTT)'] <= threshold :
-                                points_below.append(point['Avg. Round Trip Time (RTT)'])
-                            elif point['Avg. Round Trip Time (RTT)'] is not None and type(point['Avg. Round Trip Time (RTT)']) is float and point['Avg. Round Trip Time (RTT)'] > threshold :
-                                points_above.append(point['Avg. Round Trip Time (RTT)'])
+                            if point['Ping Time Avg'] is not None and type(point['Ping Time Avg']) is float and point['Ping Time Avg'] <= threshold :
+                                points_below.append(point['Ping Time Avg'])
+                            elif point['Ping Time Avg'] is not None and type(point['Ping Time Avg']) is float and point['Ping Time Avg'] > threshold :
+                                points_above.append(point['Ping Time Avg'])
                         except:
-                            try:    
-                                if point['Ping Time Avg'] is not None and type(point['Ping Time Avg']) is float and point['Ping Time Avg'] <= threshold :
-                                    points_below.append(point['Ping Time Avg'])
-                                elif point['Ping Time Avg'] is not None and type(point['Ping Time Avg']) is float and point['Ping Time Avg'] > threshold :
-                                    points_above.append(point['Ping Time Avg'])
+                            try:
+                                if point_average is None and point_average != "Not exist":
+                                    for point2 in point: 
+                                        if point2.find("Average") >=0:
+                                            point_average = point2
+                                            LOGGER.debug(point_average)
+                                            break
+                                        else: 
+                                            point_average = "Not exist"
+                                if point['Average'] is not None and type(point['Average']) is float and point['Average'] <= threshold :
+                                    points_below.append(point['Average'])
+                                elif point['Average'] is not None and type(point['Average']) is float and point['Average'] > threshold :
+                                    points_above.append(point['Average'])
                             except:
                                 LOGGER.warning("Couldn't find any points in timeseries response")
 
