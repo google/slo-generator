@@ -161,8 +161,7 @@ class DynatraceBackend:
         """
         params = {
             'timeframe' : 'GTF',
-            'from': start,
-            'to': end
+            'from': start
         }
         endpoint = 'slo/' + slo_id
         return self.client.request('get',
