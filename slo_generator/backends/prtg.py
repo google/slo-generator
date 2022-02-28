@@ -226,10 +226,10 @@ class PrtgBackend:
                                             break
                                         else: 
                                             point_average = "Not exist"
-                                if point['Average'] is not None and type(point['Average']) is float and point['Average'] <= threshold :
-                                    points_below.append(point['Average'])
-                                elif point['Average'] is not None and type(point['Average']) is float and point['Average'] > threshold :
-                                    points_above.append(point['Average'])
+                                if point[point_average] is not None and type(point[point_average]) is float and point[point_average] <= threshold :
+                                    points_below.append(point[point_average])
+                                elif point[point_average] is not None and type(point[point_average]) is float and point[point_average] > threshold :
+                                    points_above.append(point[point_average])
                             except:
                                 LOGGER.warning("Couldn't find any points in timeseries response")
 
