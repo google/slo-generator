@@ -84,26 +84,22 @@ Use `slo-generator compute --help` to list all available arguments.
 ### API usage
 
 On top of the CLI, the `slo-generator` can also be run as an API using the Cloud 
-Functions Framework SDK (Flask):
+Functions Framework SDK (Flask) using the `api` subcommand:
 ```
-slo-generator api -c <SHARED_CONFIG_PATH>
+slo-generator api --config <SHARED_CONFIG_PATH>
 ```
 where:
   * `<SHARED_CONFIG_PATH>` is the [Shared configuration](#shared-configuration) file path or GCS URL.
 
-Once the API is up-and-running, you can `HTTP POST` SLO configurations (YAML or JSON) to it:
+Once the API is up-and-running, you can make HTTP POST requests with your SLO 
+configurations (YAML or JSON) in the request body:
 
 ```
 curl -X POST -H "Content-Type: text/x-yaml" --data-binary @slo.yaml localhost:8080 # yaml SLO config
 curl -X POST -H "Content-Type: application/json" -d @slo.json localhost:8080 # json SLO config
 ```
 
-***Notes:***
-* The API responds by default to HTTP requests. An alternative mode is to 
-respond to [`CloudEvents`](https://cloudevents.io/) instead, by setting 
-`--signature-type cloudevent`.
-
-* Use `--target export` to run the API in export mode only (former `slo-pipeline`).
+To read more about the API and advanced usage, see [docs/shared/api.md](./docs/shared/api.md).
 
 ## Configuration
 
@@ -165,20 +161,21 @@ as a shared config for all SLO configs. It is composed of the following fields:
     * [`<custom>`](docs/providers/custom.md#backend)
   
 * `exporters`: A map of exporters to export results to. Each exporter is defined
-  as a key formatted as `<exporter_name>/<suffix>`, and a map value detailing the
-  exporter configuration.
+  as a key formatted as `<exporter_name>/<optional_suffix>`, and a map value 
+  detailing the exporter configuration.
   ```yaml
   exporters:
     bigquery/dev:
       project_id: proj-bq-dev-a4b7
       dataset_id: my-test-dataset
       table_id: my-test-table
-    prometheus/test:
+    prometheus:
       url: ${PROMETHEUS_URL}
   ```
   See specific providers documentation for detailed configuration:
-    * [`pubsub`](docs/providers/pubsub.md#exporter) to stream SLO reports.
     * [`bigquery`](docs/providers/bigquery.md#exporter) to export SLO reports to BigQuery for historical analysis and DataStudio reporting.
+    * [`cloudevent`](docs/providers/cloudevent.md#exporter) to stream SLO reports to Cloudevent receivers.
+    * [`pubsub`](docs/providers/pubsub.md#exporter) to stream SLO reports to Pubsub.
     * [`cloud_monitoring`](docs/providers/cloud_monitoring.md#exporter) to export metrics to Cloud Monitoring.
     * [`prometheus`](docs/providers/prometheus.md#exporter) to export metrics to Prometheus.
     * [`datadog`](docs/providers/datadog.md#exporter) to export metrics to Datadog.
@@ -186,7 +183,7 @@ as a shared config for all SLO configs. It is composed of the following fields:
     * [`<custom>`](docs/providers/custom.md#exporter) to export SLO data or metrics to a custom destination.
   
 * `error_budget_policies`: [**required**] A map of various error budget policies.
-  * `<NAME>`: Name of the error budget policy. 
+  * `<ebp_name>`: Name of the error budget policy. 
     * `steps`: List of error budget policy steps, each containing the following fields:
       * `window`: Rolling time window for this error budget.
       * `alerting_burn_rate_threshold`: Target burnrate threshold over which alerting is needed.

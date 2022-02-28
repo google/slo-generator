@@ -26,9 +26,11 @@ import pprint
 import re
 import sys
 import warnings
+
 from pathlib import Path
 
 from dateutil import tz
+
 import yaml
 
 from slo_generator.constants import DEBUG
@@ -85,7 +87,7 @@ def load_config(path, ctx=os.environ, kind=None):
         elif abspath.is_file():
             config = parse_config(path=str(abspath.resolve()), ctx=ctx)
         else:
-            LOGGER.warning(f'Path {path} not found. Trying to load from string')
+            LOGGER.debug(f'Path {path} not found. Trying to load from string')
             config = parse_config(content=str(path), ctx=ctx)
 
         # Filter on 'kind'
@@ -144,6 +146,11 @@ def parse_config(path=None, content=None, ctx=os.environ):
     if ctx:
         content = replace_env_vars(content, ctx)
     data = yaml.safe_load(content)
+    if isinstance(data, str):
+        error = (
+            'Error serializing config into dict. This might be due to a syntax '
+            'error in the YAML / JSON config file.')
+        LOGGER.error(error)
 
     LOGGER.debug(pprint.pformat(data))
     return data
@@ -220,8 +227,8 @@ def get_exporters(config, spec):
     exporters = []
     for exporter in spec_exporters:
         if exporter not in all_exporters.keys():
-            LOGGER.warning(
-                f'Exporter "{exporter}" not found in config. Skipping.')
+            LOGGER.error(
+                f'Exporter "{exporter}" not found in config.')
             continue
         exporter_data = all_exporters[exporter]
         exporter_data['name'] = exporter
@@ -516,4 +523,4 @@ def fmt_traceback(exc):
     Returns:
         str: Formatted exception.
     """
-    return exc.__class__.__name__ + str(exc).replace("\n", " ")
+    return exc.__class__.__name__ + ": " + str(exc).replace("\n", " ")

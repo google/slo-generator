@@ -27,6 +27,9 @@ COLORED_OUTPUT = int(os.environ.get("COLORED_OUTPUT", "0"))
 DRY_RUN = bool(int(os.environ.get("DRY_RUN", "0")))
 DEBUG = int(os.environ.get("DEBUG", "0"))
 
+# Exporters supporting v2 SLO report format
+V2_EXPORTERS = ('Pubsub', 'Cloudevent')
+
 # Config skeletons
 CONFIG_SCHEMA = {
     'backends': {},

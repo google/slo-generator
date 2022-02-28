@@ -186,7 +186,6 @@ class TestCompute(unittest.TestCase):
         errors = export(SLO_REPORT, exporters)
         self.assertEqual(len(errors), 1)
         self.assertIn('BigQueryError', errors[0])
-        self.assertIn('BigqueryExporter failed', errors[0])
 
     @patch("google.api_core.grpc_helpers.create_channel",
            return_value=mock_sd(STEPS))
