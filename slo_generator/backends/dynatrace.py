@@ -160,8 +160,9 @@ class DynatraceBackend:
             dict: Dynatrace API response.
         """
         params = {
-            'timeframe' : 'GTF',
-            'from': start
+            'from': start,
+            'to': end,
+            'timeFrame' : 'GTF'
         }
         endpoint = 'slo/' + slo_id
         return self.client.request('get',
