@@ -205,10 +205,10 @@ class PrtgBackend:
                         points_above.append(point['Ping Time'])
                 except:
                     try:
-                        if point['Execution Time'] is not None and type(point['Execution Time']) is float and point['Execution Time'] <= threshold :
-                            points_below.append(point['Execution Time'])
-                        elif point['Execution Time'] is not None and type(point['Execution Time']) is float and point['Execution Time'] > threshold :
-                            points_above.append(point['Execution Time'])
+                        if point['Average'] is not None and type(point['Average']) is float and point['Average'] <= threshold :
+                            points_below.append(point['Average'])
+                        elif point['Average'] is not None and type(point['Average']) is float and point['Average'] > threshold :
+                            points_above.append(point['Average'])
                     except:
                         try:    
                             if point['Avg. Round Trip Time (RTT)'] is not None and type(point['Avg. Round Trip Time (RTT)']) is float and point['Avg. Round Trip Time (RTT)'] <= threshold :
