@@ -160,6 +160,7 @@ class DynatraceBackend:
             dict: Dynatrace API response.
         """
         params = {
+            'timeframe' : 'GTF',
             'from': start,
             'to': end
         }
