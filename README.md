@@ -125,6 +125,7 @@ is composed of the following fields:
   * `description`: [**required**] *string* - Description of this SLO. 
   * `goal`: [**required**] *string* - SLO goal (or target) (**MUST** be between 0 and 1).
   * `backend`: [**required**] *string* - Backend name (**MUST** exist in SLO Generator Configuration).
+  * `method`: [**required**] *string* - Backend method to use (**MUST** exist in backend class definition).
   * `service_level_indicator`: [**required**] *map* - SLI configuration. The content of this section is 
   specific to each provider, see [`docs/providers`](./docs/providers).
   * `error_budget_policy`: [*optional*] *string* - Error budget policy name 
