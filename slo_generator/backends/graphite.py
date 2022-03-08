@@ -98,27 +98,31 @@ class GraphiteBackend:
         try:
             x = len(response)
             target = 0
-            while (target < x):
-                LOGGER.debug({pprint.pformat(response[target])})
-                datapoints = response[target]['datapoints']
-                LOGGER.debug({pprint.pformat(datapoints)})
-                below = []
-                above = []
-                for point in datapoints:
-                    LOGGER.debug({pprint.pformat(point[0])})
-                    value = point[0]
-                    if value is None or value <= threshold:
-                        LOGGER.debug("below")
-                        below.append(value)
-                    elif value == 3.0:
-                        LOGGER.debug("UNKNOWN")
-                    else:
-                        LOGGER.debug("above")
-                        above.append(value)
-                target = target + 1
-            if good_below_threshold:
-                return len(below), len(above)
-            return len(above), len(below)
+            if x!= 0 :
+                while (target < x):
+                    LOGGER.debug({pprint.pformat(response[target])})
+                    datapoints = response[target]['datapoints']
+                    LOGGER.debug({pprint.pformat(datapoints)})
+                    below = []
+                    above = []
+                    for point in datapoints:
+                        LOGGER.debug({pprint.pformat(point[0])})
+                        value = point[0]
+                        if value is None or value <= threshold:
+                            LOGGER.debug("below")
+                            below.append(value)
+                        elif value == 3.0:
+                            LOGGER.debug("UNKNOWN")
+                        else:
+                            LOGGER.debug("above")
+                            above.append(value)
+                    target = target + 1
+                if good_below_threshold:
+                    return len(below), len(above)
+                return len(above), len(below)
+            else :
+                LOGGER.warning("Couldn't find any values in timeseries response")
+                return NO_DATA, NO_DATA  # no events in timeseries
         except (IndexError, KeyError, ZeroDivisionError) as exception:
             LOGGER.warning("Couldn't find any values in timeseries response")
             LOGGER.debug(exception)
