@@ -27,7 +27,7 @@ LOGGER = logging.getLogger(__name__)
 
 class CloudMonitoringTagsExporter(MetricsExporter):
     """Cloud Monitoring exporter class."""
-    METRIC_PREFIX = "tags.googleapis.com/"
+    METRIC_PREFIX = "custom.googleapis.com/"
     REQUIRED_FIELDS = ['project_id']
 
     def __init__(self):
@@ -63,7 +63,7 @@ class CloudMonitoringTagsExporter(MetricsExporter):
         for key, value in labels.items():
             if key == "slo_name" or key == "slo_description" or key == "slo_type" or key == "env" or key == "product_id"  or key == "service_name" or key == "platform" or key == "client_coverage" or key == "slo_statement" or key == "feature_name" or key == "module_id" or key == "community" or key == "domain" or key == "error_budget_policy_step_name":
                 series.metric.labels[key] = value
-        series.resource.type = 'global'
+        series.resource.type = 'tags'
 
         # Create a new data point.
         point = series.points.add()
