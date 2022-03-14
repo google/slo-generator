@@ -53,6 +53,11 @@ DEFAULT_METRICS = [
         'labels': DEFAULT_METRIC_LABELS
     },
     {
+        'name': 'sli_measurement_tags',
+        'description': 'Service Level Indicator.',
+        'labels': DEFAULT_METRIC_LABELS
+    },
+    {
         'name': 'slo_target',
         'description': 'Service Level Objective target.',
         'labels': DEFAULT_METRIC_LABELS
