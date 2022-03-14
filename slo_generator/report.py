@@ -54,7 +54,7 @@ class SLOReport:
 
     # SLI
     sli_measurement: float = 0
-    sli_measurement_tags: float = 0
+    slo_generator: float = 0
     events_count: int = 0
     bad_events_count: int = 0
     good_events_count: int = 0
