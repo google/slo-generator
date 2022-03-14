@@ -61,7 +61,7 @@ class CloudMonitoringTagsExporter(MetricsExporter):
         series = monitoring_v3.types.TimeSeries()
         series.metric.type = data['name']
         for key, value in labels.items():
-            if key == "slo_name" or key == "slo_description" or key == "slo_type" or key == "env" or key == "product_id"  or key == "service_name" or key == "platform" or key == "client_coverage" or key == "slo_statement" or key == "feature_name" or key == "module_id" or key == "communaute" or key == "domaine":
+            if key == "slo_name" or key == "slo_description" or key == "slo_type" or key == "env" or key == "product_id"  or key == "service_name" or key == "platform" or key == "client_coverage" or key == "slo_statement" or key == "feature_name" or key == "module_id" or key == "communaute" or key == "domaine" or key == "error_budget_policy_step_name":
                 series.metric.labels[key] = value
         series.resource.type = 'global'
 
