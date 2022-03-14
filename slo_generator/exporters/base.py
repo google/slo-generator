@@ -54,7 +54,7 @@ DEFAULT_METRICS = [
     },
     {
         'name': 'sli_measurement_tags',
-        'description': 'Service Level Indicator.',
+        'description': 'Service Level Indicator select tags ADEO.',
         'labels': DEFAULT_METRIC_LABELS
     },
     {
