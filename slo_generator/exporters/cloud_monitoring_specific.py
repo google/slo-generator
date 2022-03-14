@@ -25,7 +25,7 @@ from .base import MetricsExporter
 LOGGER = logging.getLogger(__name__)
 
 
-class CloudMonitoringTagsExporter(MetricsExporter):
+class CloudMonitoringSpecificExporter(MetricsExporter):
     """Cloud Monitoring exporter class."""
     METRIC_PREFIX = "custom.googleapis.com/"
     REQUIRED_FIELDS = ['project_id']
