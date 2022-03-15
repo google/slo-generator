@@ -27,7 +27,7 @@ LOGGER = logging.getLogger(__name__)
 
 class CloudMonitoringSpecificExporter(MetricsExporter):
     """Cloud Monitoring exporter class."""
-    METRIC_PREFIX = "custom.googleapis.com/"
+    METRIC_PREFIX = "custom.googleapis.com/slo_generator/"
     REQUIRED_FIELDS = ['project_id']
 
     def __init__(self):

@@ -54,7 +54,6 @@ class SLOReport:
 
     # SLI
     sli_measurement: float = 0
-    slo_generator: float = 0
     events_count: int = 0
     bad_events_count: int = 0
     good_events_count: int = 0
@@ -165,7 +164,6 @@ class SLOReport:
 
         # Set fields in dataclass.
         self.__set_fields(sli_measurement=sli,
-                          slo_generator=sli,
                           good_events_count=int(good_count),
                           bad_events_count=int(bad_count),
                           events_count=int(good_count + bad_count),

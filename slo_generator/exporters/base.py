@@ -53,11 +53,6 @@ DEFAULT_METRICS = [
         'labels': DEFAULT_METRIC_LABELS
     },
     {
-        'name': 'slo_generator',
-        'description': 'Service Level Indicator select tags ADEO.',
-        'labels': DEFAULT_METRIC_LABELS
-    },
-    {
         'name': 'slo_target',
         'description': 'Service Level Objective target.',
         'labels': DEFAULT_METRIC_LABELS
