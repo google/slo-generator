@@ -57,7 +57,7 @@ class ElasticsearchBackend:
                     basic_auth['username'], basic_auth['password'])
             if api_key:
                 conf['api_key'] = (api_key['id'], api_key['value'])
-            # Mote: Either `hosts` or `cloud_id` must be specified in v8.x.x
+            # Note: Either `hosts` or `cloud_id` must be specified in v8.x.x
             self.client = Elasticsearch(**conf)
 
     # pylint: disable=unused-argument
