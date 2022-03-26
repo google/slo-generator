@@ -46,7 +46,7 @@ alerting directly on metrics or on **SLI > SLO** thresholds.
 
 ### Requirements
 
-* `python3.7` and above
+* `python3.9` and above
 * `pip3`
 
 ### Installation
