@@ -1,5 +1,13 @@
 # Changelog
 
+### [2.2.1](https://www.github.com/google/slo-generator/compare/v2.2.0...v2.2.1) (2022-03-26)
+
+
+### Bug Fixes
+
+* add timeFrame to retrieve_slo dynatrace ([#212](https://www.github.com/google/slo-generator/issues/212)) ([2db0140](https://www.github.com/google/slo-generator/commit/2db01404e1b9e9d216a26f987fbc5531092312ea))
+* prevent gcloud crash with python 3.10 during release workflow ([39a257e](https://www.github.com/google/slo-generator/commit/39a257e7244c53990063fb63f0edf88cfbb30681))
+
 ## [2.2.0](https://www.github.com/google/slo-generator/compare/v2.1.0...v2.2.0) (2022-02-02)
 
 
