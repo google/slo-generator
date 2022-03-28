@@ -16,6 +16,7 @@
 ElasticSearch backend implementation.
 """
 
+import copy
 import logging
 
 from elasticsearch import Elasticsearch
@@ -38,7 +39,26 @@ class ElasticsearchBackend:
     def __init__(self, client=None, **es_config):
         self.client = client
         if self.client is None:
-            self.client = Elasticsearch(**es_config)
+            # Copy the given client configuration and process it to address
+            # multiple connection setups (such as Elastic Cloud, basic auth,
+            # multiple nodes, API token...) before actually instantiating the
+            # client.
+            # Note: `es_config.copy()` and `dict(es_config)` only make *shallow*
+            # copies. We require a full nested copy of the configuration to
+            # work on.
+            conf = copy.deepcopy(es_config)
+            url = conf.pop('url', None)
+            basic_auth = conf.pop('basic_auth', None)
+            api_key = conf.pop('api_key', None)
+            if url:
+                conf['hosts'] = url
+            if basic_auth:
+                conf['basic_auth'] = (
+                    basic_auth['username'], basic_auth['password'])
+            if api_key:
+                conf['api_key'] = (api_key['id'], api_key['value'])
+            # Note: Either `hosts` or `cloud_id` must be specified in v8.x.x
+            self.client = Elasticsearch(**conf)
 
     # pylint: disable=unused-argument
     def good_bad_ratio(self, timestamp, window, slo_config):

@@ -8,8 +8,24 @@ Elasticsearch to create an SLO.
 ```yaml
 backends:
   elasticsearch:
-    api_token: ${DYNATRACE_API_TOKEN}
-    api_url: ${DYNATRACE_API_URL}
+    url: ${ELASTICSEARCH_URL}
+```
+
+Note that `url` can be either a single string (when connecting to a single node)
+or a list of strings (when connecting to multiple nodes):
+
+```yaml
+backends:
+  elasticsearch:
+    url: https://localhost:9200
+```
+
+```yaml
+backends:
+  elasticsearch:
+    url:
+      - https://localhost:9200
+      - https://localhost:9201
 ```
 
 The following methods are available to compute SLOs with the `elasticsearch`
