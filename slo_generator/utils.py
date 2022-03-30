@@ -277,9 +277,9 @@ def get_error_budget_policy(config, spec):
     all_ebp = config.get('error_budget_policies', {})
     spec_ebp = spec.get('error_budget_policy', 'default')
     if spec_ebp not in all_ebp.keys():
-        LOGGER.error(
+        error = (
             f'Error budget policy "{spec_ebp}" not found in config. Exiting.')
-        sys.exit(0)
+        raise ValueError(error)
     return all_ebp[spec_ebp]
 
 
