@@ -63,9 +63,8 @@ class CloudMonitoringSpecificExporter(MetricsExporter):
         for key, value in labels.items():
             if key == "slo_name" or key == "product_name" or key == "slo_type" or key == "env" or key == "product_id"  or key == "service_name" or key == "platform" or key == "client_coverage" or key == "slo_statement" or key == "feature_name" or key == "module_id" or key == "community" or key == "domain" or key == "error_budget_policy_step_name" or key == "entity":
                 series.metric.labels[key] = value
-        LOGGER.debug(data)
-        LOGGER.debug(self)
-        series.metric.labels['slo_description'] = self(data['description'])
+            LOGGER.debug(key)
+
         series.resource.type = 'global'
 
         # Create a new data point.
