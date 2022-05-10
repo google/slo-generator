@@ -54,7 +54,7 @@ To run all the tests, run `make` in the base directory.
 
 You can also select which test to run, and do other things:
 ```
-make unittests     # run unittests only
+make unit          # run unit tests only
 make flake8 pylint # run linting tests only
 make docker_test   # build Docker image and run tests within Docker container
 make docker_build  # build Docker image only

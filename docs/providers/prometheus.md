@@ -154,6 +154,18 @@ Optional fields:
 
 **&rightarrow; [Full SLO config](../../samples/prometheus/slo_prom_metrics_availability_query_sli.yaml)**
 
+## Self Exporter (API mode)
+
+When running slo-generator as an API, you can enable `prometheus_self` exporter, which will 
+expose all metrics on a standard `/metrics` endpoint, instead of pushing them to a gateway.
+
+```yaml
+exporters:
+  prometheus_self: { }
+```
+
+***Note:*** The metrics endpoint will be available after a first successful SLO request. 
+Before that, it's going to act as if it was endpoint of the generator API.
 
 ### Examples
 
