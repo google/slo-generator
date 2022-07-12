@@ -161,6 +161,7 @@ class GraphiteClient:
         params_str = "&".join("%s=%s" % (k, v) for k, v in params.items()
                               if v is not None)
         url += f'&{params_str}'
+        """
         if method in ['put', 'post']:
             try:
                 response = req(url, headers=headers, json=post_data, timeout=480)
@@ -168,6 +169,11 @@ class GraphiteClient:
                 print("Graphite timeout -> url : " + url)
         else:
             try:
+                response = req(url, headers=headers, verify = False, timeout=480)
+            except requests.Timeout:
+                print("Graphite timeout -> url : " + url)
+        """
+        try:
                 response = req(url, headers=headers, verify = False, timeout=480)
             except requests.Timeout:
                 print("Graphite timeout -> url : " + url)
