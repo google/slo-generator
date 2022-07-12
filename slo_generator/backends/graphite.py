@@ -106,15 +106,15 @@ class GraphiteBackend:
                     below = []
                     above = []
                     for point in datapoints:
-                        LOGGER.debug({pprint.pformat(point[0])})
+                        #LOGGER.debug({pprint.pformat(point[0])})
                         value = point[0]
                         if value is None or value <= threshold:
-                            LOGGER.debug("below")
+                            #LOGGER.debug("below")
                             below.append(value)
-                        elif value == 3.0:
-                            LOGGER.debug("UNKNOWN")
-                        else:
-                            LOGGER.debug("above")
+                        #elif value == 3.0:
+                            #LOGGER.debug("UNKNOWN")
+                        elif value != 3.0:
+                            #LOGGER.debug("above")
                             above.append(value)
                     target = target + 1
                 if good_below_threshold:
