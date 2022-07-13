@@ -98,8 +98,8 @@ class GraphiteBackend:
         """
         try:
             x = len(response)
-            LOGGER.debug(f"Response{pprint.pformat(response)}")
-            LOGGER.debug(f"Number Datapoint {pprint.pformat(x)}")
+            LOGGER.debug(f"Response{response}")
+            LOGGER.debug(f"Number Response {pprint.pformat(x)}")
             target = 0
             if x!= 0 :
                 while (target < x):
