@@ -97,12 +97,13 @@ class GraphiteBackend:
         """
         try:
             x = len(response)
+            LOGGER.debug({pprint.pformat(response)})
             target = 0
             if x!= 0 :
                 while (target < x):
-                    LOGGER.debug({pprint.pformat(response[target])})
+                    #LOGGER.debug({pprint.pformat(response[target])})
                     datapoints = response[target]['datapoints']
-                    LOGGER.debug({pprint.pformat(datapoints)})
+                    #LOGGER.debug({pprint.pformat(datapoints)})
                     below = []
                     above = []
                     for point in datapoints:
