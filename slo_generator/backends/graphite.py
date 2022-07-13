@@ -174,9 +174,9 @@ class GraphiteClient:
                 print("Graphite timeout -> url : " + url)
         """
         try:
-                response = req(url, headers=headers, verify = False, timeout=480)
-            except requests.Timeout:
-                print("Graphite timeout -> url : " + url)
+            response = req(url, headers=headers, verify = False, timeout=480)
+        except requests.Timeout:
+            LOGGER.info("Graphite timeout -> url : " + url)
         #response = requests.get(url, headers=headers, verify = False)
         #response = '[{"target": "nagios.host.pfrlmasdrva01_corp_leroymerlin_com.service.sys_linux_memory-usage_ram.perfdata.ram_used", "datapoints": [[15281600.0, 1612257900], [15276100.0, 1612258200], [15277800.0, 1612258500], [15269300.0, 1612258800], [15293800.0, 1612259100], [null, 1612259400], [null, 1612259700], [null, 1612260000], [null, 1612260300], [null, 1612260600], [null, 1612260900], [null, 1612261200]]}]'
         #response = '[{"target": "nagios.host.arolmdbphxa02_corp_leroymerlin_com.service.db_oracle_instance-standby_SDBROLM.metadata.state", "datapoints": [[2.0, 1612271700], [0.0, 1612272000], [0.0, 1612272300], [0.0, 1612272600], [0.0, 1612272900], [0.0, 1612273200], [0.0, 1612273500], [0.0, 1612273800], [0.0, 1612274100], [0.0, 1612274400], [0.0, 1612274700], [null, 1612275000]]}]'
