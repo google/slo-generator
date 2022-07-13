@@ -23,5 +23,6 @@ ADD . /app
 WORKDIR /app
 RUN pip install -U setuptools
 RUN pip install ."[api, datadog, dynatrace, prometheus, elasticsearch, pubsub, cloud_monitoring, cloud_service_monitoring, cloud_storage, bigquery, cloudevent, dev]"
+RUN rm /etc/localtime && ln -s /usr/share/zoneinfo/Europe/Paris /etc/localtime
 ENTRYPOINT [ "slo-generator" ]
 CMD ["-v"]
