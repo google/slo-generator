@@ -58,7 +58,7 @@ class GraphiteBackend:
         threshold = measurement['threshold']
         good_below_threshold = measurement.get('good_below_threshold', True)
         response = self.query(start=start, end=end, metric=metric)
-        LOGGER.debug(f"Result valid: {pprint.pformat(response)}")
+        #LOGGER.debug(f"Result valid: {pprint.pformat(response)}")
         return GraphiteBackend.count_threshold(response,
                                                 threshold,
                                                 good_below_threshold)
@@ -79,6 +79,7 @@ class GraphiteBackend:
             'until': datetime.fromtimestamp(end).strftime("%H:%M_%Y%m%d"),
             'format': "json"
         }
+        LOGGER.debug(f"parameter{pprint.pformat(params)}")
         return self.client.request('get',
                                    'render?target',
                                    metric,
@@ -97,7 +98,8 @@ class GraphiteBackend:
         """
         try:
             x = len(response)
-            LOGGER.debug({pprint.pformat(response)})
+            LOGGER.debug(f"Response{pprint.pformat(response)}")
+            LOGGER.debug(f"Number Datapoint {pprint.pformat(x)}")
             target = 0
             if x!= 0 :
                 while (target < x):
