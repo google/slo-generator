@@ -36,7 +36,6 @@ class CloudeventExporter:
     REQUIRED_FIELDS = ['service_url']
     OPTIONAL_FIELDS = ['auth']
 
-    # pylint: disable=R0201
     def export(self, data, **config):
         """Export data as CloudEvent to an HTTP service receiving cloud events.
 
