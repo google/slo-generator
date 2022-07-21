@@ -101,14 +101,15 @@ class GraphiteBackend:
             LOGGER.debug(f"Response{response}")
             LOGGER.debug(f"Number Response {pprint.pformat(x)}")
             target = 0
+            below = []
+            above = []
             if x!= 0 :
                 while (target < x):
                     #LOGGER.debug({pprint.pformat(response[target])})
                     datapoints = response[target]['datapoints']
-                    print(datapoints)
+                    #print(datapoints)
                     #LOGGER.debug({pprint.pformat(datapoints)})
-                    below = []
-                    above = []
+                    
                     for point in datapoints:
                         #LOGGER.debug({pprint.pformat(point[0])})
                         value = point[0]
@@ -121,11 +122,11 @@ class GraphiteBackend:
                             #LOGGER.debug("UNKNOWN")
                         elif value != 3.0:
                             #LOGGER.debug("above")
-                            print(f"value above : {value}")
+                            #print(f"value above : {value}")
                             above.append(value)
                     target = target + 1
                 if good_below_threshold:
-                    LOGGER.debug(f"Good value : {len(below)} ; Bad Value: {len(above)}")
+                    #LOGGER.debug(f"Good value : {len(below)} ; Bad Value: {len(above)}")
                     return len(below), len(above)
                 return len(above), len(below)
             else :
