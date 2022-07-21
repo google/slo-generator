@@ -113,7 +113,7 @@ class GraphiteBackend:
                     for point in datapoints:
                         #LOGGER.debug({pprint.pformat(point[0])})
                         value = point[0]
-                        print(f"value : {value}")
+                        #print(f"value : {value}")
                         if value is None or value <= threshold:
                             #LOGGER.debug("below")
                             below.append(value)
