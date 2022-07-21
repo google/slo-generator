@@ -121,6 +121,7 @@ class GraphiteBackend:
                             above.append(value)
                     target = target + 1
                 if good_below_threshold:
+                    LOGGER.debug(f"Good value : {len(below)} ; Bad Value: {len(above)}")
                     return len(below), len(above)
                 return len(above), len(below)
             else :
