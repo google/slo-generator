@@ -128,11 +128,13 @@ class GraphiteBackend:
                 return len(above), len(below)
             else :
                 LOGGER.warning("Couldn't find any values in timeseries response")
-                return NO_DATA, NO_DATA  # no events in timeseries
+                #return NO_DATA, NO_DATA  # no events in timeseries
+                return 0, 0
         except (IndexError, KeyError, ZeroDivisionError) as exception:
             LOGGER.warning("Couldn't find any values in timeseries response")
             LOGGER.debug(exception)
-            return NO_DATA, NO_DATA  # no events in timeseries
+            #return NO_DATA, NO_DATA  # no events in timeseries
+            return 0, 0
 
 class GraphiteClient:
     """Small wrapper around requests to query Graphite API.
