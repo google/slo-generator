@@ -49,7 +49,9 @@ class ZabbixBackend:
         """
         measurement = slo_config['spec']['service_level_indicator']
         service_id = measurement['service_id'] #serive_id "Firewall Cluster (Availability)"
-
+        print(service_id)
+        print(timestamp)
+        print(window)
         response = self.client.service.getsla(serviceids=service_id, intervals=[  {
                 "from": timestamp - window,
                 "to": timestamp
