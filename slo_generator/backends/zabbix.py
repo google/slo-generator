@@ -50,6 +50,6 @@ class ZabbixBackend:
         service_id = measurement['service_id']
         sla_id= measurement['sla_id']
         response = self.client.sla.getsli(serviceids=service_id, slaid=sla_id, period_from=timestamp - window, period_to=timestamp, periods=1)
-        sli_value = response[service_id]["sla"][0]["sla"]
+        sli_value = response.get("sli")[0][0].get("sli")
         LOGGER.debug(f"SLI value: {sli_value}")
         return sli_value
