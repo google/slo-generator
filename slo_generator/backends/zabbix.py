@@ -29,10 +29,12 @@ class ZabbixBackend:
         api_url (str): PRTG API URL.
         api_passhash (str): PRTG passhash.
     """
-    def __init__(self, user, password, api_url=None):
-        self.zabbix_instance = ZabbixAPI(api_url, use_authenticate=False)
-        self.zabbix_instance.login(user, password)
-        self.zabbix_instance.session.verify = False
+    def __init__(self, client=None, user=None, password=None, api_url=None):
+        self.client = client
+        if not self.client:
+            self.client = ZabbixAPI(api_url, use_authenticate=False)
+            self.client.session.verify = False
+            self.client.login(user, password)
 
     def query_sli(self, timestamp, window, slo_config):
         """Query SLI value from a given PromQL expression.
@@ -48,7 +50,7 @@ class ZabbixBackend:
         measurement = slo_config['spec']['service_level_indicator']
         service_id = measurement['service_id'] #serive_id "Firewall Cluster (Availability)"
 
-        response = self.zabbix_instance.service.getsla(serviceids=service_id, intervals=[  {
+        response = self.client.service.getsla(serviceids=service_id, intervals=[  {
                 "from": timestamp - window,
                 "to": timestamp
             }])
