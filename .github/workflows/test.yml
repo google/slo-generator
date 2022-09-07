@@ -52,6 +52,18 @@ jobs:
       - name: Run coverage report
         run: make coverage
 
+  types:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+      - uses: actions/setup-python@v2
+        with:
+          python-version: '3.9'
+          architecture: 'x64'
+
+      - name: Install dependencies
+        run: make install
+
       - name: Check types
         run: make check_types
 
