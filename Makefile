@@ -75,6 +75,8 @@ coverage:
 
 lint: flake8 pylint pytype
 
+check_types: $(PYTHON) -m mypy --show-error-codes slo_generator
+
 flake8:
 	flake8 --ignore=$(FLAKE8_IGNORE) $(NAME)/ --max-line-length=80
 	flake8 --ignore=$(FLAKE8_IGNORE),E402 tests/ --max-line-length=80
