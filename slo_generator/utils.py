@@ -23,6 +23,7 @@ import os
 import pprint
 import re
 import sys
+from typing import Optional
 import warnings
 from collections.abc import Mapping
 from datetime import datetime
@@ -42,7 +43,7 @@ except ImportError:
 LOGGER = logging.getLogger(__name__)
 
 
-def load_configs(path, ctx=os.environ, kind=None):
+def load_configs(path: str, ctx: os._Environ[str] = os.environ, kind: Optional[str] = None) -> list:
     """Load multiple slo-generator configs from a folder path.
 
     Args:
@@ -60,7 +61,7 @@ def load_configs(path, ctx=os.environ, kind=None):
     return [cfg for cfg in configs if cfg]
 
 
-def load_config(path, ctx=os.environ, kind=None):
+def load_config(path: str, ctx: os._Environ[str] = os.environ, kind: Optional[str] = None) -> Optional[dict]:
     """Load any slo-generator config, from a local path, a GCS URL, or directly
     from a string content.
 
@@ -101,7 +102,7 @@ def load_config(path, ctx=os.environ, kind=None):
         raise
 
 
-def parse_config(path=None, content=None, ctx=os.environ):
+def parse_config(path: Optional[str] = None, content = None, ctx: os._Environ[str] = os.environ):
     """Load a yaml configuration file and resolve environment variables in it.
 
     Args:
@@ -115,7 +116,7 @@ def parse_config(path=None, content=None, ctx=os.environ):
     """
     pattern = re.compile(r'.*?\${(\w+)}.*?')
 
-    def replace_env_vars(content, ctx):
+    def replace_env_vars(content, ctx) -> str:
         """Replace env variables in content from context.
 
         Args:
@@ -179,7 +180,7 @@ def setup_logging():
         pass
 
 
-def get_human_time(timestamp, timezone=None):
+def get_human_time(timestamp: int, timezone: Optional[str] = None) -> str:
     """Get human-readable timestamp from UNIX UTC timestamp.
 
     Args:
@@ -210,7 +211,7 @@ def get_human_time(timestamp, timezone=None):
     return date_str
 
 
-def get_exporters(config, spec):
+def get_exporters(config: dict, spec: dict) -> list:
     """Get SLO exporters configs from spec and global config.
 
     Args:
@@ -239,7 +240,7 @@ def get_exporters(config, spec):
     return exporters
 
 
-def get_backend(config, spec):
+def get_backend(config: dict, spec: dict):
     """Get SLO backend config from spec and global config.
 
     Args:
@@ -265,7 +266,7 @@ def get_backend(config, spec):
     return backend_data
 
 
-def get_error_budget_policy(config, spec):
+def get_error_budget_policy(config: dict, spec: dict):
     """Get error budget policy from spec and global config.
 
     Args:
@@ -284,7 +285,7 @@ def get_error_budget_policy(config, spec):
     return all_ebp[spec_ebp]
 
 
-def get_backend_cls(backend):
+def get_backend_cls(backend: str):
     """Get backend class.
 
     Args:
@@ -297,7 +298,7 @@ def get_backend_cls(backend):
     return import_cls(backend, expected_type)
 
 
-def get_exporter_cls(exporter):
+def get_exporter_cls(exporter: str):
     """Get exporter class.
 
     Args:
@@ -335,7 +336,7 @@ def import_cls(cls_name, expected_type):
                           prefix=expected_type)
 
 
-def import_dynamic(package, name, prefix="class"):
+def import_dynamic(package: str, name: str, prefix: Optional[str] = "class"):
     """Import class or method dynamically from package and name.
 
     Args:
@@ -361,7 +362,7 @@ def import_dynamic(package, name, prefix="class"):
         return None
 
 
-def capitalize(word):
+def capitalize(word: str) -> str:
     """Only capitalize the first letter of a word, even when written in
     CamlCase.
 
@@ -374,7 +375,7 @@ def capitalize(word):
     return re.sub('([a-zA-Z])', lambda x: x.groups()[0].upper(), word, 1)
 
 
-def snake_to_caml(word):
+def snake_to_caml(word: str) -> str:
     """Convert a string written in snake_case to a string in CamlCase.
 
     Args:
@@ -386,7 +387,7 @@ def snake_to_caml(word):
     return re.sub('_.', lambda x: x.group()[1].upper(), word)
 
 
-def caml_to_snake(word):
+def caml_to_snake(word: str) -> str:
     """Convert a string written in CamlCase to a string written in snake_case.
 
     Args:
@@ -398,7 +399,7 @@ def caml_to_snake(word):
     return re.sub(r'(?<!^)(?=[A-Z])', '_', word).lower()
 
 
-def dict_snake_to_caml(data):
+def dict_snake_to_caml(data: dict) -> dict:
     """Convert dictionary with keys written in snake_case to another one with
     keys written in CamlCase.
 
@@ -411,7 +412,7 @@ def dict_snake_to_caml(data):
     return apply_func_dict(data, snake_to_caml)
 
 
-def apply_func_dict(data, func):
+def apply_func_dict(data: dict, func) -> dict:
     """Apply function on a dictionary keys.
 
     Args:
@@ -425,7 +426,7 @@ def apply_func_dict(data, func):
     return data
 
 
-def str2bool(string):
+def str2bool(string: str) -> bool:
     """Convert a string to a boolean.
 
     Args:
@@ -446,7 +447,7 @@ def str2bool(string):
     raise argparse.ArgumentTypeError('Boolean value expected.')
 
 
-def download_gcs_file(url):
+def download_gcs_file(url: str) -> dict:
     """Download config from GCS.
 
     Args:
@@ -462,7 +463,7 @@ def download_gcs_file(url):
     return blob.download_as_string(client=None).decode('utf-8')
 
 
-def decode_gcs_url(url):
+def decode_gcs_url(url: str) -> tuple:
     """Decode GCS URL.
 
     Args:
@@ -477,7 +478,7 @@ def decode_gcs_url(url):
     return (bucket_name, file_path)
 
 
-def get_files(source, extensions=['yaml', 'yml', 'json']):
+def get_files(source, extensions = ['yaml', 'yml', 'json']) -> list:
     """Get all files matching extensions.
 
     Args:
@@ -486,13 +487,13 @@ def get_files(source, extensions=['yaml', 'yml', 'json']):
     Returns:
         list: List of all files matching extensions relative to source folder.
     """
-    all_files = []
+    all_files: list = []
     for ext in extensions:
         all_files.extend(Path(source).rglob(f'*.{ext}'))
     return all_files
 
 
-def get_target_path(source_dir, target_dir, relative_path, mkdir=True):
+def get_target_path(source_dir, target_dir, relative_path, mkdir: Optional[bool] = True):
     """Get target file path from a source directory, a target directory and a
     path relative to the source directory.
 
@@ -515,7 +516,7 @@ def get_target_path(source_dir, target_dir, relative_path, mkdir=True):
         target_path.parent.mkdir(parents=True, exist_ok=True)
     return target_path
 
-def fmt_traceback(exc):
+def fmt_traceback(exc) -> str:
     """Format exception to be human-friendly.
 
     Args:

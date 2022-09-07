@@ -18,7 +18,7 @@ Report utilities.
 
 import logging
 from dataclasses import asdict, dataclass, fields, field
-from typing import List
+from typing import List, Any
 
 from slo_generator import utils
 from slo_generator.constants import (COLORED_OUTPUT, MIN_VALID_EVENTS, NO_DATA,
@@ -256,7 +256,7 @@ class SLOReport:
             good_count, bad_count = NO_DATA, NO_DATA
         return sli_measurement, good_count, bad_count
 
-    def to_json(self):
+    def to_json(self) -> dict[str, Any]:
         """Serialize dataclass to JSON."""
         if not self.valid:
             ebp_name = self.error_budget_policy_step_name
@@ -269,7 +269,7 @@ class SLOReport:
         return asdict(self)
 
     # pylint: disable=too-many-return-statements
-    def _validate(self, data):
+    def _validate(self, data) -> bool:
         """Validate backend results. Invalid data will result in SLO report not
         being built.
 
@@ -351,7 +351,7 @@ class SLOReport:
 
         return True
 
-    def _post_validate(self):
+    def _post_validate(self) -> bool:
         """Validate report after build."""
 
         # SLI measurement should be 0 <= x <= 1
@@ -381,11 +381,11 @@ class SLOReport:
             setattr(self, name, value)
 
     @property
-    def info(self):
+    def info(self) -> str:
         """Step information."""
         return f"{self.name :<32} | {self.error_budget_policy_step_name :<8}"
 
-    def __str__(self):
+    def __str__(self) -> str:
         report = self.to_json()
         if not self.valid:
             errors_str = ' | '.join(self.errors)
