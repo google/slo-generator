@@ -54,7 +54,7 @@ class CloudServiceMonitoringBackend:
             omitted.
     """
 
-    def __init__(self, project_id: str, client = None):
+    def __init__(self, project_id: str, client=None):
         self.project_id = project_id
         self.client = client
         if client is None:
@@ -63,7 +63,10 @@ class CloudServiceMonitoringBackend:
         self.workspace_path = f'workspaces/{project_id}'
         self.project_path = f'projects/{project_id}'
 
-    def good_bad_ratio(self, timestamp: int, window: int, slo_config: dict) -> dict:
+    def good_bad_ratio(self,
+                       timestamp: int,
+                       window: int,
+                       slo_config: dict) -> dict:
         """Good bad ratio method.
 
         Args:
@@ -76,7 +79,10 @@ class CloudServiceMonitoringBackend:
         """
         return self.retrieve_slo(timestamp, window, slo_config)
 
-    def distribution_cut(self, timestamp: int, window: int, slo_config: dict) -> dict:
+    def distribution_cut(self,
+                         timestamp: int,
+                         window: int,
+                         slo_config: dict) -> dict:
         """Distribution cut method.
 
         Args:
@@ -117,7 +123,10 @@ class CloudServiceMonitoringBackend:
         return self.retrieve_slo(timestamp, window, slo_config)
 
     # pylint: disable=unused-argument
-    def delete(self, timestamp: int, window: int, slo_config: dict) -> Optional[dict]:
+    def delete(self,
+               timestamp: int,
+               window: int,
+               slo_config: dict) -> Optional[dict]:
         """Delete method.
 
         Args:
@@ -192,7 +201,8 @@ class CloudServiceMonitoringBackend:
                 good_event_count = value
         return good_event_count, bad_event_count
 
-    def create_service(self, slo_config: dict)-> dict:
+    def create_service(self,
+                       slo_config: dict) -> dict:
         """Create Service object in Cloud Service Monitoring API.
 
         Args:
@@ -263,7 +273,10 @@ class CloudServiceMonitoringBackend:
         display_name = slo_config.get('service_display_name', service_id)
         return {'display_name': display_name, 'custom': {}}
 
-    def build_service_id(self, slo_config: dict, dest_project_id: Optional[str] = None, full: Optional[bool] = False):
+    def build_service_id(self,
+                         slo_config: dict,
+                         dest_project_id: Optional[str] = None,
+                         full: Optional[bool] = False):
         """Build service id from SLO configuration.
 
         Args:
@@ -347,7 +360,8 @@ class CloudServiceMonitoringBackend:
         return SSM.to_json(slo)
 
     @staticmethod
-    def build_slo(window: int, slo_config: dict) -> dict:  # pylint: disable=R0912,R0915
+    def build_slo(window: int,
+                  slo_config: dict) -> dict:  # pylint: disable=R0912,R0915
         """Get SLO JSON representation in Cloud Service Monitoring API from SLO
         configuration.
 
@@ -540,7 +554,10 @@ class CloudServiceMonitoringBackend:
                 f'Skipping.')
             return None
 
-    def build_slo_id(self, window: int, slo_config: dict, full: Optional[bool] = False) -> str:
+    def build_slo_id(self,
+                     window: int,
+                     slo_config: dict,
+                     full: Optional[bool] = False) -> str:
         """Build SLO id from SLO configuration.
 
         Args:

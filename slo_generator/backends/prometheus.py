@@ -98,7 +98,12 @@ class PrometheusBackend:
         return (good_count, bad_count)
 
     # pylint: disable=unused-argument
-    def distribution_cut(self, timestamp: int, window: int, slo_config: dict) -> tuple[float, float]:
+    def distribution_cut(
+        self,
+        timestamp: int,
+        window: int,
+        slo_config: dict
+    ) -> tuple[float, float]:
         """Query events for distributions (histograms).
 
         Args:
@@ -133,7 +138,12 @@ class PrometheusBackend:
         return (good_count, bad_count)
 
     # pylint: disable=unused-argument
-    def query(self, filter: str, window: int, timestamp: Optional[int] = None, operators: list = [], labels: dict = {}) -> dict:
+    def query(self,
+              filter: str,
+              window: int,
+              timestamp: Optional[int] = None,
+              operators: list = [],
+              labels: dict = {}) -> dict:
         """Query Prometheus server.
 
         Args:
@@ -171,7 +181,12 @@ class PrometheusBackend:
             return NO_DATA  # no events in timeseries
 
     @staticmethod
-    def _fmt_query(query: str, window: int, operators: list = [], labels: dict = {}) -> str:
+    def _fmt_query(
+        query: str,
+        window: int,
+        operators: list = [],
+        labels: dict = {}
+    ) -> str:
         """Format Prometheus query:
 
         * If the PromQL expression has a `window` placeholder, replace it by the

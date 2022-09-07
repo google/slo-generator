@@ -43,7 +43,9 @@ except ImportError:
 LOGGER = logging.getLogger(__name__)
 
 
-def load_configs(path: str, ctx: os._Environ[str] = os.environ, kind: Optional[str] = None) -> list:
+def load_configs(path: str,
+                 ctx: os._Environ[str] = os.environ,
+                 kind: Optional[str] = None) -> list:
     """Load multiple slo-generator configs from a folder path.
 
     Args:
@@ -61,7 +63,9 @@ def load_configs(path: str, ctx: os._Environ[str] = os.environ, kind: Optional[s
     return [cfg for cfg in configs if cfg]
 
 
-def load_config(path: str, ctx: os._Environ[str] = os.environ, kind: Optional[str] = None) -> Optional[dict]:
+def load_config(path: str,
+                ctx: os._Environ[str] = os.environ,
+                kind: Optional[str] = None) -> Optional[dict]:
     """Load any slo-generator config, from a local path, a GCS URL, or directly
     from a string content.
 
@@ -102,7 +106,9 @@ def load_config(path: str, ctx: os._Environ[str] = os.environ, kind: Optional[st
         raise
 
 
-def parse_config(path: Optional[str] = None, content = None, ctx: os._Environ[str] = os.environ):
+def parse_config(path: Optional[str] = None,
+                 content=None,
+                 ctx: os._Environ[str] = os.environ):
     """Load a yaml configuration file and resolve environment variables in it.
 
     Args:
@@ -478,7 +484,7 @@ def decode_gcs_url(url: str) -> tuple:
     return (bucket_name, file_path)
 
 
-def get_files(source, extensions = ['yaml', 'yml', 'json']) -> list:
+def get_files(source, extensions=['yaml', 'yml', 'json']) -> list:
     """Get all files matching extensions.
 
     Args:
@@ -493,7 +499,10 @@ def get_files(source, extensions = ['yaml', 'yml', 'json']) -> list:
     return all_files
 
 
-def get_target_path(source_dir, target_dir, relative_path, mkdir: Optional[bool] = True):
+def get_target_path(source_dir,
+                    target_dir,
+                    relative_path,
+                    mkdir: Optional[bool] = True):
     """Get target file path from a source directory, a target directory and a
     path relative to the source directory.
 

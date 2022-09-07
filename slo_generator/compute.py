@@ -32,7 +32,7 @@ LOGGER = logging.getLogger(__name__)
 def compute(slo_config: dict,
             config: dict,
             timestamp: Optional[float] = None,
-            client = None,
+            client=None,
             do_export: Optional[bool] = False,
             delete: Optional[bool] = False):
     """Run pipeline to compute SLO, Error Budget and Burn Rate, and export the
@@ -94,7 +94,9 @@ def compute(slo_config: dict,
     return reports
 
 
-def export(data: dict, exporters: list, raise_on_error: Optional[bool] = False) -> list:
+def export(data: dict,
+           exporters: list,
+           raise_on_error: Optional[bool] = False) -> list:
     """Export data using selected exporters.
 
     Args:
