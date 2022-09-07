@@ -35,12 +35,12 @@ from slo_generator.utils import dict_snake_to_caml
 
 LOGGER = logging.getLogger(__name__)
 
-SID_GAE = 'gae:{project_id}_{module_id}'
-SID_CLOUD_ENDPOINT = 'ist:{project_id}-{service}'
-SID_CLUSTER_ISTIO = (
+SID_GAE: str = 'gae:{project_id}_{module_id}'
+SID_CLOUD_ENDPOINT: str = 'ist:{project_id}-{service}'
+SID_CLUSTER_ISTIO: str = (
     'ist:{project_id}-{suffix}-{location}-{cluster_name}-{service_namespace}-'
     '{service_name}')
-SID_MESH_ISTIO = ('ist:{mesh_uid}-{service_namespace}-{service_name}')
+SID_MESH_ISTIO: str = ('ist:{mesh_uid}-{service_namespace}-{service_name}')
 
 
 class CloudServiceMonitoringBackend:

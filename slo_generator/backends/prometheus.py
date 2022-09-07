@@ -20,6 +20,7 @@ import json
 import logging
 import os
 import pprint
+from typing import Optional
 
 from prometheus_http_client import Prometheus
 
@@ -97,7 +98,7 @@ class PrometheusBackend:
         return (good_count, bad_count)
 
     # pylint: disable=unused-argument
-    def distribution_cut(self, timestamp, window, slo_config):
+    def distribution_cut(self, timestamp: int, window: int, slo_config: dict) -> tuple[float, float]:
         """Query events for distributions (histograms).
 
         Args:
@@ -132,7 +133,7 @@ class PrometheusBackend:
         return (good_count, bad_count)
 
     # pylint: disable=unused-argument
-    def query(self, filter, window, timestamp=None, operators=[], labels={}):
+    def query(self, filter: str, window: int, timestamp: Optional[int] = None, operators: list = [], labels: dict = {}) -> dict:
         """Query Prometheus server.
 
         Args:
@@ -153,7 +154,7 @@ class PrometheusBackend:
         return response
 
     @staticmethod
-    def count(response):
+    def count(response: dict) -> float:
         """Count events in Prometheus response.
         Args:
             response (dict): Prometheus query response.
@@ -170,7 +171,7 @@ class PrometheusBackend:
             return NO_DATA  # no events in timeseries
 
     @staticmethod
-    def _fmt_query(query, window, operators=[], labels={}):
+    def _fmt_query(query: str, window: int, operators: list = [], labels: dict = {}) -> str:
         """Format Prometheus query:
 
         * If the PromQL expression has a `window` placeholder, replace it by the
