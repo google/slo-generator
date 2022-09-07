@@ -35,9 +35,6 @@ TIME_FORMAT = '%Y-%m-%dT%H:%M:%SZ'
 API_SIGNATURE_TYPE = os.environ['GOOGLE_FUNCTION_SIGNATURE_TYPE']
 setup_logging()
 
-print(CONFIG_PATH)
-exit()
-
 def run_compute(request):
     """Run slo-generator compute function. Can be configured to export data as
     well, using the `exporters` key of the SLO config.
