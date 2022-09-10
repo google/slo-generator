@@ -81,17 +81,18 @@ class SLOReport:
     valid: bool
     errors: list[str] = field(default_factory=list)
 
-    def get_assumption_empty_sli(self,config):
-        if 'assumption_empty_sli' in config['spec'] and config['spec']['method'] == 'good_bad_ratio':
-            if 0 <= float(config['spec']['assumption_empty_sli']) <= 100:
-                assumption_empty_sli = float(config['spec']['assumption_empty_sli'])
-                LOGGER.debug(f'{self.info} | Found assumption_empty_sli config, It will to be used the value {str(assumption_empty_sli)}% when not exists increase in metrics')
-                return assumption_empty_sli
-            else:
-                LOGGER.error('Value to assumption_empty_sli is not between 0 and 100. Received: ' + str(config['spec']['assumption_empty_sli']) + '.')
+    def get_assumption_empty_sli(self, config):
+      if config['spec']['method'] == 'good_bad_ratio':
+        if 'assumption_empty_sli' in config['spec']:
+          if 0 <= float(config['spec']['assumption_empty_sli']) <= 100:
+            assumption_empty_sli = float(config['spec']['assumption_empty_sli'])
+            LOGGER.debug(f'{self.info} | Found assumption_empty_sli config')
+            return assumption_empty_sli
+          else:
+            LOGGER.error('The assumption_empty_sli is not between 0 and 100.')
         else:
             LOGGER.debug('assumption_empty_sli is not in labels, skipping')
-        return -1
+      return -1
 
     def __init__(self,
                  config,
@@ -264,11 +265,12 @@ class SLOReport:
             if bad_count == NO_DATA:
                 bad_count = 0
             LOGGER.debug(f'{self.info} | Good: {good_count} | Bad: {bad_count}')
-            if good_count == 0 and bad_count == 0 and assumption_empty_sli != -1:
-                sli_measurement = round(assumption_empty_sli/100, 5)
-                LOGGER.warning(f'{self.info} | Setting sli_measurement to {float(assumption_empty_sli)}% because sli increase in time is 0.')
+            if good_count == 0 and bad_count == 0:
+              if assumption_empty_sli != -1:
+                sli_measurement = round(assumption_empty_sli / 100, 5)
+                LOGGER.warning(f'{self.info} | Setting sli to {float(assumption_empty_sli)}%.')
             else:
-                sli_measurement = round(good_count / (good_count + bad_count), 6)
+              sli_measurement = round(good_count / (good_count + bad_count), 6)
         else:  # sli value
             sli_measurement = round(data, 6)
             good_count, bad_count = NO_DATA, NO_DATA
@@ -350,7 +352,8 @@ class SLOReport:
             # minimum valid events threshold
             if (good + bad) < MIN_VALID_EVENTS:
                 if good == 0 and bad == 0 and assumption_empty_sli > -1:
-                    LOGGER.debug(f'good={good}, bad={bad}, assumption_empty_sli={assumption_empty_sli}, setting SLI to {assumption_empty_sli}')
+                    LOGGER.debug(f'good={good}, bad={bad}')
+                    LOGGER.debug(f'sli_assumption={assumption_empty_sli}')
                 else:
                     error = (
                         f'Not enough valid events ({good + bad}) found. Minimum '
