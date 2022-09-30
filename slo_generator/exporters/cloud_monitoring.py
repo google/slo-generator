@@ -18,6 +18,7 @@ Cloud Monitoring exporter class.
 import logging
 
 import google.api_core.exceptions
+from google.api import metric_pb2 as ga_metric
 from google.cloud import monitoring_v3
 
 from .base import MetricsExporter
@@ -57,29 +58,37 @@ class CloudMonitoringExporter(MetricsExporter):
         Returns:
             object: Metric descriptor.
         """
-        labels = data['labels']
-        series = monitoring_v3.types.TimeSeries()
+        series = monitoring_v3.TimeSeries()
         series.metric.type = data['name']
-        for key, value in labels.items():
-            series.metric.labels[key] = value
         series.resource.type = 'global'
-
-        # Create a new data point.
-        point = series.points.add()
+        labels = data['labels']
+        for key, value in labels.items():
+            series.resource.labels[key] = value
 
         # Define end point timestamp.
         timestamp = data['timestamp']
-        point.interval.end_time.seconds = int(timestamp)
-        point.interval.end_time.nanos = int(
-            (timestamp - point.interval.end_time.seconds) * 10**9)
+        seconds = int(timestamp)
+        nanos = int((timestamp - seconds) * 10 ** 9)
+        interval = monitoring_v3.TimeInterval({
+            "end_time": {
+                "seconds": seconds,
+                "nanos": nanos
+            }
+        })
 
-        # Set the metric value.
-        point.value.double_value = data['value']
+        # Create a new data point and set the metric value.
+        point = monitoring_v3.Point({
+            "interval": interval,
+            "value": {
+                "double_value": data['value']
+            }
+        })
+        series.points = [point]
 
         # Record the timeseries to Cloud Monitoring.
-        project = self.client.project_path(data['project_id'])
-        self.client.create_time_series(project, [series])
-        labels = series.metric.labels
+        project = self.client.common_project_path(data['project_id'])
+        self.client.create_time_series(name=project, time_series=[series])
+        labels = series.resource.labels
         LOGGER.debug(
             f"timestamp: {timestamp} value: {point.value.double_value}"
             f"{labels['service_name']}-{labels['feature_name']}-"
@@ -94,10 +103,12 @@ class CloudMonitoringExporter(MetricsExporter):
         Returns:
             object: Metric descriptor (or None if not found).
         """
-        descriptor = self.client.metric_descriptor_path(data['project_id'],
-                                                        data['name'])
+        project_id = data['project_id']
+        metric_id = data['name']
+        request = monitoring_v3.GetMetricDescriptorRequest(
+            name=f"projects/{project_id}/metricDescriptors/{metric_id}")
         try:
-            return self.client.get_metric_descriptor(descriptor)
+            return self.client.get_metric_descriptor(request)
         except google.api_core.exceptions.NotFound:
             return None
 
@@ -110,13 +121,12 @@ class CloudMonitoringExporter(MetricsExporter):
         Returns:
             object: Metric descriptor.
         """
-        project = self.client.project_path(data['project_id'])
-        descriptor = monitoring_v3.types.MetricDescriptor()
+        project = self.client.common_project_path(data['project_id'])
+        descriptor = ga_metric.MetricDescriptor()
         descriptor.type = data['name']
-        descriptor.metric_kind = (
-            monitoring_v3.enums.MetricDescriptor.MetricKind.GAUGE)
-        descriptor.value_type = (
-            monitoring_v3.enums.MetricDescriptor.ValueType.DOUBLE)
+        descriptor.metric_kind = ga_metric.MetricDescriptor.MetricKind.GAUGE
+        descriptor.value_type = ga_metric.MetricDescriptor.ValueType.DOUBLE
         descriptor.description = data['description']
-        self.client.create_metric_descriptor(project, descriptor)
+        descriptor = self.client.create_metric_descriptor(
+            name=project, metric_descriptor=descriptor)
         return descriptor

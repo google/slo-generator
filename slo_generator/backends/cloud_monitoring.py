@@ -41,7 +41,7 @@ class CloudMonitoringBackend:
         self.client = client
         if client is None:
             self.client = monitoring_v3.MetricServiceClient()
-        self.parent = self.client.project_path(project_id)
+        self.parent = self.client.common_project_path(project_id)
 
     def good_bad_ratio(self, timestamp, window, slo_config):
         """Query two timeseries, one containing 'good' events, one containing
@@ -185,10 +185,13 @@ class CloudMonitoringBackend:
                                          aligner=aligner,
                                          reducer=reducer,
                                          group_by=group_by)
-        timeseries = self.client.list_time_series(
-            self.parent, filter, measurement_window,
-            monitoring_v3.enums.ListTimeSeriesRequest.TimeSeriesView.FULL,
-            aggregation)
+        request = monitoring_v3.ListTimeSeriesRequest()
+        request.name = self.parent
+        request.filter = filter
+        request.interval = measurement_window
+        request.view = monitoring_v3.ListTimeSeriesRequest.TimeSeriesView.FULL
+        request.aggregation = aggregation
+        timeseries = self.client.list_time_series(request)
         LOGGER.debug(pprint.pformat(timeseries))
         return timeseries
 
@@ -220,12 +223,20 @@ class CloudMonitoringBackend:
         Returns:
             :obj:`monitoring_v3.types.TimeInterval`: Measurement window object.
         """
-        measurement_window = monitoring_v3.types.TimeInterval()
-        measurement_window.end_time.seconds = int(timestamp)
-        measurement_window.end_time.nanos = int(
-            (timestamp - measurement_window.end_time.seconds) * 10**9)
-        measurement_window.start_time.seconds = int(timestamp - window)
-        measurement_window.start_time.nanos = measurement_window.end_time.nanos
+        end_time_seconds = int(timestamp)
+        end_time_nanos = int((timestamp - end_time_seconds) * 10 ** 9)
+        start_time_seconds = int(timestamp - window)
+        start_time_nanos = end_time_nanos
+        measurement_window = monitoring_v3.TimeInterval({
+            "end_time": {
+                "seconds": end_time_seconds,
+                "nanos": end_time_nanos
+            },
+            "start_time": {
+                "seconds": start_time_seconds,
+                "nanos": start_time_nanos
+            }
+        })
         LOGGER.debug(pprint.pformat(measurement_window))
         return measurement_window
 
@@ -248,13 +259,14 @@ class CloudMonitoringBackend:
         Returns:
             :obj:`monitoring_v3.types.Aggregation`: Aggregation object.
         """
-        aggregation = monitoring_v3.types.Aggregation()
-        aggregation.alignment_period.seconds = window
-        aggregation.per_series_aligner = (getattr(
-            monitoring_v3.enums.Aggregation.Aligner, aligner))
-        aggregation.cross_series_reducer = (getattr(
-            monitoring_v3.enums.Aggregation.Reducer, reducer))
-        aggregation.group_by_fields.extend(group_by)
+        aggregation = monitoring_v3.Aggregation({
+            "alignment_period": {"seconds": window},
+            "per_series_aligner":
+                getattr(monitoring_v3.Aggregation.Aligner, aligner),
+            "cross_series_reducer":
+                getattr(monitoring_v3.Aggregation.Reducer, reducer),
+            "group_by_fields": group_by,
+        })
         LOGGER.debug(pprint.pformat(aggregation))
         return aggregation
 
