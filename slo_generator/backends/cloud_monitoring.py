@@ -87,7 +87,7 @@ class CloudMonitoringBackend:
         LOGGER.debug(f'Good events: {good_event_count} | '
                      f'Bad events: {bad_event_count}')
 
-        return (good_event_count, bad_event_count)
+        return good_event_count, bad_event_count
 
     def distribution_cut(self, timestamp, window, slo_config):
         """Query one timeserie of type 'exponential'.
@@ -112,7 +112,7 @@ class CloudMonitoringBackend:
         series = list(series)
 
         if not series:
-            return (NO_DATA, NO_DATA)  # no timeseries
+            return NO_DATA, NO_DATA  # no timeseries
 
         distribution_value = series[0].points[0].value.distribution_value
         # bucket_options = distribution_value.bucket_options
@@ -149,7 +149,7 @@ class CloudMonitoringBackend:
             good_event_count = upper_events_count
             bad_event_count = lower_events_count
 
-        return (good_event_count, bad_event_count)
+        return good_event_count, bad_event_count
 
     def exponential_distribution_cut(self, *args, **kwargs):
         """Alias for `distribution_cut` method to allow for backwards
