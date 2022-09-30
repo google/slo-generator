@@ -201,4 +201,4 @@ def process_batch_req(request, data, config):
             client.publish(topic_path, data=data).result()
         else: # http
             LOGGER.info(f'Sending {url} to HTTP batch handler.')
-            requests.post(service_url, headers=headers, data=url)
+            requests.post(service_url, headers=headers, data=url, timeout=10)
