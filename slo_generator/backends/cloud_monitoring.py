@@ -166,7 +166,7 @@ class CloudMonitoringBackend:
               filter,
               aligner='ALIGN_SUM',
               reducer='REDUCE_SUM',
-              group_by=[]):
+              group_by=None):
         """Query timeseries from Cloud Monitoring.
 
         Args:
@@ -180,6 +180,8 @@ class CloudMonitoringBackend:
         Returns:
             list: List of timeseries objects.
         """
+        if group_by is None:
+            group_by = []
         measurement_window = CM.get_window(timestamp, window)
         aggregation = CM.get_aggregation(window,
                                          aligner=aligner,
@@ -244,7 +246,7 @@ class CloudMonitoringBackend:
     def get_aggregation(window,
                         aligner='ALIGN_SUM',
                         reducer='REDUCE_SUM',
-                        group_by=[]):
+                        group_by=None):
         """Helper for aggregation object.
 
         Default aggregation is `ALIGN_SUM`.
@@ -259,6 +261,8 @@ class CloudMonitoringBackend:
         Returns:
             :obj:`monitoring_v3.types.Aggregation`: Aggregation object.
         """
+        if group_by is None:
+            group_by = []
         aggregation = monitoring_v3.Aggregation({
             "alignment_period": {"seconds": window},
             "per_series_aligner":
