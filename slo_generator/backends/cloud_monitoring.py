@@ -90,7 +90,7 @@ class CloudMonitoringBackend:
         return good_event_count, bad_event_count
 
     def distribution_cut(self, timestamp, window, slo_config):
-        """Query one timeserie of type 'exponential'.
+        """Query one timeseries of type 'exponential'.
 
         Args:
             timestamp (int): UNIX timestamp.

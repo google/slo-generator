@@ -164,8 +164,8 @@ def mock_sd(nresp=1):
     Returns:
         ChannelStub: Mocked gRPC channel stub.
     """
-    timeserie = load_fixture('time_series_proto.json')
-    response = {"next_page_token": "", "time_series": [timeserie]}
+    timeseries = load_fixture('time_series_proto.json')
+    response = {"next_page_token": "", "time_series": [timeseries]}
     return mock_grpc_stub(
         response=response,
         proto_method=monitoring_v3.types.ListTimeSeriesResponse,
