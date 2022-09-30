@@ -40,7 +40,6 @@ class CloudMonitoringExporter(MetricsExporter):
 
         Args:
             data (dict): Data to send to Cloud Monitoring.
-            project_id (str): Cloud Monitoring project id.
 
         Returns:
             object: Cloud Monitoring API result.
