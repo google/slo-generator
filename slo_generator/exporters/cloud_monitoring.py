@@ -87,9 +87,10 @@ class CloudMonitoringExporter(MetricsExporter):
         # Record the timeseries to Cloud Monitoring.
         project = self.client.common_project_path(data['project_id'])
         self.client.create_time_series(name=project, time_series=[series])
-        labels = series.metric.labels
+        labels = series.metric.labels  # pylint: disable=E1101
         LOGGER.debug(
-            f"timestamp: {timestamp} value: {point.value.double_value}"
+            f"timestamp: {timestamp}"
+            f"value: {point.value.double_value}"  # pylint: disable=E1101
             f"{labels['service_name']}-{labels['feature_name']}-"
             f"{labels['slo_name']}-{labels['error_budget_policy_step_name']}")
 
@@ -123,8 +124,10 @@ class CloudMonitoringExporter(MetricsExporter):
         project = self.client.common_project_path(data['project_id'])
         descriptor = ga_metric.MetricDescriptor()
         descriptor.type = data['name']
+        # pylint: disable=E1101
         descriptor.metric_kind = ga_metric.MetricDescriptor.MetricKind.GAUGE
         descriptor.value_type = ga_metric.MetricDescriptor.ValueType.DOUBLE
+        # pylint: enable=E1101
         descriptor.description = data['description']
         descriptor = self.client.create_metric_descriptor(
             name=project, metric_descriptor=descriptor)
