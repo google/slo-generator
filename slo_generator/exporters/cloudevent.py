@@ -25,6 +25,7 @@ from google.oauth2.id_token import fetch_id_token
 
 LOGGER = logging.getLogger(__name__)
 
+
 # pylint: disable=too-few-public-methods
 class CloudeventExporter:
     """Cloudevent exporter class.
@@ -55,11 +56,12 @@ class CloudeventExporter:
             id_token = None
             if 'token' in auth:
                 id_token = auth['token']
-            elif auth.get('google_service_account_auth', False): # Google oauth
+            elif auth.get('google_service_account_auth', False):  # Google oauth
                 auth = google.auth.transport.requests.Request()
                 id_token = fetch_id_token(auth, service_url)
             if id_token:
                 headers["Authorization"] = f'Bearer {id_token}'
-        resp = requests.post(service_url, headers=headers, data=data)
+        resp = requests.post(service_url, headers=headers, data=data,
+                             timeout=10)
         resp.raise_for_status()
         return resp
