@@ -63,6 +63,9 @@ develop:
 install: clean
 	$(PIP) install -e ."[api, datadog, prometheus, elasticsearch, pubsub, cloud_monitoring, bigquery, dev]"
 
+uninstall: clean
+	$(PIP) freeze --exclude-editable | xargs $(PIP) uninstall -y
+
 test: install unit lint
 
 unit: clean
