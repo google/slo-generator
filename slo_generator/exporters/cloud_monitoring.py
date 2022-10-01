@@ -62,7 +62,7 @@ class CloudMonitoringExporter(MetricsExporter):
         series.resource.type = 'global'
         labels = data['labels']
         for key, value in labels.items():
-            series.resource.labels[key] = value
+            series.metric.labels[key] = value  # pylint: disable=E1101
 
         # Define end point timestamp.
         timestamp = data['timestamp']
@@ -87,7 +87,7 @@ class CloudMonitoringExporter(MetricsExporter):
         # Record the timeseries to Cloud Monitoring.
         project = self.client.common_project_path(data['project_id'])
         self.client.create_time_series(name=project, time_series=[series])
-        labels = series.resource.labels
+        labels = series.metric.labels
         LOGGER.debug(
             f"timestamp: {timestamp} value: {point.value.double_value}"
             f"{labels['service_name']}-{labels['feature_name']}-"
