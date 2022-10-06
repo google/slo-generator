@@ -67,8 +67,12 @@ METRIC_LABELS_COMPAT: dict[str, str] = {
 
 # Fields that used to be specified in top-level of YAML config are now specified
 # in metadata fields. This mapping helps migrate them back to the top level when
-# exporting reports, so that so that exporters are backward-compatible with v1.
-METRIC_METADATA_LABELS_TOP_COMPAT: list[str] = ['service_name', 'feature_name', 'slo_name']
+# exporting reports, so that exporters are backward-compatible with v1.
+METRIC_METADATA_LABELS_TOP_COMPAT: list[str] = [
+    'service_name',
+    'feature_name',
+    'slo_name'
+]
 
 
 # Colors / Status
