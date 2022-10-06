@@ -18,25 +18,25 @@ Constants and environment variables used in `slo-generator`.
 import os
 
 # Compute
-NO_DATA = -1
-MIN_VALID_EVENTS = int(os.environ.get("MIN_VALID_EVENTS", "1"))
+NO_DATA: int = -1
+MIN_VALID_EVENTS: int = int(os.environ.get("MIN_VALID_EVENTS", "1"))
 
 # Global
-LATEST_MAJOR_VERSION = 'v2'
-COLORED_OUTPUT = int(os.environ.get("COLORED_OUTPUT", "0"))
-DRY_RUN = bool(int(os.environ.get("DRY_RUN", "0")))
-DEBUG = int(os.environ.get("DEBUG", "0"))
+LATEST_MAJOR_VERSION: str = 'v2'
+COLORED_OUTPUT: int = int(os.environ.get("COLORED_OUTPUT", "0"))
+DRY_RUN: bool = bool(int(os.environ.get("DRY_RUN", "0")))
+DEBUG: int = int(os.environ.get("DEBUG", "0"))
 
 # Exporters supporting v2 SLO report format
-V2_EXPORTERS = ('Pubsub', 'Cloudevent')
+V2_EXPORTERS: tuple[str, ...] = ('Pubsub', 'Cloudevent')
 
 # Config skeletons
-CONFIG_SCHEMA = {
+CONFIG_SCHEMA: dict = {
     'backends': {},
     'exporters': {},
     'error_budget_policies': {},
 }
-SLO_CONFIG_SCHEMA = {
+SLO_CONFIG_SCHEMA: dict = {
     'apiVersion': '',
     'kind': '',
     'metadata': {},
@@ -51,7 +51,7 @@ SLO_CONFIG_SCHEMA = {
 
 # Providers that have changed with v2 YAML config format. This mapping helps
 # migrate them to their updated names.
-PROVIDERS_COMPAT = {
+PROVIDERS_COMPAT: dict[str, str] = {
     'Stackdriver': 'CloudMonitoring',
     'StackdriverServiceMonitoring': 'CloudServiceMonitoring'
 }
@@ -59,7 +59,7 @@ PROVIDERS_COMPAT = {
 # Fields that have changed name with v2 YAML config format. This mapping helps
 # migrate them back to their former name, so that exporters are backward-
 # compatible with v1.
-METRIC_LABELS_COMPAT = {
+METRIC_LABELS_COMPAT: dict[str, str] = {
     'goal': 'slo_target',
     'description': 'slo_description',
     'error_budget_burn_rate_threshold': 'alerting_burn_rate_threshold'
@@ -68,7 +68,7 @@ METRIC_LABELS_COMPAT = {
 # Fields that used to be specified in top-level of YAML config are now specified
 # in metadata fields. This mapping helps migrate them back to the top level when
 # exporting reports, so that so that exporters are backward-compatible with v1.
-METRIC_METADATA_LABELS_TOP_COMPAT = ['service_name', 'feature_name', 'slo_name']
+METRIC_METADATA_LABELS_TOP_COMPAT: list[str] = ['service_name', 'feature_name', 'slo_name']
 
 
 # Colors / Status
