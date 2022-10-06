@@ -1,0 +1,35 @@
+apiVersion: sre.google.com/v2
+kind: ServiceLevelObjective
+metadata:
+  name: gae-app-availability
+  labels:
+    service_name: gae
+    feature_name: app
+    slo_name: availability
+spec:
+  description: Availability of App Engine app
+  backend: cloud_monitoring_mql
+  method: query_sli
+  exporters:
+  - cloud_monitoring
+  service_level_indicator:
+    query: >
+      fetch gae_app
+      | metric 'appengine.googleapis.com/http/server/response_count'
+      | filter resource.project_id == '${GAE_PROJECT_ID}'
+      | { filter
+            metric.response_code == 429
+            || metric.response_code == 200
+            || metric.response_code == 201
+            || metric.response_code == 202
+            || metric.response_code == 203
+            || metric.response_code == 204
+            || metric.response_code == 205
+            || metric.response_code == 206
+            || metric.response_code == 207
+            || metric.response_code == 208
+            || metric.response_code == 226
+            || metric.response_code == 304
+        ; ident }
+      | ratio
+  goal: 0.95

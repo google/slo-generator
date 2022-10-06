@@ -1,0 +1,25 @@
+apiVersion: sre.google.com/v2
+kind: ServiceLevelObjective
+metadata:
+  name: lb-request-latency724ms
+  labels:
+    service_name: lb
+    feature_name: request
+    slo_name: latency724ms
+spec:
+  description: Latency of HTTP Load Balancer < 724ms
+  backend: cloud_monitoring_mql
+  method: distribution_cut
+  exporters:
+  - cloud_monitoring
+  service_level_indicator:
+    filter_valid: >
+      fetch https_lb_rule
+      | metric 'loadbalancing.googleapis.com/https/total_latencies'
+      | filter resource.project_id == '${LB_PROJECT_ID}'
+      | filter metric.label.response_code_class = "200"
+          || metric.response_code_class = "300"
+          || metric.response_code_class = "400"
+    good_below_threshold: true
+    threshold_bucket: 19
+  goal: 0.98
