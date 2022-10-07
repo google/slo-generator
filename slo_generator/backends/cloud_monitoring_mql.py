@@ -176,9 +176,6 @@ class CloudMonitoringMqlBackend:
         Returns:
             float: SLI value.
         """
-        # FIXME This method returns 2.0 for the 12-hour, 7-day and 28-day burn
-        #  rates of the GAE App Availability SLO computed with the `ratio` MQL
-        #  function. Not sure what I missed there.
         measurement: dict = slo_config['spec']['service_level_indicator']
         query: str = measurement['query']
         series: list[TimeSeriesData] = self.query(query=query, window=window)

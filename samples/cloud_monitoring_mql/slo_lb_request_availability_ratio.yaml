@@ -22,5 +22,6 @@ spec:
             || metric.response_code_class="300"
             || metric.response_code_class="400"
         ; ident }
+      | sum
       | ratio
   goal: 0.98
