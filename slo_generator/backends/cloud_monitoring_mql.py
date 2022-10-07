@@ -20,6 +20,7 @@ import pprint
 import warnings
 from collections import OrderedDict
 
+from google.api.distribution_pb2 import Distribution
 from google.cloud.monitoring_v3.services.query_service import QueryServiceClient
 from google.cloud.monitoring_v3.services.query_service.pagers import \
     QueryTimeSeriesPager
@@ -116,24 +117,17 @@ class CloudMonitoringMqlBackend:
         if not series:
             return NO_DATA, NO_DATA  # no timeseries
 
-        # FIXME Update path to distribution value
-        distribution_value = series[0].point_data[0].values[
+        distribution_value: Distribution = series[0].point_data[0].values[
             0].distribution_value
-        # bucket_options = distribution_value.bucket_options
-        bucket_counts = distribution_value.bucket_counts
-        valid_events_count = distribution_value.count
-        # growth_factor = bucket_options.exponential_buckets.growth_factor
-        # scale = bucket_options.exponential_buckets.scale
+        bucket_counts: list = distribution_value.bucket_counts
+        valid_events_count: int = distribution_value.count
 
         # Explicit the exponential distribution result
-        count_sum = 0
+        count_sum: int = 0
         distribution = OrderedDict()
         for i, bucket_count in enumerate(bucket_counts):
             count_sum += bucket_count
-            # upper_bound = scale * math.pow(growth_factor, i)
             distribution[i] = {
-                # 'upper_bound': upper_bound,
-                # 'bucket_count': bucket_count,
                 'count_sum': count_sum
             }
         LOGGER.debug(pprint.pformat(distribution))
