@@ -25,7 +25,6 @@ from google.oauth2.id_token import fetch_id_token
 
 LOGGER = logging.getLogger(__name__)
 
-
 # pylint: disable=too-few-public-methods
 class CloudeventExporter:
     """Cloudevent exporter class.

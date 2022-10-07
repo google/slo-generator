@@ -66,11 +66,7 @@ disable=raw-checker-failed,
         redefined-builtin,
         arguments-differ,
         dangerous-default-value,
-        logging-fstring-interpolation,
-        too-many-statements,
-        too-many-branches,
         import-outside-toplevel,
-        too-few-public-methods
 
 # Enable the message, report, category or checker with the given id(s). You can
 # either give multiple identifier separated by comma (,) or put this option

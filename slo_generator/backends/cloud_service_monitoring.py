@@ -360,7 +360,7 @@ class CloudServiceMonitoringBackend:
         return SSM.to_json(slo)
 
     @staticmethod
-    def build_slo(window: int,
+    def build_slo(window: int, # pylint: disable=R0912,R0915
                   slo_config: dict) -> dict:
         """Get SLO JSON representation in Cloud Service Monitoring API from SLO
         configuration.
