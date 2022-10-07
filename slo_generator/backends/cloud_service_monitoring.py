@@ -359,8 +359,9 @@ class CloudServiceMonitoringBackend:
             parent, slo_json, service_level_objective_id=slo_id)
         return SSM.to_json(slo)
 
+    # pylint: disable=R0912,R0915
     @staticmethod
-    def build_slo(window: int, # pylint: disable=R0912,R0915
+    def build_slo(window: int,
                   slo_config: dict) -> dict:
         """Get SLO JSON representation in Cloud Service Monitoring API from SLO
         configuration.
