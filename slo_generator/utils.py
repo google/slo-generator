@@ -36,7 +36,7 @@ import yaml
 from slo_generator.constants import DEBUG
 
 try:
-    from google.cloud import storage
+    from google.cloud import storage  # pytype: disable=import-error
     GCS_ENABLED = True
 except ImportError:
     GCS_ENABLED = False

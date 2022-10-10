@@ -60,10 +60,9 @@ DEFAULT_METRICS = [
 ]
 
 
-class MetricsExporter:
+class MetricsExporter(metaclass=ABCMeta):
     """Abstract class to export metrics to different backends. Common format
     for YAML configuration to configure which metrics should be exported."""
-    __metaclass__ = ABCMeta
 
     def export(self, data, **config):
         """Export metric data. Loops through metrics config and calls the child

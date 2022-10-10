@@ -112,10 +112,10 @@ class DatadogBackend:
         from_ts = timestamp - window
         slo_data = self.client.ServiceLevelObjective.get(id=slo_id)
         LOGGER.debug(f"SLO data: {slo_id} | Result: {pprint.pformat(slo_data)}")
+        data = self.client.ServiceLevelObjective.history(id=slo_id,
+                                                         from_ts=from_ts,
+                                                         to_ts=timestamp)
         try:
-            data = self.client.ServiceLevelObjective.history(id=slo_id,
-                                                             from_ts=from_ts,
-                                                             to_ts=timestamp)
             LOGGER.debug(
                 f"Timeseries data: {slo_id} | Result: {pprint.pformat(data)}")
             good_event_count = data['data']['series']['numerator']['sum']
