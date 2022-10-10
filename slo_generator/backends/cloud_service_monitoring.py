@@ -613,7 +613,7 @@ class CloudServiceMonitoringBackend:
 
     @staticmethod
     def string_diff(string1: Union[str, Sequence[str]],
-                    string2: Union[str, Sequence[str]])-> list:
+                    string2: Union[str, Sequence[str]]) -> list:
         """Diff 2 strings. Used to print comparison of JSONs for debugging.
 
         Args:
