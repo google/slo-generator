@@ -50,7 +50,7 @@ class CloudMonitoringMqlBackend:
         self.parent = self.client.common_project_path(project_id)
 
     def good_bad_ratio(self,
-                       timestamp: int,
+                       timestamp: int,  # pylint: disable=unused-argument
                        window: int,
                        slo_config: dict) -> tuple[int, int]:
         """Query two timeseries, one containing 'good' events, one containing
@@ -93,7 +93,7 @@ class CloudMonitoringMqlBackend:
         return good_event_count, bad_event_count
 
     def distribution_cut(self,
-                         timestamp: int,
+                         timestamp: int,  # pylint: disable=unused-argument
                          window: int,
                          slo_config: dict) -> tuple[int, int]:
         """Query one timeseries of type 'exponential'.
@@ -160,7 +160,9 @@ class CloudMonitoringMqlBackend:
             'please use distribution_cut instead', FutureWarning)
         return self.distribution_cut(*args, **kwargs)
 
-    def query_sli(self, timestamp: int, window: int, slo_config: dict) -> float:
+    def query_sli(self,
+                  timestamp: int,  # pylint: disable=unused-argument
+                  window: int, slo_config: dict) -> float:
         """Query SLI value from a given MQL query.
 
         Args:
