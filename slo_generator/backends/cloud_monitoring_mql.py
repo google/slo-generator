@@ -192,7 +192,7 @@ class CloudMonitoringMqlBackend:
         """
         # Enrich query to aggregate and reduce the time series over the
         # desired window.
-        formatted_query: str += self._fmt_query(query, window)
+        formatted_query: str = self._fmt_query(query, window)
         request = metric_service.QueryTimeSeriesRequest({
             'name': self.parent,
             'query': formatted_query
