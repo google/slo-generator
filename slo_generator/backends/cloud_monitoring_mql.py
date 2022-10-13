@@ -18,6 +18,7 @@ Cloud Monitoring backend implementation with MQL (Monitoring Query Language).
 import logging
 import pprint
 import re
+import typing
 import warnings
 from collections import OrderedDict
 
@@ -66,8 +67,8 @@ class CloudMonitoringMqlBackend:
         """
         measurement: dict = slo_config['spec']['service_level_indicator']
         filter_good: str = measurement['filter_good']
-        filter_bad: str = measurement.get('filter_bad')
-        filter_valid: str = measurement.get('filter_valid')
+        filter_bad: typing.Optional[str] = measurement.get('filter_bad')
+        filter_valid: typing.Optional[str] = measurement.get('filter_valid')
 
         # Query 'good events' timeseries
         good_ts: list[TimeSeriesData] = self.query(
@@ -109,8 +110,9 @@ class CloudMonitoringMqlBackend:
         measurement: dict = slo_config['spec']['service_level_indicator']
         filter_valid: str = measurement['filter_valid']
         threshold_bucket: int = int(measurement['threshold_bucket'])
-        good_below_threshold: bool = measurement.get('good_below_threshold',
-                                                     True)
+        good_below_threshold: typing.Optional[bool] = measurement.get(
+            'good_below_threshold',
+            True)
 
         # Query 'valid' events
         series = self.query(query=filter_valid, window=window)
