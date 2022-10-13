@@ -17,6 +17,7 @@ Cloud Monitoring backend implementation with MQL (Monitoring Query Language).
 """
 import logging
 import pprint
+import re
 import warnings
 from collections import OrderedDict
 
@@ -189,11 +190,11 @@ class CloudMonitoringMqlBackend:
         """
         # Enrich query to aggregate and reduce the time series over the
         # desired window.
-        # FIXME Do this properly in a private helper function. Draw inspiration
-        #  from `_fmt_query` in the Prometheus backend.
-        query += f"| group_by [] | every {window}s | within {window}s"
-        request = metric_service.QueryTimeSeriesRequest(
-            name=self.parent, query=query)
+        formatted_query: str += self._fmt_query(query, window)
+        request = metric_service.QueryTimeSeriesRequest({
+            'name': self.parent,
+            'query': formatted_query
+        })
         timeseries_pager: QueryTimeSeriesPager = self.client.query_time_series(
             request)
         timeseries: list = list(timeseries_pager)  # convert pager to flat list
@@ -216,6 +217,42 @@ class CloudMonitoringMqlBackend:
         except (IndexError, AttributeError) as exception:
             LOGGER.debug(exception, exc_info=True)
             return NO_DATA  # no events in timeseries
+
+    @staticmethod
+    def _fmt_query(query: str, window: int) -> str:
+        """Format MQL query:
+
+        * If the MQL expression has a `window` placeholder, replace it by the
+        current window. Otherwise, append it to the expression.
+
+        * If the MQL expression has a `every` placeholder, replace it by the
+        current window. Otherwise, append it to the expression.
+
+        * If the MQL expression has a `group_by` placeholder, replace it.
+        Otherwise, append it to the expression.
+
+        Args:
+            query (str): Original query in YAMLconfig.
+            window (int): Query window (in seconds).
+
+        Returns:
+            str: Formatted query.
+        """
+        formatted_query: str = query.strip()
+        if 'group_by' in formatted_query:
+            formatted_query = re.sub(r'\|\s+group_by\s+\[.*\]\s*',
+                                     '| group_by [] ', formatted_query)
+        else:
+            formatted_query += '| group_by [] '
+        for mql_time_interval_keyword in ['within', 'every']:
+            if mql_time_interval_keyword in formatted_query:
+                formatted_query = re.sub(
+                    fr'\|\s+{mql_time_interval_keyword}\s+\w+\s*',
+                    f'| {mql_time_interval_keyword} {window}s ',
+                    formatted_query)
+            else:
+                formatted_query += f'| {mql_time_interval_keyword} {window}s '
+        return formatted_query.strip()
 
 
 CM = CloudMonitoringMqlBackend
