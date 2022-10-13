@@ -20,14 +20,18 @@ import json
 import logging
 import os
 import warnings
+from typing import Union, Sequence
 
 import google.api_core.exceptions
 from google.cloud.monitoring_v3 import ServiceMonitoringServiceClient
+# pytype: disable=pyi-error
 from google.protobuf.json_format import MessageToJson
+# pytype: enable=pyi-error
 
 from slo_generator.backends.cloud_monitoring import CloudMonitoringBackend
 from slo_generator.constants import NO_DATA
 from slo_generator.utils import dict_snake_to_caml
+
 
 LOGGER = logging.getLogger(__name__)
 
@@ -591,7 +595,8 @@ class CloudServiceMonitoringBackend:
         return local_json == remote_json
 
     @staticmethod
-    def string_diff(string1, string2):
+    def string_diff(string1: Union[str, Sequence[str]],
+                    string2: Union[str, Sequence[str]]):
         """Diff 2 strings. Used to print comparison of JSONs for debugging.
 
         Args:

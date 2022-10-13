@@ -74,7 +74,7 @@ unit: clean
 coverage:
 	$(COVERAGE) report --rcfile=".coveragerc"
 
-lint: flake8 pylint
+lint: flake8 pylint pytype
 
 flake8:
 	flake8 --ignore=$(FLAKE8_IGNORE) $(NAME)/ --max-line-length=80
@@ -82,6 +82,9 @@ flake8:
 
 pylint:
 	find ./$(NAME) ./tests -name \*.py | xargs pylint --rcfile .pylintrc --ignore-patterns=test_.*?py
+
+pytype:
+	pytype
 
 integration: int_cm int_csm int_custom int_dd int_dt int_es int_prom
 
