@@ -9,7 +9,7 @@ jobs:
       matrix:
         os: [ubuntu-latest]
         architecture: ['x64']
-        python-version: ['3.7','3.8', '3.9','3.10']
+        python-version: ['3.7', '3.8', '3.9', '3.10']
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@master
@@ -25,13 +25,18 @@ jobs:
         run: make lint
 
   unit:
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        architecture: ['x64']
+        python-version: ['3.7', '3.8', '3.9', '3.10']
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@master
       - uses: actions/setup-python@v2
         with:
-          python-version: '3.9'
-          architecture: 'x64'
+          python-version: ${{ matrix.python-version }}
+          architecture: ${{ matrix.architecture }}
 
       - name: Install dependencies
         run: make install
