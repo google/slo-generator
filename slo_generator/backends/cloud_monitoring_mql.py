@@ -21,6 +21,7 @@ import re
 import typing
 import warnings
 from collections import OrderedDict
+from typing import List, Tuple
 
 from google.api.distribution_pb2 import Distribution
 from google.cloud.monitoring_v3.services.query_service import QueryServiceClient
@@ -53,7 +54,7 @@ class CloudMonitoringMqlBackend:
     def good_bad_ratio(self,
                        timestamp: int,  # pylint: disable=unused-argument
                        window: int,
-                       slo_config: dict) -> tuple[int, int]:
+                       slo_config: dict) -> Tuple[int, int]:
         """Query two timeseries, one containing 'good' events, one containing
         'bad' events.
 
@@ -71,17 +72,17 @@ class CloudMonitoringMqlBackend:
         filter_valid: typing.Optional[str] = measurement.get('filter_valid')
 
         # Query 'good events' timeseries
-        good_ts: list[TimeSeriesData] = self.query(
+        good_ts: List[TimeSeriesData] = self.query(
             query=filter_good, window=window)
         good_event_count: int = CM.count(good_ts)
 
         # Query 'bad events' timeseries
         if filter_bad:
-            bad_ts: list[TimeSeriesData] = self.query(
+            bad_ts: List[TimeSeriesData] = self.query(
                 query=filter_bad, window=window)
             bad_event_count: int = CM.count(bad_ts)
         elif filter_valid:
-            valid_ts: list[TimeSeriesData] = self.query(
+            valid_ts: List[TimeSeriesData] = self.query(
                 query=filter_valid, window=window)
             bad_event_count: int = CM.count(valid_ts) - good_event_count
         else:
@@ -96,7 +97,7 @@ class CloudMonitoringMqlBackend:
     def distribution_cut(self,
                          timestamp: int,  # pylint: disable=unused-argument
                          window: int,
-                         slo_config: dict) -> tuple[int, int]:
+                         slo_config: dict) -> Tuple[int, int]:
         """Query one timeseries of type 'exponential'.
 
         Args:
@@ -153,7 +154,7 @@ class CloudMonitoringMqlBackend:
 
         return good_event_count, bad_event_count
 
-    def exponential_distribution_cut(self, *args, **kwargs) -> tuple[int, int]:
+    def exponential_distribution_cut(self, *args, **kwargs) -> Tuple[int, int]:
         """Alias for `distribution_cut` method to allow for backwards
         compatibility.
         """
@@ -177,12 +178,12 @@ class CloudMonitoringMqlBackend:
         """
         measurement: dict = slo_config['spec']['service_level_indicator']
         query: str = measurement['query']
-        series: list[TimeSeriesData] = self.query(query=query, window=window)
+        series: List[TimeSeriesData] = self.query(query=query, window=window)
         sli_value: float = series[0].point_data[0].values[0].double_value
         LOGGER.debug(f"SLI value: {sli_value}")
         return sli_value
 
-    def query(self, query: str, window: int) -> list[TimeSeriesData]:
+    def query(self, query: str, window: int) -> List[TimeSeriesData]:
         """Query timeseries from Cloud Monitoring using MQL.
 
         Args:
@@ -206,7 +207,7 @@ class CloudMonitoringMqlBackend:
         return timeseries
 
     @staticmethod
-    def count(timeseries: list[TimeSeriesData]) -> int:
+    def count(timeseries: List[TimeSeriesData]) -> int:
         """Count events in time series assuming it was aligned with ALIGN_SUM
         and reduced with REDUCE_SUM (default).
 
