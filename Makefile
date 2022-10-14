@@ -19,7 +19,6 @@ PIP=pip3
 PYTHON=python3
 TWINE=twine
 COVERAGE=coverage
-NOSE_OPTS = --with-coverage --cover-package=$(NAME) --cover-erase --nologcapture --logging-level=ERROR
 SITELIB = $(shell $(PYTHON) -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")
 
 VERSION ?= $(shell grep "version = " setup.py | cut -d\  -f3)
@@ -69,7 +68,7 @@ uninstall: clean
 test: install unit lint
 
 unit: clean
-	nosetests $(NOSE_OPTS) tests/unit/* -v
+	pytest --cov=$(NAME) tests -p no:warnings
 
 coverage:
 	$(COVERAGE) report --rcfile=".coveragerc"

@@ -15,9 +15,7 @@
 `utils.py`
 Utility functions.
 """
-from datetime import datetime
 import argparse
-import collections
 import errno
 import importlib
 import logging
@@ -26,12 +24,12 @@ import pprint
 import re
 import sys
 import warnings
-
+from collections.abc import Mapping
+from datetime import datetime
 from pathlib import Path
 
-from dateutil import tz
-
 import yaml
+from dateutil import tz
 
 from slo_generator.constants import DEBUG
 
@@ -419,7 +417,7 @@ def apply_func_dict(data, func):
     Returns:
         dict: Output dictionary.
     """
-    if isinstance(data, collections.Mapping):
+    if isinstance(data, Mapping):
         return {func(k): apply_func_dict(v, func) for k, v in data.items()}
     return data
 
