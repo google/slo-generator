@@ -12,8 +12,8 @@ jobs:
         python-version: ['3.7', '3.8', '3.9', '3.10']
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v0
-      - uses: actions/setup-python@v0
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
           architecture: ${{ matrix.architecture }}  
@@ -32,8 +32,8 @@ jobs:
         python-version: ['3.7', '3.8', '3.9', '3.10']
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v0
-      - uses: actions/setup-python@v0
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
           architecture: ${{ matrix.architecture }}
@@ -53,8 +53,8 @@ jobs:
   docker:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v0
-      - uses: docker-practice/actions-setup-docker@v0
+      - uses: actions/checkout@v3
+      - uses: docker-practice/actions-setup-docker@master
       - name: Build Docker image
         run: make docker_build
       - name: Run Docker tests
