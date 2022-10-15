@@ -17,7 +17,6 @@ NAME = "slo_generator"
 
 PIP=pip3
 PYTHON=python3
-MYPY=mypy
 TWINE=twine
 COVERAGE=coverage
 SITELIB = $(shell $(PYTHON) -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")
@@ -74,10 +73,7 @@ unit: clean
 coverage:
 	$(COVERAGE) report --rcfile=".coveragerc"
 
-lint: flake8 pylint pytype
-
-check_types: clean
-	$(PYTHON) -m $(MYPY) --show-error-codes $(NAME)
+lint: flake8 pylint pytype mypy
 
 flake8:
 	flake8 --ignore=$(FLAKE8_IGNORE) $(NAME)/ --max-line-length=80
@@ -88,6 +84,9 @@ pylint:
 
 pytype:
 	pytype
+
+mypy: clean
+	$(PYTHON) -m mypy --show-error-codes $(NAME)
 
 integration: int_cm int_csm int_custom int_dd int_dt int_es int_prom
 
