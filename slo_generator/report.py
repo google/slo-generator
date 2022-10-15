@@ -42,22 +42,11 @@ class SLOReport:
     """
     # pylint: disable=too-many-instance-attributes
 
-    # Metadata
-    metadata: dict = field(default_factory=dict)
-
     # SLO
     name: str
     description: str
     goal: str
     backend: str
-    exporters: list = field(default_factory=list)
-    error_budget_policy: str = 'default'
-
-    # SLI
-    sli_measurement: float = 0
-    events_count: int = 0
-    bad_events_count: int = 0
-    good_events_count: int = 0
     gap: float
 
     # Error budget
@@ -70,6 +59,9 @@ class SLOReport:
     error_budget_remaining_minutes: float
     error_minutes: float
 
+    # Data validation
+    valid: bool
+
     # Global (from error budget policy)
     timestamp: int
     timestamp_human: str
@@ -78,9 +70,20 @@ class SLOReport:
 
     consequence_message: str
 
+    exporters: list = field(default_factory=list)
+    error_budget_policy: str = 'default'
+
+    # SLI
+    sli_measurement: float = 0
+    events_count: int = 0
+    bad_events_count: int = 0
+    good_events_count: int = 0
+    
+    # Metadata
+    metadata: dict = field(default_factory=dict)
+
     # Data validation
-    valid: bool
-    errors: List[str] = field(default_factory=list)
+    errors: list[str] = field(default_factory=list)
 
     def __init__(self,
                  config,
