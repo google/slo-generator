@@ -184,8 +184,8 @@ class PrometheusBackend:
     def _fmt_query(
         query: str,
         window: int,
-        operators: list = [],
-        labels: dict = {}
+        operators: list[str] = [],
+        labels: dict[str, str] = {}
     ) -> str:
         """Format Prometheus query:
 
