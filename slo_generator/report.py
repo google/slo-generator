@@ -83,7 +83,7 @@ class SLOReport:
     metadata: dict = field(default_factory=dict)
 
     # Data validation
-    errors: list[str] = field(default_factory=list)
+    errors: List[str] = field(default_factory=list)
 
     def __init__(self,
                  config,
