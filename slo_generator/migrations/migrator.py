@@ -26,7 +26,6 @@ import string
 import sys
 from collections import OrderedDict
 from pathlib import Path
-from typing import Optional
 
 import click
 from ruamel import yaml
@@ -43,8 +42,8 @@ def do_migrate(source,
                error_budget_policy_path: list,
                exporters_path: list,
                version: str,
-               quiet: Optional[bool] = False,
-               verbose: Optional[int] = 0):
+               quiet: bool = False,
+               verbose: int = 0):
     """Process all SLO configs in folder and generate new SLO configurations.
 
     Args:
@@ -209,7 +208,7 @@ def do_migrate(source,
     # 3.3 - Replace `error_budget_policy.yaml` local variable to `config.yaml`
 
 
-def exporters_v1tov2(exporters_paths: list, shared_config: dict = {}, quiet: Optional[bool] = False) -> list:
+def exporters_v1tov2(exporters_paths: list, shared_config: dict = {}, quiet: bool = False) -> list:
     """Translate exporters to v2 and put into shared config.
 
     Args:
@@ -244,7 +243,7 @@ def exporters_v1tov2(exporters_paths: list, shared_config: dict = {}, quiet: Opt
     return exp_keys
 
 
-def ebp_v1tov2(ebp_paths: list, shared_config: dict = {}, quiet: Optional[bool] = False) -> list:
+def ebp_v1tov2(ebp_paths: list, shared_config: dict = {}, quiet: bool = False) -> list:
     """Translate error budget policies to v2 and put into shared config
 
     Args:
@@ -285,7 +284,7 @@ def ebp_v1tov2(ebp_paths: list, shared_config: dict = {}, quiet: Optional[bool] 
 def slo_config_v1tov2(slo_config: dict,
                       shared_config: dict = {},
                       shared_exporters: list = [],
-                      quiet: Optional[bool] = False,
+                      quiet: bool = False,
                       verbose: int = 0):
     """Process old SLO config v1 and generate SLO config v2.
 
@@ -433,7 +432,7 @@ def add_to_shared_config(new_obj: dict,
                          shared_config: dict,
                          section: str,
                          key = None,
-                         quiet: Optional[bool] = False):
+                         quiet: bool = False):
     """Add an object to the shared_config.
 
     If the object with the same config already exists in the shared config,
@@ -550,7 +549,7 @@ class CustomDumper(yaml.RoundTripDumper):
 
     # HACK: insert blank lines between top-level objects
     # inspired by https://stackoverflow.com/a/44284819/3786245
-    def write_line_break(self, data: Optional[str] = None):
+    def write_line_break(self, data: str = None):
         super().write_line_break(data)
 
         if len(self.indents) == 1:

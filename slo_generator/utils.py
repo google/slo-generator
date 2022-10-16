@@ -45,7 +45,7 @@ LOGGER = logging.getLogger(__name__)
 
 def load_configs(path: str,
                  ctx: os._Environ[str] = os.environ,
-                 kind: Optional[str] = None) -> list:
+                 kind: str = None) -> list:
     """Load multiple slo-generator configs from a folder path.
 
     Args:
@@ -65,7 +65,7 @@ def load_configs(path: str,
 
 def load_config(path: str,
                 ctx: os._Environ[str] = os.environ,
-                kind: Optional[str] = None) -> Optional[dict]:
+                kind: str = None) -> Optional[dict]:
     """Load any slo-generator config, from a local path, a GCS URL, or directly
     from a string content.
 
@@ -106,7 +106,7 @@ def load_config(path: str,
         raise
 
 
-def parse_config(path: Optional[str] = None,
+def parse_config(path: str = None,
                  content=None,
                  ctx: os._Environ[str] = os.environ):
     """Load a yaml configuration file and resolve environment variables in it.
@@ -186,7 +186,7 @@ def setup_logging():
         pass
 
 
-def get_human_time(timestamp: int, timezone: Optional[str] = None) -> str:
+def get_human_time(timestamp: int, timezone: str = None) -> str:
     """Get human-readable timestamp from UNIX UTC timestamp.
 
     Args:
@@ -342,7 +342,7 @@ def import_cls(cls_name, expected_type):
                           prefix=expected_type)
 
 
-def import_dynamic(package: str, name: str, prefix: Optional[str] = "class"):
+def import_dynamic(package: str, name: str, prefix: str = "class"):
     """Import class or method dynamically from package and name.
 
     Args:
@@ -502,7 +502,7 @@ def get_files(source, extensions=['yaml', 'yml', 'json']) -> list:
 def get_target_path(source_dir,
                     target_dir,
                     relative_path,
-                    mkdir: Optional[bool] = True):
+                    mkdir: bool = True):
     """Get target file path from a source directory, a target directory and a
     path relative to the source directory.
 

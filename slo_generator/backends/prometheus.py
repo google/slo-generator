@@ -20,7 +20,6 @@ import json
 import logging
 import os
 import pprint
-from typing import Optional
 
 from prometheus_http_client import Prometheus
 
@@ -141,7 +140,7 @@ class PrometheusBackend:
     def query(self,
               filter: str,
               window: int,
-              timestamp: Optional[int] = None,
+              timestamp: int = None,
               operators: list = [],
               labels: dict = {}) -> dict:
         """Query Prometheus server.

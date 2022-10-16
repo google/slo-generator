@@ -275,8 +275,8 @@ class CloudServiceMonitoringBackend:
 
     def build_service_id(self,
                          slo_config: dict,
-                         dest_project_id: Optional[str] = None,
-                         full: Optional[bool] = False):
+                         dest_project_id: str = None,
+                         full: bool = False):
         """Build service id from SLO configuration.
 
         Args:
@@ -558,7 +558,7 @@ class CloudServiceMonitoringBackend:
     def build_slo_id(self,
                      window: int,
                      slo_config: dict,
-                     full: Optional[bool] = False) -> str:
+                     full: bool = False) -> str:
         """Build SLO id from SLO configuration.
 
         Args:
