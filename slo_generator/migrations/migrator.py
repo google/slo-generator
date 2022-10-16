@@ -38,11 +38,6 @@ from slo_generator.constants import (METRIC_LABELS_COMPAT,
                                      SLO_CONFIG_SCHEMA, GREEN, RED, BOLD,
                                      WARNING, ENDC, SUCCESS, FAIL, RIGHT_ARROW)
 
-yaml.explicit_start = True
-yaml.default_flow_style = None
-yaml.preserve_quotes = True
-
-
 def do_migrate(source,
                target,
                error_budget_policy_path: list,
