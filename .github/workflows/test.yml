@@ -6,6 +6,7 @@ on:
 jobs:
   lint:
     strategy:
+      fail-fast: false
       matrix:
         os: [ubuntu-latest]
         architecture: ['x64']
@@ -26,6 +27,7 @@ jobs:
 
   unit:
     strategy:
+      fail-fast: false
       matrix:
         os: [ubuntu-latest]
         architecture: ['x64']
