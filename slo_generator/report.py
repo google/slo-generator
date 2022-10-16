@@ -18,7 +18,7 @@ Report utilities.
 
 import logging
 from dataclasses import asdict, dataclass, fields, field
-from typing import List, Any
+from typing import Dict, List, Any
 
 from slo_generator import utils
 from slo_generator.constants import (COLORED_OUTPUT, MIN_VALID_EVENTS, NO_DATA,
@@ -259,7 +259,7 @@ class SLOReport:
             good_count, bad_count = NO_DATA, NO_DATA
         return sli_measurement, good_count, bad_count
 
-    def to_json(self) -> dict[str, Any]:
+    def to_json(self) -> Dict[str, Any]:
         """Serialize dataclass to JSON."""
         if not self.valid:
             ebp_name = self.error_budget_policy_step_name
