@@ -16,7 +16,6 @@
 Prometheus Self exporter class.
 """
 import logging
-from typing import Dict
 
 from flask import current_app, make_response
 from prometheus_client import Gauge, generate_latest
@@ -29,7 +28,7 @@ class PrometheusSelfExporter(MetricsExporter):
     """Prometheus exporter class which uses
     the API mode of itself to export the metrics."""
     REGISTERED_URL: bool = False
-    REGISTERED_METRICS: Dict = {}
+    REGISTERED_METRICS: dict = {}
 
     def __init__(self):
         if not self.REGISTERED_URL:
