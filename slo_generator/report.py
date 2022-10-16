@@ -78,7 +78,7 @@ class SLOReport:
     events_count: int = 0
     bad_events_count: int = 0
     good_events_count: int = 0
-    
+
     # Metadata
     metadata: dict = field(default_factory=dict)
 

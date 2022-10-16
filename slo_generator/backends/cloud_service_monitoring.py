@@ -19,9 +19,8 @@ import difflib
 import json
 import logging
 import os
-from typing import Optional
 import warnings
-from typing import Union, Sequence
+from typing import Optional, Union, Sequence
 
 import google.api_core.exceptions
 from google.cloud.monitoring_v3 import ServiceMonitoringServiceClient
