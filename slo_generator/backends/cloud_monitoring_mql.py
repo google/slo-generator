@@ -46,9 +46,7 @@ class CloudMonitoringMqlBackend:
     """
 
     def __init__(self, project_id: str, client: QueryServiceClient = None):
-        self.client = client
-        if client is None:
-            self.client = QueryServiceClient()
+        self.client = QueryServiceClient() if client is None else client
         self.parent = self.client.common_project_path(project_id)
 
     def good_bad_ratio(self,
@@ -205,10 +203,13 @@ class CloudMonitoringMqlBackend:
             'name': self.parent,
             'query': formatted_query
         })
-        timeseries_pager: QueryTimeSeriesPager = self.client.query_time_series(
-            request)
-        timeseries: list = list(timeseries_pager)  # convert pager to flat list
-        LOGGER.debug(pprint.pformat(timeseries))
+
+        timeseries: list
+        if self.client:
+            timeseries_pager: QueryTimeSeriesPager = self.client.query_time_series(
+                request)
+            timeseries = list(timeseries_pager)  # convert pager to flat list
+            LOGGER.debug(pprint.pformat(timeseries))
         return timeseries
 
     @staticmethod
