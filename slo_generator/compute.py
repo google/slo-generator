@@ -20,6 +20,8 @@ import logging
 import pprint
 import time
 
+from typing import Optional
+
 from slo_generator import constants
 from slo_generator import utils
 from slo_generator.report import SLOReport
@@ -30,7 +32,7 @@ LOGGER = logging.getLogger(__name__)
 
 def compute(slo_config: dict,
             config: dict,
-            timestamp: float = None,
+            timestamp: Optional[float] = None,
             client=None,
             do_export: bool = False,
             delete: bool = False):
