@@ -106,7 +106,7 @@ def load_config(path: str,
         raise
 
 
-def parse_config(path: str = None,
+def parse_config(path: Optional[str] = None,
                  content=None,
                  ctx: os._Environ = os.environ):
     """Load a yaml configuration file and resolve environment variables in it.
@@ -186,7 +186,7 @@ def setup_logging():
         pass
 
 
-def get_human_time(timestamp: int, timezone: str = None) -> str:
+def get_human_time(timestamp: int, timezone: Optional[str] = None) -> str:
     """Get human-readable timestamp from UNIX UTC timestamp.
 
     Args:
