@@ -206,8 +206,9 @@ class CloudMonitoringMqlBackend:
 
         timeseries: list
         if self.client:
-            timeseries_pager: QueryTimeSeriesPager = self.client.query_time_series(
-                request)
+            timeseries_pager: QueryTimeSeriesPager = (
+                self.client.query_time_series(request)
+            )
             timeseries = list(timeseries_pager)  # convert pager to flat list
             LOGGER.debug(pprint.pformat(timeseries))
         return timeseries
