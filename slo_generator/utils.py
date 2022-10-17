@@ -107,7 +107,7 @@ def load_config(path: str,
 
 
 def parse_config(path: Optional[str] = None,
-                 content: Optional[str] = None,
+                 content=None,
                  ctx: os._Environ = os.environ):
     """Load a yaml configuration file and resolve environment variables in it.
 
