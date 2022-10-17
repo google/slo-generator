@@ -45,7 +45,7 @@ LOGGER = logging.getLogger(__name__)
 
 def load_configs(path: str,
                  ctx: os._Environ = os.environ,
-                 kind: str = None) -> list:
+                 kind: Optional[str] = None) -> list:
     """Load multiple slo-generator configs from a folder path.
 
     Args:
@@ -65,7 +65,7 @@ def load_configs(path: str,
 
 def load_config(path: str,
                 ctx: os._Environ = os.environ,
-                kind: str = None) -> Optional[dict]:
+                kind: Optional[str] = None) -> Optional[dict]:
     """Load any slo-generator config, from a local path, a GCS URL, or directly
     from a string content.
 
@@ -107,7 +107,7 @@ def load_config(path: str,
 
 
 def parse_config(path: Optional[str] = None,
-                 content=None,
+                 content: Optional[str] = None,
                  ctx: os._Environ = os.environ):
     """Load a yaml configuration file and resolve environment variables in it.
 
