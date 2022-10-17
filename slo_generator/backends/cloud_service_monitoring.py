@@ -65,7 +65,7 @@ class CloudServiceMonitoringBackend:
     def good_bad_ratio(self,
                        timestamp: int,
                        window: int,
-                       slo_config: dict) -> dict:
+                       slo_config: dict) -> tuple:
         """Good bad ratio method.
 
         Args:
@@ -74,14 +74,14 @@ class CloudServiceMonitoringBackend:
             slo_config (dict): SLO configuration.
 
         Returns:
-            dict: SLO config.
+            tuple: SLO config.
         """
         return self.retrieve_slo(timestamp, window, slo_config)
 
     def distribution_cut(self,
                          timestamp: int,
                          window: int,
-                         slo_config: dict) -> dict:
+                         slo_config: dict) -> tuple:
         """Distribution cut method.
 
         Args:
@@ -90,11 +90,11 @@ class CloudServiceMonitoringBackend:
             slo_config (dict): SLO configuration.
 
         Returns:
-            dict: SLO config.
+            tuple: SLO config.
         """
         return self.retrieve_slo(timestamp, window, slo_config)
 
-    def basic(self, timestamp: int, window: int, slo_config: dict) -> dict:
+    def basic(self, timestamp: int, window: int, slo_config: dict) -> tuple:
         """Basic method (automatic SLOs for GAE / GKE (Istio) and Cloud
         Endpoints).
 
@@ -104,11 +104,11 @@ class CloudServiceMonitoringBackend:
             slo_config (dict): SLO configuration.
 
         Returns:
-            dict: SLO config.
+            tuple: SLO config.
         """
         return self.retrieve_slo(timestamp, window, slo_config)
 
-    def window(self, timestamp: int, window: int, slo_config: dict) -> dict:
+    def window(self, timestamp: int, window: int, slo_config: dict) -> tuple:
         """Window-based SLI method.
 
         Args:
@@ -117,7 +117,7 @@ class CloudServiceMonitoringBackend:
             slo_config (dict): SLO configuration.
 
         Returns:
-            dict: SLO config.
+            tuple: SLO config.
         """
         return self.retrieve_slo(timestamp, window, slo_config)
 
@@ -274,7 +274,7 @@ class CloudServiceMonitoringBackend:
 
     def build_service_id(self,
                          slo_config: dict,
-                         dest_project_id: str = None,
+                         dest_project_id: Optional[str] = None,
                          full: bool = False):
         """Build service id from SLO configuration.
 
