@@ -85,8 +85,7 @@ pylint:
 pytype:
 	pytype
 
-mypy: clean
-	$(PYTHON) -m mypy --show-error-codes $(NAME)
+mypy: $(PYTHON) -m mypy --show-error-codes $(NAME)
 
 integration: int_cm int_csm int_custom int_dd int_dt int_es int_prom
 
