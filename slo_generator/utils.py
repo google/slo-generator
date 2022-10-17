@@ -43,7 +43,7 @@ except ImportError:
 LOGGER = logging.getLogger(__name__)
 
 
-def load_configs(path: str,
+def load_configs(path: Optional[str],
                  ctx: os._Environ = os.environ,
                  kind: str = None) -> list:
     """Load multiple slo-generator configs from a folder path.
@@ -63,7 +63,7 @@ def load_configs(path: str,
     return [cfg for cfg in configs if cfg]
 
 
-def load_config(path: str,
+def load_config(path: Optional[str],
                 ctx: os._Environ = os.environ,
                 kind: str = None) -> Optional[dict]:
     """Load any slo-generator config, from a local path, a GCS URL, or directly
