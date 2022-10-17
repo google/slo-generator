@@ -98,7 +98,10 @@ def run_export(request):
 
     # Construct exporters block
     spec = {}
-    default_exporters = config.get('default_exporters', []) if config is not None else []
+    default_exporters = (config.get('default_exporters', [])
+        if config is not None
+        else []
+    )
     cli_exporters = os.environ.get('EXPORTERS', None)
     if cli_exporters:
         cli_exporters = cli_exporters.split(',')
