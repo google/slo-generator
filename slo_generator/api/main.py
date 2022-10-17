@@ -98,7 +98,8 @@ def run_export(request):
 
     # Construct exporters block
     spec = {}
-    default_exporters = (config.get('default_exporters', [])
+    default_exporters = (
+        config.get('default_exporters', [])
         if config is not None
         else []
     )
