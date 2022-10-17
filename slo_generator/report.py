@@ -18,6 +18,7 @@ Report utilities.
 
 import logging
 from dataclasses import asdict, dataclass, fields, field
+from typing import List
 
 from slo_generator import utils
 from slo_generator.constants import (COLORED_OUTPUT, MIN_VALID_EVENTS, NO_DATA,
@@ -82,7 +83,7 @@ class SLOReport:
 
     # Data validation
     valid: bool
-    errors: list[str] = field(default_factory=list)
+    errors: List[str] = field(default_factory=list)
 
     def get_assumption_empty_sli(self, config):
         if 'assumption_empty_sli' in config['spec'] and config['spec']['method'] == 'good_bad_ratio':

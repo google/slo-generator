@@ -19,7 +19,6 @@ PIP=pip3
 PYTHON=python3
 TWINE=twine
 COVERAGE=coverage
-NOSE_OPTS = --with-coverage --cover-package=$(NAME) --cover-erase --nologcapture --logging-level=ERROR
 SITELIB = $(shell $(PYTHON) -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")
 
 VERSION ?= $(shell grep "version = " setup.py | cut -d\  -f3)
@@ -66,12 +65,12 @@ install: clean
 test: install unit lint
 
 unit: clean
-	nosetests $(NOSE_OPTS) tests/unit/* -v
+	pytest --cov=$(NAME) tests -p no:warnings
 
 coverage:
 	$(COVERAGE) report --rcfile=".coveragerc"
 
-lint: flake8 pylint
+lint: flake8 pylint pytype
 
 flake8:
 	flake8 --ignore=$(FLAKE8_IGNORE) $(NAME)/ --max-line-length=80
@@ -79,6 +78,9 @@ flake8:
 
 pylint:
 	find ./$(NAME) ./tests -name \*.py | xargs pylint --rcfile .pylintrc --ignore-patterns=test_.*?py
+
+pytype:
+	pytype
 
 integration: int_cm int_csm int_custom int_dd int_dt int_es int_prom
 
