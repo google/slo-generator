@@ -230,8 +230,11 @@ def get_exporters(config, spec):
             continue
         exporter_data = all_exporters[exporter]
         exporter_data['name'] = exporter
-        exporter_data['class'] = capitalize(
-            snake_to_caml(exporter.split('/')[0]))
+        if '.' in exporter: # support custom exporter
+            exporter_data['class'] = exporter
+        else: # core exporter
+            exporter_data['class'] = capitalize(
+                snake_to_caml(exporter.split('/')[0]))
         exporters.append(exporter_data)
     return exporters
 
