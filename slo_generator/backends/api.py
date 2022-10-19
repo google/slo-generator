@@ -58,11 +58,10 @@ class ApiBackend:
         measurement = conf['service_level_indicator']
         dataScopeDateTimeBegin = APIClient.transform_timestamp(timestamp-3600)
         dataScopeDateTimeEnd = APIClient.transform_timestamp(timestamp)
-        metricId = measurement['metricId']
+        metricId = measurement['metric_id']
         threshold = measurement['threshold']
-        url = measurement['url']
         good_below_threshold = measurement.get('good_below_threshold', True)
-        response = self.query(start=dataScopeDateTimeBegin, end=dataScopeDateTimeEnd, metric=metricId, url=url)
+        response = self.query(start=dataScopeDateTimeBegin, end=dataScopeDateTimeEnd, metric=metricId, url=self.client.url)
         return APIClient.count_threshold(response,
                                                 threshold,
                                                 good_below_threshold)
@@ -117,6 +116,7 @@ class APIClient:
     def request(self,
                 method,
                 url,
+                body=None,
                 ):
         """Request Dynatrace API.
         Args:
