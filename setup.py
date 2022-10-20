@@ -56,6 +56,7 @@ extras = {
     'elasticsearch': ['elasticsearch'],
     'cloudevent': ['cloudevents'],
     'zabbix': ['pyzabbix'],
+    'date_converter': ['date_converter'],
     'dev': ['wheel', 'flake8', 'mock', 'coverage', 'nose', 'pylint']
 }
 
