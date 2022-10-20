@@ -12,8 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """
-`zabbix.py`
-Zabbix backend implementation.
+`api.py`
+Api backend implementation.
 """
 
 from datetime import datetime
