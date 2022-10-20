@@ -27,6 +27,8 @@ from retrying import retry
 import date_converter
 LOGGER = logging.getLogger(__name__)
 
+DEFAULT_DATE_FIELD = '@timestamp'
+
 class ApiBackend:
     """Backend for querying metrics from ElasticSearch.
 
@@ -35,11 +37,11 @@ class ApiBackend:
         es_config (dict): ES client configuration.
     """
 
-    def __init__(self, client=None, url=None, **es_config):
+    def __init__(self, client=None, api_url=None, **es_config):
         self.client = client
         if self.client is None:
             #self.client = Elasticsearch(**es_config)
-            self.client = APIClient(url)
+            self.client = APIClient(api_url)
 
     def threshold_data_quality(self, timestamp, window, slo_config):
         """Query SLI value from a given PromQL expression.
@@ -59,7 +61,7 @@ class ApiBackend:
         metricId = measurement['metric_id']
         threshold = measurement['threshold']
         good_below_threshold = measurement.get('good_below_threshold', True)
-        response = self.query(start=dataScopeDateTimeBegin, end=dataScopeDateTimeEnd, metric=metricId, url=self.client.url)
+        response = self.query(start=dataScopeDateTimeBegin, end=dataScopeDateTimeEnd, metric=metricId, api_url=self.client.api_url)
         return APIClient.count_threshold(response,
                                                 threshold,
                                                 good_below_threshold)
