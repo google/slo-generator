@@ -40,7 +40,6 @@ class ApiBackend:
     def __init__(self, client=None, api_url=None, **es_config):
         self.client = client
         if self.client is None:
-            #self.client = Elasticsearch(**es_config)
             self.client = APIClient(api_url)
 
     def threshold_data_quality(self, timestamp, window, slo_config):
@@ -61,7 +60,7 @@ class ApiBackend:
         metricId = measurement['metric_id']
         threshold = measurement['threshold']
         good_below_threshold = measurement.get('good_below_threshold', True)
-        response = self.query(start=dataScopeDateTimeBegin, end=dataScopeDateTimeEnd, metric=metricId, api_url=self.client.api_url)
+        response = self.query(start=dataScopeDateTimeBegin, end=dataScopeDateTimeEnd, metric=metricId, url=self.client.url)
         return APIClient.count_threshold(response,
                                                 threshold,
                                                 good_below_threshold)
@@ -98,13 +97,10 @@ def retry_http(response):
     return code in retry_codes
 
 class APIClient:
-    """Small wrapper around requests to query Elasticsearch API.
+    """Small wrapper around requests to query API.
     Args:
-        api_url (str): Elasticsearch API URL.
-        api_token (str): Elasticsearch token.
+        api_url (str):  API URL.
     """
-    # Keys to extract response data for each endpoint
-    ENDPOINT_KEYS = {'metrics': 'metrics', 'metrics/query': 'result'}
 
     def __init__(self, api_url):
         self.client = requests.Session()
