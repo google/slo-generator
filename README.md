@@ -30,8 +30,8 @@
   - [Contribute to the SLO Generator](#contribute-to-the-slo-generator)
 
 ## Description
-The `slo-generator` runs backend queries computing **Service Level Indicators**, 
-compares them with the **Service Level Objectives** defined and generates a report 
+The `slo-generator` runs backend queries computing **Service Level Indicators**,
+compares them with the **Service Level Objectives** defined and generates a report
 by computing important metrics:
 
 * **Service Level Indicator** (SLI) defined as **SLI = N<sub>good_events</sub> &#47; N<sub>valid_events</sub>**
@@ -39,7 +39,7 @@ by computing important metrics:
 * **Error Budget Burn Rate** (EBBR) defined as **EBBR = EB / EB<sub>target</sub>**
 * **... and more**, see the [example SLO report](./test/unit/../../tests/unit/fixtures/slo_report_v2.json).
 
-The **Error Budget Burn Rate** is often used for [**alerting on SLOs**](https://sre.google/workbook/alerting-on-slos/), as it demonstrates in practice to be more **reliable** and **stable** than 
+The **Error Budget Burn Rate** is often used for [**alerting on SLOs**](https://sre.google/workbook/alerting-on-slos/), as it demonstrates in practice to be more **reliable** and **stable** than
 alerting directly on metrics or on **SLI > SLO** thresholds.
 
 ## Local usage
@@ -83,7 +83,7 @@ Use `slo-generator compute --help` to list all available arguments.
 
 ### API usage
 
-On top of the CLI, the `slo-generator` can also be run as an API using the Cloud 
+On top of the CLI, the `slo-generator` can also be run as an API using the Cloud
 Functions Framework SDK (Flask) using the `api` subcommand:
 ```
 slo-generator api --config <SHARED_CONFIG_PATH>
@@ -91,7 +91,7 @@ slo-generator api --config <SHARED_CONFIG_PATH>
 where:
   * `<SHARED_CONFIG_PATH>` is the [Shared configuration](#shared-configuration) file path or GCS URL.
 
-Once the API is up-and-running, you can make HTTP POST requests with your SLO 
+Once the API is up-and-running, you can make HTTP POST requests with your SLO
 configurations (YAML or JSON) in the request body:
 
 ```
@@ -103,13 +103,13 @@ To read more about the API and advanced usage, see [docs/shared/api.md](./docs/s
 
 ## Configuration
 
-The `slo-generator` requires two configuration files to run, an **SLO configuration** 
-file, describing your SLO, and the **Shared configuration** file (common 
+The `slo-generator` requires two configuration files to run, an **SLO configuration**
+file, describing your SLO, and the **Shared configuration** file (common
 configuration for all SLOs).
 
 ### SLO configuration
 
-The **SLO configuration** (JSON or YAML) is following the Kubernetes format and 
+The **SLO configuration** (JSON or YAML) is following the Kubernetes format and
 is composed of the following fields:
 
 * `api`: `sre.google.com/v2`
@@ -122,27 +122,27 @@ is composed of the following fields:
     * `feature_name`: Monitored feature (to group SLOs by feature).
 
 * `spec`:
-  * `description`: [**required**] *string* - Description of this SLO. 
+  * `description`: [**required**] *string* - Description of this SLO.
   * `goal`: [**required**] *string* - SLO goal (or target) (**MUST** be between 0 and 1).
   * `backend`: [**required**] *string* - Backend name (**MUST** exist in SLO Generator Configuration).
   * `method`: [**required**] *string* - Backend method to use (**MUST** exist in backend class definition).
-  * `service_level_indicator`: [**required**] *map* - SLI configuration. The content of this section is 
+  * `service_level_indicator`: [**required**] *map* - SLI configuration. The content of this section is
   specific to each provider, see [`docs/providers`](./docs/providers).
-  * `error_budget_policy`: [*optional*] *string* - Error budget policy name 
+  * `error_budget_policy`: [*optional*] *string* - Error budget policy name
   (**MUST** exist in SLO Generator Configuration). If not specified, defaults to `default`.
   * `exporters`: [*optional*] *string* - List of exporter names (**MUST** exist in SLO Generator Configuration).
 
-***Note:*** *you can use environment variables in your SLO configs by using 
-`${MY_ENV_VAR}` syntax to avoid having sensitive data in version control. 
+***Note:*** *you can use environment variables in your SLO configs by using
+`${MY_ENV_VAR}` syntax to avoid having sensitive data in version control.
 Environment variables will be replaced automatically at run time.*
 
 **&rarr; See [example SLO configuration](samples/cloud_monitoring/slo_gae_app_availability.yaml).**
 
 ### Shared configuration
-The shared configuration (JSON or YAML) configures the `slo-generator` and acts 
+The shared configuration (JSON or YAML) configures the `slo-generator` and acts
 as a shared config for all SLO configs. It is composed of the following fields:
 
-* `backends`: [**required**] *map* - Data backends configurations. Each backend 
+* `backends`: [**required**] *map* - Data backends configurations. Each backend
   alias is defined as a key `<backend_name>/<suffix>`, and a configuration map.
   ```yaml
   backends:
@@ -160,9 +160,9 @@ as a shared config for all SLO configs. It is composed of the following fields:
     * [`datadog`](docs/providers/datadog.md#backend)
     * [`dynatrace`](docs/providers/dynatrace.md#backend)
     * [`<custom>`](docs/providers/custom.md#backend)
-  
+
 * `exporters`: A map of exporters to export results to. Each exporter is defined
-  as a key formatted as `<exporter_name>/<optional_suffix>`, and a map value 
+  as a key formatted as `<exporter_name>/<optional_suffix>`, and a map value
   detailing the exporter configuration.
   ```yaml
   exporters:
@@ -182,9 +182,9 @@ as a shared config for all SLO configs. It is composed of the following fields:
     * [`datadog`](docs/providers/datadog.md#exporter) to export metrics to Datadog.
     * [`dynatrace`](docs/providers/dynatrace.md#exporter) to export metrics to Dynatrace.
     * [`<custom>`](docs/providers/custom.md#exporter) to export SLO data or metrics to a custom destination.
-  
+
 * `error_budget_policies`: [**required**] A map of various error budget policies.
-  * `<ebp_name>`: Name of the error budget policy. 
+  * `<ebp_name>`: Name of the error budget policy.
     * `steps`: List of error budget policy steps, each containing the following fields:
       * `window`: Rolling time window for this error budget.
       * `alerting_burn_rate_threshold`: Target burnrate threshold over which alerting is needed.
