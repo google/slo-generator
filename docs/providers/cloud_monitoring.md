@@ -2,7 +2,7 @@
 
 ## Backend
 
-Using the `cloud_monitoring` backend class, you can query any metrics available 
+Using the `cloud_monitoring` backend class, you can query any metrics available
 in `Cloud Monitoring` to create an SLO.
 
 ```yaml
@@ -17,13 +17,14 @@ backend:
 * `good_bad_ratio` for metrics of type `DELTA`, `GAUGE`, or `CUMULATIVE`.
 * `distribution_cut` for metrics of type `DELTA` and unit `DISTRIBUTION`.
 
+The syntax of the filters for SLI definition follows [Cloud Monitoring v3 APIs' definitions](https://cloud.google.com/monitoring/api/v3/filters).
 
 ### Good / bad ratio
 
 The `good_bad_ratio` method is used to compute the ratio between two metrics:
 
-- **Good events**, i.e events we consider as 'good' from the user perspective.
-- **Bad or valid events**, i.e events we consider either as 'bad' from the user
+* **Good events**, i.e events we consider as 'good' from the user perspective.
+* **Bad or valid events**, i.e events we consider either as 'bad' from the user
 perspective, or all events we consider as 'valid' for the computation of the
 SLO.
 
@@ -31,6 +32,7 @@ This method is often used for availability SLOs, but can be used for other
 purposes as well (see examples).
 
 **SLO config blob:**
+
 ```yaml
 backend: cloud_monitoring
 method: good_bad_ratio
@@ -52,7 +54,7 @@ the `filter_valid` field which identifies all valid events.
 
 ### Distribution cut
 
-The `distribution_cut` method is used for Cloud Monitoring distribution-type 
+The `distribution_cut` method is used for Cloud Monitoring distribution-type
 metrics, which are usually used for latency metrics.
 
 A distribution metric records the **statistical distribution of the extracted
@@ -62,12 +64,14 @@ along with the `count`, `mean`, and `sum` of squared deviation of the values.
 
 In Cloud Monitoring, there are three different ways to specify bucket
 boundaries:
+
 * **Linear:** Every bucket has the same width.
 * **Exponential:** Bucket widths increases for higher values, using an
 exponential growth factor.
 * **Explicit:** Bucket boundaries are set for each bucket using a bounds array.
 
 **SLO config blob:**
+
 ```yaml
 backend: cloud_monitoring
 method: exponential_distribution_cut
@@ -80,6 +84,7 @@ service_level_indicator:
   good_below_threshold: true
   threshold_bucket: 19
 ```
+
 **&rightarrow; [Full SLO config](../../samples/cloud_monitoring/slo_gae_app_latency.yaml)**
 
 The `threshold_bucket` number to reach our 724ms target latency will depend on
@@ -96,7 +101,8 @@ backends:
 ```
 
 Optional fields:
-  * `metrics`: [*optional*] `list` - List of metrics to export ([see docs](../shared/metrics.md)).
+
+* `metrics`: [*optional*] `list` - List of metrics to export ([see docs](../shared/metrics.md)).
 
 **&rightarrow; [Full SLO config](../../samples/cloud_monitoring/slo_lb_request_availability.yaml)**
 
@@ -130,7 +136,7 @@ Consider the following error budget policy step config:
   message_ok: Last hour on track
 ```
 
-Using Cloud Monitoring UI, let's set up an alert when our error budget burn rate 
+Using Cloud Monitoring UI, let's set up an alert when our error budget burn rate
 is burning **9X faster** than it should in the last hour:
 
 * Open `Cloud Monitoring` and click on `Alerting > Create Policy`
