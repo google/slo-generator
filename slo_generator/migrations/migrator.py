@@ -17,6 +17,7 @@ Migrate utilities for migrating slo-generator configs from v1 to v2.
 """
 # pylint: disable=line-too-long, too-many-statements, too-many-ancestors, too-many-locals, too-many-nested-blocks, unused-argument
 # flake8: noqa
+# pytype: skip-file
 import copy
 import itertools
 import pprint

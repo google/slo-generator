@@ -57,7 +57,7 @@ extras = {
     'cloudevent': ['cloudevents'],
     'zabbix': ['pyzabbix'],
     'easy_date': ['easy_date'],
-    'dev': ['wheel', 'flake8', 'mock', 'coverage', 'nose', 'pylint']
+    'dev': ['wheel', 'flake8', 'mock', 'coverage', 'nose', 'pylint', 'pytype']
 }
 
 # Get the long description from the README file
