@@ -55,8 +55,6 @@ extras = {
     'pubsub': ['google-api-python-client <2', 'google-cloud-pubsub <2'],
     'elasticsearch': ['elasticsearch'],
     'cloudevent': ['cloudevents'],
-    'zabbix': ['pyzabbix'],
-    'easy_date': ['easy_date'],
     'dev': ['wheel', 'flake8', 'mock', 'coverage', 'nose', 'pylint', 'pytype']
 }
 
