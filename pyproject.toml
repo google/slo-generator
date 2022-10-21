@@ -10,3 +10,15 @@ line-length = 88  # default: 88
 [tool.isort]
 # Make it compatible with black
 profile = "black"
+
+[tool.pylint]
+ignore-patterns = [
+    "test_.*?py",
+]
+
+[tool.pylint.messages_control]
+max-line-length = 88
+disable = [
+    "logging-fstring-interpolation",
+    "import-error",
+]

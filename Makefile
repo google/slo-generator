@@ -78,7 +78,7 @@ flake8:
 	flake8 tests/
 
 pylint:
-	find ./$(NAME) ./tests -name \*.py | xargs pylint --rcfile .pylintrc --ignore-patterns=test_.*?py
+	find ./$(NAME) ./tests -type f -name "*.py" | xargs pylint
 
 pytype:
 	pytype
