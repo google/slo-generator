@@ -23,8 +23,6 @@ SITELIB = $(shell $(PYTHON) -c "from distutils.sysconfig import get_python_lib; 
 
 VERSION ?= $(shell grep "version = " setup.cfg | cut -d ' ' -f 3)
 
-FLAKE8_IGNORE = E302,E203,E261
-
 ########################################################
 
 all: clean install test
@@ -76,8 +74,8 @@ coverage:
 lint: flake8 pylint pytype
 
 flake8:
-	flake8 --ignore=$(FLAKE8_IGNORE) $(NAME)/ --max-line-length=80
-	flake8 --ignore=$(FLAKE8_IGNORE),E402 tests/ --max-line-length=80
+	flake8 $(NAME)/
+	flake8 tests/
 
 pylint:
 	find ./$(NAME) ./tests -name \*.py | xargs pylint --rcfile .pylintrc --ignore-patterns=test_.*?py
