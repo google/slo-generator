@@ -41,7 +41,7 @@ class CloudMonitoringBackend:
         self.client = client
         if client is None:
             self.client = monitoring_v3.MetricServiceClient()
-        self.parent = self.client.project_path(project_id)
+        self.parent = self.client.common_project_path(project_id)
 
     def good_bad_ratio(self, timestamp, window, slo_config):
         """Query two timeseries, one containing 'good' events, one containing
@@ -87,10 +87,10 @@ class CloudMonitoringBackend:
         LOGGER.debug(f'Good events: {good_event_count} | '
                      f'Bad events: {bad_event_count}')
 
-        return (good_event_count, bad_event_count)
+        return good_event_count, bad_event_count
 
     def distribution_cut(self, timestamp, window, slo_config):
-        """Query one timeserie of type 'exponential'.
+        """Query one timeseries of type 'exponential'.
 
         Args:
             timestamp (int): UNIX timestamp.
@@ -112,7 +112,7 @@ class CloudMonitoringBackend:
         series = list(series)
 
         if not series:
-            return (NO_DATA, NO_DATA)  # no timeseries
+            return NO_DATA, NO_DATA  # no timeseries
 
         distribution_value = series[0].points[0].value.distribution_value
         # bucket_options = distribution_value.bucket_options
@@ -149,7 +149,7 @@ class CloudMonitoringBackend:
             good_event_count = upper_events_count
             bad_event_count = lower_events_count
 
-        return (good_event_count, bad_event_count)
+        return good_event_count, bad_event_count
 
     def exponential_distribution_cut(self, *args, **kwargs):
         """Alias for `distribution_cut` method to allow for backwards
@@ -166,7 +166,7 @@ class CloudMonitoringBackend:
               filter,
               aligner='ALIGN_SUM',
               reducer='REDUCE_SUM',
-              group_by=[]):
+              group_by=None):
         """Query timeseries from Cloud Monitoring.
 
         Args:
@@ -180,15 +180,20 @@ class CloudMonitoringBackend:
         Returns:
             list: List of timeseries objects.
         """
+        if group_by is None:
+            group_by = []
         measurement_window = CM.get_window(timestamp, window)
         aggregation = CM.get_aggregation(window,
                                          aligner=aligner,
                                          reducer=reducer,
                                          group_by=group_by)
-        timeseries = self.client.list_time_series(
-            self.parent, filter, measurement_window,
-            monitoring_v3.enums.ListTimeSeriesRequest.TimeSeriesView.FULL,
-            aggregation)
+        request = monitoring_v3.ListTimeSeriesRequest()
+        request.name = self.parent
+        request.filter = filter
+        request.interval = measurement_window
+        request.view = monitoring_v3.ListTimeSeriesRequest.TimeSeriesView.FULL
+        request.aggregation = aggregation
+        timeseries = self.client.list_time_series(request)
         LOGGER.debug(pprint.pformat(timeseries))
         return timeseries
 
@@ -220,12 +225,20 @@ class CloudMonitoringBackend:
         Returns:
             :obj:`monitoring_v3.types.TimeInterval`: Measurement window object.
         """
-        measurement_window = monitoring_v3.types.TimeInterval()
-        measurement_window.end_time.seconds = int(timestamp)
-        measurement_window.end_time.nanos = int(
-            (timestamp - measurement_window.end_time.seconds) * 10**9)
-        measurement_window.start_time.seconds = int(timestamp - window)
-        measurement_window.start_time.nanos = measurement_window.end_time.nanos
+        end_time_seconds = int(timestamp)
+        end_time_nanos = int((timestamp - end_time_seconds) * 10 ** 9)
+        start_time_seconds = int(timestamp - window)
+        start_time_nanos = end_time_nanos
+        measurement_window = monitoring_v3.TimeInterval({
+            "end_time": {
+                "seconds": end_time_seconds,
+                "nanos": end_time_nanos
+            },
+            "start_time": {
+                "seconds": start_time_seconds,
+                "nanos": start_time_nanos
+            }
+        })
         LOGGER.debug(pprint.pformat(measurement_window))
         return measurement_window
 
@@ -233,7 +246,7 @@ class CloudMonitoringBackend:
     def get_aggregation(window,
                         aligner='ALIGN_SUM',
                         reducer='REDUCE_SUM',
-                        group_by=[]):
+                        group_by=None):
         """Helper for aggregation object.
 
         Default aggregation is `ALIGN_SUM`.
@@ -248,13 +261,16 @@ class CloudMonitoringBackend:
         Returns:
             :obj:`monitoring_v3.types.Aggregation`: Aggregation object.
         """
-        aggregation = monitoring_v3.types.Aggregation()
-        aggregation.alignment_period.seconds = window
-        aggregation.per_series_aligner = (getattr(
-            monitoring_v3.enums.Aggregation.Aligner, aligner))
-        aggregation.cross_series_reducer = (getattr(
-            monitoring_v3.enums.Aggregation.Reducer, reducer))
-        aggregation.group_by_fields.extend(group_by)
+        if group_by is None:
+            group_by = []
+        aggregation = monitoring_v3.Aggregation({
+            "alignment_period": {"seconds": window},
+            "per_series_aligner":
+                getattr(monitoring_v3.Aggregation.Aligner, aligner),
+            "cross_series_reducer":
+                getattr(monitoring_v3.Aggregation.Reducer, reducer),
+            "group_by_fields": group_by,
+        })
         LOGGER.debug(pprint.pformat(aggregation))
         return aggregation
 

@@ -46,16 +46,16 @@ extras = {
     'dynatrace': ['requests'],
     'bigquery': ['google-api-python-client <2', 'google-cloud-bigquery <3'],
     'cloud_monitoring': [
-        'google-api-python-client <2', 'google-cloud-monitoring ==1.1.0'
+        'google-api-python-client <2', 'google-cloud-monitoring <3'
     ],
     'cloud_service_monitoring': [
-        'google-api-python-client <2', 'google-cloud-monitoring ==1.1.0'
+        'google-api-python-client <2', 'google-cloud-monitoring <3'
     ],
     'cloud_storage': ['google-api-python-client <2', 'google-cloud-storage'],
     'pubsub': ['google-api-python-client <2', 'google-cloud-pubsub <2'],
     'elasticsearch': ['elasticsearch'],
     'cloudevent': ['cloudevents'],
-    'dev': ['wheel', 'flake8', 'mock', 'coverage', 'nose', 'pylint', 'pytype']
+    'dev': ['wheel', 'flake8', 'mock', 'pytest', 'pytest-cov', 'pylint', 'pytype']
 }
 
 # Get the long description from the README file
@@ -89,4 +89,4 @@ setup(name=name,
       entry_points={
           'console_scripts': ['slo-generator=slo_generator.cli:main'],
       },
-      python_requires='>=3.4')
+      python_requires='>=3.6')
