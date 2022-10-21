@@ -13,15 +13,15 @@
 ########################################################
 # variable section
 
-NAME = "slo_generator"
+NAME = slo_generator
 
-PIP=pip3
-PYTHON=python3
-TWINE=twine
-COVERAGE=coverage
+PIP = pip3
+PYTHON = python3
+TWINE = twine
+COVERAGE = coverage
 SITELIB = $(shell $(PYTHON) -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")
 
-VERSION ?= $(shell grep "version = " setup.py | cut -d\  -f3)
+VERSION ?= $(shell grep "version = " setup.cfg | cut -d ' ' -f 3)
 
 FLAKE8_IGNORE = E302,E203,E261
 
