@@ -21,7 +21,7 @@ import sys
 import time
 from types import ModuleType
 
-from google.cloud.monitoring_v3.proto import metric_service_pb2
+from google.cloud import monitoring_v3
 from slo_generator.utils import load_configs, load_config
 
 TEST_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -164,11 +164,11 @@ def mock_sd(nresp=1):
     Returns:
         ChannelStub: Mocked gRPC channel stub.
     """
-    timeserie = load_fixture('time_series_proto.json')
-    response = {"next_page_token": "", "time_series": [timeserie]}
+    timeseries = load_fixture('time_series_proto.json')
+    response = {"next_page_token": "", "time_series": [timeseries]}
     return mock_grpc_stub(
         response=response,
-        proto_method=metric_service_pb2.ListTimeSeriesResponse,
+        proto_method=monitoring_v3.types.ListTimeSeriesResponse,
         nresp=nresp)
 
 

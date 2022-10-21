@@ -1,0 +1,28 @@
+apiVersion: sre.google.com/v2
+kind: ServiceLevelObjective
+metadata:
+  name: lb-request-availability
+  labels:
+    service_name: lb
+    feature_name: request
+    slo_name: availability
+spec:
+  description: Availability of HTTP Load Balancer
+  backend: cloud_monitoring_mql
+  method: good_bad_ratio
+  exporters:
+  - cloud_monitoring
+  service_level_indicator:
+    filter_good: >
+      fetch 'https_lb_rule'
+      | metric 'loadbalancing.googleapis.com/https/request_count'
+      | filter resource.project_id == '${LB_PROJECT_ID}'
+      | filter
+        metric.response_code_class="200"
+        || metric.response_code_class="300"
+        || metric.response_code_class="400"
+    filter_valid: >
+      fetch 'https_lb_rule'
+      | metric 'loadbalancing.googleapis.com/https/request_count'
+      | filter resource.project_id == '${LB_PROJECT_ID}'
+  goal: 0.98
