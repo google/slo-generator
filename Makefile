@@ -54,8 +54,7 @@ deploy: clean install_twine build
 install_twine:
 	$(PIP) install twine
 
-develop:
-	$(PIP) install -e .
+develop: install
 	pre-commit install
 
 install: clean
