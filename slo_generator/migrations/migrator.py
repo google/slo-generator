@@ -456,7 +456,7 @@ def report_v2tov1(report):
 
 def get_random_suffix():
     """Get random suffix for our backends / exporters when configs clash."""
-    return "".join(random.choices(string.digits, k=4))
+    return "".join(random.choices(string.digits, k=4))  # nosec B311
 
 
 def add_to_shared_config(
