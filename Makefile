@@ -72,6 +72,10 @@ unit: clean
 coverage:
 	$(COVERAGE) report --rcfile=".coveragerc"
 
+format:
+	isort .
+	black .
+
 lint: black isort flake8 pylint pytype bandit safety
 
 black:
