@@ -39,11 +39,24 @@ make develop
 
 Finally, feel free to start making changes.
 
-Pre-commit hooks will make sure that your changes are linted and well-formatted to match the rest of the codebase. You will be warned if at least one of the staged files does not comply.
+Pre-commit hooks will make sure that your changes are linted and well-formatted to match the rest of the codebase. You will be warned if at least one of the staged files does not comply. Pre-commit hooks are installed by `make develop` above and run automatically by `git`. You can also run them manually on the staged files at any time with:
 
-If this happens, run `make format` to automatically reformat the code with [`isort`](https://github.com/PyCQA/isort) and [`black`](https://github.com/psf/black). Also make sure to fix any errors returned by linters or static analyzers such as [`flake8`](https://flake8.pycqa.org/en/latest/), [`pylint`](https://pylint.pycqa.org/en/latest/), [`mypy`](http://mypy-lang.org/) or [`pytype`](https://github.com/google/pytype) before committing again.
+```sh
+$ pre-commit run
+trim trailing whitespace.................................................Passed
+fix end of files.........................................................Passed
+check yaml...............................................................Passed
+check for added large files..............................................Passed
+autoflake................................................................Passed
+flake8...................................................................Passed
+black....................................................................Passed
+isort....................................................................Passed
+pylint...................................................................Passed
+```
 
-Ignoring the pre-commit warnings is not recommended. The Continuous Integration (CI) pipelines will run the exact same checks (and more!) when your commits get pushed. The checks will fail there and prevent you from merging your changes to the `master` branch anyway. So fail fast, fail early, fail often and, most importantly, fix as much as possible on your local development machine to make code reviews more enjoyable for everyone.
+If any error is reported, run `make format` to automatically reformat the code with [`isort`](https://github.com/PyCQA/isort) and [`black`](https://github.com/psf/black). Also make sure to fix any errors returned by linters or static analyzers such as [`flake8`](https://flake8.pycqa.org/en/latest/), [`pylint`](https://pylint.pycqa.org/en/latest/), [`mypy`](http://mypy-lang.org/) or [`pytype`](https://github.com/google/pytype) before committing again.
+
+Ignoring these pre-commit warnings is not recommended. The Continuous Integration (CI) pipelines will run the exact same checks (and more!) when your commits get pushed. The checks will fail there and prevent you from merging your changes to the `master` branch anyway. So fail fast, fail early, fail often and fix as many errors as possible on your local development machine. Code reviews will be more enjoyable for everyone!
 
 ### Testing environment
 
