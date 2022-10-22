@@ -14,7 +14,8 @@ jobs:
     environment: prod
     concurrency: prod
     steps:
-      - uses: actions/checkout@master
+      - uses: actions/checkout@v3
+
       - name: Check release version
         id: check-tag
         run: |

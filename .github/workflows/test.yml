@@ -57,7 +57,9 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: docker-practice/actions-setup-docker@master
+
       - name: Build Docker image
         run: make docker_build
+
       - name: Run Docker tests
         run: make docker_test
