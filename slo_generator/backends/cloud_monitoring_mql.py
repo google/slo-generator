@@ -46,7 +46,9 @@ class CloudMonitoringMqlBackend:
     """
 
     def __init__(self, project_id: str, client: QueryServiceClient = None):
-        self.client = QueryServiceClient() if client is None else client
+        self.client = client
+        if client is None:
+            self.client = QueryServiceClient()
         self.parent = self.client.common_project_path(project_id)
 
     def good_bad_ratio(self,
