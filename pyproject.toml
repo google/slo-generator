@@ -10,6 +10,9 @@ line-length = 88  # default: 88
 [tool.isort]
 # Make it compatible with black
 profile = "black"
+extend_skip = [
+    ".pytype",
+]
 
 [tool.pylint]
 ignore-patterns = [

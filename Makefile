@@ -72,7 +72,13 @@ unit: clean
 coverage:
 	$(COVERAGE) report --rcfile=".coveragerc"
 
-lint: flake8 pylint pytype
+lint: black isort flake8 pylint pytype bandit safety
+
+black:
+	black . --check
+
+isort:
+	isort . --check-only
 
 flake8:
 	flake8 $(NAME)/
@@ -83,6 +89,12 @@ pylint:
 
 pytype:
 	pytype
+
+bandit:
+	bandit .
+
+safety:
+	safety check
 
 integration: int_cm int_csm int_custom int_dd int_dt int_es int_prom
 

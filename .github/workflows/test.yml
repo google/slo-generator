@@ -22,7 +22,7 @@ jobs:
       - name: Install dependencies
         run: make install
 
-      - name: Run lint test
+      - name: Lint
         run: make lint
 
   unit:
@@ -43,7 +43,7 @@ jobs:
       - name: Install dependencies
         run: make install
 
-      - name: Run unittests
+      - name: Run unit tests
         run: make unit
         env:
           MIN_VALID_EVENTS: "10"
