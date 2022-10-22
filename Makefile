@@ -56,10 +56,10 @@ install_twine:
 
 develop:
 	$(PIP) install -e .
+	pre-commit install
 
 install: clean
 	$(PIP) install -e ."[api, datadog, prometheus, elasticsearch, pubsub, cloud_monitoring, bigquery, dev]"
-	pre-commit install
 
 uninstall: clean
 	$(PIP) freeze --exclude-editable | xargs $(PIP) uninstall -y
