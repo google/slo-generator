@@ -25,3 +25,7 @@ disable = [
     "logging-fstring-interpolation",
     "import-error",
 ]
+
+[tool.mypy]
+# https://mypy.readthedocs.io/en/stable/config_file.html#using-a-pyproject-toml-file
+ignore_missing_imports = true
