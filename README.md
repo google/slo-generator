@@ -6,8 +6,7 @@
 [![PyPI version](https://badge.fury.io/py/slo-generator.svg)](https://badge.fury.io/py/slo-generator)
 [![Downloads](https://static.pepy.tech/personalized-badge/slo-generator?period=total&units=international_system&left_color=grey&right_color=orange&left_text=pypi%20downloads)](https://pepy.tech/project/slo-generator)
 
-`slo-generator` is a tool to compute and export **Service Level Objectives** ([SLOs](https://landing.google.com/sre/sre-book/chapters/service-level-objectives/)),
-**Error Budgets** and **Burn Rates**, using configurations written in YAML (or JSON) format.
+`slo-generator` is a tool to compute and export **Service Level Objectives** ([SLOs](https://landing.google.com/sre/sre-book/chapters/service-level-objectives/)), **Error Budgets** and **Burn Rates**, using configurations written in YAML (or JSON) format.
 
 ***IMPORTANT NOTE: the following content is the `slo-generator` v2 documentation. The v1 documentation is available [here](https://github.com/google/slo-generator/tree/v1.5.1), and instructions to migrate to v2 are available [here](https://github.com/google/slo-generator/blob/master/docs/shared/migration.md).***
 
@@ -32,17 +31,14 @@
 
 ## Description
 
-The `slo-generator` runs backend queries computing **Service Level Indicators**,
-compares them with the **Service Level Objectives** defined and generates a report
-by computing important metrics:
+The `slo-generator` runs backend queries computing **Service Level Indicators**, compares them with the **Service Level Objectives** defined and generates a report by computing important metrics:
 
 - **Service Level Indicator** (SLI) defined as **SLI = N<sub>good_events</sub> &#47; N<sub>valid_events</sub>**
 - **Error Budget** (EB) defined as **EB = 1 - SLI**
 - **Error Budget Burn Rate** (EBBR) defined as **EBBR = EB / EB<sub>target</sub>**
 - **... and more**, see the [example SLO report](./test/unit/../../tests/unit/fixtures/slo_report_v2.json).
 
-The **Error Budget Burn Rate** is often used for [**alerting on SLOs**](https://sre.google/workbook/alerting-on-slos/), as it demonstrates in practice to be more **reliable** and **stable** than
-alerting directly on metrics or on **SLI > SLO** thresholds.
+The **Error Budget Burn Rate** is often used for [**alerting on SLOs**](https://sre.google/workbook/alerting-on-slos/), as it demonstrates in practice to be more **reliable** and **stable** than alerting directly on metrics or on **SLI > SLO** thresholds.
 
 ## Local usage
 
@@ -79,9 +75,7 @@ slo-generator compute -f <SLO_CONFIG_PATH> -c <SHARED_CONFIG_PATH> --export
 where:
 
 - `<SLO_CONFIG_PATH>` is the [SLO configuration](#slo-configuration) file or folder path.
-
 - `<SHARED_CONFIG_PATH>` is the [Shared configuration](#shared-configuration) file path.
-
 - `--export` | `-e` enables exporting data using the `exporters` specified in the SLO
   configuration file.
 
@@ -89,8 +83,7 @@ Use `slo-generator compute --help` to list all available arguments.
 
 ### API usage
 
-On top of the CLI, the `slo-generator` can also be run as an API using the Cloud
-Functions Framework SDK (Flask) using the `api` subcommand:
+On top of the CLI, the `slo-generator` can also be run as an API using the Cloud Functions Framework SDK (Flask) using the `api` subcommand:
 
 ```sh
 slo-generator api --config <SHARED_CONFIG_PATH>
@@ -100,8 +93,7 @@ where:
 
 - `<SHARED_CONFIG_PATH>` is the [Shared configuration](#shared-configuration) file path or GCS URL.
 
-Once the API is up-and-running, you can make HTTP POST requests with your SLO
-configurations (YAML or JSON) in the request body:
+Once the API is up-and-running, you can make HTTP POST requests with your SLO configurations (YAML or JSON) in the request body:
 
 ```sh
 curl -X POST -H "Content-Type: text/x-yaml" --data-binary @slo.yaml localhost:8080 # yaml SLO config
@@ -112,14 +104,11 @@ To read more about the API and advanced usage, see [docs/shared/api.md](./docs/s
 
 ## Configuration
 
-The `slo-generator` requires two configuration files to run, an **SLO configuration**
-file, describing your SLO, and the **Shared configuration** file (common
-configuration for all SLOs).
+The `slo-generator` requires two configuration files to run, an **SLO configuration** file, describing your SLO, and the **Shared configuration** file (common configuration for all SLOs).
 
 ### SLO configuration
 
-The **SLO configuration** (JSON or YAML) is following the Kubernetes format and
-is composed of the following fields:
+The **SLO configuration** (JSON or YAML) is following the Kubernetes format and is composed of the following fields:
 
 - `api`: `sre.google.com/v2`
 - `kind`: `ServiceLevelObjective`
@@ -141,19 +130,15 @@ is composed of the following fields:
   (**MUST** exist in SLO Generator Configuration). If not specified, defaults to `default`.
   - `exporters`: [*optional*] *string* - List of exporter names (**MUST** exist in SLO Generator Configuration).
 
-***Note:*** *you can use environment variables in your SLO configs by using
-`${MY_ENV_VAR}` syntax to avoid having sensitive data in version control.
-Environment variables will be replaced automatically at run time.*
+***Note:*** *you can use environment variables in your SLO configs by using `${MY_ENV_VAR}` syntax to avoid having sensitive data in version control. Environment variables will be replaced automatically at run time.*
 
 **&rarr; See [example SLO configuration](samples/cloud_monitoring/slo_gae_app_availability.yaml).**
 
 ### Shared configuration
 
-The shared configuration (JSON or YAML) configures the `slo-generator` and acts
-as a shared config for all SLO configs. It is composed of the following fields:
+The shared configuration (JSON or YAML) configures the `slo-generator` and acts as a shared config for all SLO configs. It is composed of the following fields:
 
-- `backends`: [**required**] *map* - Data backends configurations. Each backend
-  alias is defined as a key `<backend_name>/<suffix>`, and a configuration map.
+- `backends`: [**required**] *map* - Data backends configurations. Each backend alias is defined as a key `<backend_name>/<suffix>`, and a configuration map.
 
   ```yaml
   backends:
@@ -173,9 +158,7 @@ as a shared config for all SLO configs. It is composed of the following fields:
   - [`dynatrace`](docs/providers/dynatrace.md#backend)
   - [`<custom>`](docs/providers/custom.md#backend)
 
-- `exporters`: A map of exporters to export results to. Each exporter is defined
-  as a key formatted as `<exporter_name>/<optional_suffix>`, and a map value
-  detailing the exporter configuration.
+- `exporters`: A map of exporters to export results to. Each exporter is defined as a key formatted as `<exporter_name>/<optional_suffix>`, and a map value detailing the exporter configuration.
 
   ```yaml
   exporters:
