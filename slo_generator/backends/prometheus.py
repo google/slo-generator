@@ -20,6 +20,7 @@ import json
 import logging
 import os
 import pprint
+from typing import Dict, List, Optional, Tuple
 
 from prometheus_http_client import Prometheus
 
@@ -97,7 +98,9 @@ class PrometheusBackend:
         return (good_count, bad_count)
 
     # pylint: disable=unused-argument
-    def distribution_cut(self, timestamp, window, slo_config):
+    def distribution_cut(
+        self, timestamp: int, window: int, slo_config: dict
+    ) -> Tuple[float, float]:
         """Query events for distributions (histograms).
 
         Args:
@@ -137,7 +140,14 @@ class PrometheusBackend:
 
     # pylint: disable=unused-argument,redefined-builtin,dangerous-default-value
     # pylint: disable=too-many-arguments
-    def query(self, filter, window, timestamp=None, operators=[], labels={}):
+    def query(
+        self,
+        filter: str,
+        window: int,
+        timestamp: Optional[int] = None,
+        operators: list = [],
+        labels: dict = {},
+    ) -> dict:
         """Query Prometheus server.
 
         Args:
@@ -158,7 +168,7 @@ class PrometheusBackend:
         return response
 
     @staticmethod
-    def count(response):
+    def count(response: dict) -> float:
         """Count events in Prometheus response.
         Args:
             response (dict): Prometheus query response.
@@ -176,7 +186,9 @@ class PrometheusBackend:
 
     @staticmethod
     # pylint: disable=dangerous-default-value
-    def _fmt_query(query, window, operators=[], labels={}):
+    def _fmt_query(
+        query: str, window: int, operators: List[str] = [], labels: Dict[str, str] = {}
+    ) -> str:
         """Format Prometheus query:
 
         * If the PromQL expression has a `window` placeholder, replace it by the

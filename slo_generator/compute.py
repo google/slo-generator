@@ -19,6 +19,7 @@ Compute utilities.
 import logging
 import pprint
 import time
+from typing import Optional
 
 from slo_generator import constants, utils
 from slo_generator.migrations.migrator import report_v2tov1
@@ -29,12 +30,12 @@ LOGGER = logging.getLogger(__name__)
 
 # pylint: disable=too-many-arguments,too-many-locals
 def compute(
-    slo_config,
-    config,
-    timestamp=None,
+    slo_config: dict,
+    config: dict,
+    timestamp: Optional[float] = None,
     client=None,
-    do_export=False,
-    delete=False,
+    do_export: bool = False,
+    delete: bool = False,
 ):
     """Run pipeline to compute SLO, Error Budget and Burn Rate, and export the
     results (if exporters are specified in the SLO config).
@@ -95,7 +96,7 @@ def compute(
     return reports
 
 
-def export(data, exporters, raise_on_error=False):
+def export(data: dict, exporters: list, raise_on_error: bool = False) -> list:
     """Export data using selected exporters.
 
     Args:

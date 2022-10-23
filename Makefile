@@ -75,7 +75,7 @@ format:
 	isort .
 	black .
 
-lint: black isort flake8 pylint pytype bandit safety
+lint: black isort flake8 pylint pytype mypy bandit safety
 
 black:
 	black . --check
@@ -92,6 +92,9 @@ pylint:
 
 pytype:
 	pytype
+
+mypy:
+	mypy --show-error-codes $(NAME)
 
 bandit:
 	bandit .

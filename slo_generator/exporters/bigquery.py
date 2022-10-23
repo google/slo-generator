@@ -21,7 +21,7 @@ import logging
 import pprint
 
 import google.api_core
-from google.cloud import bigquery
+from google.cloud import bigquery  # type: ignore[attr-defined]
 
 from slo_generator import constants
 

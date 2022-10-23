@@ -29,8 +29,8 @@ class PrometheusSelfExporter(MetricsExporter):
     """Prometheus exporter class which uses
     the API mode of itself to export the metrics."""
 
-    REGISTERED_URL = False
-    REGISTERED_METRICS = {}
+    REGISTERED_URL: bool = False
+    REGISTERED_METRICS: dict = {}
 
     def __init__(self):
         if not self.REGISTERED_URL:

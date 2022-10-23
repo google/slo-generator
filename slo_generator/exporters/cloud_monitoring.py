@@ -35,7 +35,7 @@ class CloudMonitoringExporter(MetricsExporter):
     def __init__(self):
         self.client = monitoring_v3.MetricServiceClient()
 
-    def export_metric(self, data):
+    def export_metric(self, data: dict):
         """Export metric to Cloud Monitoring. Create metric descriptor if
         it doesn't exist.
 
@@ -49,7 +49,7 @@ class CloudMonitoringExporter(MetricsExporter):
             self.create_metric_descriptor(data)
         self.create_timeseries(data)
 
-    def create_timeseries(self, data):
+    def create_timeseries(self, data: dict):
         """Create Cloud Monitoring timeseries.
 
         Args:
@@ -102,7 +102,7 @@ class CloudMonitoringExporter(MetricsExporter):
         )
         # pylint: enable=E1101
 
-    def get_metric_descriptor(self, data):
+    def get_metric_descriptor(self, data: dict):
         """Get Cloud Monitoring metric descriptor.
 
         Args:
@@ -121,7 +121,7 @@ class CloudMonitoringExporter(MetricsExporter):
         except google.api_core.exceptions.NotFound:
             return None
 
-    def create_metric_descriptor(self, data):
+    def create_metric_descriptor(self, data: dict):
         """Create Cloud Monitoring metric descriptor.
 
         Args:

@@ -25,7 +25,7 @@ from slo_generator.constants import NO_DATA
 
 LOGGER = logging.getLogger(__name__)
 
-DEFAULT_DATE_FIELD = "@timestamp"
+DEFAULT_DATE_FIELD: str = "@timestamp"
 
 
 class ElasticsearchBackend:

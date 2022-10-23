@@ -50,7 +50,9 @@ class CloudMonitoringMqlBackend:
         self.client = client
         if client is None:
             self.client = QueryServiceClient()
-        self.parent = self.client.common_project_path(project_id)
+        self.parent = self.client.common_project_path(  # type: ignore[union-attr]
+            project_id
+        )
 
     def good_bad_ratio(
         self,
@@ -79,14 +81,15 @@ class CloudMonitoringMqlBackend:
         good_event_count: int = CM.count(good_ts)
 
         # Query 'bad events' timeseries
+        bad_event_count: int
         if filter_bad:
             bad_ts: List[TimeSeriesData] = self.query(query=filter_bad, window=window)
-            bad_event_count: int = CM.count(bad_ts)
+            bad_event_count = CM.count(bad_ts)
         elif filter_valid:
             valid_ts: List[TimeSeriesData] = self.query(
                 query=filter_valid, window=window
             )
-            bad_event_count: int = CM.count(valid_ts) - good_event_count
+            bad_event_count = CM.count(valid_ts) - good_event_count
         else:
             raise Exception("One of `filter_bad` or `filter_valid` is required.")
 
@@ -140,20 +143,24 @@ class CloudMonitoringMqlBackend:
             distribution[i] = {"count_sum": count_sum}
         LOGGER.debug(pprint.pformat(distribution))
 
+        lower_events_count: int
+        upper_events_count: int
         if len(distribution) - 1 < threshold_bucket:
             # maximum measured metric is below the cut after bucket number
-            lower_events_count: int = valid_events_count
-            upper_events_count: int = 0
+            lower_events_count = valid_events_count
+            upper_events_count = 0
         else:
-            lower_events_count: int = distribution[threshold_bucket]["count_sum"]
-            upper_events_count: int = valid_events_count - lower_events_count
+            lower_events_count = distribution[threshold_bucket]["count_sum"]
+            upper_events_count = valid_events_count - lower_events_count
 
+        good_event_count: int
+        bad_event_count: int
         if good_below_threshold:
-            good_event_count: int = lower_events_count
-            bad_event_count: int = upper_events_count
+            good_event_count = lower_events_count
+            bad_event_count = upper_events_count
         else:
-            good_event_count: int = upper_events_count
-            bad_event_count: int = lower_events_count
+            good_event_count = upper_events_count
+            bad_event_count = lower_events_count
 
         return good_event_count, bad_event_count
 
@@ -207,7 +214,10 @@ class CloudMonitoringMqlBackend:
         request = metric_service.QueryTimeSeriesRequest(
             {"name": self.parent, "query": formatted_query}
         )
-        timeseries_pager: QueryTimeSeriesPager = self.client.query_time_series(request)
+
+        timeseries_pager: QueryTimeSeriesPager = self.client.query_time_series(
+            request
+        )  # type: ignore[union-attr]
         timeseries: list = list(timeseries_pager)  # convert pager to flat list
         LOGGER.debug(pprint.pformat(timeseries))
         return timeseries
