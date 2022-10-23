@@ -25,6 +25,7 @@ from .base import MetricsExporter
 LOGGER = logging.getLogger(__name__)
 DEFAULT_DEVICE_ID = "slo_report"
 
+
 class DynatraceExporter(MetricsExporter):
     """Backend for querying metrics from Dynatrace.
 
@@ -33,8 +34,9 @@ class DynatraceExporter(MetricsExporter):
         api_url (str): Dynatrace API URL.
         api_token (str): Dynatrace token.
     """
-    METRIC_PREFIX = 'custom:'
-    REQUIRED_FIELDS = ['api_url', 'api_token']
+
+    METRIC_PREFIX = "custom:"
+    REQUIRED_FIELDS = ["api_url", "api_token"]
 
     def __init__(self):
         self.client = None
@@ -48,10 +50,10 @@ class DynatraceExporter(MetricsExporter):
         Returns:
             object: Dynatrace API response.
         """
-        api_url, api_token = data['api_url'], data['api_token']
+        api_url, api_token = data["api_url"], data["api_token"]
         self.client = DynatraceClient(api_url, api_token)
         metric = self.get_custom_metric(data)
-        code = int(metric.get('error', {}).get('code', '200'))
+        code = int(metric.get("error", {}).get("code", "200"))
         if code == 404:
             LOGGER.warning("Custom metric doesn't exist. Creating it.")
             metric = self.create_custom_metric(data)
@@ -67,28 +69,30 @@ class DynatraceExporter(MetricsExporter):
         Returns:
             object: Dynatrace API response.
         """
-        name = data['name']
-        labels = data['labels']
-        value = data['value']
-        tags = data.get('tags', [])
-        device_id = data.get('device_id', DEFAULT_DEVICE_ID)
+        name = data["name"]
+        labels = data["labels"]
+        value = data["value"]
+        tags = data.get("tags", [])
+        device_id = data.get("device_id", DEFAULT_DEVICE_ID)
         timestamp_ms = time.time() * 1000
         timeseries = {
-            "type":
-            DEFAULT_DEVICE_ID,
-            "tags":
-            tags,
+            "type": DEFAULT_DEVICE_ID,
+            "tags": tags,
             "properties": {},
-            "series": [{
-                "timeseriesId": name,
-                "dimensions": labels,
-                "dataPoints": [[timestamp_ms, value]]
-            }]
+            "series": [
+                {
+                    "timeseriesId": name,
+                    "dimensions": labels,
+                    "dataPoints": [[timestamp_ms, value]],
+                }
+            ],
         }
-        return self.client.request('post',
-                                   'entity/infrastructure/custom',
-                                   name=device_id,
-                                   post_data=timeseries)
+        return self.client.request(
+            "post",
+            "entity/infrastructure/custom",
+            name=device_id,
+            post_data=timeseries,
+        )
 
     def create_custom_metric(self, data):
         """Create a metric descriptor in Dynatrace API.
@@ -99,19 +103,21 @@ class DynatraceExporter(MetricsExporter):
         Returns:
             obj: Dynatrace API response.
         """
-        name = data['name']
-        device_ids = [data.get('device_id', DEFAULT_DEVICE_ID)]
-        labelkeys = list(data['labels'].keys())
+        name = data["name"]
+        device_ids = [data.get("device_id", DEFAULT_DEVICE_ID)]
+        labelkeys = list(data["labels"].keys())
         metric = {
             "displayName": name,
             "unit": "Count",
             "dimensions": labelkeys,
-            "types": device_ids
+            "types": device_ids,
         }
-        return self.client.request('put',
-                                   'timeseries',
-                                   name=name,
-                                   post_data=metric)
+        return self.client.request(
+            "put",
+            "timeseries",
+            name=name,
+            post_data=metric,
+        )
 
     def get_custom_metric(self, data):
         """Get a custom metric descriptor from Dynatrace API.
@@ -122,7 +128,9 @@ class DynatraceExporter(MetricsExporter):
         Returns:
             obj: Dynatrace API response.
         """
-        name = data['name']
-        return self.client.request('get',
-                                   'timeseries',
-                                   name=name)
+        name = data["name"]
+        return self.client.request(
+            "get",
+            "timeseries",
+            name=name,
+        )

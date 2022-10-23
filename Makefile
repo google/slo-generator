@@ -13,17 +13,15 @@
 ########################################################
 # variable section
 
-NAME = "slo_generator"
+NAME = slo_generator
 
-PIP=pip3
-PYTHON=python3
-TWINE=twine
-COVERAGE=coverage
+PIP = pip3
+PYTHON = python3
+TWINE = twine
+COVERAGE = coverage
 SITELIB = $(shell $(PYTHON) -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")
 
-VERSION ?= $(shell grep "version = " setup.py | cut -d\  -f3)
-
-FLAKE8_IGNORE = E302,E203,E261
+VERSION ?= $(shell grep "version = " setup.cfg | cut -d ' ' -f 3)
 
 ########################################################
 
@@ -56,8 +54,8 @@ deploy: clean install_twine build
 install_twine:
 	$(PIP) install twine
 
-develop:
-	$(PIP) install -e .
+develop: install
+	pre-commit install
 
 install: clean
 	$(PIP) install -e ."[api, datadog, prometheus, elasticsearch, pubsub, cloud_monitoring, bigquery, dev]"
@@ -73,20 +71,36 @@ unit: clean
 coverage:
 	$(COVERAGE) report --rcfile=".coveragerc"
 
-lint: flake8 pylint pytype mypy
+format:
+	isort .
+	black .
+
+lint: black isort flake8 pylint pytype mypy bandit safety
+
+black:
+	black . --check
+
+isort:
+	isort . --check-only
 
 flake8:
-	flake8 --ignore=$(FLAKE8_IGNORE) $(NAME)/ --max-line-length=80
-	flake8 --ignore=$(FLAKE8_IGNORE),E402 tests/ --max-line-length=80
+	flake8 $(NAME)/
+	flake8 tests/
 
 pylint:
-	find ./$(NAME) ./tests -name \*.py | xargs pylint --rcfile .pylintrc --ignore-patterns=test_.*?py
+	find ./$(NAME) ./tests -type f -name "*.py" | xargs pylint
 
 pytype:
 	pytype
 
 mypy:
 	mypy --show-error-codes $(NAME)
+
+bandit:
+	bandit .
+
+safety:
+	safety check
 
 integration: int_cm int_csm int_custom int_dd int_dt int_es int_prom
 

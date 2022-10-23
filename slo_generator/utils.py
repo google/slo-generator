@@ -23,11 +23,11 @@ import os
 import pprint
 import re
 import sys
-from typing import Optional
 import warnings
 from collections.abc import Mapping
 from datetime import datetime
 from pathlib import Path
+from typing import Optional
 
 import yaml
 from dateutil import tz
@@ -35,7 +35,9 @@ from dateutil import tz
 from slo_generator.constants import DEBUG
 
 try:
-    from google.cloud import storage # type: ignore[attr-defined]
+    # pytype: disable=import-error
+    from google.cloud import storage  # type: ignore[attr-defined]
+
     GCS_ENABLED = True
 except ImportError:
     GCS_ENABLED = False
@@ -43,9 +45,10 @@ except ImportError:
 LOGGER = logging.getLogger(__name__)
 
 
-def load_configs(path: str,
-                 ctx: os._Environ = os.environ,
-                 kind: Optional[str] = None) -> list:
+# pylint: disable=dangerous-default-value
+def load_configs(
+    path: str, ctx: os._Environ = os.environ, kind: Optional[str] = None
+) -> list:
     """Load multiple slo-generator configs from a folder path.
 
     Args:
@@ -58,14 +61,15 @@ def load_configs(path: str,
     """
     configs = [
         load_config(str(p), ctx=ctx, kind=kind)
-        for p in sorted(Path(path).glob('*.yaml'))
+        for p in sorted(Path(path).glob("*.yaml"))
     ]
     return [cfg for cfg in configs if cfg]
 
 
-def load_config(path: str,
-                ctx: os._Environ = os.environ,
-                kind: Optional[str] = None) -> Optional[dict]:
+# pylint: disable=dangerous-default-value
+def load_config(
+    path: str, ctx: os._Environ = os.environ, kind: Optional[str] = None
+) -> Optional[dict]:
     """Load any slo-generator config, from a local path, a GCS URL, or directly
     from a string content.
 
@@ -79,24 +83,24 @@ def load_config(path: str,
     """
     abspath = Path(path)
     try:
-        if path.startswith('gs://'):
+        if path.startswith("gs://"):
             if not GCS_ENABLED:
                 warnings.warn(
-                    'To load a file from GCS, you need `google-cloud-storage` '
-                    'installed. Please install it using pip by running '
-                    '`pip install google-cloud-storage`', ImportWarning)
+                    "To load a file from GCS, you need `google-cloud-storage` "
+                    "installed. Please install it using pip by running "
+                    "`pip install google-cloud-storage`",
+                    ImportWarning,
+                )
                 sys.exit(1)
             config = parse_config(content=download_gcs_file(str(path)), ctx=ctx)
         elif abspath.is_file():
             config = parse_config(path=str(abspath.resolve()), ctx=ctx)
         else:
-            LOGGER.debug(f'Path {path} not found. Trying to load from string')
+            LOGGER.debug(f"Path {path} not found. Trying to load from string")
             config = parse_config(content=str(path), ctx=ctx)
 
         # Filter on 'kind'
-        if kind and (
-            not isinstance(config, dict) or kind != config.get('kind', '')
-        ):
+        if kind and (not isinstance(config, dict) or kind != config.get("kind", "")):
             config = None
         return config
 
@@ -106,9 +110,10 @@ def load_config(path: str,
         raise
 
 
-def parse_config(path: Optional[str] = None,
-                 content=None,
-                 ctx: os._Environ = os.environ):
+# pylint: disable=dangerous-default-value
+def parse_config(
+    path: Optional[str] = None, content=None, ctx: os._Environ = os.environ
+):
     """Load a yaml configuration file and resolve environment variables in it.
 
     Args:
@@ -120,7 +125,7 @@ def parse_config(path: Optional[str] = None,
     Returns:
         dict: Parsed YAML dictionary.
     """
-    pattern = re.compile(r'.*?\${(\w+)}.*?')
+    pattern = re.compile(r".*?\${(\w+)}.*?")
 
     def replace_env_vars(content, ctx) -> str:
         """Replace env variables in content from context.
@@ -137,24 +142,26 @@ def parse_config(path: Optional[str] = None,
             full_value = content
             for var in match:
                 try:
-                    full_value = full_value.replace(f'${{{var}}}', ctx[var])
+                    full_value = full_value.replace(f"${{{var}}}", ctx[var])
                 except KeyError as exception:
-                    LOGGER.error(f'Environment variable "{var}" should be set.',
-                                 exc_info=True)
+                    LOGGER.error(
+                        f'Environment variable "{var}" should be set.', exc_info=True
+                    )
                     raise exception
             content = full_value
         return content
 
     if path:
-        with Path(path).open(encoding='utf8') as config:
+        with Path(path).open(encoding="utf8") as config:
             content = config.read()
     if ctx:
         content = replace_env_vars(content, ctx)
     data = yaml.safe_load(content)
     if isinstance(data, str):
         error = (
-            'Error serializing config into dict. This might be due to a syntax '
-            'error in the YAML / JSON config file.')
+            "Error serializing config into dict. This might be due to a syntax "
+            "error in the YAML / JSON config file."
+        )
         LOGGER.error(error)
 
     LOGGER.debug(pprint.pformat(data))
@@ -164,24 +171,23 @@ def parse_config(path: Optional[str] = None,
 def setup_logging():
     """Setup logging for the CLI."""
     if DEBUG == 1:
-        print(f'DEBUG mode is enabled. DEBUG={DEBUG}')
+        print(f"DEBUG mode is enabled. DEBUG={DEBUG}")
         level = logging.DEBUG
-        format_str = '%(name)s - %(levelname)s - %(message)s'
+        format_str = "%(name)s - %(levelname)s - %(message)s"
     else:
         level = logging.INFO
-        format_str = '%(levelname)s - %(message)s'
-    logging.basicConfig(stream=sys.stdout,
-                        level=level,
-                        format=format_str,
-                        datefmt='%m/%d/%Y %I:%M:%S')
-    logging.getLogger('googleapiclient').setLevel(logging.ERROR)
+        format_str = "%(levelname)s - %(message)s"
+    logging.basicConfig(
+        stream=sys.stdout, level=level, format=format_str, datefmt="%m/%d/%Y %I:%M:%S"
+    )
+    logging.getLogger("googleapiclient").setLevel(logging.ERROR)
 
     # Ignore Cloud SDK warning when using a user instead of service account
     try:
         # pylint: disable=import-outside-toplevel
         from google.auth._default import _CLOUD_SDK_CREDENTIALS_WARNING
-        warnings.filterwarnings("ignore",
-                                message=_CLOUD_SDK_CREDENTIALS_WARNING)
+
+        warnings.filterwarnings("ignore", message=_CLOUD_SDK_CREDENTIALS_WARNING)
     except ImportError:
         pass
 
@@ -209,11 +215,11 @@ def get_human_time(timestamp: int, timezone: Optional[str] = None) -> str:
         to_zone = tz.tzlocal()
     dt_utc = datetime.utcfromtimestamp(timestamp)
     dt_tz = dt_utc.replace(tzinfo=to_zone)
-    timeformat = '%Y-%m-%dT%H:%M:%S.%f%z'
+    timeformat = "%Y-%m-%dT%H:%M:%S.%f%z"
     date_str = datetime.strftime(dt_tz, timeformat)
     core_str = date_str[:-2]
     tz_str = date_str[-2:]
-    date_str = f'{core_str}:{tz_str}'
+    date_str = f"{core_str}:{tz_str}"
     return date_str
 
 
@@ -227,21 +233,19 @@ def get_exporters(config: dict, spec: dict) -> list:
     Returns:
         list: List of dict containing exporters configurations.
     """
-    all_exporters = config.get('exporters', {})
-    spec_exporters = spec.get('exporters', [])
+    all_exporters = config.get("exporters", {})
+    spec_exporters = spec.get("exporters", [])
     exporters = []
     for exporter in spec_exporters:
         if exporter not in all_exporters.keys():
-            LOGGER.error(
-                f'Exporter "{exporter}" not found in config.')
+            LOGGER.error(f'Exporter "{exporter}" not found in config.')
             continue
         exporter_data = all_exporters[exporter]
-        exporter_data['name'] = exporter
-        if '.' in exporter: # support custom exporter
-            exporter_data['class'] = exporter
-        else: # core exporter
-            exporter_data['class'] = capitalize(
-                snake_to_caml(exporter.split('/')[0]))
+        exporter_data["name"] = exporter
+        if "." in exporter:  # support custom exporter
+            exporter_data["class"] = exporter
+        else:  # core exporter
+            exporter_data["class"] = capitalize(snake_to_caml(exporter.split("/")[0]))
         exporters.append(exporter_data)
     return exporters
 
@@ -256,19 +260,18 @@ def get_backend(config: dict, spec: dict):
     Returns:
         list: List of dict containing exporters configurations.
     """
-    all_backends = config.get('backends', {})
-    spec_backend = spec['backend']
+    all_backends = config.get("backends", {})
+    spec_backend = spec["backend"]
     backend_data = {}
     if spec_backend not in all_backends.keys():
         LOGGER.error(f'Backend "{spec_backend}" not found in config. Exiting.')
         sys.exit(0)
     backend_data = all_backends[spec_backend]
-    backend_data['name'] = spec_backend
-    if '.' in spec_backend: # custom backend
-        backend_data['class'] = spec_backend
-    else: # built-in backend
-        backend_data['class'] = capitalize(snake_to_caml(
-            spec_backend.split('/')[0]))
+    backend_data["name"] = spec_backend
+    if "." in spec_backend:  # custom backend
+        backend_data["class"] = spec_backend
+    else:  # built-in backend
+        backend_data["class"] = capitalize(snake_to_caml(spec_backend.split("/")[0]))
     return backend_data
 
 
@@ -282,11 +285,10 @@ def get_error_budget_policy(config: dict, spec: dict):
     Returns:
         list: List of dict containing exporters configurations.
     """
-    all_ebp = config.get('error_budget_policies', {})
-    spec_ebp = spec.get('error_budget_policy', 'default')
+    all_ebp = config.get("error_budget_policies", {})
+    spec_ebp = spec.get("error_budget_policy", "default")
     if spec_ebp not in all_ebp.keys():
-        LOGGER.error(
-            f'Error budget policy "{spec_ebp}" not found in config. Exiting.')
+        LOGGER.error(f'Error budget policy "{spec_ebp}" not found in config. Exiting.')
         sys.exit(0)
     return all_ebp[spec_ebp]
 
@@ -335,11 +337,11 @@ def import_cls(cls_name, expected_type):
 
     # slo-generator core class
     modules_name = f"{expected_type.lower()}s"
-    full_cls_name = f'{cls_name}{expected_type}'
-    filename = re.sub(r'(?<!^)(?=[A-Z])', '_', cls_name).lower()
-    return import_dynamic(f'slo_generator.{modules_name}.{filename}',
-                          full_cls_name,
-                          prefix=expected_type)
+    full_cls_name = f"{cls_name}{expected_type}"
+    filename = re.sub(r"(?<!^)(?=[A-Z])", "_", cls_name).lower()
+    return import_dynamic(
+        f"slo_generator.{modules_name}.{filename}", full_cls_name, prefix=expected_type
+    )
 
 
 def import_dynamic(package: str, name: str, prefix: str = "class"):
@@ -355,14 +357,15 @@ def import_dynamic(package: str, name: str, prefix: str = "class"):
     try:
         return getattr(importlib.import_module(package), name)
     except Exception as exception:  # pylint: disable=W0703
-        dep = package.split('.')[-1]
+        dep = package.split(".")[-1]
         warnings.warn(
             f'{prefix} "{package}.{name}" not found.\nPlease ensure that:\n'
-            f'1. Package and class name are valid.\n'
-            f'2. Extra dependency {dep} is installed. If not, install it '
+            f"1. Package and class name are valid.\n"
+            f"2. Extra dependency {dep} is installed. If not, install it "
             f'locally with "pip install slo-generator[{dep}]" or remotely '
             f'by adding "slo-generator[{dep}]" to your requirements.txt.',
-            ImportWarning)
+            ImportWarning,
+        )
         if DEBUG:
             LOGGER.debug(exception, exc_info=True)
         return None
@@ -378,7 +381,7 @@ def capitalize(word: str) -> str:
     Returns:
         str: Input string with first letter capitalized.
     """
-    return re.sub('([a-zA-Z])', lambda x: x.groups()[0].upper(), word, 1)
+    return re.sub("([a-zA-Z])", lambda x: x.groups()[0].upper(), word, 1)
 
 
 def snake_to_caml(word: str) -> str:
@@ -390,7 +393,7 @@ def snake_to_caml(word: str) -> str:
     Returns:
         str: Output string.
     """
-    return re.sub('_.', lambda x: x.group()[1].upper(), word)
+    return re.sub("_.", lambda x: x.group()[1].upper(), word)
 
 
 def caml_to_snake(word: str) -> str:
@@ -402,7 +405,7 @@ def caml_to_snake(word: str) -> str:
     Returns:
         str: Output string.
     """
-    return re.sub(r'(?<!^)(?=[A-Z])', '_', word).lower()
+    return re.sub(r"(?<!^)(?=[A-Z])", "_", word).lower()
 
 
 def dict_snake_to_caml(data: dict) -> dict:
@@ -446,11 +449,11 @@ def str2bool(string: str) -> bool:
     """
     if isinstance(string, bool):
         return string
-    if string.lower() in ('yes', 'true', 't', 'y', '1'):
+    if string.lower() in ("yes", "true", "t", "y", "1"):
         return True
-    if string.lower() in ('no', 'false', 'f', 'n', '0'):
+    if string.lower() in ("no", "false", "f", "n", "0"):
         return False
-    raise argparse.ArgumentTypeError('Boolean value expected.')
+    raise argparse.ArgumentTypeError("Boolean value expected.")
 
 
 def download_gcs_file(url: str) -> dict:
@@ -466,7 +469,7 @@ def download_gcs_file(url: str) -> dict:
     bucket, filepath = decode_gcs_url(url)
     bucket = client.get_bucket(bucket)
     blob = bucket.blob(filepath)
-    return blob.download_as_string(client=None).decode('utf-8')
+    return blob.download_as_string(client=None).decode("utf-8")
 
 
 def decode_gcs_url(url: str) -> tuple:
@@ -478,13 +481,14 @@ def decode_gcs_url(url: str) -> tuple:
     Returns:
         tuple: (bucket_name, file_path)
     """
-    split_url = url.split('/')
+    split_url = url.split("/")
     bucket_name = split_url[2]
-    file_path = '/'.join(split_url[3:])
+    file_path = "/".join(split_url[3:])
     return (bucket_name, file_path)
 
 
-def get_files(source, extensions=['yaml', 'yml', 'json']) -> list:
+# pylint: disable=dangerous-default-value
+def get_files(source, extensions=["yaml", "yml", "json"]) -> list:
     """Get all files matching extensions.
 
     Args:
@@ -495,14 +499,11 @@ def get_files(source, extensions=['yaml', 'yml', 'json']) -> list:
     """
     all_files: list = []
     for ext in extensions:
-        all_files.extend(Path(source).rglob(f'*.{ext}'))
+        all_files.extend(Path(source).rglob(f"*.{ext}"))
     return all_files
 
 
-def get_target_path(source_dir,
-                    target_dir,
-                    relative_path,
-                    mkdir: bool = True):
+def get_target_path(source_dir, target_dir, relative_path, mkdir: bool = True):
     """Get target file path from a source directory, a target directory and a
     path relative to the source directory.
 
@@ -519,11 +520,11 @@ def get_target_path(source_dir,
     target_dir = target_dir.resolve()
     relative_path = relative_path.relative_to(source_dir)
     common_path = os.path.commonpath([source_dir, target_dir])
-    target_path = common_path / target_dir.relative_to(
-        common_path) / relative_path
+    target_path = common_path / target_dir.relative_to(common_path) / relative_path
     if mkdir:
         target_path.parent.mkdir(parents=True, exist_ok=True)
     return target_path
+
 
 def fmt_traceback(exc) -> str:
     """Format exception to be human-friendly.

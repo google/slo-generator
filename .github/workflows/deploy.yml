@@ -14,7 +14,8 @@ jobs:
     environment: prod
     concurrency: prod
     steps:
-      - uses: actions/checkout@master
+      - uses: actions/checkout@v3
+
       - name: Check release version
         id: check-tag
         run: |
@@ -45,7 +46,7 @@ jobs:
         run: echo job does not exist && true
 
       - name: Do something if build fail
-        if: steps.wait-build.outputs.conclusion == 'failure' || steps.wait-build2.outputs.conclusion == 'failure' 
+        if: steps.wait-build.outputs.conclusion == 'failure' || steps.wait-build2.outputs.conclusion == 'failure'
         run: echo fail && false # fail if build fail
 
       - name: Do something if build timeout
