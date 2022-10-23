@@ -18,7 +18,7 @@ Pubsub exporter class.
 import json
 import logging
 
-from google.cloud import pubsub_v1 # type: ignore[attr-defined]
+from google.cloud import pubsub_v1  # type: ignore[attr-defined]
 
 LOGGER = logging.getLogger(__name__)
 
@@ -41,8 +41,9 @@ class PubsubExporter:  # pylint: disable=too-few-public-methods
         Returns:
             str: Pub/Sub topic id.
         """
-        project_id = config['project_id']
-        topic_name = config['topic_name']
+        project_id = config["project_id"]
+        topic_name = config["topic_name"]
+        # pylint: disable=no-member
         topic_path = self.publisher.topic_path(project_id, topic_name)
-        data = json.dumps(data, indent=4).encode('utf-8')
+        data = json.dumps(data, indent=4).encode("utf-8")
         return self.publisher.publish(topic_path, data=data).result()

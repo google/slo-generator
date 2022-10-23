@@ -25,7 +25,7 @@ from slo_generator.constants import NO_DATA
 
 LOGGER = logging.getLogger(__name__)
 
-DEFAULT_DATE_FIELD: str = '@timestamp'
+DEFAULT_DATE_FIELD: str = "@timestamp"
 
 
 class ElasticsearchBackend:
@@ -47,20 +47,19 @@ class ElasticsearchBackend:
             # copies. We require a full nested copy of the configuration to
             # work on.
             conf = copy.deepcopy(es_config)
-            url = conf.pop('url', None)
-            basic_auth = conf.pop('basic_auth', None)
-            api_key = conf.pop('api_key', None)
+            url = conf.pop("url", None)
+            basic_auth = conf.pop("basic_auth", None)
+            api_key = conf.pop("api_key", None)
             if url:
-                conf['hosts'] = url
+                conf["hosts"] = url
             if basic_auth:
-                conf['basic_auth'] = (
-                    basic_auth['username'], basic_auth['password'])
+                conf["basic_auth"] = (basic_auth["username"], basic_auth["password"])
             if api_key:
-                conf['api_key'] = (api_key['id'], api_key['value'])
+                conf["api_key"] = (api_key["id"], api_key["value"])
             # Note: Either `hosts` or `cloud_id` must be specified in v8.x.x
             self.client = Elasticsearch(**conf)
 
-    # pylint: disable=unused-argument
+    # pylint: disable=unused-argument,too-many-locals
     def good_bad_ratio(self, timestamp, window, slo_config):
         """Query two timeseries, one containing 'good' events, one containing
         'bad' events.
@@ -73,12 +72,12 @@ class ElasticsearchBackend:
         Returns:
             tuple: A tuple (good_event_count, bad_event_count)
         """
-        measurement = slo_config['spec']['service_level_indicator']
-        index = measurement['index']
-        query_good = measurement['query_good']
-        query_bad = measurement.get('query_bad')
-        query_valid = measurement.get('query_valid')
-        date_field = measurement.get('date_field', DEFAULT_DATE_FIELD)
+        measurement = slo_config["spec"]["service_level_indicator"]
+        index = measurement["index"]
+        query_good = measurement["query_good"]
+        query_bad = measurement.get("query_bad")
+        query_valid = measurement.get("query_valid")
+        date_field = measurement.get("date_field", DEFAULT_DATE_FIELD)
 
         # Build ELK request bodies
         good = ES.build_query(query_good, window, date_field)
@@ -124,7 +123,7 @@ class ElasticsearchBackend:
             int: Event count.
         """
         try:
-            return response['hits']['total']['value']
+            return response["hits"]["total"]["value"]
         except KeyError as exception:
             LOGGER.warning("Couldn't find any values in timeseries response")
             LOGGER.debug(exception, exc_info=True)
@@ -153,7 +152,7 @@ class ElasticsearchBackend:
         range_query = {
             f"{date_field}": {
                 "gte": f"now-{window}s/s",
-                "lt": "now/s"
+                "lt": "now/s",
             }
         }
 

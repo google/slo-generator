@@ -16,9 +16,11 @@
 Dummy sample of a custom exporter.
 """
 import logging
+
 from slo_generator.exporters.base import MetricsExporter
 
 LOGGER = logging.getLogger(__name__)
+
 
 class CustomMetricExporter(MetricsExporter):
     """Custom exporter for metrics."""
@@ -34,13 +36,16 @@ class CustomMetricExporter(MetricsExporter):
         """
         LOGGER.info(f"Metric data: {data}")
         return {
-            'status': 'ok',
-            'code': 200
+            "status": "ok",
+            "code": 200,
         }
 
+
+# pylint: disable=too-few-public-methods
 class CustomSLOExporter:
     """Custom exporter for SLO data."""
 
+    # pylint: disable=unused-argument
     def export(self, data, **config):
         """Export data to custom destination.
 
@@ -52,6 +57,6 @@ class CustomSLOExporter:
         """
         LOGGER.info(f"SLO data: {data}")
         return {
-            'status': 'ok',
-            'code': 200
+            "status": "ok",
+            "code": 200,
         }

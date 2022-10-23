@@ -1,6 +1,6 @@
 # Deploy SLO Generator as a Cloud Run service
 
-`slo-generator` can also be deployed as a Cloud Run service by following the 
+`slo-generator` can also be deployed as a Cloud Run service by following the
 instructions below.
 
 ## Terraform setup
@@ -68,7 +68,7 @@ gcloud scheduler jobs create http slo --schedule=”* * * * */1” \
 
 ### [Optional] Set up the export service
 
-If you decide to split some of the exporters to another dedicated service, you 
+If you decide to split some of the exporters to another dedicated service, you
 can deploy an export-only API to Cloud Run:
 
 Upload the slo-generator export config to the GCS bucket:
@@ -92,6 +92,6 @@ gcloud run deploy slo-generator-export \
    --allow-unauthenticated
 ```
 
-To send your SLO reports from the standard service to the export-only service, 
-set up a [cloudevent exporter](../providers/cloudevent.md) in the standard 
+To send your SLO reports from the standard service to the export-only service,
+set up a [cloudevent exporter](../providers/cloudevent.md) in the standard
 service `config.yaml`.

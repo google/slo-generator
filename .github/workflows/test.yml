@@ -17,12 +17,12 @@ jobs:
       - uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
-          architecture: ${{ matrix.architecture }}  
+          architecture: ${{ matrix.architecture }}
 
       - name: Install dependencies
         run: make install
 
-      - name: Run lint test
+      - name: Lint
         run: make lint
 
   unit:
@@ -43,7 +43,7 @@ jobs:
       - name: Install dependencies
         run: make install
 
-      - name: Run unittests
+      - name: Run unit tests
         run: make unit
         env:
           MIN_VALID_EVENTS: "10"
@@ -57,7 +57,9 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: docker-practice/actions-setup-docker@master
+
       - name: Build Docker image
         run: make docker_build
+
       - name: Run Docker tests
         run: make docker_test
