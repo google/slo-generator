@@ -73,7 +73,7 @@ unit: clean
 coverage:
 	$(COVERAGE) report --rcfile=".coveragerc"
 
-lint: flake8 pylint pytype
+lint: flake8 pylint pytype mypy
 
 flake8:
 	flake8 --ignore=$(FLAKE8_IGNORE) $(NAME)/ --max-line-length=80
@@ -84,6 +84,9 @@ pylint:
 
 pytype:
 	pytype
+
+mypy:
+	mypy --show-error-codes $(NAME)
 
 integration: int_cm int_csm int_custom int_dd int_dt int_es int_prom
 

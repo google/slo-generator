@@ -37,18 +37,13 @@ from slo_generator.constants import (METRIC_LABELS_COMPAT,
                                      SLO_CONFIG_SCHEMA, GREEN, RED, BOLD,
                                      WARNING, ENDC, SUCCESS, FAIL, RIGHT_ARROW)
 
-yaml.explicit_start = True
-yaml.default_flow_style = None
-yaml.preserve_quotes = True
-
-
 def do_migrate(source,
                target,
-               error_budget_policy_path,
-               exporters_path,
-               version,
-               quiet=False,
-               verbose=0):
+               error_budget_policy_path: list,
+               exporters_path: list,
+               version: str,
+               quiet: bool = False,
+               verbose: int = 0):
     """Process all SLO configs in folder and generate new SLO configurations.
 
     Args:
@@ -61,7 +56,7 @@ def do_migrate(source,
         quiet (bool, optional): If true, do not prompt for user input.
         verbose (int, optional): Verbose level.
     """
-    curver = 'v1'
+    curver: str = 'v1'
     shared_config = CONFIG_SCHEMA
     cwd = Path.cwd()
     source = Path(source).resolve()
@@ -213,7 +208,7 @@ def do_migrate(source,
     # 3.3 - Replace `error_budget_policy.yaml` local variable to `config.yaml`
 
 
-def exporters_v1tov2(exporters_paths, shared_config={}, quiet=False):
+def exporters_v1tov2(exporters_paths: list, shared_config: dict = {}, quiet: bool = False) -> list:
     """Translate exporters to v2 and put into shared config.
 
     Args:
@@ -248,7 +243,7 @@ def exporters_v1tov2(exporters_paths, shared_config={}, quiet=False):
     return exp_keys
 
 
-def ebp_v1tov2(ebp_paths, shared_config={}, quiet=False):
+def ebp_v1tov2(ebp_paths: list, shared_config: dict = {}, quiet: bool = False) -> list:
     """Translate error budget policies to v2 and put into shared config
 
     Args:
@@ -286,11 +281,11 @@ def ebp_v1tov2(ebp_paths, shared_config={}, quiet=False):
     return ebp_keys
 
 
-def slo_config_v1tov2(slo_config,
-                      shared_config={},
-                      shared_exporters=[],
-                      quiet=False,
-                      verbose=0):
+def slo_config_v1tov2(slo_config: dict,
+                      shared_config: dict = {},
+                      shared_exporters: list = [],
+                      quiet: bool = False,
+                      verbose: int = 0):
     """Process old SLO config v1 and generate SLO config v2.
 
     Args:
@@ -375,7 +370,7 @@ def slo_config_v1tov2(slo_config,
     return dict(slo_config_v2)
 
 
-def report_v2tov1(report):
+def report_v2tov1(report: dict) -> dict:
     """Convert SLO report from v2 to v1 format, for exporters to be
     backward-compatible with v1 data format.
 
@@ -385,7 +380,7 @@ def report_v2tov1(report):
     Returns:
         dict: Converted SLO report.
     """
-    mapped_report = {}
+    mapped_report: dict = {}
     for key, value in report.items():
 
         # If a metadata label is passed, use the metadata label mapping
@@ -428,16 +423,16 @@ def report_v2tov1(report):
     return mapped_report
 
 
-def get_random_suffix():
+def get_random_suffix() -> str:
     """Get random suffix for our backends / exporters when configs clash."""
     return ''.join(random.choices(string.digits, k=4))
 
 
-def add_to_shared_config(new_obj,
-                         shared_config,
-                         section,
-                         key=None,
-                         quiet=False):
+def add_to_shared_config(new_obj: dict,
+                         shared_config: dict,
+                         section: str,
+                         key = None,
+                         quiet: bool = False):
     """Add an object to the shared_config.
 
     If the object with the same config already exists in the shared config,
@@ -508,7 +503,7 @@ def add_to_shared_config(new_obj,
     return key
 
 
-def detect_config_version(config):
+def detect_config_version(config: dict) -> str:
     """Return version of an slo-generator config based on the format.
 
     Args:
@@ -522,7 +517,7 @@ def detect_config_version(config):
             'Config does not correspond to any known SLO config versions.',
             fg='red')
         return None
-    api_version = config.get('apiVersion', '')
+    api_version: str = config.get('apiVersion', '')
     kind = config.get('kind', '')
     if not kind:  # old v1 format
         return 'v1'
@@ -554,7 +549,7 @@ class CustomDumper(yaml.RoundTripDumper):
 
     # HACK: insert blank lines between top-level objects
     # inspired by https://stackoverflow.com/a/44284819/3786245
-    def write_line_break(self, data=None):
+    def write_line_break(self, data: str = None):
         super().write_line_break(data)
 
         if len(self.indents) == 1:

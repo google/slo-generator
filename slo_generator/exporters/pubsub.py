@@ -18,7 +18,7 @@ Pubsub exporter class.
 import json
 import logging
 
-from google.cloud import pubsub_v1
+from google.cloud import pubsub_v1 # type: ignore[attr-defined]
 
 LOGGER = logging.getLogger(__name__)
 
