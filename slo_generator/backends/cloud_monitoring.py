@@ -43,6 +43,7 @@ class CloudMonitoringBackend:
             self.client = monitoring_v3.MetricServiceClient()
         self.parent = self.client.common_project_path(project_id)
 
+    # pylint: disable=duplicate-code
     def good_bad_ratio(self, timestamp, window, slo_config):
         """Query two timeseries, one containing 'good' events, one containing
         'bad' events.
@@ -89,6 +90,7 @@ class CloudMonitoringBackend:
 
         return good_event_count, bad_event_count
 
+    # pylint: disable=duplicate-code
     def distribution_cut(self, timestamp, window, slo_config):
         """Query one timeseries of type 'exponential'.
 

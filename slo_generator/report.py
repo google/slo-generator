@@ -42,22 +42,13 @@ class SLOReport:
     """
     # pylint: disable=too-many-instance-attributes
 
-    # Metadata
-    metadata: dict = field(default_factory=dict)
-
     # SLO
     name: str
     description: str
     goal: str
     backend: str
-    exporters: list = field(default_factory=list)
-    error_budget_policy: str = 'default'
 
     # SLI
-    sli_measurement: float = 0
-    events_count: int = 0
-    bad_events_count: int = 0
-    good_events_count: int = 0
     gap: float
 
     # Error budget
@@ -70,6 +61,9 @@ class SLOReport:
     error_budget_remaining_minutes: float
     error_minutes: float
 
+    # Data validation
+    valid: bool
+
     # Global (from error budget policy)
     timestamp: int
     timestamp_human: str
@@ -78,8 +72,20 @@ class SLOReport:
 
     consequence_message: str
 
+    # SLO
+    exporters: list = field(default_factory=list)
+    error_budget_policy: str = 'default'
+
+    # SLI
+    sli_measurement: float = 0
+    events_count: int = 0
+    bad_events_count: int = 0
+    good_events_count: int = 0
+
+    # Metadata
+    metadata: dict = field(default_factory=dict)
+
     # Data validation
-    valid: bool
     errors: List[str] = field(default_factory=list)
 
     def __init__(self,
@@ -256,7 +262,7 @@ class SLOReport:
             good_count, bad_count = NO_DATA, NO_DATA
         return sli_measurement, good_count, bad_count
 
-    def to_json(self):
+    def to_json(self) -> dict:
         """Serialize dataclass to JSON."""
         if not self.valid:
             ebp_name = self.error_budget_policy_step_name
@@ -269,7 +275,7 @@ class SLOReport:
         return asdict(self)
 
     # pylint: disable=too-many-return-statements
-    def _validate(self, data):
+    def _validate(self, data) -> bool:
         """Validate backend results. Invalid data will result in SLO report not
         being built.
 
@@ -351,7 +357,7 @@ class SLOReport:
 
         return True
 
-    def _post_validate(self):
+    def _post_validate(self) -> bool:
         """Validate report after build."""
 
         # SLI measurement should be 0 <= x <= 1
@@ -381,11 +387,11 @@ class SLOReport:
             setattr(self, name, value)
 
     @property
-    def info(self):
+    def info(self) -> str:
         """Step information."""
         return f"{self.name :<32} | {self.error_budget_policy_step_name :<8}"
 
-    def __str__(self):
+    def __str__(self) -> str:
         report = self.to_json()
         if not self.valid:
             errors_str = ' | '.join(self.errors)

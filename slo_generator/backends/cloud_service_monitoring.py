@@ -20,7 +20,7 @@ import json
 import logging
 import os
 import warnings
-from typing import Union, Sequence
+from typing import Optional, Union, Sequence
 
 import google.api_core.exceptions
 from google.cloud.monitoring_v3 import ServiceMonitoringServiceClient
@@ -35,12 +35,12 @@ from slo_generator.utils import dict_snake_to_caml
 
 LOGGER = logging.getLogger(__name__)
 
-SID_GAE = 'gae:{project_id}_{module_id}'
-SID_CLOUD_ENDPOINT = 'ist:{project_id}-{service}'
-SID_CLUSTER_ISTIO = (
+SID_GAE: str = 'gae:{project_id}_{module_id}'
+SID_CLOUD_ENDPOINT: str = 'ist:{project_id}-{service}'
+SID_CLUSTER_ISTIO: str = (
     'ist:{project_id}-{suffix}-{location}-{cluster_name}-{service_namespace}-'
     '{service_name}')
-SID_MESH_ISTIO = ('ist:{mesh_uid}-{service_namespace}-{service_name}')
+SID_MESH_ISTIO: str = ('ist:{mesh_uid}-{service_namespace}-{service_name}')
 
 
 class CloudServiceMonitoringBackend:
@@ -53,7 +53,7 @@ class CloudServiceMonitoringBackend:
             omitted.
     """
 
-    def __init__(self, project_id, client=None):
+    def __init__(self, project_id: str, client=None):
         self.project_id = project_id
         self.client = client
         if client is None:
@@ -62,7 +62,10 @@ class CloudServiceMonitoringBackend:
         self.workspace_path = f'workspaces/{project_id}'
         self.project_path = f'projects/{project_id}'
 
-    def good_bad_ratio(self, timestamp, window, slo_config):
+    def good_bad_ratio(self,
+                       timestamp: int,
+                       window: int,
+                       slo_config: dict) -> tuple:
         """Good bad ratio method.
 
         Args:
@@ -71,11 +74,14 @@ class CloudServiceMonitoringBackend:
             slo_config (dict): SLO configuration.
 
         Returns:
-            dict: SLO config.
+            tuple: SLO config.
         """
         return self.retrieve_slo(timestamp, window, slo_config)
 
-    def distribution_cut(self, timestamp, window, slo_config):
+    def distribution_cut(self,
+                         timestamp: int,
+                         window: int,
+                         slo_config: dict) -> tuple:
         """Distribution cut method.
 
         Args:
@@ -84,11 +90,11 @@ class CloudServiceMonitoringBackend:
             slo_config (dict): SLO configuration.
 
         Returns:
-            dict: SLO config.
+            tuple: SLO config.
         """
         return self.retrieve_slo(timestamp, window, slo_config)
 
-    def basic(self, timestamp, window, slo_config):
+    def basic(self, timestamp: int, window: int, slo_config: dict) -> tuple:
         """Basic method (automatic SLOs for GAE / GKE (Istio) and Cloud
         Endpoints).
 
@@ -98,11 +104,11 @@ class CloudServiceMonitoringBackend:
             slo_config (dict): SLO configuration.
 
         Returns:
-            dict: SLO config.
+            tuple: SLO config.
         """
         return self.retrieve_slo(timestamp, window, slo_config)
 
-    def window(self, timestamp, window, slo_config):
+    def window(self, timestamp: int, window: int, slo_config: dict) -> tuple:
         """Window-based SLI method.
 
         Args:
@@ -111,12 +117,15 @@ class CloudServiceMonitoringBackend:
             slo_config (dict): SLO configuration.
 
         Returns:
-            dict: SLO config.
+            tuple: SLO config.
         """
         return self.retrieve_slo(timestamp, window, slo_config)
 
     # pylint: disable=unused-argument
-    def delete(self, timestamp, window, slo_config):
+    def delete(self,
+               timestamp: int,
+               window: int,
+               slo_config: dict) -> Optional[dict]:
         """Delete method.
 
         Args:
@@ -129,7 +138,7 @@ class CloudServiceMonitoringBackend:
         """
         return self.delete_slo(window, slo_config)
 
-    def retrieve_slo(self, timestamp, window, slo_config):
+    def retrieve_slo(self, timestamp: int, window: int, slo_config: dict):
         """Get SLI value from Cloud Monitoring API.
 
         Args:
@@ -171,7 +180,7 @@ class CloudServiceMonitoringBackend:
         return (good_event_count, bad_event_count)
 
     @staticmethod
-    def count(timeseries):
+    def count(timeseries: list):
         """Extract good_count, bad_count tuple from Cloud Monitoring API
         response.
 
@@ -191,7 +200,8 @@ class CloudServiceMonitoringBackend:
                 good_event_count = value
         return good_event_count, bad_event_count
 
-    def create_service(self, slo_config):
+    def create_service(self,
+                       slo_config: dict) -> dict:
         """Create Service object in Cloud Service Monitoring API.
 
         Args:
@@ -210,7 +220,7 @@ class CloudServiceMonitoringBackend:
                     f'Service Monitoring API.')
         return SSM.to_json(service)
 
-    def get_service(self, slo_config):
+    def get_service(self, slo_config: dict) -> Optional[dict]:
         """Get Service object from Cloud Service Monitoring API.
 
         Args:
@@ -248,7 +258,7 @@ class CloudServiceMonitoringBackend:
         LOGGER.debug(f'Found matching service "{service.name}"')
         return SSM.to_json(service)
 
-    def build_service(self, slo_config):
+    def build_service(self, slo_config: dict) -> dict:
         """Build service JSON in Cloud Monitoring API from SLO
         configuration.
 
@@ -262,7 +272,10 @@ class CloudServiceMonitoringBackend:
         display_name = slo_config.get('service_display_name', service_id)
         return {'display_name': display_name, 'custom': {}}
 
-    def build_service_id(self, slo_config, dest_project_id=None, full=False):
+    def build_service_id(self,
+                         slo_config: dict,
+                         dest_project_id: Optional[str] = None,
+                         full: bool = False):
         """Build service id from SLO configuration.
 
         Args:
@@ -328,7 +341,7 @@ class CloudServiceMonitoringBackend:
 
         return service_id
 
-    def create_slo(self, window, slo_config):
+    def create_slo(self, window: int, slo_config: dict) -> dict:
         """Create SLO object in Cloud Service Monitoring API.
 
         Args:
@@ -345,8 +358,10 @@ class CloudServiceMonitoringBackend:
             parent, slo_json, service_level_objective_id=slo_id)
         return SSM.to_json(slo)
 
+    # pylint: disable=R0912,R0915
     @staticmethod
-    def build_slo(window, slo_config):  # pylint: disable=R0912,R0915
+    def build_slo(window: int,
+                  slo_config: dict) -> dict:
         """Get SLO JSON representation in Cloud Service Monitoring API from SLO
         configuration.
 
@@ -453,11 +468,10 @@ class CloudServiceMonitoringBackend:
             raise Exception(f'Method "{method}" is not supported.')
         return slo
 
-    def get_slo(self, window, slo_config):
+    def get_slo(self, window: int, slo_config: dict) -> Optional[dict]:
         """Get SLO object from Cloud Service Monssitoring API.
 
         Args:
-            service_id (str): Service identifier.
             window (int): Window in seconds.
             slo_config (dict): SLO config.
 
@@ -488,7 +502,7 @@ class CloudServiceMonitoringBackend:
         LOGGER.debug(f'SLO config converted: {slo_json}')
         return None
 
-    def update_slo(self, window, slo_config):
+    def update_slo(self, window: int, slo_config: dict) -> dict:
         """Update an existing SLO.
 
         Args:
@@ -504,16 +518,15 @@ class CloudServiceMonitoringBackend:
         slo_json['name'] = slo_id
         return SSM.to_json(self.client.update_service_level_objective(slo_json))
 
-    def list_slos(self, service_path):
+    def list_slos(self, service_path: str) -> list:
         """List all SLOs from Cloud Service Monitoring API.
 
         Args:
             service_path (str): Service path in the form
                 'projects/{project_id}/services/{service_id}'.
-            slo_config (dict): SLO configuration.
 
         Returns:
-            dict: API response.
+            list: API response.
         """
         slos = self.client.list_service_level_objectives(service_path)
         slos = list(slos)
@@ -521,7 +534,7 @@ class CloudServiceMonitoringBackend:
         # LOGGER.debug(slos)
         return [SSM.to_json(slo) for slo in slos]
 
-    def delete_slo(self, window, slo_config):
+    def delete_slo(self, window: int, slo_config: dict) -> Optional[dict]:
         """Delete SLO from Cloud Service Monitoring API.
 
         Args:
@@ -541,7 +554,10 @@ class CloudServiceMonitoringBackend:
                 f'Skipping.')
             return None
 
-    def build_slo_id(self, window, slo_config, full=False):
+    def build_slo_id(self,
+                     window: int,
+                     slo_config: dict,
+                     full: bool = False) -> str:
         """Build SLO id from SLO configuration.
 
         Args:
@@ -566,7 +582,7 @@ class CloudServiceMonitoringBackend:
         return full_slo_id
 
     @staticmethod
-    def compare_slo(slo1, slo2):
+    def compare_slo(slo1: dict, slo2: dict) -> bool:
         """Compares 2 SLO configurations to see if they correspond to the same
         SLO.
 
@@ -596,7 +612,7 @@ class CloudServiceMonitoringBackend:
 
     @staticmethod
     def string_diff(string1: Union[str, Sequence[str]],
-                    string2: Union[str, Sequence[str]]):
+                    string2: Union[str, Sequence[str]]) -> list:
         """Diff 2 strings. Used to print comparison of JSONs for debugging.
 
         Args:
@@ -620,7 +636,7 @@ class CloudServiceMonitoringBackend:
         return lines
 
     @staticmethod
-    def convert_slo_to_ssm_format(slo):
+    def convert_slo_to_ssm_format(slo: dict) -> dict:
         """Convert SLO JSON to Cloud Service Monitoring API format.
         Address edge cases, like `duration` object computation.
 
