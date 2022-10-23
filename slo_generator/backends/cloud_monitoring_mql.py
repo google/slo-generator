@@ -25,8 +25,9 @@ from typing import List, Tuple
 
 from google.api.distribution_pb2 import Distribution
 from google.cloud.monitoring_v3.services.query_service import QueryServiceClient
-from google.cloud.monitoring_v3.services.query_service.pagers import \
-    QueryTimeSeriesPager
+from google.cloud.monitoring_v3.services.query_service.pagers import (
+    QueryTimeSeriesPager,
+)
 from google.cloud.monitoring_v3.types import metric_service
 from google.cloud.monitoring_v3.types.metric import TimeSeriesData
 
@@ -49,16 +50,16 @@ class CloudMonitoringMqlBackend:
         self.client = client
         if client is None:
             self.client = QueryServiceClient()
-        self.parent = (
-            self.client.common_project_path(    # type: ignore[union-attr]
-                project_id
-            )
+        self.parent = self.client.common_project_path(  # type: ignore[union-attr]
+            project_id
         )
 
-    def good_bad_ratio(self,
-                       timestamp: int,  # pylint: disable=unused-argument
-                       window: int,
-                       slo_config: dict) -> Tuple[int, int]:
+    def good_bad_ratio(
+        self,
+        timestamp: int,  # pylint: disable=unused-argument
+        window: int,
+        slo_config: dict,
+    ) -> Tuple[int, int]:
         """Query two timeseries, one containing 'good' events, one containing
         'bad' events.
 
@@ -70,39 +71,41 @@ class CloudMonitoringMqlBackend:
         Returns:
             tuple: A tuple (good_event_count, bad_event_count)
         """
-        measurement: dict = slo_config['spec']['service_level_indicator']
-        filter_good: str = measurement['filter_good']
-        filter_bad: typing.Optional[str] = measurement.get('filter_bad')
-        filter_valid: typing.Optional[str] = measurement.get('filter_valid')
+        measurement: dict = slo_config["spec"]["service_level_indicator"]
+        filter_good: str = measurement["filter_good"]
+        filter_bad: typing.Optional[str] = measurement.get("filter_bad")
+        filter_valid: typing.Optional[str] = measurement.get("filter_valid")
 
         # Query 'good events' timeseries
-        good_ts: List[TimeSeriesData] = self.query(
-            query=filter_good, window=window)
+        good_ts: List[TimeSeriesData] = self.query(query=filter_good, window=window)
         good_event_count: int = CM.count(good_ts)
 
         # Query 'bad events' timeseries
         bad_event_count: int
         if filter_bad:
-            bad_ts: List[TimeSeriesData] = self.query(
-                query=filter_bad, window=window)
+            bad_ts: List[TimeSeriesData] = self.query(query=filter_bad, window=window)
             bad_event_count = CM.count(bad_ts)
         elif filter_valid:
             valid_ts: List[TimeSeriesData] = self.query(
-                query=filter_valid, window=window)
+                query=filter_valid, window=window
+            )
             bad_event_count = CM.count(valid_ts) - good_event_count
         else:
-            raise Exception(
-                "One of `filter_bad` or `filter_valid` is required.")
+            raise Exception("One of `filter_bad` or `filter_valid` is required.")
 
-        LOGGER.debug(f'Good events: {good_event_count} | '
-                     f'Bad events: {bad_event_count}')
+        LOGGER.debug(
+            f"Good events: {good_event_count} | " f"Bad events: {bad_event_count}"
+        )
 
         return good_event_count, bad_event_count
 
-    def distribution_cut(self,
-                         timestamp: int,  # pylint: disable=unused-argument
-                         window: int,
-                         slo_config: dict) -> Tuple[int, int]:
+    # pylint: disable=too-many-locals,disable=unused-argument
+    def distribution_cut(
+        self,
+        timestamp: int,
+        window: int,
+        slo_config: dict,
+    ) -> Tuple[int, int]:
         """Query one timeseries of type 'exponential'.
 
         Args:
@@ -113,12 +116,12 @@ class CloudMonitoringMqlBackend:
         Returns:
             tuple: A tuple (good_event_count, bad_event_count).
         """
-        measurement: dict = slo_config['spec']['service_level_indicator']
-        filter_valid: str = measurement['filter_valid']
-        threshold_bucket: int = int(measurement['threshold_bucket'])
+        measurement: dict = slo_config["spec"]["service_level_indicator"]
+        filter_valid: str = measurement["filter_valid"]
+        threshold_bucket: int = int(measurement["threshold_bucket"])
         good_below_threshold: typing.Optional[bool] = measurement.get(
-            'good_below_threshold',
-            True)
+            "good_below_threshold", True
+        )
 
         # Query 'valid' events
         series = self.query(query=filter_valid, window=window)
@@ -126,8 +129,9 @@ class CloudMonitoringMqlBackend:
         if not series:
             return NO_DATA, NO_DATA  # no timeseries
 
-        distribution_value: Distribution = series[0].point_data[0].values[
-            0].distribution_value
+        distribution_value: Distribution = (
+            series[0].point_data[0].values[0].distribution_value
+        )
         bucket_counts: list = distribution_value.bucket_counts
         valid_events_count: int = distribution_value.count
 
@@ -136,9 +140,7 @@ class CloudMonitoringMqlBackend:
         distribution = OrderedDict()
         for i, bucket_count in enumerate(bucket_counts):
             count_sum += bucket_count
-            distribution[i] = {
-                'count_sum': count_sum
-            }
+            distribution[i] = {"count_sum": count_sum}
         LOGGER.debug(pprint.pformat(distribution))
 
         lower_events_count: int
@@ -148,8 +150,7 @@ class CloudMonitoringMqlBackend:
             lower_events_count = valid_events_count
             upper_events_count = 0
         else:
-            lower_events_count = distribution[threshold_bucket][
-                'count_sum']
+            lower_events_count = distribution[threshold_bucket]["count_sum"]
             upper_events_count = valid_events_count - lower_events_count
 
         good_event_count: int
@@ -168,13 +169,18 @@ class CloudMonitoringMqlBackend:
         compatibility.
         """
         warnings.warn(
-            'exponential_distribution_cut will be deprecated in version 2.0, '
-            'please use distribution_cut instead', FutureWarning)
+            "exponential_distribution_cut will be deprecated in version 2.0, "
+            "please use distribution_cut instead",
+            FutureWarning,
+        )
         return self.distribution_cut(*args, **kwargs)
 
-    def query_sli(self,
-                  timestamp: int,  # pylint: disable=unused-argument
-                  window: int, slo_config: dict) -> float:
+    def query_sli(
+        self,
+        timestamp: int,  # pylint: disable=unused-argument
+        window: int,
+        slo_config: dict,
+    ) -> float:
         """Query SLI value from a given MQL query.
 
         Args:
@@ -185,8 +191,8 @@ class CloudMonitoringMqlBackend:
         Returns:
             float: SLI value.
         """
-        measurement: dict = slo_config['spec']['service_level_indicator']
-        query: str = measurement['query']
+        measurement: dict = slo_config["spec"]["service_level_indicator"]
+        query: str = measurement["query"]
         series: List[TimeSeriesData] = self.query(query=query, window=window)
         sli_value: float = series[0].point_data[0].values[0].double_value
         LOGGER.debug(f"SLI value: {sli_value}")
@@ -205,14 +211,14 @@ class CloudMonitoringMqlBackend:
         # Enrich query to aggregate and reduce the time series over the
         # desired window.
         formatted_query: str = self._fmt_query(query, window)
-        request = metric_service.QueryTimeSeriesRequest({
-            'name': self.parent,
-            'query': formatted_query
-        })
-
+        request = metric_service.QueryTimeSeriesRequest(
+            {"name": self.parent, "query": formatted_query}
+        )
+        # fmt: off
         timeseries_pager: QueryTimeSeriesPager = (
             self.client.query_time_series(request)  # type: ignore[union-attr]
         )
+        # fmt: on
         timeseries: list = list(timeseries_pager)  # convert pager to flat list
         LOGGER.debug(pprint.pformat(timeseries))
         return timeseries
@@ -255,19 +261,21 @@ class CloudMonitoringMqlBackend:
             str: Formatted query.
         """
         formatted_query: str = query.strip()
-        if 'group_by' in formatted_query:
-            formatted_query = re.sub(r'\|\s+group_by\s+\[.*\]\s*',
-                                     '| group_by [] ', formatted_query)
+        if "group_by" in formatted_query:
+            formatted_query = re.sub(
+                r"\|\s+group_by\s+\[.*\]\s*", "| group_by [] ", formatted_query
+            )
         else:
-            formatted_query += '| group_by [] '
-        for mql_time_interval_keyword in ['within', 'every']:
+            formatted_query += "| group_by [] "
+        for mql_time_interval_keyword in ["within", "every"]:
             if mql_time_interval_keyword in formatted_query:
                 formatted_query = re.sub(
-                    fr'\|\s+{mql_time_interval_keyword}\s+\w+\s*',
-                    f'| {mql_time_interval_keyword} {window}s ',
-                    formatted_query)
+                    rf"\|\s+{mql_time_interval_keyword}\s+\w+\s*",
+                    f"| {mql_time_interval_keyword} {window}s ",
+                    formatted_query,
+                )
             else:
-                formatted_query += f'| {mql_time_interval_keyword} {window}s '
+                formatted_query += f"| {mql_time_interval_keyword} {window}s "
         return formatted_query.strip()
 
 

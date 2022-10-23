@@ -15,22 +15,22 @@
 import unittest
 
 from slo_generator.migrations.migrator import slo_config_v1tov2
+
 from .test_stubs import load_fixture
 
 
 class TestMigrator(unittest.TestCase):
-
     def setUp(self):
-        self.slo_config_v1 = load_fixture('slo_config_v1.yaml')
-        self.slo_config_v2 = load_fixture('slo_config_v2.yaml')
+        self.slo_config_v1 = load_fixture("slo_config_v1.yaml")
+        self.slo_config_v2 = load_fixture("slo_config_v2.yaml")
         self.shared_config = {
-            'backends': {},
-            'exporters': {},
-            'error_budget_policies': {}
+            "backends": {},
+            "exporters": {},
+            "error_budget_policies": {},
         }
 
     def test_migrate_v1_to_v2(self):
-        slo_config_migrated = slo_config_v1tov2(self.slo_config_v1,
-                                                self.shared_config,
-                                                quiet=True)
+        slo_config_migrated = slo_config_v1tov2(
+            self.slo_config_v1, self.shared_config, quiet=True
+        )
         self.assertDictEqual(slo_config_migrated, self.slo_config_v2)

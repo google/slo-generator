@@ -20,29 +20,32 @@ import json
 import logging
 import os
 import warnings
-from typing import Optional, Union, Sequence
+from typing import Optional, Sequence, Union
 
 import google.api_core.exceptions
 from google.cloud.monitoring_v3 import ServiceMonitoringServiceClient
+
 # pytype: disable=pyi-error
 from google.protobuf.json_format import MessageToJson
-# pytype: enable=pyi-error
 
 from slo_generator.backends.cloud_monitoring import CloudMonitoringBackend
 from slo_generator.constants import NO_DATA
 from slo_generator.utils import dict_snake_to_caml
 
+# pytype: enable=pyi-error
 
 LOGGER = logging.getLogger(__name__)
 
-SID_GAE: str = 'gae:{project_id}_{module_id}'
-SID_CLOUD_ENDPOINT: str = 'ist:{project_id}-{service}'
+SID_GAE: str = "gae:{project_id}_{module_id}"
+SID_CLOUD_ENDPOINT: str = "ist:{project_id}-{service}"
 SID_CLUSTER_ISTIO: str = (
-    'ist:{project_id}-{suffix}-{location}-{cluster_name}-{service_namespace}-'
-    '{service_name}')
-SID_MESH_ISTIO: str = ('ist:{mesh_uid}-{service_namespace}-{service_name}')
+    "ist:{project_id}-{suffix}-{location}-{cluster_name}-{service_namespace}-"
+    "{service_name}"
+)
+SID_MESH_ISTIO: str = "ist:{mesh_uid}-{service_namespace}-{service_name}"
 
 
+# pylint: disable=too-many-public-methods
 class CloudServiceMonitoringBackend:
     """Cloud Service Monitoring backend class.
 
@@ -59,13 +62,10 @@ class CloudServiceMonitoringBackend:
         if client is None:
             self.client = ServiceMonitoringServiceClient()
         self.parent = self.client.project_path(project_id)
-        self.workspace_path = f'workspaces/{project_id}'
-        self.project_path = f'projects/{project_id}'
+        self.workspace_path = f"workspaces/{project_id}"
+        self.project_path = f"projects/{project_id}"
 
-    def good_bad_ratio(self,
-                       timestamp: int,
-                       window: int,
-                       slo_config: dict) -> tuple:
+    def good_bad_ratio(self, timestamp: int, window: int, slo_config: dict) -> tuple:
         """Good bad ratio method.
 
         Args:
@@ -78,10 +78,7 @@ class CloudServiceMonitoringBackend:
         """
         return self.retrieve_slo(timestamp, window, slo_config)
 
-    def distribution_cut(self,
-                         timestamp: int,
-                         window: int,
-                         slo_config: dict) -> tuple:
+    def distribution_cut(self, timestamp: int, window: int, slo_config: dict) -> tuple:
         """Distribution cut method.
 
         Args:
@@ -122,10 +119,7 @@ class CloudServiceMonitoringBackend:
         return self.retrieve_slo(timestamp, window, slo_config)
 
     # pylint: disable=unused-argument
-    def delete(self,
-               timestamp: int,
-               window: int,
-               slo_config: dict) -> Optional[dict]:
+    def delete(self, timestamp: int, window: int, slo_config: dict) -> Optional[dict]:
         """Delete method.
 
         Args:
@@ -164,7 +158,8 @@ class CloudServiceMonitoringBackend:
         # Now that we have our SLO, retrieve the TimeSeries from Cloud
         # Monitoring API for that particular SLO id.
         metric_filter = self.build_slo_id(window, slo_config, full=True)
-        filter = f"select_slo_counts(\"{metric_filter}\")"
+        # pylint: disable=redefined-builtin
+        filter = f'select_slo_counts("{metric_filter}")'
 
         # Query SLO timeseries
         cloud_monitoring = CloudMonitoringBackend(self.project_id)
@@ -172,9 +167,10 @@ class CloudServiceMonitoringBackend:
             timestamp,
             window,
             filter,
-            aligner='ALIGN_SUM',
-            reducer='REDUCE_SUM',
-            group_by=['metric.labels.event_type'])
+            aligner="ALIGN_SUM",
+            reducer="REDUCE_SUM",
+            group_by=["metric.labels.event_type"],
+        )
         timeseries = list(timeseries)
         good_event_count, bad_event_count = SSM.count(timeseries)
         return (good_event_count, bad_event_count)
@@ -192,16 +188,15 @@ class CloudServiceMonitoringBackend:
         """
         good_event_count, bad_event_count = NO_DATA, NO_DATA
         for timeserie in timeseries:
-            event_type = timeserie.metric.labels['event_type']
+            event_type = timeserie.metric.labels["event_type"]
             value = timeserie.points[0].value.double_value
-            if event_type == 'bad':
+            if event_type == "bad":
                 bad_event_count = value
-            elif event_type == 'good':
+            elif event_type == "good":
                 good_event_count = value
         return good_event_count, bad_event_count
 
-    def create_service(self,
-                       slo_config: dict) -> dict:
+    def create_service(self, slo_config: dict) -> dict:
         """Create Service object in Cloud Service Monitoring API.
 
         Args:
@@ -213,11 +208,15 @@ class CloudServiceMonitoringBackend:
         LOGGER.debug("Creating service ...")
         service_json = self.build_service(slo_config)
         service_id = self.build_service_id(slo_config)
-        service = self.client.create_service(self.project_path,
-                                             service_json,
-                                             service_id=service_id)
-        LOGGER.info(f'Service "{service_id}" created successfully in Cloud '
-                    f'Service Monitoring API.')
+        service = self.client.create_service(
+            self.project_path,
+            service_json,
+            service_id=service_id,
+        )
+        LOGGER.info(
+            f'Service "{service_id}" created successfully in Cloud '
+            f"Service Monitoring API."
+        )
         return SSM.to_json(service)
 
     def get_service(self, slo_config: dict) -> Optional[dict]:
@@ -234,21 +233,21 @@ class CloudServiceMonitoringBackend:
         service_id = self.build_service_id(slo_config)
         services = list(self.client.list_services(self.workspace_path))
         matches = [
-            service for service in services
-            if service.name.split("/")[-1] == service_id
+            service for service in services if service.name.split("/")[-1] == service_id
         ]
 
         # If no match is found for our service name in the API, raise an
         # exception if the service should have been auto-added (method 'basic'),
         # else output a warning message.
         if not matches:
-            msg = (f'Service "{service_id}" does not exist in '
-                   f'workspace "{self.project_id}"')
-            method = slo_config['spec']['method']
-            if method == 'basic':
+            msg = (
+                f'Service "{service_id}" does not exist in '
+                f'workspace "{self.project_id}"'
+            )
+            method = slo_config["spec"]["method"]
+            if method == "basic":
                 sids = [service.name.split("/")[-1] for service in services]
-                LOGGER.debug(
-                    f'List of services in workspace {self.project_id}: {sids}')
+                LOGGER.debug(f"List of services in workspace {self.project_id}: {sids}")
                 raise Exception(msg)
             LOGGER.error(msg)
             return None
@@ -269,13 +268,15 @@ class CloudServiceMonitoringBackend:
             dict: Service JSON in Cloud Monitoring API.
         """
         service_id = self.build_service_id(slo_config)
-        display_name = slo_config.get('service_display_name', service_id)
-        return {'display_name': display_name, 'custom': {}}
+        display_name = slo_config.get("service_display_name", service_id)
+        return {"display_name": display_name, "custom": {}}
 
-    def build_service_id(self,
-                         slo_config: dict,
-                         dest_project_id: Optional[str] = None,
-                         full: bool = False):
+    def build_service_id(
+        self,
+        slo_config: dict,
+        dest_project_id: Optional[str] = None,
+        full: bool = False,
+    ):
         """Build service id from SLO configuration.
 
         Args:
@@ -289,55 +290,55 @@ class CloudServiceMonitoringBackend:
             str: Service id.
         """
         project_id = self.project_id
-        measurement = slo_config['spec']['service_level_indicator']
-        app_engine = measurement.get('app_engine')
-        cluster_istio = measurement.get('cluster_istio')
-        mesh_istio = measurement.get('mesh_istio')
-        cloud_endpoints = measurement.get('cloud_endpoints')
+        measurement = slo_config["spec"]["service_level_indicator"]
+        app_engine = measurement.get("app_engine")
+        cluster_istio = measurement.get("cluster_istio")
+        mesh_istio = measurement.get("mesh_istio")
+        cloud_endpoints = measurement.get("cloud_endpoints")
 
         # Use auto-generated ids for 'custom' SLOs, use system-generated ids
         # for all other types of SLOs.
         if app_engine:
             service_id = SID_GAE.format_map(app_engine)
-            dest_project_id = app_engine['project_id']
+            dest_project_id = app_engine["project_id"]
         elif cluster_istio:
             warnings.warn(
-                'ClusterIstio is deprecated in the Service Monitoring API.'
-                'It will be removed in version 3.0, please use MeshIstio '
-                'instead', FutureWarning)
-            if 'zone' in cluster_istio:
-                cluster_istio['suffix'] = 'zone'
-                cluster_istio['location'] = cluster_istio['zone']
-            elif 'location' in cluster_istio:
-                cluster_istio['suffix'] = 'location'
+                "ClusterIstio is deprecated in the Service Monitoring API."
+                "It will be removed in version 3.0, please use MeshIstio "
+                "instead",
+                FutureWarning,
+            )
+            if "zone" in cluster_istio:
+                cluster_istio["suffix"] = "zone"
+                cluster_istio["location"] = cluster_istio["zone"]
+            elif "location" in cluster_istio:
+                cluster_istio["suffix"] = "location"
             service_id = SID_CLUSTER_ISTIO.format_map(cluster_istio)
-            dest_project_id = cluster_istio['project_id']
+            dest_project_id = cluster_istio["project_id"]
         elif mesh_istio:
             service_id = SID_MESH_ISTIO.format_map(mesh_istio)
         elif cloud_endpoints:
             service_id = SID_CLOUD_ENDPOINT.format_map(cloud_endpoints)
-            dest_project_id = cluster_istio['project_id']
+            dest_project_id = cluster_istio["project_id"]
         else:  # user-defined service id
-            service_name = slo_config['metadata']['labels'].get(
-                'service_name', '')
-            feature_name = slo_config['metadata']['labels'].get(
-                'feature_name', '')
-            service_id = slo_config['spec']['service_level_indicator'].get(
-                'service_id')
+            service_name = slo_config["metadata"]["labels"].get("service_name", "")
+            feature_name = slo_config["metadata"]["labels"].get("feature_name", "")
+            service_id = slo_config["spec"]["service_level_indicator"].get("service_id")
             if not service_id:
                 if not service_name or not feature_name:
                     raise Exception(
-                        'Service id not set in SLO configuration. Please set '
-                        'either `spec.service_level_indicator.service_id` or '
-                        'both `metadata.labels.service_name` and '
-                        '`metadata.labels.feature_name` in your SLO '
-                        'configuration.')
-                service_id = f'{service_name}-{feature_name}'
+                        "Service id not set in SLO configuration. Please set "
+                        "either `spec.service_level_indicator.service_id` or "
+                        "both `metadata.labels.service_name` and "
+                        "`metadata.labels.feature_name` in your SLO "
+                        "configuration."
+                    )
+                service_id = f"{service_name}-{feature_name}"
 
         if full:
             if dest_project_id:
-                return f'projects/{dest_project_id}/services/{service_id}'
-            return f'projects/{project_id}/services/{service_id}'
+                return f"projects/{dest_project_id}/services/{service_id}"
+            return f"projects/{project_id}/services/{service_id}"
 
         return service_id
 
@@ -355,13 +356,14 @@ class CloudServiceMonitoringBackend:
         slo_id = self.build_slo_id(window, slo_config)
         parent = self.build_service_id(slo_config, full=True)
         slo = self.client.create_service_level_objective(
-            parent, slo_json, service_level_objective_id=slo_id)
+            parent, slo_json, service_level_objective_id=slo_id
+        )
         return SSM.to_json(slo)
 
     # pylint: disable=R0912,R0915
     @staticmethod
-    def build_slo(window: int,
-                  slo_config: dict) -> dict:
+    # pylint: disable=R0912,R0915,too-many-locals
+    def build_slo(window: int, slo_config: dict) -> dict:
         """Get SLO JSON representation in Cloud Service Monitoring API from SLO
         configuration.
 
@@ -372,87 +374,86 @@ class CloudServiceMonitoringBackend:
         Returns:
             dict: SLO JSON configuration.
         """
-        measurement = slo_config['spec'].get('service_level_indicator', {})
-        method = slo_config['spec']['method']
-        description = slo_config['spec']['description']
-        goal = slo_config['spec']['goal']
+        measurement = slo_config["spec"].get("service_level_indicator", {})
+        method = slo_config["spec"]["method"]
+        description = slo_config["spec"]["description"]
+        goal = slo_config["spec"]["goal"]
         minutes, _ = divmod(window, 60)
         hours, _ = divmod(minutes, 60)
-        display_name = f'{description} ({hours}h)'
+        display_name = f"{description} ({hours}h)"
         slo = {
-            'display_name': display_name,
-            'goal': goal,
-            'rolling_period': {
-                'seconds': window
-            }
+            "display_name": display_name,
+            "goal": goal,
+            "rolling_period": {"seconds": window},
         }
-        filter_valid = measurement.get('filter_valid', "")
-        if method == 'basic':
-            methods = measurement.get('method', [])
-            locations = measurement.get('location', [])
-            versions = measurement.get('version', [])
-            threshold = measurement.get('latency', {}).get('threshold')
-            slo['service_level_indicator'] = {'basic_sli': {}}
-            basic_sli = slo['service_level_indicator']['basic_sli']
+        filter_valid = measurement.get("filter_valid", "")
+        if method == "basic":
+            methods = measurement.get("method", [])
+            locations = measurement.get("location", [])
+            versions = measurement.get("version", [])
+            threshold = measurement.get("latency", {}).get("threshold")
+            slo["service_level_indicator"] = {"basic_sli": {}}
+            basic_sli = slo["service_level_indicator"]["basic_sli"]
             if methods:
-                basic_sli['method'] = methods
+                basic_sli["method"] = methods
             if locations:
-                basic_sli['location'] = locations
+                basic_sli["location"] = locations
             if versions:
-                basic_sli['version'] = versions
+                basic_sli["version"] = versions
             if threshold:
-                basic_sli['latency'] = {
-                    'threshold': {
-                        'seconds': 0,
-                        'nanos': int(threshold) * 10**6
+                basic_sli["latency"] = {
+                    "threshold": {
+                        "seconds": 0,
+                        "nanos": int(threshold) * 10**6,
                     }
                 }
             else:
-                basic_sli['availability'] = {}
+                basic_sli["availability"] = {}
 
-        elif method == 'good_bad_ratio':
-            filter_good = measurement.get('filter_good', "")
-            filter_bad = measurement.get('filter_bad', "")
-            slo['service_level_indicator'] = {
-                'request_based': {
-                    'good_total_ratio': {}
+        elif method == "good_bad_ratio":
+            filter_good = measurement.get("filter_good", "")
+            filter_bad = measurement.get("filter_bad", "")
+            slo["service_level_indicator"] = {
+                "request_based": {
+                    "good_total_ratio": {},
                 }
             }
-            sli = slo['service_level_indicator']
-            ratio = sli['request_based']['good_total_ratio']
+            sli = slo["service_level_indicator"]
+            ratio = sli["request_based"]["good_total_ratio"]
             if filter_good:
-                ratio['good_service_filter'] = filter_good
+                ratio["good_service_filter"] = filter_good
             if filter_bad:
-                ratio['bad_service_filter'] = filter_bad
+                ratio["bad_service_filter"] = filter_bad
             if filter_valid:
-                ratio['total_service_filter'] = filter_valid
+                ratio["total_service_filter"] = filter_valid
 
-        elif method == 'distribution_cut':
-            range_min = measurement.get('range_min', 0)
-            range_max = measurement['range_max']
-            slo['service_level_indicator'] = {
-                'request_based': {
-                    'distribution_cut': {
-                        'distribution_filter': filter_valid,
-                        'range': {
-                            'max': float(range_max)
-                        }
+        elif method == "distribution_cut":
+            range_min = measurement.get("range_min", 0)
+            range_max = measurement["range_max"]
+            slo["service_level_indicator"] = {
+                "request_based": {
+                    "distribution_cut": {
+                        "distribution_filter": filter_valid,
+                        "range": {
+                            "max": float(range_max),
+                        },
                     }
                 }
             }
-            sli = slo['service_level_indicator']['request_based']
+            sli = slo["service_level_indicator"]["request_based"]
             if range_min != 0:
-                sli['distribution_cut']['range']['min'] = float(range_min)
+                sli["distribution_cut"]["range"]["min"] = float(range_min)
 
-        elif method == 'windows':
-            filter = measurement.get('filter')
+        elif method == "windows":
+            # pylint: disable=redefined-builtin
+            filter = measurement.get("filter")
             # threshold = conf.get('threshold')
             # mean_in_range = conf.get('filter')
             # sum_in_range = conf.get('filter')
-            slo['service_level_indicator'] = {
-                'windows_based': {
-                    'window_period': window,
-                    'good_bad_metric_filter': filter,
+            slo["service_level_indicator"] = {
+                "windows_based": {
+                    "window_period": window,
+                    "good_bad_metric_filter": filter,
                     # 'good_total_ratio_threshold': {
                     #   object (PerformanceThreshold)
                     # },
@@ -488,18 +489,18 @@ class CloudServiceMonitoringBackend:
         # Loop through API response to find an existing SLO that corresponds to
         # our configuration.
         for slo in slos:
-            slo_remote_id = slo['name'].split("/")[-1]
+            slo_remote_id = slo["name"].split("/")[-1]
             equal = slo_remote_id == slo_local_id
             if equal:
                 LOGGER.debug(f'Found existing SLO "{slo_remote_id}".')
-                LOGGER.debug(f'SLO object: {slo}')
+                LOGGER.debug(f"SLO object: {slo}")
                 strict_equal = SSM.compare_slo(slo_json, slo)
                 if strict_equal:
                     return slo
                 return self.update_slo(window, slo_config)
-        LOGGER.warning('No SLO found matching configuration.')
-        LOGGER.debug(f'SLOs from Cloud Service Monitoring API: {slos}')
-        LOGGER.debug(f'SLO config converted: {slo_json}')
+        LOGGER.warning("No SLO found matching configuration.")
+        LOGGER.debug(f"SLOs from Cloud Service Monitoring API: {slos}")
+        LOGGER.debug(f"SLO config converted: {slo_json}")
         return None
 
     def update_slo(self, window: int, slo_config: dict) -> dict:
@@ -515,7 +516,7 @@ class CloudServiceMonitoringBackend:
         slo_json = SSM.build_slo(window, slo_config)
         slo_id = self.build_slo_id(window, slo_config, full=True)
         LOGGER.warning(f"Updating SLO {slo_id} ...")
-        slo_json['name'] = slo_id
+        slo_json["name"] = slo_id
         return SSM.to_json(self.client.update_service_level_objective(slo_json))
 
     def list_slos(self, service_path: str) -> list:
@@ -551,13 +552,11 @@ class CloudServiceMonitoringBackend:
         except google.api_core.exceptions.NotFound:
             LOGGER.warning(
                 f'SLO "{slo_path}" does not exist in Service Monitoring API. '
-                f'Skipping.')
+                f"Skipping."
+            )
             return None
 
-    def build_slo_id(self,
-                     window: int,
-                     slo_config: dict,
-                     full: bool = False) -> str:
+    def build_slo_id(self, window: int, slo_config: dict, full: bool = False) -> str:
         """Build SLO id from SLO configuration.
 
         Args:
@@ -567,18 +566,19 @@ class CloudServiceMonitoringBackend:
         Returns:
             str: SLO id.
         """
-        sli = slo_config['spec']['service_level_indicator']
-        slo_name = slo_config['metadata']['labels'].get('slo_name')
-        slo_id = sli.get('slo_id', slo_name)
+        sli = slo_config["spec"]["service_level_indicator"]
+        slo_name = slo_config["metadata"]["labels"].get("slo_name")
+        slo_id = sli.get("slo_id", slo_name)
         if not slo_id:
             raise Exception(
-                'SLO id not set in SLO configuration. Please set either '
-                '`spec.service_level_indicator.slo_id` or '
-                '`metadata.labels.slo_name` in your SLO configuration.')
-        full_slo_id = f'{slo_id}-{window}'
+                "SLO id not set in SLO configuration. Please set either "
+                "`spec.service_level_indicator.slo_id` or "
+                "`metadata.labels.slo_name` in your SLO configuration."
+            )
+        full_slo_id = f"{slo_id}-{window}"
         if full:
             service_path = self.build_service_id(slo_config, full=True)
-            return f'{service_path}/serviceLevelObjectives/{full_slo_id}'
+            return f"{service_path}/serviceLevelObjectives/{full_slo_id}"
         return full_slo_id
 
     @staticmethod
@@ -601,7 +601,7 @@ class CloudServiceMonitoringBackend:
         slo2_copy = {k: v for k, v in slo2.items() if k not in exclude_keys}
         local_json = json.dumps(slo1_copy, sort_keys=True)
         remote_json = json.dumps(slo2_copy, sort_keys=True)
-        if os.environ.get('DEBUG') == '2':
+        if os.environ.get("DEBUG") == "2":
             LOGGER.info("----------")
             LOGGER.info(local_json)
             LOGGER.info("----------")
@@ -611,8 +611,9 @@ class CloudServiceMonitoringBackend:
         return local_json == remote_json
 
     @staticmethod
-    def string_diff(string1: Union[str, Sequence[str]],
-                    string2: Union[str, Sequence[str]]) -> list:
+    def string_diff(
+        string1: Union[str, Sequence[str]], string2: Union[str, Sequence[str]]
+    ) -> list:
         """Diff 2 strings. Used to print comparison of JSONs for debugging.
 
         Args:
@@ -624,13 +625,13 @@ class CloudServiceMonitoringBackend:
         """
         lines = []
         for idx, string in enumerate(difflib.ndiff(string1, string2)):
-            if string[0] == ' ':
+            if string[0] == " ":
                 continue
             last = string[-1]
-            if string[0] == '-':
+            if string[0] == "-":
                 info = f'Delete "{last}" from position {idx}'
                 lines.append(info)
-            elif string[0] == '+':
+            elif string[0] == "+":
                 info = f'Add "{last}" to position {idx}'
                 lines.append(info)
         return lines
@@ -652,16 +653,16 @@ class CloudServiceMonitoringBackend:
 
         # The `rollingPeriod` field is in Duration format, convert it.
         try:
-            period = data['rollingPeriod']
-            data['rollingPeriod'] = SSM.convert_duration_to_string(period)
+            period = data["rollingPeriod"]
+            data["rollingPeriod"] = SSM.convert_duration_to_string(period)
         except KeyError:
             pass
 
         # The `latency` field is in Duration format, convert it.
         try:
-            latency = data['serviceLevelIndicator']['basicSli']['latency']
-            threshold = latency['threshold']
-            latency['threshold'] = SSM.convert_duration_to_string(threshold)
+            latency = data["serviceLevelIndicator"]["basicSli"]["latency"]
+            threshold = latency["threshold"]
+            latency["threshold"] = SSM.convert_duration_to_string(threshold)
         except KeyError:
             pass
 
@@ -678,15 +679,15 @@ class CloudServiceMonitoringBackend:
             str: Duration string.
         """
         duration_seconds = 0.000
-        if 'seconds' in duration:
-            duration_seconds += duration['seconds']
-        if 'nanos' in duration:
-            duration_seconds += duration['nanos'] * 10**(-9)
+        if "seconds" in duration:
+            duration_seconds += duration["seconds"]
+        if "nanos" in duration:
+            duration_seconds += duration["nanos"] * 10 ** (-9)
         if duration_seconds.is_integer():
             duration_str = int(duration_seconds)
         else:
-            duration_str = f'{duration_seconds:0.3f}'
-        return str(duration_str) + 's'
+            duration_str = f"{duration_seconds:0.3f}"
+        return str(duration_str) + "s"
 
     @staticmethod
     def to_json(response):

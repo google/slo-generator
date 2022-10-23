@@ -133,8 +133,8 @@ set for your metric. Learn more in the [Prometheus docs](https://prometheus.io/d
 
 ## Exporter
 
-The `prometheus` exporter allows to export SLO metrics to the 
-[Prometheus Pushgateway](https://prometheus.io/docs/practices/pushing/) which 
+The `prometheus` exporter allows to export SLO metrics to the
+[Prometheus Pushgateway](https://prometheus.io/docs/practices/pushing/) which
 needs to be running.
 
 ```yaml
@@ -149,14 +149,14 @@ Optional fields:
   * `password`: Password for Basic Auth.
   * `job`: Name of `Pushgateway` job. Defaults to `slo-generator`.
 
-***Note:*** `prometheus` needs to be setup to **scrape metrics from `Pushgateway`** 
+***Note:*** `prometheus` needs to be setup to **scrape metrics from `Pushgateway`**
 (see [documentation](https://github.com/prometheus/pushgateway) for more details).
 
 **&rightarrow; [Full SLO config](../../samples/prometheus/slo_prom_metrics_availability_query_sli.yaml)**
 
 ## Self Exporter (API mode)
 
-When running slo-generator as an API, you can enable `prometheus_self` exporter, which will 
+When running slo-generator as an API, you can enable `prometheus_self` exporter, which will
 expose all metrics on a standard `/metrics` endpoint, instead of pushing them to a gateway.
 
 ```yaml
@@ -164,7 +164,7 @@ exporters:
   prometheus_self: { }
 ```
 
-***Note:*** The metrics endpoint will be available after a first successful SLO request. 
+***Note:*** The metrics endpoint will be available after a first successful SLO request.
 Before that, it's going to act as if it was endpoint of the generator API.
 
 ### Examples

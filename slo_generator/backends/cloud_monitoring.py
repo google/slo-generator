@@ -56,41 +56,47 @@ class CloudMonitoringBackend:
         Returns:
             tuple: A tuple (good_event_count, bad_event_count)
         """
-        measurement = slo_config['spec']['service_level_indicator']
-        filter_good = measurement['filter_good']
-        filter_bad = measurement.get('filter_bad')
-        filter_valid = measurement.get('filter_valid')
+        measurement = slo_config["spec"]["service_level_indicator"]
+        filter_good = measurement["filter_good"]
+        filter_bad = measurement.get("filter_bad")
+        filter_valid = measurement.get("filter_valid")
 
         # Query 'good events' timeseries
-        good_ts = self.query(timestamp=timestamp,
-                             window=window,
-                             filter=filter_good)
+        good_ts = self.query(
+            timestamp=timestamp,
+            window=window,
+            filter=filter_good,
+        )
         good_ts = list(good_ts)
         good_event_count = CM.count(good_ts)
 
         # Query 'bad events' timeseries
         if filter_bad:
-            bad_ts = self.query(timestamp=timestamp,
-                                window=window,
-                                filter=filter_bad)
+            bad_ts = self.query(
+                timestamp=timestamp,
+                window=window,
+                filter=filter_bad,
+            )
             bad_ts = list(bad_ts)
             bad_event_count = CM.count(bad_ts)
         elif filter_valid:
-            valid_ts = self.query(timestamp=timestamp,
-                                  window=window,
-                                  filter=filter_valid)
+            valid_ts = self.query(
+                timestamp=timestamp,
+                window=window,
+                filter=filter_valid,
+            )
             valid_ts = list(valid_ts)
             bad_event_count = CM.count(valid_ts) - good_event_count
         else:
-            raise Exception(
-                "One of `filter_bad` or `filter_valid` is required.")
+            raise Exception("One of `filter_bad` or `filter_valid` is required.")
 
-        LOGGER.debug(f'Good events: {good_event_count} | '
-                     f'Bad events: {bad_event_count}')
+        LOGGER.debug(
+            f"Good events: {good_event_count} | " f"Bad events: {bad_event_count}"
+        )
 
         return good_event_count, bad_event_count
 
-    # pylint: disable=duplicate-code
+    # pylint: disable=duplicate-code,too-many-locals
     def distribution_cut(self, timestamp, window, slo_config):
         """Query one timeseries of type 'exponential'.
 
@@ -102,15 +108,17 @@ class CloudMonitoringBackend:
         Returns:
             tuple: A tuple (good_event_count, bad_event_count).
         """
-        measurement = slo_config['spec']['service_level_indicator']
-        filter_valid = measurement['filter_valid']
-        threshold_bucket = int(measurement['threshold_bucket'])
-        good_below_threshold = measurement.get('good_below_threshold', True)
+        measurement = slo_config["spec"]["service_level_indicator"]
+        filter_valid = measurement["filter_valid"]
+        threshold_bucket = int(measurement["threshold_bucket"])
+        good_below_threshold = measurement.get("good_below_threshold", True)
 
         # Query 'valid' events
-        series = self.query(timestamp=timestamp,
-                            window=window,
-                            filter=filter_valid)
+        series = self.query(
+            timestamp=timestamp,
+            window=window,
+            filter=filter_valid,
+        )
         series = list(series)
 
         if not series:
@@ -132,7 +140,7 @@ class CloudMonitoringBackend:
             distribution[i] = {
                 # 'upper_bound': upper_bound,
                 # 'bucket_count': bucket_count,
-                'count_sum': count_sum
+                "count_sum": count_sum
             }
         LOGGER.debug(pprint.pformat(distribution))
 
@@ -141,7 +149,7 @@ class CloudMonitoringBackend:
             lower_events_count = valid_events_count
             upper_events_count = 0
         else:
-            lower_events_count = distribution[threshold_bucket]['count_sum']
+            lower_events_count = distribution[threshold_bucket]["count_sum"]
             upper_events_count = valid_events_count - lower_events_count
 
         if good_below_threshold:
@@ -158,17 +166,22 @@ class CloudMonitoringBackend:
         compatibility.
         """
         warnings.warn(
-            'exponential_distribution_cut will be deprecated in version 2.0, '
-            'please use distribution_cut instead', FutureWarning)
+            "exponential_distribution_cut will be deprecated in version 2.0, "
+            "please use distribution_cut instead",
+            FutureWarning,
+        )
         return self.distribution_cut(*args, **kwargs)
 
-    def query(self,
-              timestamp,
-              window,
-              filter,
-              aligner='ALIGN_SUM',
-              reducer='REDUCE_SUM',
-              group_by=None):
+    # pylint: disable=redefined-builtin,too-many-arguments
+    def query(
+        self,
+        timestamp,
+        window,
+        filter,
+        aligner="ALIGN_SUM",
+        reducer="REDUCE_SUM",
+        group_by=None,
+    ):
         """Query timeseries from Cloud Monitoring.
 
         Args:
@@ -185,10 +198,9 @@ class CloudMonitoringBackend:
         if group_by is None:
             group_by = []
         measurement_window = CM.get_window(timestamp, window)
-        aggregation = CM.get_aggregation(window,
-                                         aligner=aligner,
-                                         reducer=reducer,
-                                         group_by=group_by)
+        aggregation = CM.get_aggregation(
+            window, aligner=aligner, reducer=reducer, group_by=group_by
+        )
         request = monitoring_v3.ListTimeSeriesRequest()
         request.name = self.parent
         request.filter = filter
@@ -228,27 +240,31 @@ class CloudMonitoringBackend:
             :obj:`monitoring_v3.types.TimeInterval`: Measurement window object.
         """
         end_time_seconds = int(timestamp)
-        end_time_nanos = int((timestamp - end_time_seconds) * 10 ** 9)
+        end_time_nanos = int((timestamp - end_time_seconds) * 10**9)
         start_time_seconds = int(timestamp - window)
         start_time_nanos = end_time_nanos
-        measurement_window = monitoring_v3.TimeInterval({
-            "end_time": {
-                "seconds": end_time_seconds,
-                "nanos": end_time_nanos
-            },
-            "start_time": {
-                "seconds": start_time_seconds,
-                "nanos": start_time_nanos
+        measurement_window = monitoring_v3.TimeInterval(
+            {
+                "end_time": {
+                    "seconds": end_time_seconds,
+                    "nanos": end_time_nanos,
+                },
+                "start_time": {
+                    "seconds": start_time_seconds,
+                    "nanos": start_time_nanos,
+                },
             }
-        })
+        )
         LOGGER.debug(pprint.pformat(measurement_window))
         return measurement_window
 
     @staticmethod
-    def get_aggregation(window,
-                        aligner='ALIGN_SUM',
-                        reducer='REDUCE_SUM',
-                        group_by=None):
+    def get_aggregation(
+        window,
+        aligner="ALIGN_SUM",
+        reducer="REDUCE_SUM",
+        group_by=None,
+    ):
         """Helper for aggregation object.
 
         Default aggregation is `ALIGN_SUM`.
@@ -265,14 +281,18 @@ class CloudMonitoringBackend:
         """
         if group_by is None:
             group_by = []
-        aggregation = monitoring_v3.Aggregation({
-            "alignment_period": {"seconds": window},
-            "per_series_aligner":
-                getattr(monitoring_v3.Aggregation.Aligner, aligner),
-            "cross_series_reducer":
-                getattr(monitoring_v3.Aggregation.Reducer, reducer),
-            "group_by_fields": group_by,
-        })
+        aggregation = monitoring_v3.Aggregation(
+            {
+                "alignment_period": {"seconds": window},
+                "per_series_aligner": getattr(
+                    monitoring_v3.Aggregation.Aligner, aligner
+                ),
+                "cross_series_reducer": getattr(
+                    monitoring_v3.Aggregation.Reducer, reducer
+                ),
+                "group_by_fields": group_by,
+            }
+        )
         LOGGER.debug(pprint.pformat(aggregation))
         return aggregation
 
