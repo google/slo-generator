@@ -17,7 +17,6 @@ Functions Framework API (Flask).
 See https://github.com/GoogleCloudPlatform/functions-framework-python for
 details on the Functions Framework.
 """
-# pylint: disable=fixme
 
 import base64
 import json
@@ -107,6 +106,7 @@ def run_export(request):
     # Construct exporters block
     spec = {}
     # pytype: disable=attribute-error
+    # pylint: disable=fixme
     # FIXME `load_config()` returns `Optional[dict]` so `config` can be `None`
     default_exporters = config.get("default_exporters", [])
     # pytype: enable=attribute-error
@@ -214,7 +214,8 @@ def process_batch_req(request, data, config):
             from google.cloud import pubsub_v1  # pylint: disable=C0415
 
             # pytype: disable=attribute-error
-            # FIXME `load_config()` returns `Optional[dict]`
+            # pylint: disable=fixme
+            # FIXME `load_config()` returns `Optional[dict]` so `config` can be `None`
             #   so `config` can be `None`
             exporter_conf = config.get("pubsub_batch_handler")
             # pytype: enable=attribute-error

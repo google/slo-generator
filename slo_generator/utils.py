@@ -35,7 +35,8 @@ from dateutil import tz
 from slo_generator.constants import DEBUG
 
 try:
-    from google.cloud import storage  # pytype: disable=import-error
+    # pytype: disable=import-error
+    from google.cloud import storage  # type: ignore[attr-defined]
 
     GCS_ENABLED = True
 except ImportError:

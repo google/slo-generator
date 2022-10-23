@@ -47,9 +47,9 @@ from slo_generator.constants import (
     WARNING,
 )
 
-yaml.explicit_start = True
-yaml.default_flow_style = None
-yaml.preserve_quotes = True
+yaml.explicit_start = True  # type: ignore[attr-defined]
+yaml.default_flow_style = None  # type: ignore[attr-defined]
+yaml.preserve_quotes = True  # type: ignore[attr-defined]
 
 
 # pylint: disable=too-many-arguments

@@ -214,10 +214,11 @@ class CloudMonitoringMqlBackend:
         request = metric_service.QueryTimeSeriesRequest(
             {"name": self.parent, "query": formatted_query}
         )
-
-        timeseries_pager: QueryTimeSeriesPager = self.client.query_time_series(
-            request
-        )  # type: ignore[union-attr]
+        # fmt: off
+        timeseries_pager: QueryTimeSeriesPager = (
+            self.client.query_time_series(request)  # type: ignore[union-attr]
+        )
+        # fmt: on
         timeseries: list = list(timeseries_pager)  # convert pager to flat list
         LOGGER.debug(pprint.pformat(timeseries))
         return timeseries
