@@ -46,3 +46,6 @@ htmlcov/
 venv*/
 .venv*/
 reports/
+.mypy_cache
+.pytest_cache/
+.pytype/

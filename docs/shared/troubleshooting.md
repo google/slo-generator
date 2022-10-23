@@ -12,14 +12,14 @@ The new labels would cause the metric custom.googleapis.com/slo_target to have o
 ### Solutions
 
 **Solution 1:**
-Delete the metric descriptor, and re-run the SLO Generator. 
-You can do so using `gmon` (`pip install gmon`) and run: 
+Delete the metric descriptor, and re-run the SLO Generator.
+You can do so using `gmon` (`pip install gmon`) and run:
 `gmon metrics delete custom.googleapis.com/slo_target -p <SD_HOST_PROJECT_ID>`.
-**Warning:** this will destroy all historical metric data (6 weeks). 
+**Warning:** this will destroy all historical metric data (6 weeks).
 If you are using the metric in Cloud Monitoring dashboards, be wary.
 
 **Solution 2:**
 Limit the number of user labels sent with the metric.
-The default metrics are exported with 7 labels maximum, which means you have up 
-to 3 additional user labels (`metadata` labels in SLO config, or 
+The default metrics are exported with 7 labels maximum, which means you have up
+to 3 additional user labels (`metadata` labels in SLO config, or
 `additional_labels` in the `metrics` config).

@@ -83,7 +83,7 @@ BQ Data Viewer roles.
 
 Make a copy of the following data source (copy & paste the below link in a browser)
 <https://datastudio.google.com/datasources/24648dbe-fa29-48bf-9227-7e8673319968>
-and clicking on the "Make a Copy" button just left of the "Create Report" button.  
+and clicking on the "Make a Copy" button just left of the "Create Report" button.
 ![copy this report](../images/copy_button.png)
 
 ##### Step 2
@@ -92,7 +92,7 @@ From the BQ connector settings page use "My projects" search and select your SLO
 
 ##### Step 3
 
-Hit the RECONNECT button top right.The message `Configuration has changed. Do you want to apply the changes?` appears indicating no fields changed. Hit APPLY.  
+Hit the RECONNECT button top right.The message `Configuration has changed. Do you want to apply the changes?` appears indicating no fields changed. Hit APPLY.
 ![copy this report](../images/config_has_changed.png)
 
 ##### Step 4

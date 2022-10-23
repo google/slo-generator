@@ -35,7 +35,7 @@ purposes as well (see examples).
 backend: dynatrace
 method: good_bad_ratio
 service_level_indicator:
-  query_good:  
+  query_good:
     metric_selector: ext:app.request_count:filter(and(eq(app,test_app),eq(env,prod),eq(status_code_class,2xx)))
     entity_selector: type(HOST)
   query_valid:
@@ -47,8 +47,8 @@ service_level_indicator:
 
 ### Threshold
 
-The `threshold` method is used to split a series of values into two buckets 
-using a threshold as delimiter: one bucket which will represent the good events, 
+The `threshold` method is used to split a series of values into two buckets
+using a threshold as delimiter: one bucket which will represent the good events,
 the other will represent the bad events.
 
 This method can be used for latency SLOs, by defining a latency threshold.
@@ -59,7 +59,7 @@ This method can be used for latency SLOs, by defining a latency threshold.
 backend: dynatrace
 method: threshold
 service_level_indicator:
-  query_valid:  
+  query_valid:
     metric_selector: ext:app.request_latency:filter(and(eq(app,test_app),eq(env,prod),eq(status_code_class,2xx)))
     entity_selector: type(HOST)
   threshold: 40000 # us
