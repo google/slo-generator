@@ -18,9 +18,10 @@ Datadog backend implementation.
 import json
 import logging
 import pprint
-import requests
 
+import requests
 from retrying import retry
+
 from slo_generator.constants import NO_DATA
 
 LOGGER = logging.getLogger(__name__)
@@ -51,13 +52,13 @@ class DynatraceBackend:
         Returns:
             float: SLI value.
         """
-        measurement = slo_config['spec']['service_level_indicator']
+        measurement = slo_config["spec"]["service_level_indicator"]
         start = (timestamp - window) * 1000
         end = timestamp * 1000
-        slo_id = measurement['slo_id']
+        slo_id = measurement["slo_id"]
         data = self.retrieve_slo(start, end, slo_id)
         LOGGER.debug(f"Result SLO: {pprint.pformat(data)}")
-        sli_value = round(data['evaluatedPercentage'] / 100, 4)
+        sli_value = round(data["evaluatedPercentage"] / 100, 4)
         return sli_value
 
     def good_bad_ratio(self, timestamp, window, slo_config):
@@ -71,11 +72,11 @@ class DynatraceBackend:
         Returns:
             tuple: Good event count, Bad event count.
         """
-        measurement = slo_config['spec']['service_level_indicator']
+        measurement = slo_config["spec"]["service_level_indicator"]
         start = (timestamp - window) * 1000
         end = timestamp * 1000
-        query_good = measurement['query_good']
-        query_valid = measurement['query_valid']
+        query_good = measurement["query_good"]
+        query_valid = measurement["query_valid"]
 
         # Good query
         good_event_response = self.query(start=start, end=end, **query_good)
@@ -103,23 +104,27 @@ class DynatraceBackend:
         Returns:
             tuple: Good event count, Bad event count.
         """
-        measurement = slo_config['spec']['service_level_indicator']
+        measurement = slo_config["spec"]["service_level_indicator"]
         start = (timestamp - window) * 1000
         end = timestamp * 1000
-        query_valid = measurement['query_valid']
-        threshold = measurement['threshold']
-        good_below_threshold = measurement.get('good_below_threshold', True)
+        query_valid = measurement["query_valid"]
+        threshold = measurement["threshold"]
+        good_below_threshold = measurement.get("good_below_threshold", True)
         response = self.query(start=start, end=end, **query_valid)
         LOGGER.debug(f"Result valid: {pprint.pformat(response)}")
-        return DynatraceBackend.count_threshold(response, threshold,
-                                                good_below_threshold)
+        return DynatraceBackend.count_threshold(
+            response, threshold, good_below_threshold
+        )
 
-    def query(self,
-              start,
-              end,
-              metric_selector=None,
-              entity_selector=None,
-              aggregation='SUM'):
+    # pylint: disable=too-many-arguments
+    def query(
+        self,
+        start,
+        end,
+        metric_selector=None,
+        entity_selector=None,
+        aggregation="SUM",
+    ):
         """Query Dynatrace Metrics V2.
 
         Args:
@@ -133,22 +138,16 @@ class DynatraceBackend:
             dict: Dynatrace API response.
         """
         params = {
-            'from': start,
-            'end': end,
-            'metricSelector': metric_selector,
-            'entitySelector': entity_selector,
-            'aggregation': aggregation,
-            'includeData': True
+            "from": start,
+            "end": end,
+            "metricSelector": metric_selector,
+            "entitySelector": entity_selector,
+            "aggregation": aggregation,
+            "includeData": True,
         }
-        return self.client.request('get',
-                                   'metrics/query',
-                                   version='v2',
-                                   **params)
+        return self.client.request("get", "metrics/query", version="v2", **params)
 
-    def retrieve_slo(self,
-                     start,
-                     end,
-                     slo_id):
+    def retrieve_slo(self, start, end, slo_id):
         """Query Dynatrace SLO V2.
 
         Args:
@@ -159,16 +158,9 @@ class DynatraceBackend:
         Returns:
             dict: Dynatrace API response.
         """
-        params = {
-            'from': start,
-            'to': end,
-            'timeFrame' : 'GTF'
-        }
-        endpoint = 'slo/' + slo_id
-        return self.client.request('get',
-                                   endpoint,
-                                   version='v2',
-                                   **params)
+        params = {"from": start, "to": end, "timeFrame": "GTF"}
+        endpoint = "slo/" + slo_id
+        return self.client.request("get", endpoint, version="v2", **params)
 
     @staticmethod
     def count(response):
@@ -181,11 +173,12 @@ class DynatraceBackend:
             int: Event count.
         """
         try:
-            datapoints = response['result'][0]['data']
+            datapoints = response["result"][0]["data"]
             values = []
             for point in datapoints:
                 point_values = [
-                    point for point in point['values']
+                    point
+                    for point in point["values"]
                     if point is not None and point > 0
                 ]
                 values.extend(point_values)
@@ -209,16 +202,18 @@ class DynatraceBackend:
             tuple: Number of good events, Number of bad events.
         """
         try:
-            datapoints = response['result'][0]['data']
+            datapoints = response["result"][0]["data"]
             below = []
             above = []
             for point in datapoints:
                 points_below = [
-                    point for point in point['values']
+                    point
+                    for point in point["values"]
                     if point is not None and point < threshold
                 ]
                 points_above = [
-                    point for point in point['values']
+                    point
+                    for point in point["values"]
                     if point is not None and point > threshold
                 ]
                 below.extend(points_below)
@@ -244,11 +239,11 @@ def retry_http(response):
         bool: True to retry, False otherwise.
     """
     retry_codes = [429]
-    returned_code = response.get('error', {})
+    returned_code = response.get("error", {})
     if isinstance(returned_code, str):
         code = 200
     else:
-        code = int(returned_code.get('code', 200))
+        code = int(returned_code.get("code", 200))
     return code in retry_codes
 
 
@@ -259,26 +254,32 @@ class DynatraceClient:
         api_url (str): Dynatrace API URL.
         api_token (str): Dynatrace token.
     """
+
     # Keys to extract response data for each endpoint
-    ENDPOINT_KEYS = {'metrics': 'metrics', 'metrics/query': 'result'}
+    ENDPOINT_KEYS = {"metrics": "metrics", "metrics/query": "result"}
 
     def __init__(self, api_url, api_key):
         self.client = requests.Session()
-        self.url = api_url.rstrip('/')
+        self.url = api_url.rstrip("/")
         self.token = api_key
 
-    @retry(retry_on_result=retry_http,
-           wait_exponential_multiplier=1000,
-           wait_exponential_max=10000,
-           stop_max_delay=10000)
-    def request(self,
-                method,
-                endpoint,
-                name=None,
-                version='v1',
-                post_data=None,
-                key=None,
-                **params):
+    @retry(
+        retry_on_result=retry_http,
+        wait_exponential_multiplier=1000,
+        wait_exponential_max=10000,
+        stop_max_delay=10000,
+    )
+    # pylint: disable=too-many-arguments,too-many-locals
+    def request(
+        self,
+        method,
+        endpoint,
+        name=None,
+        version="v1",
+        post_data=None,
+        key=None,
+        **params,
+    ):
         """Request Dynatrace API.
 
         Args:
@@ -294,33 +295,34 @@ class DynatraceClient:
             obj: API response.
         """
         req = getattr(self.client, method)
-        url = f'{self.url}/api/{version}/{endpoint}'
-        params['Api-Token'] = self.token
+        url = f"{self.url}/api/{version}/{endpoint}"
+        params["Api-Token"] = self.token
         headers = {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-            'User-Agent': 'slo-generator'
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+            "User-Agent": "slo-generator",
         }
         if name:
-            url += f'/{name}'
-        params_str = '&'.join(
-            f'{key}={val}' for key, val in params.items() if val is not None)
-        url += f'?{params_str}'
+            url += f"/{name}"
+        params_str = "&".join(
+            f"{key}={val}" for key, val in params.items() if val is not None
+        )
+        url += f"?{params_str}"
         LOGGER.debug(f'Running "{method}" request to {url} ...')
-        if method in ['put', 'post']:
+        if method in ["put", "post"]:
             response = req(url, headers=headers, json=post_data)
         else:
             response = req(url, headers=headers)
-        LOGGER.debug(f'Response: {response}')
+        LOGGER.debug(f"Response: {response}")
         data = DynatraceClient.to_json(response)
-        next_page_key = data.get('nextPageKey')
+        next_page_key = data.get("nextPageKey")
         if next_page_key:
-            params = {'nextPageKey': next_page_key, 'Api-Token': self.token}
-            LOGGER.debug(f'Requesting next page: {next_page_key}')
+            params = {"nextPageKey": next_page_key, "Api-Token": self.token}
+            LOGGER.debug(f"Requesting next page: {next_page_key}")
             data_next = self.request(method, endpoint, name, version, **params)
-            next_page_key = data_next.get('nextPageKey')
+            next_page_key = data_next.get("nextPageKey")
             if not key:
-                key = DynatraceClient.ENDPOINT_KEYS.get(endpoint, 'result')
+                key = DynatraceClient.ENDPOINT_KEYS.get(endpoint, "result")
             data[key].extend(data_next[key])
         return data
 
@@ -335,6 +337,6 @@ class DynatraceClient:
         Returns:
             dict: API JSON response.
         """
-        res = resp.content.decode('utf-8').replace('\n', '')
+        res = resp.content.decode("utf-8").replace("\n", "")
         data = json.loads(res)
         return data

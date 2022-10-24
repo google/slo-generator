@@ -18,10 +18,11 @@ Datadog backend implementation.
 
 import logging
 import pprint
+
 import datadog
 
 LOGGER = logging.getLogger(__name__)
-logging.getLogger('datadog.api').setLevel(logging.ERROR)
+logging.getLogger("datadog.api").setLevel(logging.ERROR)
 
 
 class DatadogBackend:
@@ -37,11 +38,12 @@ class DatadogBackend:
     def __init__(self, client=None, api_key=None, app_key=None, **kwargs):
         self.client = client
         if not self.client:
-            options = {'api_key': api_key, 'app_key': app_key}
+            options = {"api_key": api_key, "app_key": app_key}
             options.update(kwargs)
             datadog.initialize(**options)
             self.client = datadog.api
 
+    # pylint: disable=too-many-locals
     def good_bad_ratio(self, timestamp, window, slo_config):
         """Query SLI value from good and valid queries.
 
@@ -53,23 +55,35 @@ class DatadogBackend:
         Returns:
             tuple: Good event count, Bad event count.
         """
-        measurement = slo_config['spec']['service_level_indicator']
-        operator = measurement.get('operator', 'sum')
-        operator_suffix = measurement.get('operator_suffix', 'as_count()')
+        measurement = slo_config["spec"]["service_level_indicator"]
+        operator = measurement.get("operator", "sum")
+        operator_suffix = measurement.get("operator_suffix", "as_count()")
         start = timestamp - window
         end = timestamp
-        query_good = measurement['query_good']
-        query_valid = measurement['query_valid']
-        query_good = self._fmt_query(query_good, window, operator,
-                                     operator_suffix)
-        query_valid = self._fmt_query(query_valid, window, operator,
-                                      operator_suffix)
-        good_event_query = self.client.Metric.query(start=start,
-                                                    end=end,
-                                                    query=query_good)
-        valid_event_query = self.client.Metric.query(start=start,
-                                                     end=end,
-                                                     query=query_valid)
+        query_good = measurement["query_good"]
+        query_valid = measurement["query_valid"]
+        query_good = self._fmt_query(
+            query_good,
+            window,
+            operator,
+            operator_suffix,
+        )
+        query_valid = self._fmt_query(
+            query_valid,
+            window,
+            operator,
+            operator_suffix,
+        )
+        good_event_query = self.client.Metric.query(
+            start=start,
+            end=end,
+            query=query_good,
+        )
+        valid_event_query = self.client.Metric.query(
+            start=start,
+            end=end,
+            query=query_valid,
+        )
         LOGGER.debug(f"Result good: {pprint.pformat(good_event_query)}")
         LOGGER.debug(f"Result valid: {pprint.pformat(valid_event_query)}")
         good_event_count = DatadogBackend.count(good_event_query)
@@ -88,10 +102,10 @@ class DatadogBackend:
         Returns:
             float: SLI value.
         """
-        measurement = slo_config['spec']['service_level_indicator']
+        measurement = slo_config["spec"]["service_level_indicator"]
         start = timestamp - window
         end = timestamp
-        query = measurement['query']
+        query = measurement["query"]
         query = self._fmt_query(query, window)
         response = self.client.Metric.query(start=start, end=end, query=query)
         LOGGER.debug(f"Result valid: {pprint.pformat(response)}")
@@ -108,22 +122,23 @@ class DatadogBackend:
         Returns:
             tuple: Good event count, bad event count.
         """
-        slo_id = slo_config['spec']['service_level_indicator']['slo_id']
+        slo_id = slo_config["spec"]["service_level_indicator"]["slo_id"]
         from_ts = timestamp - window
         slo_data = self.client.ServiceLevelObjective.get(id=slo_id)
         LOGGER.debug(f"SLO data: {slo_id} | Result: {pprint.pformat(slo_data)}")
-        data = self.client.ServiceLevelObjective.history(id=slo_id,
-                                                         from_ts=from_ts,
-                                                         to_ts=timestamp)
+        data = self.client.ServiceLevelObjective.history(
+            id=slo_id,
+            from_ts=from_ts,
+            to_ts=timestamp,
+        )
         try:
-            LOGGER.debug(
-                f"Timeseries data: {slo_id} | Result: {pprint.pformat(data)}")
-            good_event_count = data['data']['series']['numerator']['sum']
-            valid_event_count = data['data']['series']['denominator']['sum']
+            LOGGER.debug(f"Timeseries data: {slo_id} | Result: {pprint.pformat(data)}")
+            good_event_count = data["data"]["series"]["numerator"]["sum"]
+            valid_event_count = data["data"]["series"]["denominator"]["sum"]
             bad_event_count = valid_event_count - good_event_count
             return (good_event_count, bad_event_count)
         except (KeyError) as exception:  # monitor-based SLI
-            sli_value = data['data']['overall']['sli_value'] / 100
+            sli_value = data["data"]["overall"]["sli_value"] / 100
             LOGGER.debug(exception)
             return sli_value
 
@@ -149,12 +164,12 @@ class DatadogBackend:
         """
         query = query.strip()
         if operator:
-            query = f'{operator}:{query}'
-        if '[window]' in query:
-            query = query.replace('[window]', f'{window}')
+            query = f"{operator}:{query}"
+        if "[window]" in query:
+            query = query.replace("[window]", f"{window}")
         if operator_suffix:
-            query = f'{query}.{operator_suffix}'
-        LOGGER.debug(f'Query: {query}')
+            query = f"{query}.{operator_suffix}"
+        LOGGER.debug(f"Query: {query}")
         return query
 
     @staticmethod
@@ -170,7 +185,7 @@ class DatadogBackend:
         """
         try:
             values = []
-            pointlist = response['series'][0]['pointlist']
+            pointlist = response["series"][0]["pointlist"]
             for point in pointlist:
                 value = point[1]
                 if value is None:

@@ -9,10 +9,10 @@ This enables you to:
 
 ## Backend
 
-To create a custom backend, simply create a new file and add the backend code 
-within it. 
+To create a custom backend, simply create a new file and add the backend code
+within it.
 
-For this example, we will assume the backend code below was added to 
+For this example, we will assume the backend code below was added to
 `custom/custom_backend.py`.
 
 A sample custom backend will have the following look:
@@ -28,7 +28,7 @@ class CustomBackend:
 
     def good_bad_ratio(self, timestamp, window, slo_config):
         # compute your good bad ratio in this method.
-        # you can do anything here (query your internal API, correlate with 
+        # you can do anything here (query your internal API, correlate with
         # other data, etc...)
         # return a tuple (number_good_events, number_bad_events)
         return (100000, 100)
@@ -40,7 +40,7 @@ class CustomBackend:
 ```
 
 
-In order to call the `good_bad_ratio` method in the custom backend above, the 
+In order to call the `good_bad_ratio` method in the custom backend above, the
 `backends` block would look like this:
 
 ```yaml
@@ -61,15 +61,15 @@ service_level_indicator: {}
 
 ## Exporter
 
-To create a custom exporter, simply create a new file and add the exporter code 
-within it. 
+To create a custom exporter, simply create a new file and add the exporter code
+within it.
 
-For the examples below, we will assume the exporter code below was added to 
+For the examples below, we will assume the exporter code below was added to
 `custom/custom_exporter.py`.
 
 ### Standard
 
-A standard exporter: 
+A standard exporter:
 * must implement the `export` method.
 
 A sample exporter looks like:
@@ -87,7 +87,7 @@ class CustomExporter:
         Returns:
             object: Custom exporter response.
         """
-        # export your `data` (SLO report) using `config` to setup export 
+        # export your `data` (SLO report) using `config` to setup export
         # parameters that need to be configurable.
         return {
             'status': 'ok',
@@ -116,7 +116,7 @@ exporters: [custom.custom_exporter.CustomExporter]
 A metrics exporter:
 
 * must inherit from `slo_generator.exporters.base.MetricsExporter`.
-* must implement the `export_metric` method which exports **one** metric. 
+* must implement the `export_metric` method which exports **one** metric.
 The `export_metric` function takes a metric dict as input, such as:
 
     ```py
@@ -172,5 +172,5 @@ exporters:
 The `MetricsExporter` base class has the following behavior:
 * The `metrics` block in the SLO config is passed to the base class `MetricsExporter`
 * The base class `MetricsExporter` runs the `export` method which iterates through each metric and add information to it, such as the current value and timestamp.
-* The base class `MetricsExporter` calls the derived class `export_metric` for each metric and pass it the metric data to export. 
+* The base class `MetricsExporter` calls the derived class `export_metric` for each metric and pass it the metric data to export.
 * The derived class for each metric to export. See [metrics](../shared/metrics.md) for more details on the `metrics` block.

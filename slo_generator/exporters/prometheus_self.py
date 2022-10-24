@@ -24,15 +24,17 @@ from .base import MetricsExporter
 
 LOGGER = logging.getLogger(__name__)
 
+
 class PrometheusSelfExporter(MetricsExporter):
     """Prometheus exporter class which uses
     the API mode of itself to export the metrics."""
-    REGISTERED_URL = False
-    REGISTERED_METRICS = {}
+
+    REGISTERED_URL: bool = False
+    REGISTERED_METRICS: dict = {}
 
     def __init__(self):
         if not self.REGISTERED_URL:
-            current_app.add_url_rule('/metrics', view_func=self.serve_metrics)
+            current_app.add_url_rule("/metrics", view_func=self.serve_metrics)
             PrometheusSelfExporter.REGISTERED_URL = True
 
     @staticmethod
@@ -43,7 +45,7 @@ class PrometheusSelfExporter(MetricsExporter):
             object: Flask HTTP Response
         """
         resp = make_response(generate_latest(), 200)
-        resp.mimetype = 'text/plain'
+        resp.mimetype = "text/plain"
         return resp
 
     def export_metric(self, data):
@@ -52,16 +54,18 @@ class PrometheusSelfExporter(MetricsExporter):
         Args:
             data (dict): Metric data.
         """
-        name = data['name']
-        description = data['description']
-        value = data['value']
+        name = data["name"]
+        description = data["description"]
+        value = data["value"]
 
         # Write timeseries w/ metric labels.
-        labels = data['labels']
+        labels = data["labels"]
         gauge = self.REGISTERED_METRICS.get(name)
         if gauge is None:
-            gauge = Gauge(name,
-                          description,
-                          labelnames=labels.keys())
+            gauge = Gauge(
+                name,
+                description,
+                labelnames=labels.keys(),
+            )
             PrometheusSelfExporter.REGISTERED_METRICS[name] = gauge
         gauge.labels(*labels.values()).set(value)
