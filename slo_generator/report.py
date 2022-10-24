@@ -17,12 +17,11 @@ Report utilities.
 """
 
 import logging
-from dataclasses import asdict, dataclass, fields, field
+from dataclasses import asdict, dataclass, field, fields
 from typing import List
 
 from slo_generator import utils
-from slo_generator.constants import (COLORED_OUTPUT, MIN_VALID_EVENTS, NO_DATA,
-                                     Colors)
+from slo_generator.constants import COLORED_OUTPUT, MIN_VALID_EVENTS, NO_DATA, Colors
 
 LOGGER = logging.getLogger(__name__)
 
@@ -40,24 +39,16 @@ class SLOReport:
         client (obj): Existing backend client.
         delete (bool): Backend delete action.
     """
-    # pylint: disable=too-many-instance-attributes
 
-    # Metadata
-    metadata: dict = field(default_factory=dict)
+    # pylint: disable=too-many-instance-attributes
 
     # SLO
     name: str
     description: str
     goal: str
     backend: str
-    exporters: list = field(default_factory=list)
-    error_budget_policy: str = 'default'
 
     # SLI
-    sli_measurement: float = 0
-    events_count: int = 0
-    bad_events_count: int = 0
-    good_events_count: int = 0
     gap: float
 
     # Error budget
@@ -70,6 +61,9 @@ class SLOReport:
     error_budget_remaining_minutes: float
     error_minutes: float
 
+    # Data validation
+    valid: bool
+
     # Global (from error budget policy)
     timestamp: int
     timestamp_human: str
@@ -78,35 +72,43 @@ class SLOReport:
 
     consequence_message: str
 
+    # SLO
+    exporters: list = field(default_factory=list)
+    error_budget_policy: str = "default"
+
+    # SLI
+    sli_measurement: float = 0
+    events_count: int = 0
+    bad_events_count: int = 0
+    good_events_count: int = 0
+
+    # Metadata
+    metadata: dict = field(default_factory=dict)
+
     # Data validation
-    valid: bool
     errors: List[str] = field(default_factory=list)
 
-    def __init__(self,
-                 config,
-                 backend,
-                 step,
-                 timestamp,
-                 client=None,
-                 delete=False):
+    # pylint: disable=too-many-arguments
+    def __init__(self, config, backend, step, timestamp, client=None, delete=False):
 
         # Init dataclass fields from SLO config and Error Budget Policy
-        spec = config['spec']
+        spec = config["spec"]
         self.exporters = []
-        self.__set_fields(**spec,
-                          **step,
-                          lambdas={
-                              'goal': float,
-                              'step': int,
-                              'error_budget_burn_rate_threshold': float
-                          })
+        self.__set_fields(
+            **spec,
+            **step,
+            lambdas={
+                "goal": float,
+                "step": int,
+                "error_budget_burn_rate_threshold": float,
+            },
+        )
         # Set other fields
-        self.metadata = config['metadata']
+        self.metadata = config["metadata"]
         self.timestamp = int(timestamp)
-        self.name = self.metadata['name']
-        self.error_budget_policy_step_name = step['name']
-        self.error_budget_burn_rate_threshold = float(
-            step['burn_rate_threshold'])
+        self.name = self.metadata["name"]
+        self.error_budget_policy_step_name = step["name"]
+        self.error_budget_burn_rate_threshold = float(step["burn_rate_threshold"])
         self.timestamp_human = utils.get_human_time(timestamp)
         self.valid = True
         self.errors = []
@@ -156,27 +158,30 @@ class SLOReport:
 
         # Manage alerting message.
         if alert:
-            consequence_message = step['message_alert']
+            consequence_message = step["message_alert"]
         elif eb_burn_rate <= 1:
-            consequence_message = step['message_ok']
+            consequence_message = step["message_ok"]
         else:
-            consequence_message = \
-                'Missed for this measurement window, but not enough to alert'
+            consequence_message = (
+                "Missed for this measurement window, but not enough to alert"
+            )
 
         # Set fields in dataclass.
-        self.__set_fields(sli_measurement=sli,
-                          good_events_count=int(good_count),
-                          bad_events_count=int(bad_count),
-                          events_count=int(good_count + bad_count),
-                          gap=gap,
-                          error_budget_target=eb_target,
-                          error_budget_measurement=eb_value,
-                          error_budget_burn_rate=eb_burn_rate,
-                          error_budget_remaining_minutes=eb_remaining_minutes,
-                          error_budget_minutes=eb_target_minutes,
-                          error_minutes=eb_minutes,
-                          alert=alert,
-                          consequence_message=consequence_message)
+        self.__set_fields(
+            sli_measurement=sli,
+            good_events_count=int(good_count),
+            bad_events_count=int(bad_count),
+            events_count=int(good_count + bad_count),
+            gap=gap,
+            error_budget_target=eb_target,
+            error_budget_measurement=eb_value,
+            error_budget_burn_rate=eb_burn_rate,
+            error_budget_remaining_minutes=eb_remaining_minutes,
+            error_budget_minutes=eb_target_minutes,
+            error_minutes=eb_minutes,
+            alert=alert,
+            consequence_message=consequence_message,
+        )
 
     def run_backend(self, config, backend, client=None, delete=False):
         """Get appropriate backend method from SLO configuration and run it on
@@ -193,32 +198,32 @@ class SLOReport:
             obj: Backend data.
         """
         # Grab backend class and method dynamically.
-        cls_name = backend.get('class')
-        method = config['spec']['method']
-        excluded_keys = ['class', 'service_level_indicator', 'name']
-        backend_cfg = {
-            k: v for k, v in backend.items() if k not in excluded_keys
-        }
+        cls_name = backend.get("class")
+        method = config["spec"]["method"]
+        excluded_keys = ["class", "service_level_indicator", "name"]
+        backend_cfg = {k: v for k, v in backend.items() if k not in excluded_keys}
         cls = utils.get_backend_cls(cls_name)
         if not cls:
-            LOGGER.warning(f'{self.info} | Backend {cls_name} not loaded.')
+            LOGGER.warning(f"{self.info} | Backend {cls_name} not loaded.")
             self.valid = False
             return None
         instance = cls(client=client, **backend_cfg)
         method = getattr(instance, method)
-        LOGGER.debug(f'{self.info} | '
-                     f'Using backend {cls_name}.{method.__name__} (from '
-                     f'SLO config file).')
+        LOGGER.debug(
+            f"{self.info} | "
+            f"Using backend {cls_name}.{method.__name__} (from "
+            f"SLO config file)."
+        )
 
         # Delete mode activation.
-        if delete and hasattr(instance, 'delete'):
+        if delete and hasattr(instance, "delete"):
             method = instance.delete
-            LOGGER.info(f'{self.info} | Delete mode enabled.')
+            LOGGER.info(f"{self.info} | Delete mode enabled.")
 
         # Run backend method and return results.
         try:
             data = method(self.timestamp, self.window, config)
-            LOGGER.debug(f'{self.info} | Backend response: {data}')
+            LOGGER.debug(f"{self.info} | Backend response: {data}")
         except Exception as exc:  # pylint:disable=broad-except
             self.errors.append(utils.fmt_traceback(exc))
             return None
@@ -249,27 +254,27 @@ class SLOReport:
                 good_count = 0
             if bad_count == NO_DATA:
                 bad_count = 0
-            LOGGER.debug(f'{self.info} | Good: {good_count} | Bad: {bad_count}')
+            LOGGER.debug(f"{self.info} | Good: {good_count} | Bad: {bad_count}")
             sli_measurement = round(good_count / (good_count + bad_count), 6)
         else:  # sli value
             sli_measurement = round(data, 6)
             good_count, bad_count = NO_DATA, NO_DATA
         return sli_measurement, good_count, bad_count
 
-    def to_json(self):
+    def to_json(self) -> dict:
         """Serialize dataclass to JSON."""
         if not self.valid:
             ebp_name = self.error_budget_policy_step_name
             return {
-                'metadata': self.metadata,
-                'errors': self.errors,
-                'error_budget_policy_step_name': ebp_name,
-                'valid': self.valid
+                "metadata": self.metadata,
+                "errors": self.errors,
+                "error_budget_policy_step_name": ebp_name,
+                "valid": self.valid,
             }
         return asdict(self)
 
     # pylint: disable=too-many-return-statements
-    def _validate(self, data):
+    def _validate(self, data) -> bool:
         """Validate backend results. Invalid data will result in SLO report not
         being built.
 
@@ -286,9 +291,10 @@ class SLOReport:
         # Backend result is the wrong type
         if not isinstance(data, (tuple, float, int)):
             error = (
-                f'Backend method returned an object of type '
-                f'{type(data).__name__}. It should instead return a tuple '
-                '(good_count, bad_count) or a numeric SLI value (float / int).')
+                f"Backend method returned an object of type "
+                f"{type(data).__name__}. It should instead return a tuple "
+                "(good_count, bad_count) or a numeric SLI value (float / int)."
+            )
             self.errors.append(error)
             return False
 
@@ -298,8 +304,9 @@ class SLOReport:
             # Tuple length should be 2
             if len(data) != 2:
                 error = (
-                    f'Backend method returned a tuple with {len(data)} items.'
-                    f'Expected 2 items.')
+                    f"Backend method returned a tuple with {len(data)} items."
+                    f"Expected 2 items."
+                )
                 self.errors.append(error)
                 return False
             good, bad = data
@@ -307,24 +314,27 @@ class SLOReport:
             # Tuple should contain only elements of type int or float
             if not all(isinstance(n, (float, int)) for n in data):
                 error = (
-                    'Backend method returned a tuple with some elements having'
-                    ' a type different than float or int')
+                    "Backend method returned a tuple with some elements having"
+                    " a type different than float or int"
+                )
                 self.errors.append(error)
                 return False
 
             # Tuple should not contain any element with value None.
             if good is None or bad is None:
                 error = (
-                    f'Backend method returned a valid tuple {data} but one of '
-                    'the values is None.')
+                    f"Backend method returned a valid tuple {data} but one of "
+                    "the values is None."
+                )
                 self.errors.append(error)
                 return False
 
             # Tuple should not have NO_DATA everywhere
             if (good, bad) == (NO_DATA, NO_DATA):
                 error = (
-                    f'Backend method returned a valid tuple {data} but the '
-                    'good and bad count is NO_DATA (-1).')
+                    f"Backend method returned a valid tuple {data} but the "
+                    "good and bad count is NO_DATA (-1)."
+                )
                 self.errors.append(error)
                 return False
 
@@ -332,37 +342,38 @@ class SLOReport:
             # minimum valid events threshold
             if (good + bad) < MIN_VALID_EVENTS:
                 error = (
-                    f'Not enough valid events ({good + bad}) found. Minimum '
-                    f'valid events: {MIN_VALID_EVENTS}.')
+                    f"Not enough valid events ({good + bad}) found. Minimum "
+                    f"valid events: {MIN_VALID_EVENTS}."
+                )
                 self.errors.append(error)
                 return False
 
         # Check backend float / int value
         if isinstance(data, (float, int)) and data == NO_DATA:
-            error = 'Backend returned NO_DATA (-1).'
+            error = "Backend returned NO_DATA (-1)."
             self.errors.append(error)
             return False
 
         # Check backend None
         if data is None:
-            error = 'Backend returned None.'
+            error = "Backend returned None."
             self.errors.append(error)
             return False
 
         return True
 
-    def _post_validate(self):
+    def _post_validate(self) -> bool:
         """Validate report after build."""
 
         # SLI measurement should be 0 <= x <= 1
         if not 0 <= self.sli_measurement <= 1:
-            error = (
-                f'SLI is not between 0 and 1 (value = {self.sli_measurement})')
+            error = f"SLI is not between 0 and 1 (value = {self.sli_measurement})"
             self.errors.append(error)
             return False
 
         return True
 
+    # pylint: disable=dangerous-default-value
     def __set_fields(self, lambdas={}, **kwargs):
         """Set all fields in dataclasses from configs passed and apply function
         on values whose key match one in the dictionaries.
@@ -381,29 +392,30 @@ class SLOReport:
             setattr(self, name, value)
 
     @property
-    def info(self):
+    def info(self) -> str:
         """Step information."""
         return f"{self.name :<32} | {self.error_budget_policy_step_name :<8}"
 
-    def __str__(self):
+    def __str__(self) -> str:
         report = self.to_json()
         if not self.valid:
-            errors_str = ' | '.join(self.errors)
-            return f'{self.info} | {errors_str}'
+            errors_str = " | ".join(self.errors)
+            return f"{self.info} | {errors_str}"
         goal_per = self.goal * 100
         sli_per = round(self.sli_measurement * 100, 6)
         gap = round(self.gap * 100, 2)
         gap_str = str(gap)
         if gap >= 0:
-            gap_str = f'+{gap}'
+            gap_str = f"+{gap}"
 
-        sli_str = (f'SLI: {sli_per:<7} % | SLO: {goal_per} % | '
-                   f'Gap: {gap_str:<6}%')
-        result_str = ('BR: {error_budget_burn_rate:<2} / '
-                      '{error_budget_burn_rate_threshold} | '
-                      'Alert: {alert:<1} | Good: {good_events_count:<8} | '
-                      'Bad: {bad_events_count:<8}').format_map(report)
-        full_str = f'{self.info} | {sli_str} | {result_str}'
+        sli_str = f"SLI: {sli_per:<7} % | SLO: {goal_per} % | " f"Gap: {gap_str:<6}%"
+        result_str = (
+            "BR: {error_budget_burn_rate:<2} / "
+            "{error_budget_burn_rate_threshold} | "
+            "Alert: {alert:<1} | Good: {good_events_count:<8} | "
+            "Bad: {bad_events_count:<8}"
+        ).format_map(report)
+        full_str = f"{self.info} | {sli_str} | {result_str}"
         if COLORED_OUTPUT == 1:
             if self.alert:
                 full_str = Colors.FAIL + full_str + Colors.ENDC

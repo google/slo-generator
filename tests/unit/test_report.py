@@ -20,7 +20,6 @@ from .test_stubs import mock_slo_report
 
 
 class TestReport(unittest.TestCase):
-
     def test_report_enough_events(self):
         report_cfg = mock_slo_report("enough_events")
         report = SLOReport(**report_cfg)
@@ -44,7 +43,7 @@ class TestReport(unittest.TestCase):
         report_cfg = mock_slo_report("valid_sli_value")
         report = SLOReport(**report_cfg)
         self.assertTrue(report.valid)
-        self.assertEqual(report.sli_measurement, report_cfg['backend']['sli'])
+        self.assertEqual(report.sli_measurement, report_cfg["backend"]["sli"])
         self.assertEqual(report.alert, False)
 
     def test_report_no_events(self):

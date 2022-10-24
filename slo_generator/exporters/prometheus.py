@@ -25,10 +25,12 @@ from .base import MetricsExporter
 LOGGER = logging.getLogger(__name__)
 DEFAULT_PUSHGATEWAY_JOB = "slo-generator"
 
+
 class PrometheusExporter(MetricsExporter):
     """Prometheus exporter class."""
-    REQUIRED_FIELDS = ['url']
-    OPTIONAL_FIELDS = ['job', 'username', 'password']
+
+    REQUIRED_FIELDS = ["url"]
+    OPTIONAL_FIELDS = ["job", "username", "password"]
 
     def __init__(self):
         self.username = None
@@ -54,34 +56,39 @@ class PrometheusExporter(MetricsExporter):
         Returns:
             object: Metric descriptor.
         """
-        name = data['name']
-        description = data['description']
-        prometheus_push_url = data['url']
-        prometheus_push_job_name = data.get('job', DEFAULT_PUSHGATEWAY_JOB)
-        value = data['value']
+        name = data["name"]
+        description = data["description"]
+        prometheus_push_url = data["url"]
+        prometheus_push_job_name = data.get("job", DEFAULT_PUSHGATEWAY_JOB)
+        value = data["value"]
 
         # Write timeseries w/ metric labels.
-        labels = data['labels']
+        labels = data["labels"]
         registry = CollectorRegistry()
-        gauge = Gauge(name,
-                      description,
-                      registry=registry,
-                      labelnames=labels.keys())
+        gauge = Gauge(
+            name,
+            description,
+            registry=registry,
+            labelnames=labels.keys(),
+        )
         gauge.labels(*labels.values()).set(value)
 
         # Handle headers
         handler = default_handler
-        if 'username' in data and 'password' in data:
-            self.username = data['username']
-            self.password = data['password']
+        if "username" in data and "password" in data:
+            self.username = data["username"]
+            self.password = data["password"]
             handler = PrometheusExporter.auth_handler
 
-        return pushadd_to_gateway(prometheus_push_url,
-                                  job=prometheus_push_job_name,
-                                  grouping_key=labels,
-                                  registry=registry,
-                                  handler=handler)
+        return pushadd_to_gateway(
+            prometheus_push_url,
+            job=prometheus_push_job_name,
+            grouping_key=labels,
+            registry=registry,
+            handler=handler,
+        )
 
+    # pylint: disable=too-many-arguments
     def auth_handler(self, url, method, timeout, headers, data):
         """Handles authentication for pushing to Prometheus gateway.
 
@@ -97,5 +104,6 @@ class PrometheusExporter(MetricsExporter):
         """
         username = self.username
         password = self.password
-        return basic_auth_handler(url, method, timeout, headers, data, username,
-                                  password)
+        return basic_auth_handler(
+            url, method, timeout, headers, data, username, password
+        )

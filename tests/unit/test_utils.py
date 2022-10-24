@@ -14,16 +14,19 @@
 
 import unittest
 
-from slo_generator.utils import (get_backend_cls, get_exporter_cls,
-                                 get_human_time, import_dynamic)
+from slo_generator.utils import (
+    get_backend_cls,
+    get_exporter_cls,
+    get_human_time,
+    import_dynamic,
+)
 
 
 class TestUtils(unittest.TestCase):
-
     def test_get_human_time(self):
         # Timezones
-        tz_1 = 'Europe/Paris'
-        tz_2 = 'America/Chicago'
+        tz_1 = "Europe/Paris"
+        tz_2 = "America/Chicago"
 
         # Timestamp 1
         timestamp = 1565092435
@@ -46,8 +49,7 @@ class TestUtils(unittest.TestCase):
         res1 = get_backend_cls("CloudMonitoring")
         res2 = get_backend_cls("Prometheus")
         self.assertEqual(res1.__name__, "CloudMonitoringBackend")
-        self.assertEqual(res1.__module__,
-                         "slo_generator.backends.cloud_monitoring")
+        self.assertEqual(res1.__module__, "slo_generator.backends.cloud_monitoring")
         self.assertEqual(res2.__name__, "PrometheusBackend")
         self.assertEqual(res2.__module__, "slo_generator.backends.prometheus")
         with self.assertWarns(ImportWarning):
@@ -65,8 +67,7 @@ class TestUtils(unittest.TestCase):
         res2 = get_exporter_cls("Pubsub")
         res3 = get_exporter_cls("Bigquery")
         self.assertEqual(res1.__name__, "CloudMonitoringExporter")
-        self.assertEqual(res1.__module__,
-                         "slo_generator.exporters.cloud_monitoring")
+        self.assertEqual(res1.__module__, "slo_generator.exporters.cloud_monitoring")
         self.assertEqual(res2.__name__, "PubsubExporter")
         self.assertEqual(res2.__module__, "slo_generator.exporters.pubsub")
         self.assertEqual(res3.__name__, "BigqueryExporter")
@@ -82,19 +83,25 @@ class TestUtils(unittest.TestCase):
             get_exporter_cls("foo.bar.DoesNotExist")
 
     def test_import_dynamic(self):
-        res1 = import_dynamic("slo_generator.backends.cloud_monitoring",
-                              "CloudMonitoringBackend",
-                              prefix="backend")
-        res2 = import_dynamic("slo_generator.exporters.cloud_monitoring",
-                              "CloudMonitoringExporter",
-                              prefix="exporter")
+        res1 = import_dynamic(
+            "slo_generator.backends.cloud_monitoring",
+            "CloudMonitoringBackend",
+            prefix="backend",
+        )
+        res2 = import_dynamic(
+            "slo_generator.exporters.cloud_monitoring",
+            "CloudMonitoringExporter",
+            prefix="exporter",
+        )
         self.assertEqual(res1.__name__, "CloudMonitoringBackend")
         self.assertEqual(res2.__name__, "CloudMonitoringExporter")
         with self.assertWarns(ImportWarning):
-            import_dynamic("slo_generator.backends.unknown",
-                           "CloudMonitoringUnknown",
-                           prefix="unknown")
+            import_dynamic(
+                "slo_generator.backends.unknown",
+                "CloudMonitoringUnknown",
+                prefix="unknown",
+            )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()
