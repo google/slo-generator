@@ -24,5 +24,6 @@ from setuptools import setup
 
 sys.dont_write_bytecode = True  # avoid generating .pyc files
 
+
 if __name__ == "__main__":
     setup()
