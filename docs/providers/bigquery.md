@@ -2,9 +2,7 @@
 
 ## Exporter
 
-The BigQuery exporter will export SLO reports to a BigQuery table. This allows
-teams to conduct historical analysis of SLO reports, and figure out what to do
-to improve on the long-run (months, years).
+The BigQuery exporter will export SLO reports to a BigQuery table. This allows teams to conduct historical analysis of SLO reports, and figure out what to do to improve on the long-run (months, years).
 
 **Config example:**
 
