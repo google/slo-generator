@@ -20,43 +20,65 @@ This project follows [Google's Open Source Community Guidelines](https://opensou
 
 ### Development environment
 
-To prepare for development, you need to fork this repository and work on your own branch so that you can later submit your changes as a GitHub Pull Request.
+1. To prepare for development, you need to fork this repository and work on your own branch so that you can later submit your changes as a GitHub Pull Request.
 
-Once you have forked the repo on GitHub, clone it locally and install the `slo-generator` in a Python virtual environment:
+1. Once you have forked the repo on GitHub, clone it locally and create a Python virtual environment to work in:
 
-```sh
-git clone github.com/google/slo-generator
-cd slo-generator
-python3 -m venv venv/
-source venv/bin/activate
-```
+    ```sh
+    git clone github.com/google/slo-generator
+    cd slo-generator
+    python3 -m venv venv/
+    source venv/bin/activate
+    ```
 
-Then install `slo-generator` locally in development mode, with all the extra packages as well as pre-commit hooks in order to speed up and simplify the development workflow:
+1. Install `slo-generator` locally in development mode, with all the extra packages as well as pre-commit hooks in order to speed up and simplify the development workflow:
 
-```sh
-make develop
-```
+    ```sh
+    make develop
+    ```
 
-Finally, feel free to start making changes.
+1. Start making changes.
 
-Note that [pre-commit](https://pre-commit.com/) hooks are installed during `make develop` and automatically executed by `git`. These checks are responsible for making sure your changes are linted and well-formatted, in order to match the rest of the codebase and simplify the code reviews. You will be warned after issuing `git commit` if at least one of the staged files does not comply. You can also run the checks manually on the staged files at any time with:
+1. Commit your changes locally, in small chunks with meaningful commit messages to simplify the code reviewing process later on.
 
-```sh
-$ pre-commit run
-trim trailing whitespace.................................................Passed
-fix end of files.........................................................Passed
-check yaml...............................................................Passed
-check for added large files..............................................Passed
-autoflake................................................................Passed
-flake8...................................................................Passed
-black....................................................................Passed
-isort....................................................................Passed
-pylint...................................................................Passed
-```
+    Note that [pre-commit](https://pre-commit.com/) hooks are installed during `make develop` and automatically executed by `git` on every `git commit` operation. These checks are responsible for making sure your changes are linted and well-formatted, in order to match the rest of the codebase and simplify the code reviews. You will be warned after issuing `git commit` if at least one of the staged files does not comply. You can also run the checks manually on the staged files at any time with:
 
-If any error is reported, your commit gets canceled. At this point, run `make format` to automatically reformat the code with [`isort`](https://github.com/PyCQA/isort) and [`black`](https://github.com/psf/black). Also make sure to fix any errors returned by linters or static analyzers such as [`flake8`](https://flake8.pycqa.org/en/latest/), [`pylint`](https://pylint.pycqa.org/en/latest/), [`mypy`](http://mypy-lang.org/) or [`pytype`](https://github.com/google/pytype). Then commit again, rinse and repeat.
+    ```sh
+    $ pre-commit run
+    trim trailing whitespace.................................................Passed
+    fix end of files.........................................................Passed
+    check yaml...............................................................Passed
+    check for added large files..............................................Passed
+    autoflake................................................................Passed
+    flake8...................................................................Passed
+    black....................................................................Passed
+    isort....................................................................Passed
+    pylint...................................................................Passed
+    ```
 
-Ignoring these pre-commit warnings is not recommended. The Continuous Integration (CI) pipelines will run the exact same checks (and more!) when your commits get pushed. The checks will fail there and prevent you from merging your changes to the `master` branch anyway. So fail fast, fail early, fail often and fix as many errors as possible on your local development machine. Code reviews will be more enjoyable for everyone!
+    If any error is reported, your commit gets canceled and you can start working on fixing the issues. If a formatting error gets reported, run `make format` to automatically organize the imports and reformat the code with [`isort`](https://github.com/PyCQA/isort) and [`black`](https://github.com/psf/black). Also make sure to fix any errors returned by linters or static analyzers such as [`flake8`](https://flake8.pycqa.org/en/latest/), [`pylint`](https://pylint.pycqa.org/en/latest/), [`mypy`](http://mypy-lang.org/) or [`pytype`](https://github.com/google/pytype). Then try `git commit`-ting your changes again.
+
+    Ignoring these pre-commit warnings is not recommended. The Continuous Integration (CI) pipelines will run the exact same checks (and more!) when your commits get pushed. The checks will fail there and prevent you from merging your changes to the `master` branch anyway. So fail fast, fail early, fail often and fix as many errors as possible on your local development machine. Code reviews will be more enjoyable for everyone!
+
+1. Push your changes when all the pre-commit checks complete successfully.
+
+1. Create a Pull Request (PR) and ask for a review.
+
+***Notes:***
+
+- IDEs such as Visual Studio Code and PyCharm can help with linting and reformatting. For example, Visual Studio Code can be configured to run `isort` and `black` automatically on every file save. Just add these lines to your `settings.json` file, as documented in [this article](https://cereblanco.medium.com/setup-black-and-isort-in-vscode-514804590bf9):
+
+  ```json
+      "editor.formatOnSave": true,
+      "python.formatting.provider": "black",
+      "[python]": {
+          "editor.codeActionsOnSave": {
+              "source.organizeImports": true  // isort
+          }
+      },
+  ```
+
+- [`pyenv`](https://github.com/pyenv/pyenv) can be used to easily switch between multiple versions of Python. For example, you might want to create multiple virtual environments like `venv3.9.14` and `venv3.10.7` to confirm a syntax or feature is supported by all Python versions, while keeping the environments isolated from each other.
 
 ### Testing environment
 
