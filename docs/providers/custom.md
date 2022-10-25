@@ -3,17 +3,16 @@
 `slo-generator` allows you to load custom backends / exporters dynamically.
 
 This enables you to:
+
 * Support other backends or exporters that are not part of `slo-generator` core.
 * Query or export from / to internal custom APIs.
 * Create SLOs based on more complicated logic (e.g: fetch a Datastore record or run a BQ query).
 
 ## Backend
 
-To create a custom backend, simply create a new file and add the backend code
-within it.
+To create a custom backend, simply create a new file and add the backend code within it.
 
-For this example, we will assume the backend code below was added to
-`custom/custom_backend.py`.
+For this example, we will assume the backend code below was added to `custom/custom_backend.py`.
 
 A sample custom backend will have the following look:
 
@@ -39,9 +38,7 @@ class CustomBackend:
         return 0.999
 ```
 
-
-In order to call the `good_bad_ratio` method in the custom backend above, the
-`backends` block would look like this:
+In order to call the `good_bad_ratio` method in the custom backend above, the `backends` block would look like this:
 
 ```yaml
 backends:
@@ -51,6 +48,7 @@ backends:
 ```
 
 The `spec` section in the SLO config would look like:
+
 ```yaml
 backend: custom.custom_backend.CustomBackend
 method: good_bad_ratio # name of the method to run
@@ -61,18 +59,18 @@ service_level_indicator: {}
 
 ## Exporter
 
-To create a custom exporter, simply create a new file and add the exporter code
-within it.
+To create a custom exporter, simply create a new file and add the exporter code within it.
 
-For the examples below, we will assume the exporter code below was added to
-`custom/custom_exporter.py`.
+For the examples below, we will assume the exporter code below was added to `custom/custom_exporter.py`.
 
 ### Standard
 
 A standard exporter:
+
 * must implement the `export` method.
 
 A sample exporter looks like:
+
 ```py
 class CustomExporter:
     """Custom exporter."""
@@ -107,6 +105,7 @@ exporters:
 ```
 
 The `spec` section in the SLO config would look like:
+
 ```yaml
 exporters: [custom.custom_exporter.CustomExporter]
 ```
@@ -116,8 +115,7 @@ exporters: [custom.custom_exporter.CustomExporter]
 A metrics exporter:
 
 * must inherit from `slo_generator.exporters.base.MetricsExporter`.
-* must implement the `export_metric` method which exports **one** metric.
-The `export_metric` function takes a metric dict as input, such as:
+* must implement the `export_metric` method which exports **one** metric. The `export_metric` function takes a metric dict as input, such as:
 
     ```py
     {
@@ -132,8 +130,6 @@ The `export_metric` function takes a metric dict as input, such as:
         "description": <METRIC_DESCRIPTION>
     }
     ```
-
-
 
 A sample metrics exporter will look like:
 
@@ -170,6 +166,7 @@ exporters:
 **Note:**
 
 The `MetricsExporter` base class has the following behavior:
+
 * The `metrics` block in the SLO config is passed to the base class `MetricsExporter`
 * The base class `MetricsExporter` runs the `export` method which iterates through each metric and add information to it, such as the current value and timestamp.
 * The base class `MetricsExporter` calls the derived class `export_metric` for each metric and pass it the metric data to export.
