@@ -105,22 +105,22 @@ The `slo-generator` tool is designed to be modular as it moves forward. Users, c
 
 To add a new backend, one must:
 
-* Add a new file named `slo-generator/backends/<backend>.py`
-* Write a new Python class called `<Name>Backend` (CamlCase)
-* Test it with a sample config
-* Add some unit tests
-* Make sure all tests pass
-* Submit a PR
+- Add a new file named `slo-generator/backends/<backend>.py`
+- Write a new Python class called `<Name>Backend` (CamlCase)
+- Test it with a sample config
+- Add some unit tests
+- Make sure all tests pass
+- Submit a PR
 
 ***Example with a fake Cat backend:***
 
-* Add a new backend file:
+- Add a new backend file:
 
   ```sh
   touch slo-generator/backends/cat.py
   ```
 
-* Fill the content of `cat.py`:
+- Fill the content of `cat.py`:
 
   ```python
   from provider import CatClient
@@ -168,7 +168,7 @@ To add a new backend, one must:
       return my_sli_value
   ```
 
-* Write a sample SLO configs (`slo_cat_test_slo_ratio.yaml`):
+- Write a sample SLO configs (`slo_cat_test_slo_ratio.yaml`):
 
   ```yaml
   service_name: cat
@@ -184,18 +184,18 @@ To add a new backend, one must:
       query_valid: avg:system.disk.used{*}.rollup(avg, {window})
   ```
 
-* Run a live test with the SLO generator:
+- Run a live test with the SLO generator:
 
   ```sh
   slo-generator -f slo_cat_test_slo_ratio.yaml -b samples/error_budget_target.yaml
   ```
 
-* Create a directory `samples/<backend>` for your backend samples.
-* Add some YAML samples to show how to write SLO configs for your backend. Samples should be named `slo_<service_name>_<feature_name>_<method>.yaml`.
-* Add a unit test: in the `tests/unit/test_compute.py`, simply add a method called `test_compute_<backend>`. Take the other backends an example when
+- Create a directory `samples/<backend>` for your backend samples.
+- Add some YAML samples to show how to write SLO configs for your backend. Samples should be named `slo_<service_name>_<feature_name>_<method>.yaml`.
+- Add a unit test: in the `tests/unit/test_compute.py`, simply add a method called `test_compute_<backend>`. Take the other backends an example when
 writing the test.
-* Add documentation for your backend / exporter in a new file named `docs/providers/cat.md`.
-* Make sure all tests pass
-* Submit a PR
+- Add documentation for your backend / exporter in a new file named `docs/providers/cat.md`.
+- Make sure all tests pass
+- Submit a PR
 
 The steps above are similar for adding a new exporter, but the exporter code will go to the `exporters/` directory and the unit test will be named `test_export_<exporter>`.
