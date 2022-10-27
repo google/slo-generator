@@ -1,5 +1,18 @@
 # Changelog
 
+## [2.3.1](https://github.com/google/slo-generator/compare/v2.3.0...v2.3.1) (2022-10-27)
+
+
+### Bug Fixes
+
+* migrate `cloud_service_monitoring` backend to `google-cloud-monitoring` v2 (with breaking changes) ([#280](https://github.com/google/slo-generator/issues/280)) ([affd157](https://github.com/google/slo-generator/commit/affd157fc5b1e253a3e6f02baa22a100b4da244d))
+
+
+### Documentation
+
+* document Cloud Monitoring MQL backend ([#277](https://github.com/google/slo-generator/issues/277)) ([8c931cd](https://github.com/google/slo-generator/commit/8c931cd69c8a1be5c59e8b431271da210ea986d7))
+* refine development workflow instructions ([#275](https://github.com/google/slo-generator/issues/275)) ([2a35754](https://github.com/google/slo-generator/commit/2a357546d0e6019110a76c7238349a92677cabd1))
+
 ## [2.3.0](https://github.com/google/slo-generator/compare/v2.2.0...v2.3.0) (2022-10-24)
 
 
