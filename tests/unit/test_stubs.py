@@ -21,41 +21,41 @@ import sys
 import time
 from types import ModuleType
 
-from google.cloud.monitoring_v3.proto import metric_service_pb2
-from slo_generator.utils import load_configs, load_config
+from google.cloud import monitoring_v3
+
+from slo_generator.utils import load_config, load_configs
 
 TEST_DIR = os.path.dirname(os.path.abspath(__file__))
-SAMPLE_DIR = os.path.join(os.path.dirname(os.path.dirname(TEST_DIR)),
-                          "samples/")
+SAMPLE_DIR = os.path.join(os.path.dirname(os.path.dirname(TEST_DIR)), "samples/")
 
 CTX = {
-    'PROJECT_ID': 'fake',
-    'PUBSUB_PROJECT_ID': 'fake',
-    'PUBSUB_TOPIC_NAME': 'fake',
-    'GAE_PROJECT_ID': 'fake',
-    'GAE_MODULE_ID': 'fake',
-    'GKE_MESH_UID': 'fake',
-    'GKE_PROJECT_ID': 'fake',
-    'GKE_CLUSTER_NAME': 'fake',
-    'GKE_LOCATION': 'fake',
-    'GKE_SERVICE_NAMESPACE': 'fake',
-    'GKE_SERVICE_NAME': 'fake',
-    'LB_PROJECT_ID': 'fake',
-    'PROMETHEUS_URL': 'http://localhost:9090',
-    'PROMETHEUS_PUSHGATEWAY_URL': 'http://localhost:9091',
-    'ELASTICSEARCH_URL': 'http://localhost:9200',
-    'STACKDRIVER_HOST_PROJECT_ID': 'fake',
-    'STACKDRIVER_LOG_METRIC_NAME': 'fake',
-    'BIGQUERY_PROJECT_ID': 'fake',
-    'BIGQUERY_TABLE_ID': 'fake',
-    'BIGQUERY_DATASET_ID': 'fake',
-    'BIGQUERY_TABLE_NAME': 'fake',
-    'DATADOG_API_KEY': 'fake',
-    'DATADOG_APP_KEY': 'fake',
-    'DATADOG_SLO_ID': 'fake',
-    'DYNATRACE_API_URL': 'fake',
-    'DYNATRACE_API_TOKEN': 'fake',
-    'DYNATRACE_SLO_ID': 'fake'
+    "PROJECT_ID": "fake",
+    "PUBSUB_PROJECT_ID": "fake",
+    "PUBSUB_TOPIC_NAME": "fake",
+    "GAE_PROJECT_ID": "fake",
+    "GAE_MODULE_ID": "fake",
+    "GKE_MESH_UID": "fake",
+    "GKE_PROJECT_ID": "fake",
+    "GKE_CLUSTER_NAME": "fake",
+    "GKE_LOCATION": "fake",
+    "GKE_SERVICE_NAMESPACE": "fake",
+    "GKE_SERVICE_NAME": "fake",
+    "LB_PROJECT_ID": "fake",
+    "PROMETHEUS_URL": "http://localhost:9090",
+    "PROMETHEUS_PUSHGATEWAY_URL": "http://localhost:9091",
+    "ELASTICSEARCH_URL": "http://localhost:9200",
+    "STACKDRIVER_HOST_PROJECT_ID": "fake",
+    "STACKDRIVER_LOG_METRIC_NAME": "fake",
+    "BIGQUERY_PROJECT_ID": "fake",
+    "BIGQUERY_TABLE_ID": "fake",
+    "BIGQUERY_DATASET_ID": "fake",
+    "BIGQUERY_TABLE_NAME": "fake",
+    "DATADOG_API_KEY": "fake",
+    "DATADOG_APP_KEY": "fake",
+    "DATADOG_SLO_ID": "fake",
+    "DYNATRACE_API_URL": "fake",
+    "DYNATRACE_API_TOKEN": "fake",
+    "DYNATRACE_SLO_ID": "fake",
 }
 
 
@@ -68,7 +68,7 @@ def add_dynamic(name, code, type):
         type (str): 'backends' or 'exporters'.
     """
     mod = ModuleType(name)
-    module_name = f'slo_generator.{type}.{name}'
+    module_name = f"slo_generator.{type}.{name}"
     sys.modules[module_name] = mod
     exec(code, mod.__dict__)
 
@@ -82,14 +82,13 @@ def mock_slo_report(key):
     Returns:
         dict: Dict configuration for SLOReport class.
     """
-    slo_config = load_fixture('dummy_slo_config.json')
-    ebp_step = load_fixture(
-        'dummy_config.json')['error_budget_policies']['default'][0]
-    dummy_tests = load_fixture('dummy_tests.json')
+    slo_config = load_fixture("dummy_slo_config.json")
+    ebp_step = load_fixture("dummy_config.json")["error_budget_policies"]["default"][0]
+    dummy_tests = load_fixture("dummy_tests.json")
     backend = dummy_tests[key]
-    slo_config['spec']['method'] = backend['method']
-    backend['name'] = 'dummy'
-    backend['class'] = 'Dummy'
+    slo_config["spec"]["method"] = backend["method"]
+    backend["name"] = "dummy"
+    backend["class"] = "Dummy"
     timestamp = time.time()
     return {
         "config": slo_config,
@@ -97,7 +96,7 @@ def mock_slo_report(key):
         "step": ebp_step,
         "timestamp": timestamp,
         "client": None,
-        "delete": False
+        "delete": False,
     }
 
 
@@ -133,10 +132,7 @@ class ChannelStub:
         self.requests = []
 
     # pylint: disable=C0116,W0613
-    def unary_unary(self,
-                    method,
-                    request_serializer=None,
-                    response_deserializer=None):
+    def unary_unary(self, method, request_serializer=None, response_deserializer=None):
         return MultiCallableStub(method, self)
 
 
@@ -164,12 +160,13 @@ def mock_sd(nresp=1):
     Returns:
         ChannelStub: Mocked gRPC channel stub.
     """
-    timeserie = load_fixture('time_series_proto.json')
-    response = {"next_page_token": "", "time_series": [timeserie]}
+    timeseries = load_fixture("time_series_proto.json")
+    response = {"next_page_token": "", "time_series": [timeseries]}
     return mock_grpc_stub(
         response=response,
-        proto_method=metric_service_pb2.ListTimeSeriesResponse,
-        nresp=nresp)
+        proto_method=monitoring_v3.types.ListTimeSeriesResponse,
+        nresp=nresp,
+    )
 
 
 # pylint: disable=W0613,R1721
@@ -183,11 +180,13 @@ def mock_prom(self, metric):
         dict: Fake response.
     """
     data = {
-        'data': {
-            'result': [{
-                'values': [x for x in range(5)],
-                'value': [0, 1]
-            }]
+        "data": {
+            "result": [
+                {
+                    "values": [x for x in range(5)],
+                    "value": [0, 1],
+                }
+            ]
         }
     }
     return json.dumps(data)
@@ -204,64 +203,65 @@ def mock_es(self, index, body):
     Returns:
         dict: Fake response.
     """
-    return {'hits': {'total': {'value': 120}}}
+    return {"hits": {"total": {"value": 120}}}
 
 
 def mock_dd_metric_query(*args, **kwargs):
     """Mock Datadog response for datadog.api.Metric.query."""
-    return load_fixture('dd_timeseries.json')
+    return load_fixture("dd_timeseries.json")
 
 
 def mock_dd_slo_history(*args, **kwargs):
     """Mock Datadog response for datadog.api.ServiceLevelObjective.history."""
-    return load_fixture('dd_slo_history.json')
+    return load_fixture("dd_slo_history.json")
 
 
 def mock_dd_slo_get(*args, **kwargs):
     """Mock Datadog response for datadog.api.ServiceLevelObjective.get."""
-    return load_fixture('dd_slo.json')
+    return load_fixture("dd_slo.json")
 
 
 def mock_dd_metric_send(*args, **kwargs):
     """Mock Datadog response for datadog.api.Metric.send."""
-    return load_fixture('dd_success.json')
+    return load_fixture("dd_success.json")
 
 
 def mock_dt(*args, **kwargs):
     """Mock Dynatrace response."""
-    if args[0] == 'get' and args[1] == 'timeseries':
-        return load_fixture('dt_metric_get.json')
+    if args[0] == "get" and args[1] == "timeseries":
+        return load_fixture("dt_metric_get.json")
 
-    elif args[0] == 'get' and args[1] == 'metrics/query':
-        return load_fixture('dt_timeseries_get.json')
+    elif args[0] == "get" and args[1] == "metrics/query":
+        return load_fixture("dt_timeseries_get.json")
 
-    elif args[0] == 'get' and args[1].startswith('slo/'):
-        return load_fixture('dt_slo_get.json')
+    elif args[0] == "get" and args[1].startswith("slo/"):
+        return load_fixture("dt_slo_get.json")
 
-    elif args[0] == 'post' and args[1] == 'entity/infrastructure/custom':
-        return load_fixture('dt_metric_send.json')
+    elif args[0] == "post" and args[1] == "entity/infrastructure/custom":
+        return load_fixture("dt_metric_send.json")
 
-    elif args[0] == 'put' and args[1] == 'timeseries':
+    elif args[0] == "put" and args[1] == "timeseries":
         return {}
 
 
 def mock_dt_errors(*args, **kwargs):
     """Mock Dynatrace response with errors."""
-    if args[0] == 'get' and args[1] == 'timeseries':
-        return load_fixture('dt_metric_get.json')
+    if args[0] == "get" and args[1] == "timeseries":
+        return load_fixture("dt_metric_get.json")
 
-    elif args[0] == 'get' and args[1] == 'metrics/query':
-        return load_fixture('dt_timeseries_get.json')
+    elif args[0] == "get" and args[1] == "metrics/query":
+        return load_fixture("dt_timeseries_get.json")
 
-    elif args[0] == 'post' and args[1] == 'entity/infrastructure/custom':
-        return load_fixture('dt_error_rate.json')
+    elif args[0] == "post" and args[1] == "entity/infrastructure/custom":
+        return load_fixture("dt_error_rate.json")
 
-    elif args[0] == 'put' and args[1] == 'timeseries':
-        return load_fixture('dt_error_rate.json')
+    elif args[0] == "put" and args[1] == "timeseries":
+        return load_fixture("dt_error_rate.json")
 
 
 class dotdict(dict):
     """dot.notation access to dictionary attributes"""
+
     __getattr__ = dict.get
     __setattr__ = dict.__setitem__
     __delattr__ = dict.__delitem__
@@ -287,17 +287,17 @@ class mock_ssm_client:
     """Fake Service Monitoring API client."""
 
     def __init__(self):
-        self.services = [dotize(s) for s in load_fixture('ssm_services.json')]
+        self.services = [dotize(s) for s in load_fixture("ssm_services.json")]
         self.service_level_objectives = [
-            dotize(slo) for slo in load_fixture('ssm_slos.json')
+            dotize(slo) for slo in load_fixture("ssm_slos.json")
         ]
 
-    def project_path(self, project_id):
-        return f'projects/{project_id}'
+    def common_project_path(self, project_id):
+        return f"projects/{project_id}"
 
     def service_path(self, project_id, service_id):
         project_path = self.project_path(project_id)
-        return f'{project_path}/services/{service_id}'
+        return f"{project_path}/services/{service_id}"
 
     def create_service(self, parent, service, service_id=None):
         return self.services[0]
@@ -308,10 +308,9 @@ class mock_ssm_client:
     def delete_service(self, name):
         return None
 
-    def create_service_level_objective(self,
-                                       parent,
-                                       service_level_objective,
-                                       service_level_objective_id=None):
+    def create_service_level_objective(
+        self, parent, service_level_objective, service_level_objective_id=None
+    ):
         return self.service_level_objectives[0]
 
     def update_service_level_objective(self, service_level_objective):
@@ -380,11 +379,11 @@ def load_slo_samples(folder_path, ctx=os.environ):
     Returns:
         list: List of loaded SLO configs.
     """
-    return load_configs(f'{SAMPLE_DIR}/{folder_path}', ctx)
+    return load_configs(f"{SAMPLE_DIR}/{folder_path}", ctx)
 
 
 # Add custom backends / exporters for testing purposes
-DUMMY_BACKEND_CODE = open(get_fixture_path('dummy_backend.py')).read()
-FAIL_EXPORTER_CODE = open(get_fixture_path('fail_exporter.py')).read()
-add_dynamic('dummy', DUMMY_BACKEND_CODE, 'backends')
-add_dynamic('fail', FAIL_EXPORTER_CODE, 'exporters')
+DUMMY_BACKEND_CODE = open(get_fixture_path("dummy_backend.py")).read()
+FAIL_EXPORTER_CODE = open(get_fixture_path("fail_exporter.py")).read()
+add_dynamic("dummy", DUMMY_BACKEND_CODE, "backends")
+add_dynamic("fail", FAIL_EXPORTER_CODE, "exporters")

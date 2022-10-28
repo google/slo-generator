@@ -16,80 +16,86 @@
 Constants and environment variables used in `slo-generator`.
 """
 import os
+from typing import Dict, List, Tuple
 
 # Compute
-NO_DATA = -1
-MIN_VALID_EVENTS = int(os.environ.get("MIN_VALID_EVENTS", "1"))
+NO_DATA: int = -1
+MIN_VALID_EVENTS: int = int(os.environ.get("MIN_VALID_EVENTS", "1"))
 
 # Global
-LATEST_MAJOR_VERSION = 'v2'
-COLORED_OUTPUT = int(os.environ.get("COLORED_OUTPUT", "0"))
-DRY_RUN = bool(int(os.environ.get("DRY_RUN", "0")))
-DEBUG = int(os.environ.get("DEBUG", "0"))
+LATEST_MAJOR_VERSION: str = "v2"
+COLORED_OUTPUT: int = int(os.environ.get("COLORED_OUTPUT", "0"))
+DRY_RUN: bool = bool(int(os.environ.get("DRY_RUN", "0")))
+DEBUG: int = int(os.environ.get("DEBUG", "0"))
 
 # Exporters supporting v2 SLO report format
-V2_EXPORTERS = ('Pubsub', 'Cloudevent')
+V2_EXPORTERS: Tuple[str, ...] = ("Pubsub", "Cloudevent")
 
 # Config skeletons
-CONFIG_SCHEMA = {
-    'backends': {},
-    'exporters': {},
-    'error_budget_policies': {},
+CONFIG_SCHEMA: dict = {
+    "backends": {},
+    "exporters": {},
+    "error_budget_policies": {},
 }
-SLO_CONFIG_SCHEMA = {
-    'apiVersion': '',
-    'kind': '',
-    'metadata': {},
-    'spec': {
-        'description': '',
-        'backend': '',
-        'method': '',
-        'exporters': [],
-        'service_level_indicator': {}
-    }
+SLO_CONFIG_SCHEMA: dict = {
+    "apiVersion": "",
+    "kind": "",
+    "metadata": {},
+    "spec": {
+        "description": "",
+        "backend": "",
+        "method": "",
+        "exporters": [],
+        "service_level_indicator": {},
+    },
 }
 
 # Providers that have changed with v2 YAML config format. This mapping helps
 # migrate them to their updated names.
-PROVIDERS_COMPAT = {
-    'Stackdriver': 'CloudMonitoring',
-    'StackdriverServiceMonitoring': 'CloudServiceMonitoring'
+PROVIDERS_COMPAT: Dict[str, str] = {
+    "Stackdriver": "CloudMonitoring",
+    "StackdriverServiceMonitoring": "CloudServiceMonitoring",
 }
 
 # Fields that have changed name with v2 YAML config format. This mapping helps
 # migrate them back to their former name, so that exporters are backward-
 # compatible with v1.
-METRIC_LABELS_COMPAT = {
-    'goal': 'slo_target',
-    'description': 'slo_description',
-    'error_budget_burn_rate_threshold': 'alerting_burn_rate_threshold'
+METRIC_LABELS_COMPAT: Dict[str, str] = {
+    "goal": "slo_target",
+    "description": "slo_description",
+    "error_budget_burn_rate_threshold": "alerting_burn_rate_threshold",
 }
 
 # Fields that used to be specified in top-level of YAML config are now specified
 # in metadata fields. This mapping helps migrate them back to the top level when
-# exporting reports, so that so that exporters are backward-compatible with v1.
-METRIC_METADATA_LABELS_TOP_COMPAT = ['service_name', 'feature_name', 'slo_name']
+# exporting reports, so that exporters are backward-compatible with v1.
+METRIC_METADATA_LABELS_TOP_COMPAT: List[str] = [
+    "service_name",
+    "feature_name",
+    "slo_name",
+]
 
 
 # Colors / Status
 # pylint: disable=too-few-public-methods
 class Colors:
     """Colors for console output."""
-    HEADER = '\033[95m'
-    OKBLUE = '\033[94m'
-    OKGREEN = '\033[92m'
-    WARNING = '\033[93m'
-    FAIL = '\033[91m'
-    ENDC = '\033[0m'
-    BOLD = '\033[1m'
-    UNDERLINE = '\033[4m'
+
+    HEADER: str = "\033[95m"
+    OKBLUE: str = "\033[94m"
+    OKGREEN: str = "\033[92m"
+    WARNING: str = "\033[93m"
+    FAIL: str = "\033[91m"
+    ENDC: str = "\033[0m"
+    BOLD: str = "\033[1m"
+    UNDERLINE: str = "\033[4m"
 
 
-GREEN = Colors.OKGREEN
-RED = Colors.FAIL
-ENDC = Colors.ENDC
-BOLD = Colors.BOLD
-WARNING = Colors.WARNING
-FAIL = '❌'
-SUCCESS = '✅'
-RIGHT_ARROW = '➞'
+GREEN: str = Colors.OKGREEN
+RED: str = Colors.FAIL
+ENDC: str = Colors.ENDC
+BOLD: str = Colors.BOLD
+WARNING: str = Colors.WARNING
+FAIL: str = "❌"
+SUCCESS: str = "✅"
+RIGHT_ARROW: str = "➞"

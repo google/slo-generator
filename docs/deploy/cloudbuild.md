@@ -6,7 +6,7 @@ To do so, you need to build an image for the `slo-generator` and push it to `Goo
 
 ## [Optional] Build and push the image to GCR
 
-If you are not allowed to use the public container image, you can build and push 
+If you are not allowed to use the public container image, you can build and push
 the image to your project using CloudBuild:
 
 ```sh
@@ -19,7 +19,7 @@ make cloudbuild
 
 ## Run `slo-generator` as a build step
 
-Once the image is built, you can call the SLO generator using the following 
+Once the image is built, you can call the SLO generator using the following
 snippet in your `cloudbuild.yaml`:
 
 ```yaml
