@@ -4,6 +4,8 @@ default_exporters: [cloudevent]
 backends:
   cloud_monitoring:
     project_id: ${STACKDRIVER_HOST_PROJECT_ID}
+  cloud_monitoring_mql:
+    project_id: ${STACKDRIVER_HOST_PROJECT_ID}
   cloud_service_monitoring:
     project_id: ${STACKDRIVER_HOST_PROJECT_ID}
   samples.custom.custom_backend.CustomBackend: {}
