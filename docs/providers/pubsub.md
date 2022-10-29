@@ -11,7 +11,6 @@ exporters:
     topic_name: "${PUBSUB_TOPIC_NAME}"
 ```
 
-This allows teams to consume SLO reports in real-time, and take appropriate
-actions when they see a need.
+This allows teams to consume SLO reports in real-time, and take appropriate actions when they see a need.
 
 **&rightarrow; [Full SLO config](../../samples/cloud_monitoring/slo_pubsub_subscription_throughput.yaml)**

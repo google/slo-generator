@@ -1,5 +1,56 @@
 # Changelog
 
+## [2.3.2](https://github.com/google/slo-generator/compare/v2.3.1...v2.3.2) (2022-10-29)
+
+
+### Bug Fixes
+
+* remove calls to list and create metric descriptors in Cloud Monitoring exporter to prevent Quota Exceeded errors ([#286](https://github.com/google/slo-generator/issues/286)) ([0a6a0fb](https://github.com/google/slo-generator/commit/0a6a0fb75d6c83deddbf81288c4d020e22bbd6d5))
+
+
+### Documentation
+
+* update docs and samples with all backends ([#283](https://github.com/google/slo-generator/issues/283)) ([61f2f32](https://github.com/google/slo-generator/commit/61f2f3291671fbfc1afc607255c1366f90c55b98))
+
+## [2.3.1](https://github.com/google/slo-generator/compare/v2.3.0...v2.3.1) (2022-10-27)
+
+
+### Bug Fixes
+
+* migrate `cloud_service_monitoring` backend to `google-cloud-monitoring` v2 (with breaking changes) ([#280](https://github.com/google/slo-generator/issues/280)) ([affd157](https://github.com/google/slo-generator/commit/affd157fc5b1e253a3e6f02baa22a100b4da244d))
+
+
+### Documentation
+
+* document Cloud Monitoring MQL backend ([#277](https://github.com/google/slo-generator/issues/277)) ([8c931cd](https://github.com/google/slo-generator/commit/8c931cd69c8a1be5c59e8b431271da210ea986d7))
+* refine development workflow instructions ([#275](https://github.com/google/slo-generator/issues/275)) ([2a35754](https://github.com/google/slo-generator/commit/2a357546d0e6019110a76c7238349a92677cabd1))
+
+## [2.3.0](https://github.com/google/slo-generator/compare/v2.2.0...v2.3.0) (2022-10-24)
+
+
+### Features
+
+* add Cloud Monitoring MQL backend ([#245](https://github.com/google/slo-generator/issues/245)) ([159f4d5](https://github.com/google/slo-generator/commit/159f4d5f93fd389f991fd1df3981ab28a2a80572))
+* add Prometheus Self exporter for API mode ([#209](https://github.com/google/slo-generator/issues/209)) ([53c0fdf](https://github.com/google/slo-generator/commit/53c0fdfb1030b84ca7ec11e2c54ab2d22cb046f4))
+* add pytype linting ([#249](https://github.com/google/slo-generator/issues/249)) ([b622d09](https://github.com/google/slo-generator/commit/b622d098a1f489988c8f4b2e92f52e87cad703bc))
+
+
+### Bug Fixes
+
+* add timeFrame to retrieve_slo dynatrace ([#212](https://github.com/google/slo-generator/issues/212)) ([2db0140](https://github.com/google/slo-generator/commit/2db01404e1b9e9d216a26f987fbc5531092312ea))
+* make unit tests pass again with elasticsearch 8.x client ([#223](https://github.com/google/slo-generator/issues/223)) ([39dd26c](https://github.com/google/slo-generator/commit/39dd26cb7197fdae0c4cb6f4fbc6808053615a37))
+* prevent gcloud crash with python 3.10 during release workflow ([39a257e](https://github.com/google/slo-generator/commit/39a257e7244c53990063fb63f0edf88cfbb30681))
+* remove useless and unknown Pylint options ([#247](https://github.com/google/slo-generator/issues/247)) ([5053251](https://github.com/google/slo-generator/commit/50532511b4de13becabd5b78d92eb32d59fefde7))
+* support custom exporters ([#235](https://github.com/google/slo-generator/issues/235)) ([b72b8f4](https://github.com/google/slo-generator/commit/b72b8f46d33b42ceb805c45eccdd7275c5495dd9))
+* update "Development Status" classifier ([c82eea3](https://github.com/google/slo-generator/commit/c82eea3a843dadf8720e8c828b2eaed0064eee4e))
+
+
+### Documentation
+
+* add missing 'method' field in readme ([#213](https://github.com/google/slo-generator/issues/213)) ([5d2a9a0](https://github.com/google/slo-generator/commit/5d2a9a00ba3cb45b2fe1d5144e4aee735abaf655))
+* add Python 3.9 classifier ([#226](https://github.com/google/slo-generator/issues/226)) ([83c36b9](https://github.com/google/slo-generator/commit/83c36b93693d4d6cb231ba38c5ea3ea0c8e01c2a))
+* document how to write and configure filters in Cloud Monitoring provider ([#266](https://github.com/google/slo-generator/issues/266)) ([29ab2e1](https://github.com/google/slo-generator/commit/29ab2e1dc043bbaa5203c2b5219e474d292fe7f9))
+
 ## [2.2.0](https://www.github.com/google/slo-generator/compare/v2.1.0...v2.2.0) (2022-02-02)
 
 
