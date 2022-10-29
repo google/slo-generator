@@ -1,5 +1,17 @@
 # Changelog
 
+## [2.3.2](https://github.com/google/slo-generator/compare/v2.3.1...v2.3.2) (2022-10-29)
+
+
+### Bug Fixes
+
+* remove calls to list and create metric descriptors in Cloud Monitoring exporter to prevent Quota Exceeded errors ([#286](https://github.com/google/slo-generator/issues/286)) ([0a6a0fb](https://github.com/google/slo-generator/commit/0a6a0fb75d6c83deddbf81288c4d020e22bbd6d5))
+
+
+### Documentation
+
+* update docs and samples with all backends ([#283](https://github.com/google/slo-generator/issues/283)) ([61f2f32](https://github.com/google/slo-generator/commit/61f2f3291671fbfc1afc607255c1366f90c55b98))
+
 ## [2.3.1](https://github.com/google/slo-generator/compare/v2.3.0...v2.3.1) (2022-10-27)
 
 
