@@ -20,42 +20,28 @@ from slo_generator.backends.cloud_monitoring_mql import CloudMonitoringMqlBacken
 
 
 class TestCloudMonitoringMqlBackend(unittest.TestCase):
-    def test_fmt_query(self):
-        queries = [
-            """  fetch gae_app
-      | metric 'appengine.googleapis.com/http/server/response_count'
-      | filter resource.project_id == '${GAE_PROJECT_ID}'
-      | filter
-          metric.response_code == 429
-          || metric.response_code == 200
-      | group_by [metric.response_code] | within 1h   """,
-            """ fetch gae_app
-      | metric 'appengine.googleapis.com/http/server/response_count'
-      | filter resource.project_id == '${GAE_PROJECT_ID}'
-      | filter
-          metric.response_code == 429
-          || metric.response_code == 200
-      | group_by [metric.response_code,  response_code_class]
-      | within 1h
-      | every 1h  """,
-            """ fetch gae_app
-      | metric 'appengine.googleapis.com/http/server/response_count'
-      | filter resource.project_id == '${GAE_PROJECT_ID}'
-      | filter
-          metric.response_code == 429
-          || metric.response_code == 200
-      | group_by [metric.response_code,response_code_class]
-      | within 1h
-      | every 1h """,
-        ]
+    def test_enrich_query_with_time_horizon_and_period(self):
+        timestamp: float = 1666995015.5144777  # = 2022/10/28 22:10:15.5144777
+        window: int = 3600  # in seconds
+        query: str = """fetch gae_app
+| metric 'appengine.googleapis.com/http/server/response_count'
+| filter resource.project_id == 'slo-generator-demo'
+| filter
+    metric.response_code == 429
+    || metric.response_code == 200
+"""
 
-        formatted_query = """fetch gae_app
-      | metric 'appengine.googleapis.com/http/server/response_count'
-      | filter resource.project_id == '${GAE_PROJECT_ID}'
-      | filter
-          metric.response_code == 429
-          || metric.response_code == 200
-      | group_by [] | within 3600s | every 3600s"""
+        enriched_query = """fetch gae_app
+| metric 'appengine.googleapis.com/http/server/response_count'
+| filter resource.project_id == 'slo-generator-demo'
+| filter
+    metric.response_code == 429
+    || metric.response_code == 200
+| group_by [] | within 3600s, d'2022/10/28 22:10:15' | every 3600s"""
 
-        for query in queries:
-            assert CloudMonitoringMqlBackend._fmt_query(query, 3600) == formatted_query
+        assert (
+            CloudMonitoringMqlBackend.enrich_query_with_time_horizon_and_period(
+                timestamp, window, query
+            )
+            == enriched_query
+        )
