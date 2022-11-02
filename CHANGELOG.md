@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.3.3](https://github.com/google/slo-generator/compare/v2.3.2...v2.3.3) (2022-11-02)
+
+
+### Bug Fixes
+
+* compute the time horizon of MQL requests more accurately so they return the same results as MQF requests ([#290](https://github.com/google/slo-generator/issues/290)) ([41b814b](https://github.com/google/slo-generator/commit/41b814b6119f7a43b229317f8da0f4006c987656))
+
 ## [2.3.2](https://github.com/google/slo-generator/compare/v2.3.1...v2.3.2) (2022-10-29)
 
 
