@@ -111,7 +111,7 @@ class CloudMonitoringBackendABC(ABC):
             return NO_DATA, NO_DATA  # No timeseries.
 
         distribution_value = self.get_distribution_value_from_timeseries(series)
-        bucket_counts: list[int] = distribution_value.bucket_counts
+        bucket_counts: List[int] = distribution_value.bucket_counts
         valid_events_count: int = distribution_value.count
 
         # Explicit the exponential distribution result.
