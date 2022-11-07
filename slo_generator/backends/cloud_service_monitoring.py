@@ -61,7 +61,7 @@ class CloudServiceMonitoringBackend:
         self.client = client
         if client is None:
             self.client = ServiceMonitoringServiceClient()
-        self.parent = self.client.project_path(project_id)
+        self.parent = self.client.common_project_path(project_id)
         self.workspace_path = f"workspaces/{project_id}"
         self.project_path = f"projects/{project_id}"
 
@@ -209,9 +209,11 @@ class CloudServiceMonitoringBackend:
         service_json = self.build_service(slo_config)
         service_id = self.build_service_id(slo_config)
         service = self.client.create_service(
-            self.project_path,
-            service_json,
-            service_id=service_id,
+            request={
+                "parent": self.project_path,
+                "service": service_json,
+                "service_id": service_id,
+            }
         )
         LOGGER.info(
             f'Service "{service_id}" created successfully in Cloud '
@@ -231,7 +233,13 @@ class CloudServiceMonitoringBackend:
 
         # Look for API services in workspace matching our config.
         service_id = self.build_service_id(slo_config)
-        services = list(self.client.list_services(self.workspace_path))
+        services = list(
+            self.client.list_services(
+                request={
+                    "parent": self.workspace_path,
+                }
+            )
+        )
         matches = [
             service for service in services if service.name.split("/")[-1] == service_id
         ]
@@ -356,7 +364,11 @@ class CloudServiceMonitoringBackend:
         slo_id = self.build_slo_id(window, slo_config)
         parent = self.build_service_id(slo_config, full=True)
         slo = self.client.create_service_level_objective(
-            parent, slo_json, service_level_objective_id=slo_id
+            request={
+                "parent": parent,
+                "service_level_objective": slo_json,
+                "service_level_objective_id": slo_id,
+            }
         )
         return SSM.to_json(slo)
 
@@ -517,7 +529,13 @@ class CloudServiceMonitoringBackend:
         slo_id = self.build_slo_id(window, slo_config, full=True)
         LOGGER.warning(f"Updating SLO {slo_id} ...")
         slo_json["name"] = slo_id
-        return SSM.to_json(self.client.update_service_level_objective(slo_json))
+        return SSM.to_json(
+            self.client.update_service_level_objective(
+                request={
+                    "service_level_objective": slo_json,
+                }
+            )
+        )
 
     def list_slos(self, service_path: str) -> list:
         """List all SLOs from Cloud Service Monitoring API.
@@ -529,7 +547,11 @@ class CloudServiceMonitoringBackend:
         Returns:
             list: API response.
         """
-        slos = self.client.list_service_level_objectives(service_path)
+        slos = self.client.list_service_level_objectives(
+            request={
+                "parent": service_path,
+            }
+        )
         slos = list(slos)
         LOGGER.debug(f"{len(slos)} SLOs found in Cloud Service Monitoring API.")
         # LOGGER.debug(slos)
@@ -548,7 +570,11 @@ class CloudServiceMonitoringBackend:
         slo_path = self.build_slo_id(window, slo_config, full=True)
         LOGGER.info(f'Deleting SLO "{slo_path}"')
         try:
-            return self.client.delete_service_level_objective(slo_path)
+            return self.client.delete_service_level_objective(
+                request={
+                    "name": slo_path,
+                }
+            )
         except google.api_core.exceptions.NotFound:
             LOGGER.warning(
                 f'SLO "{slo_path}" does not exist in Service Monitoring API. '
@@ -700,7 +726,8 @@ class CloudServiceMonitoringBackend:
         Returns:
             dict: Response object serialized as JSON.
         """
-        return json.loads(MessageToJson(response))
+        # pylint: disable=protected-access
+        return json.loads(MessageToJson(response._pb))
 
 
 SSM = CloudServiceMonitoringBackend

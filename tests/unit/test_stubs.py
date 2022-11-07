@@ -292,7 +292,7 @@ class mock_ssm_client:
             dotize(slo) for slo in load_fixture("ssm_slos.json")
         ]
 
-    def project_path(self, project_id):
+    def common_project_path(self, project_id):
         return f"projects/{project_id}"
 
     def service_path(self, project_id, service_id):

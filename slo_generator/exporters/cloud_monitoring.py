@@ -17,8 +17,6 @@ Cloud Monitoring exporter class.
 """
 import logging
 
-import google.api_core.exceptions
-from google.api import metric_pb2 as ga_metric
 from google.cloud import monitoring_v3
 
 from .base import MetricsExporter
@@ -36,8 +34,7 @@ class CloudMonitoringExporter(MetricsExporter):
         self.client = monitoring_v3.MetricServiceClient()
 
     def export_metric(self, data: dict):
-        """Export metric to Cloud Monitoring. Create metric descriptor if
-        it doesn't exist.
+        """Export metric to Cloud Monitoring.
 
         Args:
             data (dict): Data to send to Cloud Monitoring.
@@ -45,8 +42,6 @@ class CloudMonitoringExporter(MetricsExporter):
         Returns:
             object: Cloud Monitoring API result.
         """
-        if not self.get_metric_descriptor(data):
-            self.create_metric_descriptor(data)
         self.create_timeseries(data)
 
     def create_timeseries(self, data: dict):
@@ -101,44 +96,3 @@ class CloudMonitoringExporter(MetricsExporter):
             f"{labels['slo_name']}-{labels['error_budget_policy_step_name']}"
         )
         # pylint: enable=E1101
-
-    def get_metric_descriptor(self, data: dict):
-        """Get Cloud Monitoring metric descriptor.
-
-        Args:
-            data (dict): Metric data.
-
-        Returns:
-            object: Metric descriptor (or None if not found).
-        """
-        project_id = data["project_id"]
-        metric_id = data["name"]
-        request = monitoring_v3.GetMetricDescriptorRequest(
-            name=f"projects/{project_id}/metricDescriptors/{metric_id}"
-        )
-        try:
-            return self.client.get_metric_descriptor(request)
-        except google.api_core.exceptions.NotFound:
-            return None
-
-    def create_metric_descriptor(self, data: dict):
-        """Create Cloud Monitoring metric descriptor.
-
-        Args:
-            data (dict): Metric data.
-
-        Returns:
-            object: Metric descriptor.
-        """
-        project = self.client.common_project_path(data["project_id"])
-        descriptor = ga_metric.MetricDescriptor()
-        descriptor.type = data["name"]
-        # pylint: disable=E1101
-        descriptor.metric_kind = ga_metric.MetricDescriptor.MetricKind.GAUGE
-        descriptor.value_type = ga_metric.MetricDescriptor.ValueType.DOUBLE
-        # pylint: enable=E1101
-        descriptor.description = data["description"]
-        descriptor = self.client.create_metric_descriptor(
-            name=project, metric_descriptor=descriptor
-        )
-        return descriptor
