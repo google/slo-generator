@@ -224,8 +224,9 @@ class CloudMonitoringBackend:
         """
         try:
             return timeseries[0].points[0].value.int64_value
-        except (IndexError, AttributeError) as exception:
-            LOGGER.debug(exception, exc_info=True)
+        #except (IndexError, AttributeError) as exception:
+        #    LOGGER.debug(exception, exc_info=True)
+        except:
             return NO_DATA  # no events in timeseries
 
     @staticmethod
