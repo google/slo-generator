@@ -26,6 +26,7 @@ import string
 import sys
 from collections import OrderedDict
 from pathlib import Path
+from typing import Optional
 
 import click
 from ruamel import yaml
@@ -584,7 +585,7 @@ class CustomDumper(yaml.RoundTripDumper):
     # HACK: insert blank lines between top-level objects
     # inspired by https://stackoverflow.com/a/44284819/3786245
     # pylint: disable=missing-function-docstring
-    def write_line_break(self, data: str = None):
+    def write_line_break(self, data: Optional[str] = None):
         super().write_line_break(data)
 
         if len(self.indents) == 1:
