@@ -29,6 +29,7 @@ from pathlib import Path
 
 import click
 from ruamel import yaml
+from Typing import Optional
 
 from slo_generator import utils
 from slo_generator.constants import (
@@ -584,7 +585,7 @@ class CustomDumper(yaml.RoundTripDumper):
     # HACK: insert blank lines between top-level objects
     # inspired by https://stackoverflow.com/a/44284819/3786245
     # pylint: disable=missing-function-docstring
-    def write_line_break(self, data: str = None):
+    def write_line_break(self, data: Optional[str] = None):
         super().write_line_break(data)
 
         if len(self.indents) == 1:
