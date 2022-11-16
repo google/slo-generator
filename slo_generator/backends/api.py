@@ -25,6 +25,8 @@ import pprint
 import json
 from retrying import retry
 import date_converter
+import google.auth.transport.requests
+import google.oauth2.id_token
 LOGGER = logging.getLogger(__name__)
 
 DEFAULT_DATE_FIELD = '@timestamp'
@@ -102,9 +104,10 @@ class APIClient:
         api_url (str):  API URL.
     """
 
-    def __init__(self, api_url):
+    def __init__(self, api_url , url_taget_audience):
         self.client = requests.Session()
         self.url = api_url.rstrip('/')
+        self.url_taget_audience = url_taget_audience
 
     @retry(retry_on_result=retry_http,
            wait_exponential_multiplier=1000,
@@ -112,6 +115,7 @@ class APIClient:
     def request(self,
                 method,
                 url,
+                url_taget_audience,
                 body=None,
                 ):
         """Request Dynatrace API.
@@ -127,11 +131,15 @@ class APIClient:
             obj: API response.
         """
         req = getattr(self.client, method)
+        auth_req = google.auth.transport.requests.Request()
+        target_audience = url_taget_audience
+        Bearer = google.oauth2.id_token.fetch_id_token(auth_req, target_audience)
         #LOGGER.debug(url)
         headers = {
             'Accept': 'application/json',
             'Content-Type': 'application/json',
             'User-Agent': 'slo-generator',
+            'Authorization': 'Bearer ' + Bearer
         }
 
         if method in ['put', 'post']:
