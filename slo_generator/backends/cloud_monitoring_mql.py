@@ -46,7 +46,7 @@ class CloudMonitoringMqlBackend:
             if omitted.
     """
 
-    def __init__(self, project_id: str, client: QueryServiceClient = None):
+    def __init__(self, project_id: str, client=None):
         self.client = client
         if client is None:
             self.client = QueryServiceClient()
