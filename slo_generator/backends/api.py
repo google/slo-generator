@@ -39,10 +39,10 @@ class ApiBackend:
         es_config (dict): ES client configuration.
     """
 
-    def __init__(self, client=None, api_url=None, **es_config):
+    def __init__(self, client=None, api_url=None, url_target_audience=None, **es_config):
         self.client = client
         if self.client is None:
-            self.client = APIClient(api_url)
+            self.client = APIClient(api_url,url_target_audience)
 
     def threshold_data_quality(self, timestamp, window, slo_config):
         """Query SLI value from a given PromQL expression.
@@ -104,10 +104,10 @@ class APIClient:
         api_url (str):  API URL.
     """
 
-    def __init__(self, api_url , url_taget_audience):
+    def __init__(self, api_url , url_target_audience):
         self.client = requests.Session()
         self.url = api_url.rstrip('/')
-        self.url_taget_audience = url_taget_audience
+        self.url_taget_audience = url_target_audience
 
     @retry(retry_on_result=retry_http,
            wait_exponential_multiplier=1000,
@@ -115,7 +115,7 @@ class APIClient:
     def request(self,
                 method,
                 url,
-                url_taget_audience,
+                url_target_audience,
                 body=None,
                 ):
         """Request Dynatrace API.
@@ -132,7 +132,7 @@ class APIClient:
         """
         req = getattr(self.client, method)
         auth_req = google.auth.transport.requests.Request()
-        target_audience = url_taget_audience
+        target_audience = url_target_audience
         Bearer = google.oauth2.id_token.fetch_id_token(auth_req, target_audience)
         #LOGGER.debug(url)
         headers = {
