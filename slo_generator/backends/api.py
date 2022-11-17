@@ -57,12 +57,12 @@ class ApiBackend:
         """
         conf = slo_config['spec']
         measurement = conf['service_level_indicator']
-        dataScopeDateTimeBegin = APIClient.transform_timestamp(timestamp-3600)
+        dataScopeDateTimeBegin = APIClient.transform_timestamp(timestamp-window)
         dataScopeDateTimeEnd = APIClient.transform_timestamp(timestamp)
         metricId = measurement['metric_id']
         threshold = measurement['threshold']
         good_below_threshold = measurement.get('good_below_threshold', True)
-        response = self.query(start=dataScopeDateTimeBegin, end=dataScopeDateTimeEnd, metric=metricId, url=self.client.url)
+        response = self.query(start=dataScopeDateTimeBegin, end=dataScopeDateTimeEnd, metric=metricId, url=self.client.url, url_target_audience=self.client.url_target_audience)
         return APIClient.count_threshold(response,
                                                 threshold,
                                                 good_below_threshold)
@@ -71,7 +71,8 @@ class ApiBackend:
               start,
               end,
               metric,
-              url):
+              url,
+              url_target_audience):
         """Query Graphite Metrics V2.
         Args:
             start (int): Start timestamp (in milliseconds).
@@ -81,7 +82,7 @@ class ApiBackend:
         """
         url = f'{url}' + '?metricId=' + metric + "&dataScopeDateTimeBegin=" + start + "&dataScopeDateTimeEnd=" + end
         LOGGER.debug(f"parameter{pprint.pformat(url)}")
-        return self.client.request('get', url)
+        return self.client.request('get', url,url_target_audience)
 
 def retry_http(response):
     """Retry on specific HTTP errors:
@@ -123,7 +124,7 @@ class APIClient:
             method (str): Requests method between ['post', 'put', 'get'].
             endpoint (str): API endpoint.
             name (str): API resource name.
-            version (str): API version. Default: v1.
+            version (str): API version. Default: v1.url_target_audience
             post_data (dict): JSON data.
             key (str): Key to extract data from JSON response.
             params (dict): Params to send with request.
