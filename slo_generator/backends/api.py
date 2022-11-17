@@ -153,7 +153,7 @@ class APIClient:
             json_response = APIClient.to_json(response)
             items = json_response["items"]
             while (json_response["items"][-1]["processingDateTime"] >= start ):
-                url_next_page = f'{url}' + '?metricId=' + metric + "&pageToken=" + json_response["nextPageToken"]
+                url_next_page = f'{url}' + '?metricId=' + metric + "&pageToken=" + json_response["nextPageToken"] + "&maxResults=250"
                 response = requests.get(url_next_page, headers=headers, verify=True)
                 json_response = APIClient.to_json(response)
                 for item in json_response ["items"] :
