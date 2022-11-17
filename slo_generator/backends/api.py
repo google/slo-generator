@@ -108,7 +108,7 @@ class APIClient:
     def __init__(self, api_url , url_target_audience):
         self.client = requests.Session()
         self.url = api_url.rstrip('/')
-        self.url_taget_audience = url_target_audience
+        self.url_target_audience = url_target_audience
 
     @retry(retry_on_result=retry_http,
            wait_exponential_multiplier=1000,
