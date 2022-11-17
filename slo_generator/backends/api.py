@@ -82,7 +82,7 @@ class ApiBackend:
         """
         
         #
-        return self.client.request('get', url,url_target_audience, start, end, metric)
+        return self.client.request('get', url, url_target_audience, start, end, metric)
 
 def retry_http(response):
     """Retry on specific HTTP errors:
@@ -154,7 +154,7 @@ class APIClient:
             LOGGER.debug(f'Response: {response}')
             json_response = APIClient.to_json(response)
             items = json_response["items"]
-            if (len(items) != 0) :
+            if (items != []) :
                 while (json_response["items"][-1]["processingDateTime"] >= start ):
                     url_next_page = f'{url}' + '?metricId=' + metric + "&pageToken=" + json_response["nextPageToken"] + "&maxResults=250"
                     response = requests.get(url_next_page, headers=headers, verify=True)
