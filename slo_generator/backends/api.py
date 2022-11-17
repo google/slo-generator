@@ -192,7 +192,7 @@ class APIClient:
                     datapoints = response["items"][target]["metricOutcomeValue"]
                     #LOGGER.debug({pprint.pformat(datapoints)})
                     #print (datapoints)
-                    if datapoints is None or datapoints >= int(threshold):
+                    if datapoints is None or datapoints >= float(threshold):
                         #LOGGER.debug("below")
                         below.append(datapoints)                        
                     else:
