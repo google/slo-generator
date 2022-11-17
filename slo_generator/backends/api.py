@@ -80,9 +80,9 @@ class ApiBackend:
         Returns:
             dict: Graphite API response.
         """
-        url = f'{url}' + '?metricId=' + metric + "&dataScopeDateTimeBegin=" + start + "&dataScopeDateTimeEnd=" + end
+        url = f'{url}' + '?metricId=' + metric + "&dataScopeDateTimeBegin=" + start + "&dataScopeDateTimeEnd=" + end + "&maxResults=250"
         LOGGER.debug(f"parameter{pprint.pformat(url)}")
-        return self.client.request('get', url,url_target_audience)
+        return self.client.request('get', url,url_target_audience, start, metric)
 
 def retry_http(response):
     """Retry on specific HTTP errors:
@@ -117,6 +117,8 @@ class APIClient:
                 method,
                 url,
                 url_target_audience,
+                start,
+                metric,
                 body=None,
                 ):
         """Request Dynatrace API.
@@ -144,12 +146,21 @@ class APIClient:
         }
 
         if method in ['put', 'post']:
-            response = req(url, headers=headers, verify=False, json=body)
+            response = req(url, headers=headers, verify=False, json=body)           
         else:
             response = req(url, headers=headers, verify=True)
             LOGGER.debug(f'Response: {response}')
-        data = APIClient.to_json(response)
-        return data
+            json_response = APIClient.to_json(response)
+            items = json_response["items"]
+            while (json_response["items"][-1]["processingDateTime"] >= start ):
+                url_next_page = f'{url}' + '?metricId=' + metric + "&pageToken=" + json_response["nextPageToken"]
+                response = requests.get(url_next_page, headers=headers, verify=True)
+                json_response = APIClient.to_json(response)
+                for item in json_response ["items"] :
+                    if (item["processingDateTime"] <= start) :
+                        items.append(item)
+            
+        return items
 
 
     def transform_timestamp(timestamp):
@@ -180,7 +191,7 @@ class APIClient:
             tuple: Number of good events, Number of bad events.
         """
         try:
-            x = len(response["items"])
+            x = len(response)
             LOGGER.debug(f"Response{response}")
             LOGGER.debug(f"Number Response {(x)}")
             target = 0
@@ -189,7 +200,7 @@ class APIClient:
             if x!= 0 :
                 while (target < x):
                     #LOGGER.debug({pprint.pformat(response[target])})
-                    datapoints = response["items"][target]["metricOutcomeValue"]
+                    datapoints = response[target]["metricOutcomeValue"]
                     #LOGGER.debug({pprint.pformat(datapoints)})
                     #print (datapoints)
                     if datapoints is None or datapoints >= float(threshold):
