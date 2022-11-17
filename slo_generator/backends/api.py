@@ -80,9 +80,9 @@ class ApiBackend:
         Returns:
             dict: Graphite API response.
         """
-        url = f'{url}' + '?metricId=' + metric + "&dataScopeDateTimeBegin=" + start + "&dataScopeDateTimeEnd=" + end + "&maxResults=250"
-        LOGGER.debug(f"parameter{pprint.pformat(url)}")
-        return self.client.request('get', url,url_target_audience, start, metric)
+        
+        #
+        return self.client.request('get', url,url_target_audience, start, end, metric)
 
 def retry_http(response):
     """Retry on specific HTTP errors:
@@ -118,6 +118,7 @@ class APIClient:
                 url,
                 url_target_audience,
                 start,
+                end,
                 metric,
                 body=None,
                 ):
@@ -144,11 +145,12 @@ class APIClient:
             'User-Agent': 'slo-generator',
             'Authorization': 'Bearer ' + Bearer
         }
-
+        main_url = f'{url}' + '?metricId=' + metric + "&dataScopeDateTimeBegin=" + start + "&dataScopeDateTimeEnd=" + end + "&maxResults=250"
+        LOGGER.debug(f"parameter{pprint.pformat(url)}")
         if method in ['put', 'post']:
-            response = req(url, headers=headers, verify=False, json=body)           
+            response = req(main_url, headers=headers, verify=False, json=body)           
         else:
-            response = req(url, headers=headers, verify=True)
+            response = req(main_url, headers=headers, verify=True)
             LOGGER.debug(f'Response: {response}')
             json_response = APIClient.to_json(response)
             items = json_response["items"]
