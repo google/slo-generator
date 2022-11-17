@@ -63,9 +63,9 @@ class ApiBackend:
         threshold = measurement['threshold']
         good_below_threshold = measurement.get('good_below_threshold', True)
         response = self.query(start=dataScopeDateTimeBegin, end=dataScopeDateTimeEnd, metric=metricId, url=self.client.url, url_target_audience=self.client.url_target_audience)
-        return APIClient.count_threshold(response,
+        return str(APIClient.count_threshold(response,
                                                 threshold,
-                                                good_below_threshold)
+                                                good_below_threshold))
 
     def query(self,
               start,
@@ -192,7 +192,7 @@ class APIClient:
                     datapoints = response["items"][target]["metricOutcomeValue"]
                     #LOGGER.debug({pprint.pformat(datapoints)})
                     #print (datapoints)
-                    if datapoints is None or datapoints >= threshold:
+                    if datapoints is None or datapoints >= int(threshold):
                         #LOGGER.debug("below")
                         below.append(datapoints)                        
                     else:
@@ -203,17 +203,10 @@ class APIClient:
                     return len(below), len(above)
                 return len(above), len(below)
             else :
-                if good_below_threshold:
-                    LOGGER.warning("Couldn't find any values in timeseries response")
-                    return 0, 1
                 LOGGER.warning("Couldn't find any values in timeseries response")
-                #return NO_DATA, NO_DATA  # no events in timeseries
-                return 1, 0
+                return "NO_DATA", "NO_DATA"  # no events in timeseries
+
         except (IndexError, KeyError, ZeroDivisionError) as exception:
             LOGGER.debug(exception)
-            if good_below_threshold:
-                LOGGER.warning("Couldn't find any values in timeseries response")
-                return 0, 1
             LOGGER.warning("Couldn't find any values in timeseries response")
-            #return NO_DATA, NO_DATA  # no events in timeseries
-            return 1, 0
+            return "NO_DATA", "NO_DATA"  # no events in timeseries
