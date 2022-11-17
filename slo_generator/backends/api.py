@@ -30,7 +30,7 @@ import google.oauth2.id_token
 LOGGER = logging.getLogger(__name__)
 
 DEFAULT_DATE_FIELD = '@timestamp'
-
+from slo_generator.constants import NO_DATA
 class ApiBackend:
     """Backend for querying metrics from ElasticSearch.
 
@@ -63,9 +63,9 @@ class ApiBackend:
         threshold = measurement['threshold']
         good_below_threshold = measurement.get('good_below_threshold', True)
         response = self.query(start=dataScopeDateTimeBegin, end=dataScopeDateTimeEnd, metric=metricId, url=self.client.url, url_target_audience=self.client.url_target_audience)
-        return str(APIClient.count_threshold(response,
+        return APIClient.count_threshold(response,
                                                 threshold,
-                                                good_below_threshold))
+                                                good_below_threshold)
 
     def query(self,
               start,
@@ -204,9 +204,9 @@ class APIClient:
                 return len(above), len(below)
             else :
                 LOGGER.warning("Couldn't find any values in timeseries response")
-                return "NO_DATA", "NO_DATA"  # no events in timeseries
+                return NO_DATA, NO_DATA  # no events in timeseries
 
         except (IndexError, KeyError, ZeroDivisionError) as exception:
             LOGGER.debug(exception)
             LOGGER.warning("Couldn't find any values in timeseries response")
-            return "NO_DATA", "NO_DATA"  # no events in timeseries
+            return NO_DATA, NO_DATA  # no events in timeseries
