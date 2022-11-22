@@ -82,6 +82,7 @@ class ApiBackend:
         """
         
         #
+
         return self.client.request('get', url, url_target_audience, start, end, metric)
 
 def retry_http(response):
@@ -153,17 +154,17 @@ class APIClient:
             response = req(main_url, headers=headers, verify=True)
             LOGGER.debug(f'Response: {response}')
             json_response = APIClient.to_json(response)
-            items = json_response["items"]
-            if (items != []) :
+            data = json_response
+            #items = json_response["items"]
+            if (json_response["items"] != []) :
                 while (json_response["items"][-1]["processingDateTime"] >= start ):
-                    url_next_page = f'{url}' + '?metricId=' + metric + "&pageToken=" + json_response["nextPageToken"] + "&maxResults=250"
+                    url_next_page = f'{url}' + '?metricId=' + metric + "&pageToken=" + json_response["nextPageToken"] + "&dataScopeDateTimeBegin=" + start + "&dataScopeDateTimeEnd=" + end  + "&maxResults=250"
                     response = requests.get(url_next_page, headers=headers, verify=True)
                     json_response = APIClient.to_json(response)
                     for item in json_response ["items"] :
-                        if (item["processingDateTime"] <= start) :
-                            items.append(item)
+                        data["items"].append(item)
             
-        return items
+        return data
 
 
     def transform_timestamp(timestamp):
@@ -194,8 +195,8 @@ class APIClient:
             tuple: Number of good events, Number of bad events.
         """
         try:
-            x = len(response)
-            LOGGER.debug(f"Response{response}")
+            x = len(response["items"])
+            #LOGGER.debug(f"Response{response['items']}")
             LOGGER.debug(f"Number Response {(x)}")
             target = 0
             below = []
@@ -203,7 +204,7 @@ class APIClient:
             if x!= 0 :
                 while (target < x):
                     #LOGGER.debug({pprint.pformat(response[target])})
-                    datapoints = response[target]["metricOutcomeValue"]
+                    datapoints = response["items"][target]["metricOutcomeValue"]
                     #LOGGER.debug({pprint.pformat(datapoints)})
                     #print (datapoints)
                     if datapoints is None or datapoints >= float(threshold):
