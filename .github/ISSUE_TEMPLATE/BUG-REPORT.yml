@@ -1,0 +1,72 @@
+name: "🐛 Bug Report"
+description: File a bug report.
+title: "🐛 [BUG] - <title>"
+labels: [
+  "bug",
+  "triage",
+]
+assignees:
+  - lvaylet
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this bug report!
+  - type: input
+    id: slo-generator-version
+    attributes:
+      label: SLO Generator Version
+      description: Which version of SLO Generator are you using?
+      placeholder: ex. v1.5.0, v2.3.3
+    validations:
+      required: true
+  - type: input
+    id: python-version
+    attributes:
+      label: Python Version
+      description: Which version of Python are you using?
+      placeholder: ex. 2.7, 3.10
+    validations:
+      required: true
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: Please provide as many details as possible, including SLO definitions and shared config. Ideally reproduction steps too, so we can troubleshoot the issue on our own machines.
+      placeholder: Tell us what you see!
+    validations:
+      required: true
+  - type: textarea
+    id: what-did-you-expect
+    attributes:
+      label: What did you expect?
+      description: What did you expect to happen?
+      placeholder: Tell us what you expected!
+    validations:
+      required: true
+  - type: textarea
+    id: screenshot
+    attributes:
+      label: "Screenshots"
+      description: If applicable, add screenshots to help explain your problem.
+      value: |
+        ![DESCRIPTION](LINK.png)
+      render: bash
+    validations:
+      required: false
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant log output
+      description: Please copy and paste any relevant log output. This will be automatically formatted into code, so no need for backticks.
+      render: shell
+    validations:
+      required: false
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Code of Conduct
+      description: By submitting this issue, you agree to follow our [Code of Conduct](https://github.com/google/slo-generator/blob/master/CODE_OF_CONDUCT.md).
+      options:
+        - label: I agree to follow this project's Code of Conduct
+          required: true
