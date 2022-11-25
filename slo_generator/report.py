@@ -67,7 +67,6 @@ class SLOReport:
     # Global (from error budget policy)
     timestamp: int
     timestamp_human: str
-    offset: int = 0
     window: int
     alert: bool
 
@@ -88,6 +87,9 @@ class SLOReport:
 
     # Data validation
     errors: List[str] = field(default_factory=list)
+
+    # Global (from error budget policy)
+    offset: int = 0
 
     # pylint: disable=too-many-arguments
     def __init__(self, config, backend, step, timestamp, client=None, delete=False):
