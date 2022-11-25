@@ -223,8 +223,8 @@ class SLOReport:
 
         # Set offset from class attribute if it exists in the class, otherwise
         # keep the value defined in config.
-        self.offset = max(cls.getattr('DEFAULT_OFFSET', 0), self.offset)
-        LOGGER.debug(f'{info} | Running with offset {self.offset}s')
+        self.offset = max(cls.getattr("DEFAULT_OFFSET", 0), self.offset)
+        LOGGER.debug(f"{self.info} | Running with offset {self.offset}s")
 
         # Substract offset from start timestamp
         self.timestamp = self.timestamp - self.offset
