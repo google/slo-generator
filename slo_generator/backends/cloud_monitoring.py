@@ -201,13 +201,13 @@ class CloudMonitoringBackend:
         aggregation = CM.get_aggregation(
             window, aligner=aligner, reducer=reducer, group_by=group_by
         )
-        request = monitoring_v3.ListTimeSeriesRequest(timeout="180.0")
+        request = monitoring_v3.ListTimeSeriesRequest()
         request.name = self.parent
         request.filter = filter
         request.interval = measurement_window
         request.view = monitoring_v3.ListTimeSeriesRequest.TimeSeriesView.FULL
         request.aggregation = aggregation
-        timeseries = self.client.list_time_series(request)
+        timeseries = self.client.list_time_series(request,timeout="180.0")
         LOGGER.debug(pprint.pformat(timeseries))
         return timeseries
 
