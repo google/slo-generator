@@ -201,7 +201,7 @@ class CloudMonitoringBackend:
         aggregation = CM.get_aggregation(
             window, aligner=aligner, reducer=reducer, group_by=group_by
         )
-        request = monitoring_v3.ListTimeSeriesRequest()
+        request = monitoring_v3.ListTimeSeriesRequest(timeout="180.0")
         request.name = self.parent
         request.filter = filter
         request.interval = measurement_window
