@@ -207,7 +207,8 @@ class CloudMonitoringBackend:
         request.interval = measurement_window
         request.view = monitoring_v3.ListTimeSeriesRequest.TimeSeriesView.FULL
         request.aggregation = aggregation
-        timeseries = self.client.list_time_series(request,timeout=180.0)
+        request.timeout=180.0
+        timeseries = self.client.list_time_series(request)
         LOGGER.debug(pprint.pformat(timeseries))
         return timeseries
 
