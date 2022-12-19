@@ -161,7 +161,7 @@ class ElasticsearchBackend:
         if "filter" in body["query"]["bool"]:
             body["query"]["bool"]["filter"]["range"] = range_query
         else:
-            body["query"]["bool"] = {"filter": {"range": range_query}}
+            body["query"]["bool"]["filter"] = {"range": range_query}
 
         return body
 
