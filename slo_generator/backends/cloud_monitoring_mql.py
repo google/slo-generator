@@ -55,10 +55,7 @@ class CloudMonitoringMqlBackend:
         )
 
     def good_bad_ratio(
-        self,
-        timestamp: int,
-        window: int,
-        slo_config: dict,
+        self, timestamp: int, window: int, slo_config: dict
     ) -> Tuple[int, int]:
         """Query two timeseries, one containing 'good' events, one containing
         'bad' events.
@@ -99,10 +96,7 @@ class CloudMonitoringMqlBackend:
 
     # pylint: disable=too-many-locals,disable=unused-argument
     def distribution_cut(
-        self,
-        timestamp: int,
-        window: int,
-        slo_config: dict,
+        self, timestamp: int, window: int, slo_config: dict
     ) -> Tuple[int, int]:
         """Query one timeseries of type 'exponential'.
 
@@ -224,9 +218,7 @@ class CloudMonitoringMqlBackend:
 
     @staticmethod
     def enrich_query_with_time_horizon_and_period(
-        timestamp: float,
-        window: int,
-        query: str,
+        timestamp: float, window: int, query: str
     ) -> str:
         """Enrich MQL query with time period and horizon.
         Args:

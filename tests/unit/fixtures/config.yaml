@@ -2,6 +2,11 @@
 backends:
   cloud_monitoring:
     project_id: ${PROJECT_ID}
+  splunk:
+    host: 'localhost'
+    port: 8089
+    user: 'splunk'
+    password: 'splunk'
 exporters:
   cloud_monitoring:
     project_id: ${PROJECT_ID}
