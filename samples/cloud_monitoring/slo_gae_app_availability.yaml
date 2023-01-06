@@ -12,6 +12,7 @@ spec:
   method: good_bad_ratio
   exporters:
   - cloud_monitoring
+  - bigquery
   service_level_indicator:
     filter_good: >
       project=${GAE_PROJECT_ID}
