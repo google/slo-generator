@@ -65,6 +65,11 @@ def compute(
     error_budget_policy = utils.get_error_budget_policy(config, spec)
     backend = utils.get_backend(config, spec)
     reports = []
+    badEvents = {}
+    reportsWindow = {}
+    reportsWindowName = {}
+    lastWindow = 0
+    lastData = {}
     for step in error_budget_policy["steps"]:
         report = SLOReport(
             config=slo_config,
@@ -73,8 +78,11 @@ def compute(
             timestamp=timestamp,
             client=client,
             delete=delete,
-        )
+            lastData=lastData,
+            lastWindow=lastWindow)
+
         json_report = report.to_json()
+        lastData = report.getLastData()
 
         if not report.valid:
             LOGGER.error(report)
@@ -84,11 +92,40 @@ def compute(
         if delete:  # delete mode is enabled
             continue
 
+        window = report.getWindow()
+        lastWindow = window
+        while window in badEvents:
+            window=window+1
+
+        reportsWindow[window] = json_report
+        badEvents[window] = report.getBadEventsCount()
+        reportsWindowName[window] = report.getWindowName()
+
         LOGGER.info(report)
-        if exporters is not None and do_export is True:
-            errors = export(json_report, exporters)
-            json_report["errors"].extend(errors)
         reports.append(json_report)
+
+    lastBad = -1
+    lastKey = -1
+    for key in sorted(badEvents):
+        if lastBad < 0:
+            lastBad = badEvents[key]
+            lastKey = key
+            continue
+        if lastBad > badEvents[key]:
+            info = ""
+            if "slo_id" in reportsWindow[key]['metadata']['labels']:
+                info = "slo_id "+str(reportsWindow[key]['metadata']['labels']['slo_id'])
+            LOGGER.warn(f"{info} | Bad events problem - Window {reportsWindowName[lastKey]} ({badEvents[lastKey]}) has more bad events than {reportsWindowName[key]} ({badEvents[key]})")
+            del reportsWindow[lastKey]
+        lastBad = badEvents[key]
+        lastKey = key
+
+    for k,v in reportsWindow.items():
+        if exporters is not None and do_export is True:
+            errors = export(v, exporters)
+            v['errors'].extend(errors)
+
+
     end = time.time()
     run_duration = round(end - start, 1)
     LOGGER.debug(pprint.pformat(reports))

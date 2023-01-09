@@ -88,8 +88,11 @@ class SLOReport:
     # Data validation
     errors: List[str] = field(default_factory=list)
 
+    # Last calculated window
+    lastData = {}
+
     # pylint: disable=too-many-arguments
-    def __init__(self, config, backend, step, timestamp, client=None, delete=False):
+    def __init__(self, config, backend, step, timestamp, client=None, delete=False, lastData=lastData, lastWindow=0):
 
         # Init dataclass fields from SLO config and Error Budget Policy
         spec = config["spec"]
@@ -113,8 +116,17 @@ class SLOReport:
         self.valid = True
         self.errors = []
 
-        # Get backend results
-        data = self.run_backend(config, backend, client=client, delete=delete)
+        # if last window same as before, reuse data
+        if lastWindow == step['window']:
+            data = lastData
+        # otherwise fetch from backend
+        else:
+            # Get backend results
+            data = self.run_backend(config, backend, client=client, delete=delete)
+
+        # save data for next window check
+        self.lastData = data
+
         if not self._validate(data):
             self.valid = False
             return
@@ -272,6 +284,18 @@ class SLOReport:
                 "valid": self.valid,
             }
         return asdict(self)
+
+    def getWindow(self):
+        return self.window
+
+    def getBadEventsCount(self):
+        return self.bad_events_count
+
+    def getWindowName(self):
+        return self.error_budget_policy_step_name
+
+    def getLastData(self):
+        return self.lastData
 
     # pylint: disable=too-many-return-statements
     def _validate(self, data) -> bool:
