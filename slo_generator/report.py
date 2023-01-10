@@ -100,7 +100,7 @@ class SLOReport:
         timestamp,
         client=None,
         delete=False,
-        lastdata=lastdata,
+        lastdata=None,
         lastwindow=0,
     ):
 

@@ -79,7 +79,7 @@ def compute(
             client=client,
             delete=delete,
             lastdata=lastdata,
-            lastwindow=lastwindow,
+            lastwindow=None,
         )
 
         json_report = report.to_json()
@@ -128,10 +128,10 @@ def compute(
         lastbad = badevents[key]
         lastkey = key
 
-    for k, v in reportswindow.items():
+    for key, value in reportswindow.items():
         if exporters is not None and do_export is True:
-            errors = export(v, exporters)
-            v["errors"].extend(errors)
+            errors = export(value, exporters)
+            reportswindow[key]["errors"].extend(errors)
 
     end = time.time()
     run_duration = round(end - start, 1)
