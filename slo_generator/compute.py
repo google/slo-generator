@@ -105,28 +105,28 @@ def compute(
         LOGGER.info(report)
         reports.append(json_report)
 
-    lastBad = -1
-    lastKey = -1
+    lastbad = -1
+    lastkey = -1
     for key in sorted(badevents):
-        if lastBad < 0:
-            lastBad = badevents[key]
-            lastKey = key
+        if lastbad < 0:
+            lastbad = badevents[key]
+            lastkey = key
             continue
-        if lastBad > badevents[key]:
+        if lastbad > badevents[key]:
             info = ""
             if "slo_id" in reportswindow[key]["metadata"]["labels"]:
                 info = "slo_id " + str(
                     reportswindow[key]["metadata"]["labels"]["slo_id"]
                 )
             msg = f"{info} | "
-            msg += f"Window {reportswindowname[lastKey]} ({badevents[lastKey]}) "
+            msg += f"Window {reportswindowname[lastkey]} ({badevents[lastkey]}) "
             msg += (
-                "has more bad events than {reportsWindowName[key]} ({badEvents[key]})"
+                "has more bad events than {reportswindowname[key]} ({badevents[key]})"
             )
             LOGGER.warn(msg)
-            del reportswindow[lastKey]
-        lastBad = badevents[key]
-        lastKey = key
+            del reportswindow[lastkey]
+        lastbad = badevents[key]
+        lastkey = key
 
     for k, v in reportswindow.items():
         if exporters is not None and do_export is True:
