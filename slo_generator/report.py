@@ -101,7 +101,7 @@ class SLOReport:
         client=None,
         delete=False,
         lastdata=lastdata,
-        lastWindow=0,
+        lastwindow=0,
     ):
 
         # Init dataclass fields from SLO config and Error Budget Policy
@@ -127,7 +127,7 @@ class SLOReport:
         self.errors = []
 
         # if last window same as before, reuse data
-        if lastWindow == step["window"]:
+        if lastwindow == step["window"]:
             data = lastdata
         # otherwise fetch from backend
         else:
@@ -305,7 +305,7 @@ class SLOReport:
         return self.error_budget_policy_step_name
 
     def get_lastdata(self):
-        return self.lastData
+        return self.lastdata
 
     # pylint: disable=too-many-return-statements
     def _validate(self, data) -> bool:
