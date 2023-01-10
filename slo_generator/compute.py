@@ -79,7 +79,7 @@ def compute(
             client=client,
             delete=delete,
             lastdata=lastdata,
-            lastwindow=None,
+            lastwindow=lastwindow,
         )
 
         json_report = report.to_json()
