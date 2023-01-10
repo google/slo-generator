@@ -107,28 +107,28 @@ def compute(
 
     lastBad = -1
     lastKey = -1
-    for key in sorted(badEvents):
+    for key in sorted(badevents):
         if lastBad < 0:
-            lastBad = badEvents[key]
+            lastBad = badevents[key]
             lastKey = key
             continue
-        if lastBad > badEvents[key]:
+        if lastBad > badevents[key]:
             info = ""
-            if "slo_id" in reportsWindow[key]["metadata"]["labels"]:
+            if "slo_id" in reportswindow[key]["metadata"]["labels"]:
                 info = "slo_id " + str(
-                    reportsWindow[key]["metadata"]["labels"]["slo_id"]
+                    reportswindow[key]["metadata"]["labels"]["slo_id"]
                 )
             msg = f"{info} | "
-            msg += f"Window {reportsWindowName[lastKey]} ({badEvents[lastKey]}) "
+            msg += f"Window {reportswindowname[lastKey]} ({badevents[lastKey]}) "
             msg += (
                 "has more bad events than {reportsWindowName[key]} ({badEvents[key]})"
             )
             LOGGER.warn(msg)
-            del reportsWindow[lastKey]
-        lastBad = badEvents[key]
+            del reportswindow[lastKey]
+        lastBad = badevents[key]
         lastKey = key
 
-    for k, v in reportsWindow.items():
+    for k, v in reportswindow.items():
         if exporters is not None and do_export is True:
             errors = export(v, exporters)
             v["errors"].extend(errors)
