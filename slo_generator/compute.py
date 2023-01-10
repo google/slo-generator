@@ -118,9 +118,10 @@ def compute(
                 info = "slo_id " + str(
                     reportsWindow[key]["metadata"]["labels"]["slo_id"]
                 )
-            LOGGER.warn(
-                f"{info} | Bad events problem - Window {reportsWindowName[lastKey]} ({badEvents[lastKey]}) has more bad events than {reportsWindowName[key]} ({badEvents[key]})"
-            )
+            msg = f"{info}"
+            msg += f" | Bad events problem - Window {reportsWindowName[lastKey]} ({badEvents[lastKey]}) "
+            msg += "has more bad events than {reportsWindowName[key]} ({badEvents[key]})"
+            LOGGER.warn(msg)
             del reportsWindow[lastKey]
         lastBad = badEvents[key]
         lastKey = key
