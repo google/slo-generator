@@ -118,8 +118,7 @@ def compute(
                 info = "slo_id " + str(
                     reportsWindow[key]["metadata"]["labels"]["slo_id"]
                 )
-            msg = f"{info}"
-            msg += f" | "
+            msg = f"{info} | "
             msg += f"Window {reportsWindowName[lastKey]} ({badEvents[lastKey]}) "
             msg += (
                 "has more bad events than {reportsWindowName[key]} ({badEvents[key]})"
