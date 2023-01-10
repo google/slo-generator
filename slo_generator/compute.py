@@ -79,7 +79,8 @@ def compute(
             client=client,
             delete=delete,
             lastData=lastData,
-            lastWindow=lastWindow)
+            lastWindow=lastWindow,
+        )
 
         json_report = report.to_json()
         lastData = report.getLastData()
@@ -95,7 +96,7 @@ def compute(
         window = report.getWindow()
         lastWindow = window
         while window in badEvents:
-            window=window+1
+            window = window + 1
 
         reportsWindow[window] = json_report
         badEvents[window] = report.getBadEventsCount()
@@ -113,18 +114,21 @@ def compute(
             continue
         if lastBad > badEvents[key]:
             info = ""
-            if "slo_id" in reportsWindow[key]['metadata']['labels']:
-                info = "slo_id "+str(reportsWindow[key]['metadata']['labels']['slo_id'])
-            LOGGER.warn(f"{info} | Bad events problem - Window {reportsWindowName[lastKey]} ({badEvents[lastKey]}) has more bad events than {reportsWindowName[key]} ({badEvents[key]})")
+            if "slo_id" in reportsWindow[key]["metadata"]["labels"]:
+                info = "slo_id " + str(
+                    reportsWindow[key]["metadata"]["labels"]["slo_id"]
+                )
+            LOGGER.warn(
+                f"{info} | Bad events problem - Window {reportsWindowName[lastKey]} ({badEvents[lastKey]}) has more bad events than {reportsWindowName[key]} ({badEvents[key]})"
+            )
             del reportsWindow[lastKey]
         lastBad = badEvents[key]
         lastKey = key
 
-    for k,v in reportsWindow.items():
+    for k, v in reportsWindow.items():
         if exporters is not None and do_export is True:
             errors = export(v, exporters)
-            v['errors'].extend(errors)
-
+            v["errors"].extend(errors)
 
     end = time.time()
     run_duration = round(end - start, 1)

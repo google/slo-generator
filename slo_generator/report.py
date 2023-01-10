@@ -92,7 +92,17 @@ class SLOReport:
     lastData = {}
 
     # pylint: disable=too-many-arguments
-    def __init__(self, config, backend, step, timestamp, client=None, delete=False, lastData=lastData, lastWindow=0):
+    def __init__(
+        self,
+        config,
+        backend,
+        step,
+        timestamp,
+        client=None,
+        delete=False,
+        lastData=lastData,
+        lastWindow=0,
+    ):
 
         # Init dataclass fields from SLO config and Error Budget Policy
         spec = config["spec"]
@@ -117,7 +127,7 @@ class SLOReport:
         self.errors = []
 
         # if last window same as before, reuse data
-        if lastWindow == step['window']:
+        if lastWindow == step["window"]:
             data = lastData
         # otherwise fetch from backend
         else:
