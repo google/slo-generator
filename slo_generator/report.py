@@ -89,7 +89,7 @@ class SLOReport:
     errors: List[str] = field(default_factory=list)
 
     # Last calculated window
-    lastData = {}
+    lastdata = {}
 
     # pylint: disable=too-many-arguments
     def __init__(
@@ -100,7 +100,7 @@ class SLOReport:
         timestamp,
         client=None,
         delete=False,
-        lastData=lastData,
+        lastata=lastata,
         lastWindow=0,
     ):
 
@@ -128,14 +128,14 @@ class SLOReport:
 
         # if last window same as before, reuse data
         if lastWindow == step["window"]:
-            data = lastData
+            data = lastdata
         # otherwise fetch from backend
         else:
             # Get backend results
             data = self.run_backend(config, backend, client=client, delete=delete)
 
         # save data for next window check
-        self.lastData = data
+        self.lastdata = data
 
         if not self._validate(data):
             self.valid = False
@@ -295,16 +295,16 @@ class SLOReport:
             }
         return asdict(self)
 
-    def getWindow(self):
+    def get_window(self):
         return self.window
 
-    def getBadEventsCount(self):
+    def get_badeventscount(self):
         return self.bad_events_count
 
-    def getWindowName(self):
+    def get_windowname(self):
         return self.error_budget_policy_step_name
 
-    def getLastData(self):
+    def get_lastdata(self):
         return self.lastData
 
     # pylint: disable=too-many-return-statements

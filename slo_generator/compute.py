@@ -65,11 +65,11 @@ def compute(
     error_budget_policy = utils.get_error_budget_policy(config, spec)
     backend = utils.get_backend(config, spec)
     reports = []
-    badEvents = {}
-    reportsWindow = {}
-    reportsWindowName = {}
-    lastWindow = 0
-    lastData = {}
+    badevents = {}
+    reportswindow = {}
+    reportswindowname = {}
+    lastwindow = 0
+    lastdata = {}
     for step in error_budget_policy["steps"]:
         report = SLOReport(
             config=slo_config,
@@ -78,12 +78,12 @@ def compute(
             timestamp=timestamp,
             client=client,
             delete=delete,
-            lastData=lastData,
-            lastWindow=lastWindow,
+            lastdata=lastdata,
+            lastwindow=lastwindow,
         )
 
         json_report = report.to_json()
-        lastData = report.getLastData()
+        lastdata = report.get_lastdata()
 
         if not report.valid:
             LOGGER.error(report)
@@ -93,14 +93,14 @@ def compute(
         if delete:  # delete mode is enabled
             continue
 
-        window = report.getWindow()
-        lastWindow = window
-        while window in badEvents:
+        window = report.get_window()
+        lastwindow = window
+        while window in badevents:
             window = window + 1
 
-        reportsWindow[window] = json_report
-        badEvents[window] = report.getBadEventsCount()
-        reportsWindowName[window] = report.getWindowName()
+        reportswindow[window] = json_report
+        badevents[window] = report.get_badeventscount()
+        reportswindowname[window] = report.get_windowname()
 
         LOGGER.info(report)
         reports.append(json_report)
