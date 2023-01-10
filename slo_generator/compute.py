@@ -120,7 +120,9 @@ def compute(
                 )
             msg = f"{info}"
             msg += f" | Bad events problem - Window {reportsWindowName[lastKey]} ({badEvents[lastKey]}) "
-            msg += "has more bad events than {reportsWindowName[key]} ({badEvents[key]})"
+            msg += (
+                "has more bad events than {reportsWindowName[key]} ({badEvents[key]})"
+            )
             LOGGER.warn(msg)
             del reportsWindow[lastKey]
         lastBad = badEvents[key]
