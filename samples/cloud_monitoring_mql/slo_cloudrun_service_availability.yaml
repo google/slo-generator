@@ -1,0 +1,27 @@
+apiVersion: sre.google.com/v2
+kind: ServiceLevelObjective
+metadata:
+  name: cloudrun-service-availability
+  labels:
+    service_name: cloudrun
+    feature_name: service
+    slo_name: availability
+spec:
+  description: Availability of Cloud Run service
+  backend: cloud_monitoring_mql
+  method: good_bad_ratio
+  exporters:
+  - cloud_monitoring
+  service_level_indicator:
+    filter_good: >
+      fetch cloud_run_revision
+      | metric 'run.googleapis.com/request_count'
+      | filter resource.project_id == '${CLOUDRUN_PROJECT_ID}'
+      | filter resource.service_name == '${CLOUDRUN_SERVICE_NAME}'
+      | filter metric.response_code_class == '2xx'
+    filter_valid: >
+      fetch cloud_run_revision
+      | metric 'run.googleapis.com/request_count'
+      | filter resource.project_id == '${CLOUDRUN_PROJECT_ID}'
+      | filter resource.service_name == '${CLOUDRUN_SERVICE_NAME}'
+  goal: 0.85
