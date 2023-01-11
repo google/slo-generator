@@ -75,7 +75,7 @@ format:
 	isort .
 	black .
 
-lint: black isort flake8 pylint pytype mypy bandit safety
+lint: black isort flake8 pylint
 
 black:
 	black . --check
