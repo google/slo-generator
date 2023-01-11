@@ -123,7 +123,7 @@ def compute(
             msg += (
                 "has more bad events than {reportswindowname[key]} ({badevents[key]})"
             )
-            LOGGER.warn(msg)
+            LOGGER.warning(msg)
             del reportswindow[lastkey]
         lastbad = badevents[key]
         lastkey = key
