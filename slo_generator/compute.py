@@ -27,8 +27,7 @@ from slo_generator.report import SLOReport
 
 LOGGER = logging.getLogger(__name__)
 
-
-# pylint: disable=too-many-arguments,too-many-locals
+# pylint: disable=too-many-arguments,too-many-locals,R0915
 def compute(
     slo_config: dict,
     config: dict,
