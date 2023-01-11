@@ -1,0 +1,24 @@
+apiVersion: sre.google.com/v2
+kind: ServiceLevelObjective
+metadata:
+  name: cloudrun-service-latency-256ms
+  labels:
+    service_name: cloudrun
+    feature_name: service
+    slo_name: latency256ms
+spec:
+  description: Latency of Cloud Run service requests < 256 ms
+  backend: cloud_monitoring
+  method: distribution_cut
+  exporters:
+  - cloud_monitoring
+  service_level_indicator:
+    filter_valid: >
+      resource.type="cloud_run_revision"
+      metric.type="run.googleapis.com/request_latencies"
+      resource.label.project_id="${CLOUDRUN_PROJECT_ID}"
+      resource.label.service_name="${CLOUDRUN_SERVICE_NAME}"
+      metric.label.response_code_class="2xx"
+    good_below_threshold: true
+    threshold_bucket: 4
+  goal: 0.999
