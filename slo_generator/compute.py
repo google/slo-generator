@@ -128,10 +128,10 @@ def compute(
         lastbad = badevents[key]
         lastkey = key
 
-    for key, value in reportswindow.items():
+    for window, report in reportswindow.items():
         if exporters is not None and do_export is True:
-            errors = export(value, exporters)
-            reportswindow[key]["errors"].extend(errors)
+            errors = export(report, exporters)
+            report["errors"].extend(errors)
 
     end = time.time()
     run_duration = round(end - start, 1)

@@ -296,15 +296,47 @@ class SLOReport:
         return asdict(self)
 
     def get_window(self):
+        """Returns SLI window size.
+
+        Args:
+            none
+
+        Returns:
+            int: window size in seconds
+        """
         return self.window
 
     def get_badeventscount(self):
+        """Returns window bad events count.
+
+        Args:
+            none
+
+        Returns:
+            int: total number of bad events
+        """
         return self.bad_events_count
 
     def get_windowname(self):
+        """Returns the name of window
+
+        Args:
+            none
+
+        Returns:
+            string: name of the window
+        """
         return self.error_budget_policy_step_name
 
     def get_lastdata(self):
+        """Returns latdata retrieved from backend
+
+        Args:
+            none
+
+        Returns:
+            json: report json
+        """
         return self.lastdata
 
     # pylint: disable=too-many-return-statements
