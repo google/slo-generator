@@ -88,8 +88,21 @@ class SLOReport:
     # Data validation
     errors: List[str] = field(default_factory=list)
 
+    # Last calculated window
+    lastdata = {}
+
     # pylint: disable=too-many-arguments
-    def __init__(self, config, backend, step, timestamp, client=None, delete=False):
+    def __init__(
+        self,
+        config,
+        backend,
+        step,
+        timestamp,
+        client=None,
+        delete=False,
+        lastdata=None,
+        lastwindow=0,
+    ):
 
         # Init dataclass fields from SLO config and Error Budget Policy
         spec = config["spec"]
@@ -113,8 +126,17 @@ class SLOReport:
         self.valid = True
         self.errors = []
 
-        # Get backend results
-        data = self.run_backend(config, backend, client=client, delete=delete)
+        # if last window same as before, reuse data
+        if lastwindow == step["window"]:
+            data = lastdata
+        # otherwise fetch from backend
+        else:
+            # Get backend results
+            data = self.run_backend(config, backend, client=client, delete=delete)
+
+        # save data for next window check
+        self.lastdata = data
+
         if not self._validate(data):
             self.valid = False
             return
@@ -272,6 +294,50 @@ class SLOReport:
                 "valid": self.valid,
             }
         return asdict(self)
+
+    def get_window(self):
+        """Returns SLI window size.
+
+        Args:
+            none
+
+        Returns:
+            int: window size in seconds
+        """
+        return self.window
+
+    def get_badeventscount(self):
+        """Returns window bad events count.
+
+        Args:
+            none
+
+        Returns:
+            int: total number of bad events
+        """
+        return self.bad_events_count
+
+    def get_windowname(self):
+        """Returns the name of window
+
+        Args:
+            none
+
+        Returns:
+            string: name of the window
+        """
+        return self.error_budget_policy_step_name
+
+    def get_lastdata(self):
+        """Returns latdata retrieved from backend
+
+        Args:
+            none
+
+        Returns:
+            json: report json
+        """
+        return self.lastdata
 
     # pylint: disable=too-many-return-statements
     def _validate(self, data) -> bool:
