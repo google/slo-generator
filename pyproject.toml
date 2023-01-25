@@ -1,6 +1,5 @@
 [build-system]
-# Requiring `setuptools`>=65.5.1 because of https://pyup.io/v/52495/f17 (found by `safety`)
-requires = ["setuptools>=65.5.1", "wheel"]   # PEP 508 specifications.
+requires = ["setuptools>=42", "wheel"]   # PEP 508 specifications.
 build-backend = "setuptools.build_meta"
 
 [tool.black]
