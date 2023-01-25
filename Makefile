@@ -91,7 +91,7 @@ pylint:
 	find ./$(NAME) ./tests -type f -name "*.py" | xargs pylint
 
 pytype:
-	pytype
+	pytype $(NAME)
 
 mypy:
 	mypy --show-error-codes $(NAME)
@@ -100,7 +100,7 @@ bandit:
 	bandit .
 
 safety:
-	safety check
+	safety check -i 52495 # Ignore Vulnerability ID: 52495. For Setuptools <65.5.1 : https://pyup.io/v/52495/f17
 
 integration: int_cm int_csm int_custom int_dd int_dt int_es int_prom
 
