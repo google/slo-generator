@@ -29,3 +29,6 @@ disable = [
 [tool.mypy]
 # https://mypy.readthedocs.io/en/stable/config_file.html#using-a-pyproject-toml-file
 ignore_missing_imports = true
+
+[tool.pytype]
+inputs = ['slo_generator']
