@@ -154,7 +154,7 @@ def compute(slo_config, config, export, delete, timestamp):
 )
 @click.option(
     "--target",
-    envvar="GOOGLE_FUNCTION_SIGNATURE_TYPE",
+    envvar="GOOGLE_FUNCTION_TARGET",
     default="run_compute",
     help="Target function name",
 )
