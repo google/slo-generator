@@ -90,6 +90,7 @@ class PrtgBackend:
         end = end.strftime('%Y-%m-%dT%H:%M:%S')
         probe_id = measurement['probe_id']
         response = self.query_historicdata(start=start, end=end, probe_id=probe_id)
+        #response = self.query_table(start=start, end=end, probe_id=probe_id)
         LOGGER.debug(f"Result valid: {pprint.pformat(response)}")
         return PrtgBackend.count_availability(response)
     
@@ -142,8 +143,7 @@ class PrtgBackend:
             'output': 'json',
             'id': probe_id,
             'username': 'slogenerator',
-            'avg':'0',
-            'usecaption':'1'
+            'usecaption':'1',
         }
         return self.client.request('get',
                                    'historicdata.json',
@@ -257,13 +257,14 @@ class PrtgBackend:
             values = []
             datapoints = response['histdata']
             for point in datapoints:
-                value = int(point['coverage'].strip(' %'))/100
+                #value = int(point['Downtime'].strip(' %'))/100
+                value = int(point['Downtime'])
                 if value is None:
                     continue
                 values.append(value)
             if not values:
                 raise IndexError
-            return sum(values) / len(values)
+            return (100 - (sum(values) / len(values)))/100
         except (IndexError, AttributeError) as exception:
             LOGGER.warning("Couldn't find any values in timeseries response")
             LOGGER.debug(exception)
