@@ -258,10 +258,13 @@ class PrtgBackend:
             datapoints = response['histdata']
             for point in datapoints:
                 #value = int(point['Downtime'].strip(' %'))/100
-                value = int(point['Downtime'])
-                if value is None:
+                try:
+                    value = int(point['Downtime'])
+                    if value is None:
+                        continue
+                    values.append(value)
+                except ValueError:
                     continue
-                values.append(value)
             if not values:
                 raise IndexError
             return (100 - (sum(values) / len(values)))/100
