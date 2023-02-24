@@ -20,7 +20,7 @@ import pprint
 import typing
 import warnings
 from collections import OrderedDict
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import List, Optional, Tuple
 
 from google.api.distribution_pb2 import Distribution
@@ -240,7 +240,7 @@ class CloudMonitoringMqlBackend:
         # epoch, in UTC, with decimal part representing nanoseconds.
         # MQL expects dates formatted like "%Y/%m/%d %H:%M:%S" or "%Y/%m/%d-%H:%M:%S".
         # Reference: https://cloud.google.com/monitoring/mql/reference#lexical-elements
-        end_time_str: str = datetime.fromtimestamp(timestamp).strftime(
+        end_time_str: str = datetime.fromtimestamp(timestamp, tz=timezone.utc).strftime(
             "%Y/%m/%d %H:%M:%S"
         )
         query_with_time_horizon_and_period: str = (
