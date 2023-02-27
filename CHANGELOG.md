@@ -1,5 +1,15 @@
 # Changelog
 
+## [2.3.4](https://github.com/google/slo-generator/compare/v2.3.3...v2.3.4) (2023-02-27)
+
+
+### Bug Fixes
+
+* convert timestamp to UTC in Cloud Monitoring MQL backend ([#331](https://github.com/google/slo-generator/issues/331)) ([0b7cbcc](https://github.com/google/slo-generator/commit/0b7cbcc6ef9bf36277cca316a5255993824a7f46))
+* implicit Optional type hints are now forbidden (cf. PEP 484) ([#301](https://github.com/google/slo-generator/issues/301)) ([c1351e0](https://github.com/google/slo-generator/commit/c1351e065a3c0767ce8a50460c98f1ebb42326f6))
+* **lint:** replace too generic exceptions (Exception) with more specific ones (ValueError) ([d2eadbf](https://github.com/google/slo-generator/commit/d2eadbf5a3f5ce7032c36c0446c914dcd1c55d0f))
+* wrong environment variable name for `--target` option in `api` command ([#320](https://github.com/google/slo-generator/issues/320)) ([3303735](https://github.com/google/slo-generator/commit/3303735b28803bf92905554dc501e2772c707232))
+
 ## [2.3.3](https://github.com/google/slo-generator/compare/v2.3.2...v2.3.3) (2022-11-02)
 
 
