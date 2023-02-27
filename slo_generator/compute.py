@@ -28,7 +28,7 @@ from slo_generator.report import SLOReport
 LOGGER = logging.getLogger(__name__)
 
 
-# pylint: disable=too-many-arguments,too-many-locals
+# pylint: disable=too-many-arguments,too-many-locals,R0915
 def compute(
     slo_config: dict,
     config: dict,
@@ -65,6 +65,11 @@ def compute(
     error_budget_policy = utils.get_error_budget_policy(config, spec)
     backend = utils.get_backend(config, spec)
     reports = []
+    badevents = {}
+    reportswindow = {}
+    reportswindowname = {}
+    lastwindow = 0
+    lastdata = {}
     for step in error_budget_policy["steps"]:
         report = SLOReport(
             config=slo_config,
@@ -73,8 +78,12 @@ def compute(
             timestamp=timestamp,
             client=client,
             delete=delete,
+            lastdata=lastdata,
+            lastwindow=lastwindow,
         )
+
         json_report = report.to_json()
+        lastdata = report.get_lastdata()
 
         if not report.valid:
             LOGGER.error(report)
@@ -84,11 +93,46 @@ def compute(
         if delete:  # delete mode is enabled
             continue
 
+        window = report.get_window()
+        lastwindow = window
+        while window in badevents:
+            window = window + 1
+
+        reportswindow[window] = json_report
+        badevents[window] = report.get_badeventscount()
+        reportswindowname[window] = report.get_windowname()
+
         LOGGER.info(report)
-        if exporters is not None and do_export is True:
-            errors = export(json_report, exporters)
-            json_report["errors"].extend(errors)
         reports.append(json_report)
+
+    lastbad = -1
+    lastkey = -1
+    for key in sorted(badevents):
+        if lastbad < 0:
+            lastbad = badevents[key]
+            lastkey = key
+            continue
+        if lastbad > badevents[key]:
+            info = ""
+            if "slo_id" in reportswindow[key]["metadata"]["labels"]:
+                info = "slo_id " + str(
+                    reportswindow[key]["metadata"]["labels"]["slo_id"]
+                )
+            msg = f"{info} | "
+            msg += f"Window {reportswindowname[lastkey]} ({badevents[lastkey]}) "
+            msg += (
+                "has more bad events than {reportswindowname[key]} ({badevents[key]})"
+            )
+            LOGGER.warning(msg)
+            del reportswindow[lastkey]
+        lastbad = badevents[key]
+        lastkey = key
+
+    for window, report in reportswindow.items():
+        if exporters is not None and do_export is True:
+            errors = export(report, exporters)
+            report["errors"].extend(errors)
+
     end = time.time()
     run_duration = round(end - start, 1)
     LOGGER.debug(pprint.pformat(reports))
