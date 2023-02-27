@@ -96,7 +96,7 @@ class ElasticsearchBackend:
             response = self.query(index, valid)
             bad_events_count = ES.count(response) - good_events_count
         else:
-            raise Exception("`filter_bad` or `filter_valid` is required.")
+            raise ValueError("`filter_bad` or `filter_valid` is required.")
 
         return (good_events_count, bad_events_count)
 

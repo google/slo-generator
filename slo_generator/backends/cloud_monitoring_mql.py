@@ -89,7 +89,7 @@ class CloudMonitoringMqlBackend:
             valid_ts: List[TimeSeries] = self.query(timestamp, window, filter_valid)
             bad_event_count = CM.count(valid_ts) - good_event_count
         else:
-            raise Exception("One of `filter_bad` or `filter_valid` is required.")
+            raise ValueError("One of `filter_bad` or `filter_valid` is required.")
 
         LOGGER.debug(
             f"Good events: {good_event_count} | " f"Bad events: {bad_event_count}"
