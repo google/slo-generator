@@ -20,7 +20,7 @@ import pprint
 import typing
 import warnings
 from collections import OrderedDict
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import List, Optional, Tuple
 
 from google.api.distribution_pb2 import Distribution
@@ -89,7 +89,7 @@ class CloudMonitoringMqlBackend:
             valid_ts: List[TimeSeries] = self.query(timestamp, window, filter_valid)
             bad_event_count = CM.count(valid_ts) - good_event_count
         else:
-            raise Exception("One of `filter_bad` or `filter_valid` is required.")
+            raise ValueError("One of `filter_bad` or `filter_valid` is required.")
 
         LOGGER.debug(
             f"Good events: {good_event_count} | " f"Bad events: {bad_event_count}"
@@ -240,7 +240,7 @@ class CloudMonitoringMqlBackend:
         # epoch, in UTC, with decimal part representing nanoseconds.
         # MQL expects dates formatted like "%Y/%m/%d %H:%M:%S" or "%Y/%m/%d-%H:%M:%S".
         # Reference: https://cloud.google.com/monitoring/mql/reference#lexical-elements
-        end_time_str: str = datetime.fromtimestamp(timestamp).strftime(
+        end_time_str: str = datetime.fromtimestamp(timestamp, tz=timezone.utc).strftime(
             "%Y/%m/%d %H:%M:%S"
         )
         query_with_time_horizon_and_period: str = (
