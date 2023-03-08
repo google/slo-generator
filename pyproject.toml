@@ -10,9 +10,8 @@ line-length = 88  # default: 88
 [tool.isort]
 # Make it compatible with black
 profile = "black"
-extend_skip = [
-    ".pytype",
-]
+# Treat project as a git repository and ignore files listed in .gitignore
+skip_gitignore = true
 
 [tool.pylint]
 ignore-patterns = [
