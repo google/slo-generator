@@ -416,18 +416,15 @@ def report_v2tov1(report: dict) -> dict:
     """
     mapped_report: dict = {}
     for key, value in report.items():
-
         # If a metadata label is passed, use the metadata label mapping
         if key == "metadata":
             mapped_report["metadata"] = {}
             for subkey, subvalue in value.items():
-
                 # v2 `metadata.labels` attributes map to `metadata` attributes
                 # in v1
                 if subkey == "labels":
                     labels = subvalue
                     for labelkey, labelval in labels.items():
-
                         # Top-level labels like 'service_name', 'feature_name',
                         # and 'slo_name'.
                         if labelkey in METRIC_METADATA_LABELS_TOP_COMPAT:
