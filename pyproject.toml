@@ -13,6 +13,9 @@ profile = "black"
 extend_skip = [
     ".pytype",
 ]
+extend_skip_glob = [
+    "?venv*",  # e.g. venv, .venv, venv3.11, .venv3.11
+]
 
 [tool.pylint]
 ignore-patterns = [
