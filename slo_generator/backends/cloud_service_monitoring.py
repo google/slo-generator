@@ -256,7 +256,7 @@ class CloudServiceMonitoringBackend:
             if method == "basic":
                 sids = [service.name.split("/")[-1] for service in services]
                 LOGGER.debug(f"List of services in workspace {self.project_id}: {sids}")
-                raise Exception(msg)
+                raise ValueError(msg)
             LOGGER.error(msg)
             return None
 
@@ -334,7 +334,7 @@ class CloudServiceMonitoringBackend:
             service_id = slo_config["spec"]["service_level_indicator"].get("service_id")
             if not service_id:
                 if not service_name or not feature_name:
-                    raise Exception(
+                    raise ValueError(
                         "Service id not set in SLO configuration. Please set "
                         "either `spec.service_level_indicator.service_id` or "
                         "both `metadata.labels.service_name` and "
@@ -478,7 +478,7 @@ class CloudServiceMonitoringBackend:
                 }
             }
         else:
-            raise Exception(f'Method "{method}" is not supported.')
+            raise ValueError(f'Method "{method}" is not supported.')
         return slo
 
     def get_slo(self, window: int, slo_config: dict) -> Optional[dict]:
@@ -596,7 +596,7 @@ class CloudServiceMonitoringBackend:
         slo_name = slo_config["metadata"]["labels"].get("slo_name")
         slo_id = sli.get("slo_id", slo_name)
         if not slo_id:
-            raise Exception(
+            raise ValueError(
                 "SLO id not set in SLO configuration. Please set either "
                 "`spec.service_level_indicator.slo_id` or "
                 "`metadata.labels.slo_name` in your SLO configuration."

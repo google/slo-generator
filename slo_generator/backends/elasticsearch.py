@@ -96,7 +96,7 @@ class ElasticsearchBackend:
             response = self.query(index, valid)
             bad_events_count = ES.count(response) - good_events_count
         else:
-            raise Exception("`filter_bad` or `filter_valid` is required.")
+            raise ValueError("`filter_bad` or `filter_valid` is required.")
 
         return (good_events_count, bad_events_count)
 
@@ -137,7 +137,7 @@ class ElasticsearchBackend:
         Replace window for different error budget steps on-the-fly.
 
         Args:
-            body (dict): Existing query body.
+            query (dict): Existing query body.
             window (int): Window in seconds.
             date_field (str): Field to filter time on (must be an ElasticSearch
                 field of type `date`. Defaults to `@timestamp` (Logstash-
@@ -156,12 +156,12 @@ class ElasticsearchBackend:
             }
         }
 
-        # If a 'filter' clause already exist, add the range query on top,
-        # otherwise create the 'filter' clause.
+        # If a 'filter' clause already exists, add the range query on top or replace the
+        # existing range. Otherwise, create the whole 'filter' clause.
         if "filter" in body["query"]["bool"]:
             body["query"]["bool"]["filter"]["range"] = range_query
         else:
-            body["query"]["bool"] = {"filter": {"range": range_query}}
+            body["query"]["bool"]["filter"] = {"range": range_query}
 
         return body
 

@@ -93,7 +93,6 @@ class SLOReport:
 
     # pylint: disable=too-many-arguments
     def __init__(self, config, backend, step, timestamp, client=None, delete=False):
-
         # Init dataclass fields from SLO config and Error Budget Policy
         spec = config["spec"]
         self.exporters = []
@@ -311,7 +310,6 @@ class SLOReport:
 
         # Good / Bad tuple
         if isinstance(data, tuple):
-
             # Tuple length should be 2
             if len(data) != 2:
                 error = (

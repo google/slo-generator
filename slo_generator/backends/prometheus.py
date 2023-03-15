@@ -91,7 +91,7 @@ class PrometheusBackend:
             valid_count = PrometheusBackend.count(res)
             bad_count = valid_count - good_count
         else:
-            raise Exception("`filter_bad` or `filter_valid` is required.")
+            raise ValueError("`filter_bad` or `filter_valid` is required.")
 
         LOGGER.debug(f"Good events: {good_count} | " f"Bad events: {bad_count}")
 

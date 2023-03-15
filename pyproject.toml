@@ -13,6 +13,9 @@ profile = "black"
 extend_skip = [
     ".pytype",
 ]
+extend_skip_glob = [
+    "?venv*",  # e.g. venv, .venv, venv3.11, .venv3.11
+]
 
 [tool.pylint]
 ignore-patterns = [
@@ -29,3 +32,6 @@ disable = [
 [tool.mypy]
 # https://mypy.readthedocs.io/en/stable/config_file.html#using-a-pyproject-toml-file
 ignore_missing_imports = true
+
+[tool.pytype]
+inputs = ['slo_generator']
