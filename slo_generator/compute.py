@@ -66,6 +66,11 @@ def compute(
     backend = utils.get_backend(config, spec)
     reports = []
     for step in error_budget_policy["steps"]:
+        if step["name"] == "current_month":
+            current_month = time.localtime(start).tm_mon
+            current_year = time.localtime(start).tm_year
+            first_day_of_month = time.mktime((current_year, current_month, 1, 0, 0, 0, 0, 0, 0))
+            step["window"] = int(start - first_day_of_month) 
         report = SLOReport(
             config=slo_config,
             backend=backend,
