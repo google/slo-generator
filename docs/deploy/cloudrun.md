@@ -13,13 +13,13 @@ To set up the `slo-generator` with Terraform, please look at the [terraform-goog
 
 Create the GCS bucket that will hold our SLO configurations:
 
-```
+```sh
 gsutil mb -p ${PROJECT_ID} gs://${BUCKET_NAME}
 ```
 
 Upload the slo-generator configuration to the GCS bucket:
 
-```
+```sh
 gsutil cp config.yaml gs://${BUCKET_NAME}/
 ```
 
@@ -27,7 +27,7 @@ See sample [config.yaml](../../samples/config.yaml)
 
 ### Deploy the CloudRun service
 
-```
+```sh
 gcloud run deploy slo-generator \
    --image gcr.io/slo-generator-ci-a2b4/slo-generator:latest \
    --region=europe-west1 \
@@ -44,7 +44,8 @@ gcloud run deploy slo-generator \
 Once the deployment is finished, get the service URL from the log output.
 
 ### [Optional] Test an SLO
-```
+
+```sh
 curl -X POST -H "Content-Type: text/x-yaml" --data-binary @slo.yaml ${SERVICE_URL} # yaml
 curl -X POST -H "Content-Type: application/json" -d @${SLO_PATH} ${SERVICE_URL}    # json
 ```
@@ -54,12 +55,14 @@ See sample [slo.yaml](../../samples/cloud_monitoring/slo_gae_app_availability.ya
 ### Schedule SLO reports every minute
 
 Upload your SLO config to the GCS bucket:
-```
+
+```sh
 gsutil cp slo.yaml gs://${BUCKET_NAME}/
 ```
 
 Create a Cloud Scheduler job that will hit the service with the SLO config URL:
-```
+
+```sh
 gcloud scheduler jobs create http slo --schedule=”* * * * */1” \
    --uri=${SERVICE_URL} \
    --message-body=”gs://${BUCKET_NAME}/slo.yaml”
@@ -72,12 +75,14 @@ If you decide to split some of the exporters to another dedicated service, you
 can deploy an export-only API to Cloud Run:
 
 Upload the slo-generator export config to the GCS bucket:
-```
+
+```sh
 gsutil cp config_export.yaml gs://${BUCKET_NAME}/config_export.yaml
 ```
 
 Deploy the `slo-generator` with `--signature-type=cloudevent` and `--target=run_export`:
-```
+
+```sh
 gcloud run deploy slo-generator-export \
    --image gcr.io/slo-generator-ci-a2b4/slo-generator:latest \
    --region=europe-west1 \
