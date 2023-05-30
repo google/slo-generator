@@ -58,7 +58,7 @@ develop: install
 	pre-commit install
 
 install: clean
-	$(PIP) install -e ."[api, datadog, prometheus, elasticsearch, pubsub, cloud_monitoring, bigquery, dev, splunk]"
+	$(PIP) install -e ."[api, datadog, prometheus, elasticsearch, splunk, pubsub, cloud_monitoring, bigquery, dev]"
 
 uninstall: clean
 	$(PIP) freeze --exclude-editable | xargs $(PIP) uninstall -y
@@ -102,7 +102,7 @@ bandit:
 safety:
 	safety check
 
-integration: int_cm int_csm int_custom int_dd int_dt int_sp int_es int_prom
+integration: int_cm int_csm int_custom int_dd int_dt int_es int_prom int_sp
 
 int_cm:
 	slo-generator compute -f samples/cloud_monitoring -c samples/config.yaml
@@ -119,14 +119,14 @@ int_dd:
 int_dt:
 	slo-generator compute -f samples/dynatrace -c samples/config.yaml
 
-int_sp:
-	slo-generator compute -f samples/splunk -c samples/config.yaml
-
 int_es:
 	slo-generator compute -f samples/elasticsearch -c samples/config.yaml
 
 int_prom:
 	slo-generator compute -f samples/prometheus -c samples/config.yaml
+
+int_sp:
+	slo-generator compute -f samples/splunk -c samples/config.yaml
 
 # Run API locally
 run_api:

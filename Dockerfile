@@ -22,6 +22,6 @@ RUN apt-get update && \
 ADD . /app
 WORKDIR /app
 RUN pip install -U setuptools
-RUN pip install ."[api, datadog, dynatrace, prometheus, elasticsearch, pubsub, cloud_monitoring, cloud_service_monitoring, cloud_storage, bigquery, cloudevent, dev, splunk]"
+RUN pip install ."[api, datadog, dynatrace, prometheus, elasticsearch, splunk, pubsub, cloud_monitoring, cloud_service_monitoring, cloud_storage, bigquery, cloudevent, dev]"
 ENTRYPOINT [ "slo-generator" ]
 CMD ["-v"]

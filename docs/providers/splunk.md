@@ -64,7 +64,7 @@ Not implemented as of yet.
 
 ## Splunk search performance
 
-Note that running oneshot queries on splunk may not always be fast. depending on the resources of your splunk infrastructure, volume of data and SLO window, it can take up to minutes. It can even be so long that the "oneshot" method of the SDK we're using times out. In this case there are several alternatives :
+Note that running oneshot queries on splunk may not always be fast. Depending on the resources of your splunk infrastructure, volume of data and SLO window, it can take up to minutes. It can even be so long that the "oneshot" method of the SDK we're using times out. In this case there are several alternatives:
 
 1. Switch the code to the "normal" search mode instead, which asynchronously polls the splunk search head for results instead of waiting for the REST response.
 2. Make use of pre-cooked "saved searches" and just trigger the jobs on demand. This would require the bakend code to be reworked to switch from oneshot searches to saved search

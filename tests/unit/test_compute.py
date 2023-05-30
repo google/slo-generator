@@ -56,7 +56,7 @@ SLO_CONFIGS_PROM = load_slo_samples("prometheus", CTX)
 SLO_CONFIGS_ES = load_slo_samples("elasticsearch", CTX)
 SLO_CONFIGS_DD = load_slo_samples("datadog", CTX)
 SLO_CONFIGS_DT = load_slo_samples("dynatrace", CTX)
-SLO_CONFIG_SPLUNK = load_slo_samples("splunk", CTX)
+SLO_CONFIGS_SPLUNK = load_slo_samples("splunk", CTX)
 SLO_REPORT = load_fixture("slo_report_v2.json")
 SLO_REPORT_V1 = load_fixture("slo_report_v1.json")
 EXPORTERS = load_fixture("exporters.yaml", CTX)
@@ -82,7 +82,7 @@ class TestCompute(unittest.TestCase):
     @patch.object(Jobs, "oneshot", side_effect=mock_splunk_oneshot)
     @patch.object(Splunk, "connect", return_value=None)
     def test_splunk_search(self, *mocks):
-        for config in SLO_CONFIG_SPLUNK:
+        for config in SLO_CONFIGS_SPLUNK:
             with self.subTest(config=config):
                 compute(config, CONFIG)
 
