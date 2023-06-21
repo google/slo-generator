@@ -19,6 +19,11 @@ backends:
     url: ${ELASTICSEARCH_URL}
   prometheus:
     url: ${PROMETHEUS_URL}
+  splunk:
+    host: ${SPLUNK_HOST}
+    port: ${SPLUNK_PORT}
+    user: ${SPLUNK_USER}
+    password: ${SPLUNK_PWD}
 
 exporters:
   cloudevent:

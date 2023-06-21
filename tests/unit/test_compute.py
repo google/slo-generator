@@ -20,6 +20,8 @@ from elasticsearch import Elasticsearch
 from google.auth._default import _CLOUD_SDK_CREDENTIALS_WARNING
 from mock import MagicMock, patch
 from prometheus_http_client import Prometheus
+from splunklib import client as Splunk
+from splunklib.client import Jobs
 
 from slo_generator.backends.dynatrace import DynatraceClient
 from slo_generator.compute import compute, export
@@ -40,6 +42,7 @@ from .test_stubs import (
     mock_es,
     mock_prom,
     mock_sd,
+    mock_splunk_oneshot,
     mock_ssm_client,
 )
 
@@ -53,6 +56,7 @@ SLO_CONFIGS_PROM = load_slo_samples("prometheus", CTX)
 SLO_CONFIGS_ES = load_slo_samples("elasticsearch", CTX)
 SLO_CONFIGS_DD = load_slo_samples("datadog", CTX)
 SLO_CONFIGS_DT = load_slo_samples("dynatrace", CTX)
+SLO_CONFIGS_SPLUNK = load_slo_samples("splunk", CTX)
 SLO_REPORT = load_fixture("slo_report_v2.json")
 SLO_REPORT_V1 = load_fixture("slo_report_v1.json")
 EXPORTERS = load_fixture("exporters.yaml", CTX)
@@ -74,6 +78,13 @@ SSM_MOCKS = [
 
 class TestCompute(unittest.TestCase):
     maxDiff = None
+
+    @patch.object(Jobs, "oneshot", side_effect=mock_splunk_oneshot)
+    @patch.object(Splunk, "connect", return_value=None)
+    def test_splunk_search(self, *mocks):
+        for config in SLO_CONFIGS_SPLUNK:
+            with self.subTest(config=config):
+                compute(config, CONFIG)
 
     @patch(
         "google.api_core.grpc_helpers.create_channel",
