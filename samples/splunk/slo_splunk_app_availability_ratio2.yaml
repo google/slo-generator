@@ -1,0 +1,17 @@
+apiVersion: sre.google.com/v2
+kind: ServiceLevelObjective
+metadata:
+    name: splunk-app-availability
+    labels:
+        service_name: splunk
+        feature_name: app
+        slo_name: availability
+spec:
+    description: 99% of app requests return a valid HTTP code
+    backend: splunk
+    method: good_bad_ratio
+    exporters: []
+    service_level_indicator:
+        search_query_good: search index=access_logs host=web* status=200 | stats count(status) as good
+        search_query_valid: search index=access_logs host=web* status!=403 | stats count(status) as valid
+    goal: 0.99
