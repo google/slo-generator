@@ -1,0 +1,13 @@
+{
+  "init_offset" : 0,
+  "messages" : [],
+  "preview" : false,
+  "results": [
+    {
+      "good":"13666",
+      "bad":"2",
+      "valid":"13668",
+      "sli":"99.99"
+    }
+  ]
+}
