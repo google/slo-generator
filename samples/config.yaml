@@ -24,6 +24,8 @@ backends:
     port: ${SPLUNK_PORT}
     user: ${SPLUNK_USER}
     password: ${SPLUNK_PWD}
+  opensearch:
+    url: ${OPENSEARCH_URL}
 
 exporters:
   cloudevent:

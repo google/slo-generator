@@ -1,0 +1,27 @@
+apiVersion: sre.google.com/v2
+kind: ServiceLevelObjective
+metadata:
+  name: open-search-latency
+  labels:
+    service_name: opensearch
+    feature_name: opensearch-latency
+    slo_name: latency
+spec:
+  description: 99% of the element are valid
+  backend: opensearch
+  method: good_bad_ratio
+  exporters: []
+  service_level_indicator:
+    index: my-index
+    date_field: '@timestamp'
+    query_good:
+      must:
+        range:
+          api-response-time:
+            lt: 350
+    query_bad:
+      must:
+        range:
+          api-response-time:
+            gte: 350
+  goal: 0.99

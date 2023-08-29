@@ -1,0 +1,25 @@
+apiVersion: sre.google.com/v2
+kind: ServiceLevelObjective
+metadata:
+  name: open-search-availability
+  labels:
+    service_name: opensearch
+    feature_name: opensearch-availability
+    slo_name: availability
+spec:
+  description: 99% of the element are valid
+  backend: opensearch
+  method: good_bad_ratio
+  exporters: []
+  service_level_indicator:
+    index: my-index
+    date_field: '@timestamp'
+    query_good:
+      must:
+        term:
+          status: 200
+    query_bad:
+      must_not:
+        term:
+          status: 200
+  goal: 0.99
