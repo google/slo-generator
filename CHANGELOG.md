@@ -1,5 +1,17 @@
 # Changelog
 
+## [2.4.0](https://github.com/google/slo-generator/compare/v2.3.4...v2.4.0) (2023-06-21)
+
+
+### Features
+
+* add support for Splunk backend ([#335](https://github.com/google/slo-generator/issues/335)) ([5171318](https://github.com/google/slo-generator/commit/51713189f8bf473e7e384ed46653640f282c0dcb))
+
+
+### Bug Fixes
+
+* bump version of iSort to avoid non-deterministic error during pre-commit checks ([5542a06](https://github.com/google/slo-generator/commit/5542a065d5ca3d255b84ea20bebe42ff5d8c09aa))
+
 ## [2.3.4](https://github.com/google/slo-generator/compare/v2.3.3...v2.3.4) (2023-02-27)
 
 
