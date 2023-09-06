@@ -13,6 +13,7 @@ from slo_generator.constants import NO_DATA
 LOGGER = logging.getLogger(__name__)
 
 
+# pylint: disable=duplicate-code
 class OpensearchBackend:
     """Backend for querying metrics from OpenSearch.
 
