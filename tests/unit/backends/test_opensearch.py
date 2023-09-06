@@ -1,6 +1,6 @@
 import unittest
 
-from slo_generator.backends.opensearch import OpenSearchBackend
+from slo_generator.backends.open_search import OpenSearchBackend
 
 
 class TestOpenSearchBackend(unittest.TestCase):

@@ -8,11 +8,11 @@ metadata:
     slo_name: availability
 spec:
   description: 99% of the element are valid
-  backend: opensearch
+  backend: open_search
   method: good_bad_ratio
   exporters: []
   service_level_indicator:
-    index: my-index
+    index: "gravitee-request-*"
     date_field: '@timestamp'
     query_good:
       must:

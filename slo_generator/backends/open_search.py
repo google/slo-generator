@@ -1,5 +1,5 @@
 """
-`opensearch.py`
+`open_search.py`
 Opensearch backend implementation.
 """
 
