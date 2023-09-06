@@ -14,7 +14,7 @@ LOGGER = logging.getLogger(__name__)
 
 
 # pylint: disable=duplicate-code
-class OpensearchBackend:
+class OpenSearchBackend:
     """Backend for querying metrics from OpenSearch.
 
     Args:
@@ -141,4 +141,4 @@ class OpensearchBackend:
         return body
 
 
-OS = OpensearchBackend
+OS = OpenSearchBackend

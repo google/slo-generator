@@ -1,8 +1,8 @@
-# Elasticsearch
+# Opensearh
 
 ## Backend
 
-Using the `opensearch` backend class, you can query any metrics available in Opensearch to create an SLO.
+Using the `OpenSearch` backend class, you can query any metrics available in OpenSearchBackend to create an SLO.
 
 ```yaml
 backends:
@@ -57,7 +57,7 @@ This method is often used for availability SLOs, but can be used for other purpo
 
 Additional info:
 
-* `date_field`: Has to be a valid Opensearch `timestamp` type
+* `date_field`: Has to be a valid OpenSearchBackend `timestamp` type
 
 **&rightarrow; [Full SLO config](../../samples/opensearch/slo_opensearch_latency_sli.yaml)**
 
@@ -94,4 +94,4 @@ The full `Opensearh` query body for the `query_bad` above will therefore look li
 
 ### Examples
 
-Complete SLO samples using the `opensearch` backend are available in [samples/elasticsearch](../../samples/opensearch). Check them out!
+Complete SLO samples using the `OpenSearchBackend` backend are available in [samples/elasticsearch](../../samples/opensearch). Check them out!

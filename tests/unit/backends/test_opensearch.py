@@ -1,13 +1,13 @@
 import unittest
 
-from slo_generator.backends.opensearch import OpensearchBackend
+from slo_generator.backends.opensearch import OpenSearchBackend
 
 
-class TestOpensearchBackend(unittest.TestCase):
+class TestOpenSearchBackend(unittest.TestCase):
     assert 1 == 1
 
     def test_build_query_with_empty_query(self):
-        assert OpensearchBackend.build_query(None, 3600, "date") is None
+        assert OpenSearchBackend.build_query(None, 3600, "date") is None
 
     def test_build_query_with_simple_query_and_no_filter(self):
         query: dict = {
@@ -39,7 +39,7 @@ class TestOpensearchBackend(unittest.TestCase):
             "track_total_hits": True,
         }
 
-        assert OpensearchBackend.build_query(query, 3600, "date") == enriched_query
+        assert OpenSearchBackend.build_query(query, 3600, "date") == enriched_query
 
     def test_build_query_with_simple_query_and_simple_filter(self):
         query: dict = {
@@ -79,7 +79,7 @@ class TestOpensearchBackend(unittest.TestCase):
             "track_total_hits": True,
         }
 
-        assert OpensearchBackend.build_query(query, 3600, "date") == enriched_query
+        assert OpenSearchBackend.build_query(query, 3600, "date") == enriched_query
 
     def test_build_query_with_simple_query_and_existing_filter_with_range(self):
         query: dict = {
@@ -119,4 +119,4 @@ class TestOpensearchBackend(unittest.TestCase):
             "track_total_hits": True,
         }
 
-        assert OpensearchBackend.build_query(query, 3600, "date") == enriched_query
+        assert OpenSearchBackend.build_query(query, 3600, "date") == enriched_query
