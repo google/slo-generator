@@ -58,7 +58,7 @@ develop: install
 	pre-commit install
 
 install: clean
-	$(PIP) install -e ."[api, datadog, prometheus, elasticsearch, opensearch-py, splunk, pubsub, cloud_monitoring, bigquery, dev]"
+	$(PIP) install -e ."[api, datadog, prometheus, elasticsearch, opensearch, splunk, pubsub, cloud_monitoring, bigquery, dev]"
 
 uninstall: clean
 	$(PIP) freeze --exclude-editable | xargs $(PIP) uninstall -y
