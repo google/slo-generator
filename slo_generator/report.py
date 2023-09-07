@@ -394,7 +394,7 @@ class SLOReport:
     @property
     def info(self) -> str:
         """Step information."""
-        return f"{self.name :<32} | {self.error_budget_policy_step_name :<8}"
+        return f"backend: {self.backend :<32} | name: {self.name :<32} | policy: {self.error_budget_policy_step_name :<8}"
 
     def __str__(self) -> str:
         report = self.to_json()
