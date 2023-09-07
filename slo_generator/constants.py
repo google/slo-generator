@@ -20,7 +20,7 @@ from typing import Dict, List, Tuple
 
 # Compute
 NO_DATA: int = -1
-MIN_VALID_EVENTS: int = int(os.environ.get("MIN_VALID_EVENTS", "1"))
+MIN_VALID_EVENTS: int = int(os.environ.get("MIN_VALID_EVENTS", "0"))
 
 # Global
 LATEST_MAJOR_VERSION: str = "v2"
