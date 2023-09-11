@@ -138,9 +138,12 @@ class DatadogBackend:
             bad_event_count = valid_event_count - good_event_count
             return (good_event_count, bad_event_count)
         except (KeyError) as exception:  # monitor-based SLI
-            sli_value = data["data"]["overall"]["sli_value"] / 100
-            LOGGER.debug(exception)
-            return sli_value
+            try : 
+                sli_value = data["data"]["overall"]["sli_value"] / 100
+                LOGGER.debug(exception)
+                return sli_value
+            except (KeyError) as exception:  # no events
+                return (0, 0)
 
     @staticmethod
     def _fmt_query(query, window, operator=None, operator_suffix=None):
