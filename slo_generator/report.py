@@ -292,9 +292,6 @@ class SLOReport:
         if data is None:
             return False
 
-        # Add Backend info in log
-        self.errors.append(f"{self.backend}")
-
         # Backend result is the wrong type
         if not isinstance(data, (tuple, float, int)):
             error = (
