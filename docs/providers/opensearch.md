@@ -1,8 +1,8 @@
-# OpenSearh
+# OpenSearch
 
 ## Backend
 
-Using the `OpenSearch` backend class, you can query any metrics available in OpenSearchBackend to create an SLO.
+Using the `OpenSearch` backend class, you can query any metrics available in OpenSearch to create an SLO.
 
 ```yaml
 backends:
@@ -26,7 +26,7 @@ backends:
       - https://localhost:9201
 ```
 
-The following method is available to compute SLOs with the `OpenSearch` backend:
+The following method is available to compute SLOs with the `open_search` backend:
 
 * `good_bad_ratio` method is used to compute the ratio between two metrics:
 
