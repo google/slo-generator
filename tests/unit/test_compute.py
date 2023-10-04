@@ -19,6 +19,7 @@ from datadog.api import Metric, ServiceLevelObjective
 from elasticsearch import Elasticsearch
 from google.auth._default import _CLOUD_SDK_CREDENTIALS_WARNING
 from mock import MagicMock, patch
+from opensearchpy import OpenSearch
 from prometheus_http_client import Prometheus
 from splunklib import client as Splunk
 from splunklib.client import Jobs
@@ -40,6 +41,7 @@ from .test_stubs import (
     mock_dt,
     mock_dt_errors,
     mock_es,
+    mock_os_client,
     mock_prom,
     mock_sd,
     mock_splunk_oneshot,
@@ -57,6 +59,7 @@ SLO_CONFIGS_ES = load_slo_samples("elasticsearch", CTX)
 SLO_CONFIGS_DD = load_slo_samples("datadog", CTX)
 SLO_CONFIGS_DT = load_slo_samples("dynatrace", CTX)
 SLO_CONFIGS_SPLUNK = load_slo_samples("splunk", CTX)
+SLO_CONFIGS_OS = load_slo_samples("opensearch", CTX)
 SLO_REPORT = load_fixture("slo_report_v2.json")
 SLO_REPORT_V1 = load_fixture("slo_report_v1.json")
 EXPORTERS = load_fixture("exporters.yaml", CTX)
@@ -142,6 +145,12 @@ class TestCompute(unittest.TestCase):
     @patch.object(DynatraceClient, "request", side_effect=mock_dt)
     def test_compute_dynatrace(self, mock):
         for config in SLO_CONFIGS_DT:
+            with self.subTest(config=config):
+                compute(config, CONFIG)
+
+    @patch.object(OpenSearch, "search", mock_os_client)
+    def test_compute_opensearch(self):
+        for config in SLO_CONFIGS_OS:
             with self.subTest(config=config):
                 compute(config, CONFIG)
 
