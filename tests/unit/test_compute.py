@@ -67,7 +67,7 @@ BQ_ERROR = load_fixture("bq_error.json")
 
 # Pub/Sub methods to patch
 PUBSUB_MOCKS = [
-    "google.cloud.pubsub_v1.gapic.publisher_client.PublisherClient.publish",
+    "google.cloud.pubsub_v1.PublisherClient.publish",
     "google.cloud.pubsub_v1.publisher.futures.Future.result",
     "google.api_core.grpc_helpers.create_channel",
 ]
@@ -156,7 +156,7 @@ class TestCompute(unittest.TestCase):
 
     @patch(PUBSUB_MOCKS[0])
     @patch(PUBSUB_MOCKS[1])
-    @patch(PUBSUB_MOCKS[2])
+    # @patch(PUBSUB_MOCKS[2])
     def test_export_pubsub(self, *mocks):
         export(SLO_REPORT, EXPORTERS[0])
 

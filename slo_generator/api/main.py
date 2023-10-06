@@ -225,7 +225,7 @@ def process_batch_req(request, data, config):
             # pylint: disable=no-member
             topic_path = client.topic_path(project_id, topic_name)
             data = url.encode("utf-8")
-            client.publish(topic_path, data=data).result()
+            client.publish(request={"topic": topic_path, "messages": data}).result()
         else:  # http
             LOGGER.info(f"Sending {url} to HTTP batch handler.")
             requests.post(service_url, headers=headers, data=url, timeout=10)

@@ -46,4 +46,6 @@ class PubsubExporter:  # pylint: disable=too-few-public-methods
         # pylint: disable=no-member
         topic_path = self.publisher.topic_path(project_id, topic_name)
         data = json.dumps(data, indent=4).encode("utf-8")
-        return self.publisher.publish(topic_path, data=data).result()
+        return self.publisher.publish(
+            request={"topic": topic_path, "messages": data}
+        ).result()
