@@ -156,7 +156,7 @@ class TestCompute(unittest.TestCase):
 
     @patch(PUBSUB_MOCKS[0])
     @patch(PUBSUB_MOCKS[1])
-    # @patch(PUBSUB_MOCKS[2])
+    @patch(PUBSUB_MOCKS[2])
     def test_export_pubsub(self, *mocks):
         export(SLO_REPORT, EXPORTERS[0])
 
