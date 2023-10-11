@@ -67,7 +67,7 @@ BQ_ERROR = load_fixture("bq_error.json")
 
 # Pub/Sub methods to patch
 PUBSUB_MOCKS = [
-    "google.cloud.pubsub_v1.gapic.publisher_client.PublisherClient.publish",
+    "google.cloud.pubsub_v1.PublisherClient.publish",
     "google.cloud.pubsub_v1.publisher.futures.Future.result",
     "google.api_core.grpc_helpers.create_channel",
 ]
