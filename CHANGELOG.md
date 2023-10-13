@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.5.1](https://github.com/google/slo-generator/compare/v2.5.0...v2.5.1) (2023-10-13)
+
+
+### Bug Fixes
+
+* get_human_time() should not hard-code the human-readable timezone ([#350](https://github.com/google/slo-generator/issues/350)) ([1948694](https://github.com/google/slo-generator/commit/194869473887c22948b1029bcbfda3e5b535c160))
+
 ## [2.5.0](https://github.com/google/slo-generator/compare/v2.4.0...v2.5.0) (2023-10-11)
 
 
