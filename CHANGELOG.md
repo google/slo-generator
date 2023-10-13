@@ -1,5 +1,30 @@
 # Changelog
 
+## [2.5.0](https://github.com/google/slo-generator/compare/v2.4.0...v2.5.0) (2023-10-11)
+
+
+### Features
+
+* add support for OpenSearch backend ([#348](https://github.com/google/slo-generator/issues/348)) ([f7bb0d9](https://github.com/google/slo-generator/commit/f7bb0d90850b7e56edd3d84091accda571c891e8))
+* upgrade google-* packages ([#354](https://github.com/google/slo-generator/issues/354)) ([e18fe5d](https://github.com/google/slo-generator/commit/e18fe5d5d295be7b4332a1004c06a3f3f3cd74de))
+
+
+### Bug Fixes
+
+* avoid CVEs reported by `safety check` ([#353](https://github.com/google/slo-generator/issues/353)) ([fb35d87](https://github.com/google/slo-generator/commit/fb35d870f80a86d7dcc7aae05725e5cf713b11a8))
+
+## [2.4.0](https://github.com/google/slo-generator/compare/v2.3.4...v2.4.0) (2023-06-21)
+
+
+### Features
+
+* add support for Splunk backend ([#335](https://github.com/google/slo-generator/issues/335)) ([5171318](https://github.com/google/slo-generator/commit/51713189f8bf473e7e384ed46653640f282c0dcb))
+
+
+### Bug Fixes
+
+* bump version of iSort to avoid non-deterministic error during pre-commit checks ([5542a06](https://github.com/google/slo-generator/commit/5542a065d5ca3d255b84ea20bebe42ff5d8c09aa))
+
 ## [2.3.4](https://github.com/google/slo-generator/compare/v2.3.3...v2.3.4) (2023-02-27)
 
 
