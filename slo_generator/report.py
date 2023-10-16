@@ -285,6 +285,8 @@ class SLOReport:
         """
         # Backend not found
         if data is None:
+            error = "Backend returned None."
+            self.errors.append(error)
             return False
 
         # Backend result is the wrong type
@@ -349,12 +351,6 @@ class SLOReport:
         # Check backend float / int value
         if isinstance(data, (float, int)) and data == NO_DATA:
             error = "Backend returned NO_DATA (-1)."
-            self.errors.append(error)
-            return False
-
-        # Check backend None
-        if data is None:
-            error = "Backend returned None."
             self.errors.append(error)
             return False
 
