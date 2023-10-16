@@ -168,9 +168,14 @@ def parse_config(
     return data
 
 
+def is_debug_enabled():
+    """Check if DEBUG mode is enabled."""
+    return DEBUG == 1
+
+
 def setup_logging():
     """Setup logging for the CLI."""
-    if DEBUG == 1:
+    if is_debug_enabled():
         print(f"DEBUG mode is enabled. DEBUG={DEBUG}")
         level = logging.DEBUG
         format_str = "%(name)s - %(levelname)s - %(message)s"
