@@ -25,25 +25,43 @@ from slo_generator.utils import (
 class TestUtils(unittest.TestCase):
     def test_get_human_time(self):
         # Timezones
-        tz_1 = "Europe/Paris"
-        tz_2 = "America/Chicago"
+        tz_UTC = "UTC"
+        tz_Paris = "Europe/Paris"
+        tz_Chicago = "America/Chicago"
 
         # Timestamp 1
-        timestamp = 1565092435
-        utc_time = "2019-08-06T11:53:55.000000"
-        human_paris_1 = get_human_time(timestamp, timezone=tz_1)
-        human_chicago_1 = get_human_time(timestamp, timezone=tz_2)
+        timestamp_20230615T16 = 1686845838
+        utc_time_20230615T16 = "2023-06-15T16:17:18+00:00"
+        paris_time_20230615T16 = "2023-06-15T18:17:18+02:00"
+        chicago_time_20230615T16 = "2023-06-15T11:17:18-05:00"
+        human_utc_20230615T16 = get_human_time(timestamp_20230615T16, timezone=tz_UTC)
+        human_paris_20230615T16 = get_human_time(
+            timestamp_20230615T16, timezone=tz_Paris
+        )
+        human_chicago_20230615T16 = get_human_time(
+            timestamp_20230615T16, timezone=tz_Chicago
+        )
 
         # Timestamp 2
-        timestamp_2 = 1565095633.9568892
-        utc_time_2 = "2019-08-06T12:47:13.956889"
-        human_paris_2 = get_human_time(timestamp_2, timezone=tz_1)
-        human_chicago_2 = get_human_time(timestamp_2, timezone=tz_2)
+        timestamp_20231215T16 = 1702660513.987654
+        utc_time_20231215T16 = "2023-12-15T17:15:13.987654+00:00"
+        paris_time_20231215T16 = "2023-12-15T18:15:13.987654+01:00"
+        chicago_time_20231215T16 = "2023-12-15T11:15:13.987654-06:00"
+        human_utc_20231215T16 = get_human_time(timestamp_20231215T16, timezone=tz_UTC)
+        human_paris_20231215T16 = get_human_time(
+            timestamp_20231215T16, timezone=tz_Paris
+        )
+        human_chicago_20231215T16 = get_human_time(
+            timestamp_20231215T16, timezone=tz_Chicago
+        )
 
-        self.assertEqual(human_paris_1, utc_time + "+02:00")
-        self.assertEqual(human_chicago_1, utc_time + "-05:00")
-        self.assertEqual(human_paris_2, utc_time_2 + "+02:00")
-        self.assertEqual(human_chicago_2, utc_time_2 + "-05:00")
+        self.assertEqual(utc_time_20230615T16, human_utc_20230615T16)
+        self.assertEqual(paris_time_20230615T16, human_paris_20230615T16)
+        self.assertEqual(chicago_time_20230615T16, human_chicago_20230615T16)
+
+        self.assertEqual(utc_time_20231215T16, human_utc_20231215T16)
+        self.assertEqual(paris_time_20231215T16, human_paris_20231215T16)
+        self.assertEqual(chicago_time_20231215T16, human_chicago_20231215T16)
 
     def test_get_backend_cls(self):
         res1 = get_backend_cls("CloudMonitoring")
