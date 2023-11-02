@@ -5,17 +5,20 @@
 
 version: 2
 updates:
-  - package-ecosystem: "pip"
-    directory: "/" # Location of package manifests
+  - package-ecosystem: pip
+    directory: / # Location of package manifests
     schedule:
-      interval: "daily"
+      interval: daily
     rebase-strategy: disabled
     commit-message:
-      prefix: ":seedling:"
-  - package-ecosystem: "github-actions"
-    directory: "/"
+      prefix: fix(deps)  # production dependency group
+      prefix-development: chore(deps)  # development dependency group
+      include: scope
+  - package-ecosystem: github-actions
+    directory: /
     schedule:
-      interval: "daily"
+      interval: daily
     rebase-strategy: disabled
     commit-message:
-      prefix: ":seedling:"
+      prefix: chore(deps)
+      include: scope
