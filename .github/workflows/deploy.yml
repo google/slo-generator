@@ -24,11 +24,16 @@ jobs:
               echo "match=true" >> $GITHUB_OUTPUT
           fi
 
+      - name: Authenticate to GCP
+        id: authenticate
+        uses: google-github-actions/auth@v1
+        with:
+          service_account_key: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
+
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v1
         with:
           project_id: ${{ secrets.PROJECT_ID }}
-          service_account_key: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
           export_default_credentials: true
 
       - name: Wait for container image build
