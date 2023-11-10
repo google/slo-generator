@@ -1,11 +1,13 @@
 # Based on https://docs.github.com/en/actions/publishing-packages/publishing-docker-images#publishing-images-to-github-packages
 name: Build and push a Docker image to GitHub Container Registry (GHCR)
 
-# Configures this workflow to run every time a change is pushed to the `main` branch or tagged `v*.*.*`.
 on:
   push:
-    branches: ['main']
-    tags: ['v*.*.*']
+    branches:
+      - master
+      - deploy-*
+    tags:
+      - v*.*.*
 
 # Defines two custom environment variables for the workflow. These are used for the Container registry domain, and a name for the Docker image that this workflow builds.
 env:
