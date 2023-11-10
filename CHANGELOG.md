@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.5.2](https://github.com/google/slo-generator/compare/v2.5.1...v2.5.2) (2023-11-10)
+
+
+### Bug Fixes
+
+* add `query_bad` option to Datadog backend ([#377](https://github.com/google/slo-generator/issues/377)) ([6ecc728](https://github.com/google/slo-generator/commit/6ecc72803a6bd7dbfe2035e978cc3c2b0a3349f3))
+
 ## [2.5.1](https://github.com/google/slo-generator/compare/v2.5.0...v2.5.1) (2023-10-13)
 
 
