@@ -37,7 +37,6 @@ jobs:
         uses: google-github-actions/setup-gcloud@v1
         with:
           project_id: ${{ secrets.PROJECT_ID }}
-          export_default_credentials: true
 
       - name: Build Docker container and publish on GCR
         run: make cloudbuild || true

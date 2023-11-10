@@ -34,7 +34,6 @@ jobs:
         uses: google-github-actions/setup-gcloud@v1
         with:
           project_id: ${{ secrets.PROJECT_ID }}
-          export_default_credentials: true
 
       - name: Wait for container image build
         uses: tomchv/wait-my-workflow@v1.1.0
