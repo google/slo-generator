@@ -61,35 +61,48 @@ class DatadogBackend:
         start = timestamp - window
         end = timestamp
         query_good = measurement["query_good"]
-        query_valid = measurement["query_valid"]
+
+        if measurement.get("query_bad"):
+            query = measurement.get("query_bad")
+        elif measurement.get("query_valid"):
+            query = measurement.get("query_valid")
+        else:
+            raise ValueError("One of `query_bad` or `query_valid` is required.")
+
         query_good = self._fmt_query(
             query_good,
             window,
             operator,
             operator_suffix,
         )
-        query_valid = self._fmt_query(
-            query_valid,
-            window,
-            operator,
-            operator_suffix,
-        )
+
         good_event_query = self.client.Metric.query(
             start=start,
             end=end,
             query=query_good,
         )
-        valid_event_query = self.client.Metric.query(
+
+        query = self._fmt_query(
+            query,
+            window,
+            operator,
+            operator_suffix,
+        )
+
+        event_query = self.client.Metric.query(
             start=start,
             end=end,
-            query=query_valid,
+            query=query,
         )
-        LOGGER.debug(f"Result good: {pprint.pformat(good_event_query)}")
-        LOGGER.debug(f"Result valid: {pprint.pformat(valid_event_query)}")
+
         good_event_count = DatadogBackend.count(good_event_query)
-        valid_event_count = DatadogBackend.count(valid_event_query)
-        bad_event_count = valid_event_count - good_event_count
-        return (good_event_count, bad_event_count)
+        event_count = DatadogBackend.count(event_query)
+        if measurement.get("query_valid"):
+            event_count = event_count - good_event_count
+
+        LOGGER.debug(f"Good events: {good_event_count} | " f"Bad events: {event_count}")
+
+        return good_event_count, event_count
 
     def query_sli(self, timestamp, window, slo_config):
         """Query SLI value directly.
