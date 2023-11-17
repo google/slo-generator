@@ -25,10 +25,8 @@ body:
     id: screenshot
     attributes:
       label: "Screenshots"
-      description: If applicable, add screenshots to help explain your problem.
-      value: |
-        ![DESCRIPTION](LINK.png)
-      render: bash
+      description: If applicable, add screenshots to help explain your problem. Paste images in the text area, or use the `![DESCRIPTION](LINK.png)`
+syntax.
     validations:
       required: false
   - type: textarea
