@@ -21,6 +21,8 @@ import pprint
 
 import datadog
 
+from slo_generator import utils
+
 LOGGER = logging.getLogger(__name__)
 logging.getLogger("datadog.api").setLevel(logging.ERROR)
 
@@ -137,8 +139,9 @@ class DatadogBackend:
         """
         slo_id = slo_config["spec"]["service_level_indicator"]["slo_id"]
         from_ts = timestamp - window
-        slo_data = self.client.ServiceLevelObjective.get(id=slo_id)
-        LOGGER.debug(f"SLO data: {slo_id} | Result: {pprint.pformat(slo_data)}")
+        if utils.is_debug_enabled():
+            slo_data = self.client.ServiceLevelObjective.get(id=slo_id)
+            LOGGER.debug(f"SLO data: {slo_id} | Result: {pprint.pformat(slo_data)}")
         data = self.client.ServiceLevelObjective.history(
             id=slo_id,
             from_ts=from_ts,
