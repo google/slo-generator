@@ -1,4 +1,4 @@
-# Copyright 2017 Google Inc.
+# Copyright 2022 Google Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,41 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-__pycache__/
-*.py[cod]
-*$py.class
-dist/
-lib/
-*.egg-info/
-.cache
-pytestdebug.log
-source-contexts.json
-source-context.json
-client_secrets.json
-\#*\#
-.\#*
-*_flymake.py
-.DS_Store
-.eggs/
-.python-version
-.idea
-node_modules/
-*.code-workspace
-.envrc
-.coverage
-htmlcov/
-*.iml
-.terraform/
-*.tfstate
-*.tfvars
-*.tfstate.backup
-*.tfstate.*.backup
-.vscode
-.env
-venv*/
-.venv*/
-reports/
-.mypy_cache
-.pytest_cache/
-.pytype/
-.pip-wheel-metadata/
+# flake8: noqa
+
+import unittest
+
+from slo_generator.backends.splunk import SplunkBackend
+
+
+class TestSplunkBackend(unittest.TestCase):
+    def test_fix_search_prefix(search):
+        search: str = "index=* status=200"
+        fixed_search = "search " + search
+
+        assert SplunkBackend.fix_search_prefix(search) == fixed_search
+        assert SplunkBackend.fix_search_prefix(fixed_search) == fixed_search

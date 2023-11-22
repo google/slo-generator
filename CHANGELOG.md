@@ -1,5 +1,54 @@
 # Changelog
 
+## [2.5.2](https://github.com/google/slo-generator/compare/v2.5.1...v2.5.2) (2023-11-10)
+
+
+### Bug Fixes
+
+* add `query_bad` option to Datadog backend ([#377](https://github.com/google/slo-generator/issues/377)) ([6ecc728](https://github.com/google/slo-generator/commit/6ecc72803a6bd7dbfe2035e978cc3c2b0a3349f3))
+
+## [2.5.1](https://github.com/google/slo-generator/compare/v2.5.0...v2.5.1) (2023-10-13)
+
+
+### Bug Fixes
+
+* get_human_time() should not hard-code the human-readable timezone ([#350](https://github.com/google/slo-generator/issues/350)) ([1948694](https://github.com/google/slo-generator/commit/194869473887c22948b1029bcbfda3e5b535c160))
+
+## [2.5.0](https://github.com/google/slo-generator/compare/v2.4.0...v2.5.0) (2023-10-11)
+
+
+### Features
+
+* add support for OpenSearch backend ([#348](https://github.com/google/slo-generator/issues/348)) ([f7bb0d9](https://github.com/google/slo-generator/commit/f7bb0d90850b7e56edd3d84091accda571c891e8))
+* upgrade google-* packages ([#354](https://github.com/google/slo-generator/issues/354)) ([e18fe5d](https://github.com/google/slo-generator/commit/e18fe5d5d295be7b4332a1004c06a3f3f3cd74de))
+
+
+### Bug Fixes
+
+* avoid CVEs reported by `safety check` ([#353](https://github.com/google/slo-generator/issues/353)) ([fb35d87](https://github.com/google/slo-generator/commit/fb35d870f80a86d7dcc7aae05725e5cf713b11a8))
+
+## [2.4.0](https://github.com/google/slo-generator/compare/v2.3.4...v2.4.0) (2023-06-21)
+
+
+### Features
+
+* add support for Splunk backend ([#335](https://github.com/google/slo-generator/issues/335)) ([5171318](https://github.com/google/slo-generator/commit/51713189f8bf473e7e384ed46653640f282c0dcb))
+
+
+### Bug Fixes
+
+* bump version of iSort to avoid non-deterministic error during pre-commit checks ([5542a06](https://github.com/google/slo-generator/commit/5542a065d5ca3d255b84ea20bebe42ff5d8c09aa))
+
+## [2.3.4](https://github.com/google/slo-generator/compare/v2.3.3...v2.3.4) (2023-02-27)
+
+
+### Bug Fixes
+
+* convert timestamp to UTC in Cloud Monitoring MQL backend ([#331](https://github.com/google/slo-generator/issues/331)) ([0b7cbcc](https://github.com/google/slo-generator/commit/0b7cbcc6ef9bf36277cca316a5255993824a7f46))
+* implicit Optional type hints are now forbidden (cf. PEP 484) ([#301](https://github.com/google/slo-generator/issues/301)) ([c1351e0](https://github.com/google/slo-generator/commit/c1351e065a3c0767ce8a50460c98f1ebb42326f6))
+* **lint:** replace too generic exceptions (Exception) with more specific ones (ValueError) ([d2eadbf](https://github.com/google/slo-generator/commit/d2eadbf5a3f5ce7032c36c0446c914dcd1c55d0f))
+* wrong environment variable name for `--target` option in `api` command ([#320](https://github.com/google/slo-generator/issues/320)) ([3303735](https://github.com/google/slo-generator/commit/3303735b28803bf92905554dc501e2772c707232))
+
 ## [2.3.3](https://github.com/google/slo-generator/compare/v2.3.2...v2.3.3) (2022-11-02)
 
 

@@ -168,9 +168,14 @@ def parse_config(
     return data
 
 
+def is_debug_enabled():
+    """Check if DEBUG mode is enabled."""
+    return DEBUG == 1
+
+
 def setup_logging():
     """Setup logging for the CLI."""
-    if DEBUG == 1:
+    if is_debug_enabled():
         print(f"DEBUG mode is enabled. DEBUG={DEBUG}")
         level = logging.DEBUG
         format_str = "%(name)s - %(levelname)s - %(message)s"
@@ -200,26 +205,23 @@ def get_human_time(timestamp: int, timezone: Optional[str] = None) -> str:
         timezone (optional): Explicit timezone (e.g: "America/Chicago").
 
     Returns:
-        str: Formatted human-readable date in ISO format (UTC), with
-             time zone added.
+        str: Formatted human-readable date in ISO format.
 
     Example:
-        >>> get_human_time(1565092435, timezone='Europe/Paris')
-        >>> 2019-08-06T11:53:55.000000+02:00
-        which corresponds to the UTC time appended the timezone format
-        to help with display and retrieval of the date localized.
+        >>> get_human_time(1702660513.987654, timezone='Europe/Paris')
+        >>> 2023-12-15T18:15:13.987654+01:00
+        which corresponds to the timestamp in ISO format
     """
     if timezone is not None:  # get timezone from arg
         to_zone = tz.gettz(timezone)
     else:  # auto-detect locale
         to_zone = tz.tzlocal()
-    dt_utc = datetime.utcfromtimestamp(timestamp)
-    dt_tz = dt_utc.replace(tzinfo=to_zone)
-    timeformat = "%Y-%m-%dT%H:%M:%S.%f%z"
-    date_str = datetime.strftime(dt_tz, timeformat)
-    core_str = date_str[:-2]
-    tz_str = date_str[-2:]
-    date_str = f"{core_str}:{tz_str}"
+
+    # NB: as we set tz, dt_tz is an "aware" datetime
+    # see: https://docs.python.org/3/library/datetime.html#aware-and-naive-objects
+    dt_tz = datetime.fromtimestamp(timestamp, tz=to_zone)
+    date_str = dt_tz.isoformat()
+
     return date_str
 
 

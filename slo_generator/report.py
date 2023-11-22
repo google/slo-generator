@@ -90,7 +90,6 @@ class SLOReport:
 
     # pylint: disable=too-many-arguments
     def __init__(self, config, backend, step, timestamp, client=None, delete=False):
-
         # Init dataclass fields from SLO config and Error Budget Policy
         spec = config["spec"]
         self.exporters = []
@@ -286,6 +285,8 @@ class SLOReport:
         """
         # Backend not found
         if data is None:
+            error = "Backend returned None."
+            self.errors.append(error)
             return False
 
         # Backend result is the wrong type
@@ -300,7 +301,6 @@ class SLOReport:
 
         # Good / Bad tuple
         if isinstance(data, tuple):
-
             # Tuple length should be 2
             if len(data) != 2:
                 error = (
@@ -351,12 +351,6 @@ class SLOReport:
         # Check backend float / int value
         if isinstance(data, (float, int)) and data == NO_DATA:
             error = "Backend returned NO_DATA (-1)."
-            self.errors.append(error)
-            return False
-
-        # Check backend None
-        if data is None:
-            error = "Backend returned None."
             self.errors.append(error)
             return False
 

@@ -56,6 +56,11 @@ CTX = {
     "DYNATRACE_API_URL": "fake",
     "DYNATRACE_API_TOKEN": "fake",
     "DYNATRACE_SLO_ID": "fake",
+    "SPLUNK_HOST": "fake",
+    "SPLUNK_PORT": "8089",
+    "SPLUNK_USER": "fake",
+    "SPLUNK_PWD": "fake",
+    "OPENSEARCH_URL": "http://localhost:9201",
 }
 
 
@@ -257,6 +262,17 @@ def mock_dt_errors(*args, **kwargs):
 
     elif args[0] == "put" and args[1] == "timeseries":
         return load_fixture("dt_error_rate.json")
+
+
+# def mock_splunk_connect(**kvargs)
+def mock_splunk_oneshot(search):
+    """Mock Splunk oneshot search job response"""
+    return load_fixture("splunk_generic_response.json")
+
+
+def mock_os_client(self, index, body):
+    """Mock Opensearch query result"""
+    return load_fixture("os_generic_response.json")
 
 
 class dotdict(dict):

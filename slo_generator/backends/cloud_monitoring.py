@@ -88,7 +88,7 @@ class CloudMonitoringBackend:
             valid_ts = list(valid_ts)
             bad_event_count = CM.count(valid_ts) - good_event_count
         else:
-            raise Exception("One of `filter_bad` or `filter_valid` is required.")
+            raise ValueError("One of `filter_bad` or `filter_valid` is required.")
 
         LOGGER.debug(
             f"Good events: {good_event_count} | " f"Bad events: {bad_event_count}"
