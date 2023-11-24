@@ -202,15 +202,15 @@ def process_batch_req(request, data, config):
         "Batch request detected. Splitting body and sending individual "
         "requests separately."
     )
-    urls = data.split(";")
+    slo_definitions = list(filter(None, data.split("---\n")))
     service_url = request.base_url
     headers = {"User-Agent": "slo-generator"}
     if "Authorization" in request.headers:
         headers["Authorization"] = request.headers["Authorization"]
         service_url = service_url.replace("http:", "https:")  # force HTTPS auth
-    for url in urls:
+    for slo_definition in slo_definitions:
         if "pubsub_batch_handler" in config:
-            LOGGER.info(f"Sending {url} to pubsub batch handler.")
+            LOGGER.info(f"Sending {slo_definition} to pubsub batch handler.")
             from google.cloud import pubsub_v1  # pylint: disable=C0415
 
             # pytype: disable=attribute-error
@@ -224,8 +224,8 @@ def process_batch_req(request, data, config):
             topic_name = exporter_conf["topic_name"]
             # pylint: disable=no-member
             topic_path = client.topic_path(project_id, topic_name)
-            data = url.encode("utf-8")
+            data = slo_definition.encode("utf-8")
             client.publish(topic_path, data=data).result()
         else:  # http
-            LOGGER.info(f"Sending {url} to HTTP batch handler.")
-            requests.post(service_url, headers=headers, data=url, timeout=10)
+            LOGGER.info(f"Sending {slo_definition} to HTTP batch handler.")
+            requests.post(service_url, headers=headers, data=slo_definition, timeout=10)
