@@ -50,6 +50,7 @@ CTX = {
     "BIGQUERY_TABLE_ID": "fake",
     "BIGQUERY_DATASET_ID": "fake",
     "BIGQUERY_TABLE_NAME": "fake",
+    "DATADOG_API_HOST": "fake",
     "DATADOG_API_KEY": "fake",
     "DATADOG_APP_KEY": "fake",
     "DATADOG_SLO_ID": "fake",
