@@ -6,6 +6,8 @@ Opensearch backend implementation.
 import copy
 import logging
 
+from opensearchpy import OpenSearch
+
 from slo_generator.constants import NO_DATA
 
 LOGGER = logging.getLogger(__name__)
@@ -34,7 +36,7 @@ class OpenSearchBackend:
             if api_key:
                 conf["api_key"] = (api_key["id"], api_key["value"])
 
-            # self.client = OpenSearch(**conf)
+            self.client = OpenSearch(**conf)
 
     # pylint: disable=unused-argument
     def good_bad_ratio(self, timestamp, window, slo_config):
