@@ -150,7 +150,6 @@ class OpenSearchBackend:
             body["query"]["bool"]["filter"].append({"range": range_query})
         else:
             body["query"]["bool"]["filter"] = {"range": range_query}
-        print(body)
         return body
 
 
