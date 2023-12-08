@@ -6,8 +6,6 @@ Opensearch backend implementation.
 import copy
 import logging
 
-from opensearchpy import OpenSearch
-
 from slo_generator.constants import NO_DATA
 
 LOGGER = logging.getLogger(__name__)
@@ -36,7 +34,7 @@ class OpenSearchBackend:
             if api_key:
                 conf["api_key"] = (api_key["id"], api_key["value"])
 
-            self.client = OpenSearch(**conf)
+            # self.client = OpenSearch(**conf)
 
     # pylint: disable=unused-argument
     def good_bad_ratio(self, timestamp, window, slo_config):
@@ -134,10 +132,23 @@ class OpenSearchBackend:
         }
 
         if "filter" in body["query"]["bool"]:
+            if isinstance(body["query"]["bool"]["filter"], dict):
+                body["query"]["bool"]["filter"] = [body["query"]["bool"]["filter"]]
+
+            indexes = [
+                i
+                for i, x in enumerate(body["query"]["bool"]["filter"])
+                if "range" in x and date_field in x["range"]
+            ]
+            body["query"]["bool"]["filter"] = [
+                i
+                for j, i in enumerate(body["query"]["bool"]["filter"])
+                if j not in indexes
+            ]
             body["query"]["bool"]["filter"].append({"range": range_query})
         else:
             body["query"]["bool"]["filter"] = {"range": range_query}
-
+        print(body)
         return body
 
 
