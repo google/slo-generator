@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.5.3](https://github.com/google/slo-generator/compare/v2.5.2...v2.5.3) (2023-12-13)
+
+
+### Bug Fixes
+
+* **deps:** bump version of `pip` to avoid known CVE ([#397](https://github.com/google/slo-generator/issues/397)) ([b1edb12](https://github.com/google/slo-generator/commit/b1edb1217f978dd32a0bc9768aed65c3563f4444))
+
 ## [2.5.2](https://github.com/google/slo-generator/compare/v2.5.1...v2.5.2) (2023-11-10)
 
 
