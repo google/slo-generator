@@ -149,7 +149,7 @@ class SLOReport:
         eb_remaining_minutes = self.window * gap / 60
         eb_target_minutes = self.window * eb_target / 60
         eb_minutes = self.window * eb_value / 60
-        eb_ratio = eb_value * 100 / eb_target
+        eb_ratio = eb_value * 100 / eb_target if eb_target > 0 else 0
         if eb_target == 0:
             eb_burn_rate = 0
         else:
