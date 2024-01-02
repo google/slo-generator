@@ -16,6 +16,7 @@
   "error_budget_remaining_minutes": -288,
   "error_budget_target": 0.09999999999999998,
   "error_minutes": "360.0",
+  "consumed_budget_ratio": 19.9999999999999,
   "events_count": 7112,
   "gap": -0.4,
   "goal": 0.9,

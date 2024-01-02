@@ -277,6 +277,11 @@ TABLE_SCHEMA = [
         "mode": "NULLABLE",
     },
     {
+        "name": "consumed_budget_ratio",
+        "type": "FLOAT",
+        "mode": "NULLABLE",
+    },
+    {
         "name": "timestamp_human",
         "type": "TIMESTAMP",
         "mode": "REQUIRED",
