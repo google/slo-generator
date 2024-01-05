@@ -277,7 +277,7 @@ TABLE_SCHEMA = [
         "mode": "NULLABLE",
     },
     {
-        "name": "consumed_budget_ratio",
+        "name": "error_budget_consumed_ratio",
         "type": "FLOAT",
         "mode": "NULLABLE",
     },

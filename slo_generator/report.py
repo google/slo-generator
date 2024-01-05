@@ -61,7 +61,7 @@ class SLOReport:
     error_budget_minutes: float
     error_budget_remaining_minutes: float
     error_minutes: float
-    consumed_budget_ratio: float
+    error_budget_consumed_ratio: float
 
     # Data validation
     valid: bool
@@ -181,7 +181,7 @@ class SLOReport:
             error_budget_remaining_minutes=eb_remaining_minutes,
             error_budget_minutes=eb_target_minutes,
             error_minutes=eb_minutes,
-            consumed_budget_ratio=eb_ratio,
+            error_budget_consumed_ratio=eb_ratio,
             alert=alert,
             consequence_message=consequence_message,
         )
