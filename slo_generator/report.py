@@ -26,6 +26,7 @@ from slo_generator.constants import COLORED_OUTPUT, MIN_VALID_EVENTS, NO_DATA, C
 LOGGER = logging.getLogger(__name__)
 
 
+# pylint: disable=too-many-arguments,too-many-locals
 @dataclass(init=False)
 class SLOReport:
     """SLO report dataclass. Compute an SLO report out of an SLO config and an
@@ -60,6 +61,7 @@ class SLOReport:
     error_budget_minutes: float
     error_budget_remaining_minutes: float
     error_minutes: float
+    error_budget_consumed_ratio: float
 
     # Data validation
     valid: bool
@@ -147,6 +149,7 @@ class SLOReport:
         eb_remaining_minutes = self.window * gap / 60
         eb_target_minutes = self.window * eb_target / 60
         eb_minutes = self.window * eb_value / 60
+        eb_ratio = eb_value * 100 / eb_target if eb_target > 0 else 0
         if eb_target == 0:
             eb_burn_rate = 0
         else:
@@ -178,6 +181,7 @@ class SLOReport:
             error_budget_remaining_minutes=eb_remaining_minutes,
             error_budget_minutes=eb_target_minutes,
             error_minutes=eb_minutes,
+            error_budget_consumed_ratio=eb_ratio,
             alert=alert,
             consequence_message=consequence_message,
         )
