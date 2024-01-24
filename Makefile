@@ -101,6 +101,7 @@ bandit:
 	bandit .
 
 safety:
+	pip --version
 	safety check
 
 integration: int_cm int_csm int_custom int_dd int_dt int_es int_prom int_sp int_os
