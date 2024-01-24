@@ -58,7 +58,7 @@ develop: install
 	pre-commit install
 
 install: clean
-	$(PIP) install -U setuptools
+	$(PIP) install -U setuptools pip
 	$(PIP) install -e ."[api, datadog, prometheus, elasticsearch, opensearch, splunk, pubsub, cloud_monitoring, bigquery, dev]"
 
 uninstall: clean
