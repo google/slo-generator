@@ -23,6 +23,7 @@ jobs:
         run: make install
 
       - name: Lint
+        if: ${{ matrix.python-version != '3.11' }}  # https://github.com/google/slo-generator/issues/403
         run: make lint
 
   unit:
