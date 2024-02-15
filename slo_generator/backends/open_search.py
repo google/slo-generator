@@ -134,10 +134,22 @@ class OpenSearchBackend:
         }
 
         if "filter" in body["query"]["bool"]:
-            body["query"]["bool"]["filter"]["range"] = range_query
+            if isinstance(body["query"]["bool"]["filter"], dict):
+                body["query"]["bool"]["filter"] = [body["query"]["bool"]["filter"]]
+
+            indexes = [
+                i
+                for i, x in enumerate(body["query"]["bool"]["filter"])
+                if "range" in x and date_field in x["range"]
+            ]
+            body["query"]["bool"]["filter"] = [
+                i
+                for j, i in enumerate(body["query"]["bool"]["filter"])
+                if j not in indexes
+            ]
+            body["query"]["bool"]["filter"].append({"range": range_query})
         else:
             body["query"]["bool"]["filter"] = {"range": range_query}
-
         return body
 
 
