@@ -1,5 +1,19 @@
 # Changelog
 
+## [2.6.0](https://github.com/google/slo-generator/compare/v2.5.2...v2.6.0) (2024-02-16)
+
+
+### Features
+
+* add Error Budget Consumed Ratio metric to reports and BigQuery exporter ([#416](https://github.com/google/slo-generator/issues/416)) ([3b1f636](https://github.com/google/slo-generator/commit/3b1f6361ee2fde12f96e2c82510bb9924c7898e0))
+
+
+### Bug Fixes
+
+* **ci:** pin `safety` to v2 as v3 causes unit tests to fail ([#423](https://github.com/google/slo-generator/issues/423)) ([5b44bad](https://github.com/google/slo-generator/commit/5b44bade26327ea5140990c2e4bdb5f814132ce1))
+* **deps:** bump version of `pip` to avoid known CVE ([#397](https://github.com/google/slo-generator/issues/397)) ([b1edb12](https://github.com/google/slo-generator/commit/b1edb1217f978dd32a0bc9768aed65c3563f4444))
+* **open_search:** change the way range is added to filters ([#400](https://github.com/google/slo-generator/issues/400)) ([c221464](https://github.com/google/slo-generator/commit/c2214644cc7ebd43e3b5385d21971088b03fdb38))
+
 ## [2.5.2](https://github.com/google/slo-generator/compare/v2.5.1...v2.5.2) (2023-11-10)
 
 
