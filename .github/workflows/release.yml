@@ -23,7 +23,3 @@ jobs:
 
       - name: Release PyPI package
         run: make deploy
-        env:
-          TWINE_USERNAME: ${{ secrets.TWINE_USERNAME }}
-          TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD }}
-          TWINE_REPOSITORY_URL: https://upload.pypi.org/legacy/
