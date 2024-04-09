@@ -131,6 +131,22 @@ class DatadogBackend:
             from_ts=from_ts,
             to_ts=timestamp,
         )
+
+        # check if a correction is set
+        if data["data"]["overall"]["corrections"] != "[]" :
+            try:
+                # query slo without correction
+                data_without_correction = self.client.ServiceLevelObjective.history(
+                    id=slo_id,
+                    from_ts=from_ts,
+                    to_ts=timestamp,
+                    apply_correction=False
+                )
+                LOGGER.debug(f"Result data_without_correction: {pprint.pformat(data_without_correction)}")
+                slo_config["metadata"]["sli_not_corrected"] = data_without_correction["data"]["overall"]["sli_value"]
+            except:
+                LOGGER.debug(f"data_without_correction retrieval failed for SLO: {slo_id}")
+
         try:
             LOGGER.debug(f"Timeseries data: {slo_id} | Result: {pprint.pformat(data)}")
             good_event_count = data["data"]["series"]["numerator"]["sum"]
