@@ -187,7 +187,7 @@ def setup_logging():
         format_str = "%(asctime)s " + format_str
 
     logging.basicConfig(
-        stream=sys.stdout, level=level, format=format_str, datefmt="%m/%d/%Y %I:%M:%S"
+        stream=sys.stdout, level=level, format=format_str, datefmt="%m/%d/%Y %H:%M:%S"
     )
     logging.getLogger("googleapiclient").setLevel(logging.ERROR)
 
