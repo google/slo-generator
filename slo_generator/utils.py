@@ -32,7 +32,7 @@ from typing import Optional
 import yaml
 from dateutil import tz
 
-from slo_generator.constants import DEBUG
+from slo_generator.constants import DEBUG, LOGGING_TIMESTAMP_ENABLED
 
 try:
     # pytype: disable=import-error
@@ -182,6 +182,10 @@ def setup_logging():
     else:
         level = logging.INFO
         format_str = "%(levelname)s - %(message)s"
+
+    if LOGGING_TIMESTAMP_ENABLED == "1":
+        format_str = "%(asctime)s " + format_str
+
     logging.basicConfig(
         stream=sys.stdout, level=level, format=format_str, datefmt="%m/%d/%Y %I:%M:%S"
     )
