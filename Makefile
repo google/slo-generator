@@ -100,7 +100,9 @@ bandit:
 	bandit .
 
 safety:
-	safety check
+	# Ignore CVE-2018-20225 with Vulnerability ID 67599.
+	# We do not use the `--extra-index-url` option, and the behavior is intended anyway.
+	safety check --ignore 67599
 
 integration: int_cm int_csm int_custom int_dd int_dt int_es int_prom int_sp int_os
 

@@ -27,6 +27,7 @@ max-line-length = 88
 disable = [
     "logging-fstring-interpolation",
     "import-error",
+    "possibly-used-before-assignment",
 ]
 
 [tool.mypy]
