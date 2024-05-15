@@ -2,6 +2,7 @@
 `splunk.py`
 Query a splunk search to compute a SLI as a custom slo-generator backend
 """
+
 import copy
 import json
 import logging
