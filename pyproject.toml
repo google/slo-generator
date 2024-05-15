@@ -127,8 +127,10 @@ Issues = "https://github.com/google/slo-generator/issues"
 Source = "https://github.com/google/slo-generator"
 
 [tool.hatch.build.targets.sdist]
-include = [
-    "/slo_generator",
+exclude = [
+    "/.github",
+    "/docs",
+    "/tests",
 ]
 
 [tool.mypy]
