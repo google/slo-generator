@@ -24,8 +24,6 @@ features = [
 [envs.test.scripts]
 unit = "pytest {args:tests} -p no:warnings"
 unit-cov = "coverage run -m pytest {args:tests} -p no:warnings"
-[[envs.test.matrix]]
-python = ["3.8", "3.9", "3.10", "3.11"]
 
 [envs.lint]
 detached = true
@@ -49,8 +47,6 @@ all = [
   "style",
   "typing",
 ]
-[[envs.lint.matrix]]
-python = ["3.8", "3.9", "3.10", "3.11"]
 
 [envs.audit]
 detached = true
@@ -65,5 +61,3 @@ all = [
     # We do not use the `--extra-index-url` option, and the behavior is intended anyway.
     "safety check --ignore 67599",
 ]
-[[envs.audit.matrix]]
-python = ["3.8", "3.9", "3.10", "3.11"]
