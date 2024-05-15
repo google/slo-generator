@@ -20,10 +20,10 @@ import logging
 import os
 import sys
 import time
+from importlib import metadata
 from pathlib import Path
 
 import click
-from importlib import metadata
 
 from slo_generator import utils
 from slo_generator.compute import compute as _compute
