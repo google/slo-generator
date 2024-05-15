@@ -7,7 +7,7 @@ name = "slo-generator"
 version = "2.6.0"
 description = "SLO Generator"
 readme = "README.md"
-license = "Apache License 2.0"
+license = "Apache-2.0"
 requires-python = ">=3.7, <4"
 authors = [
     { name = "Google Inc.", email = "olivier.cervello@gmail.com" },
