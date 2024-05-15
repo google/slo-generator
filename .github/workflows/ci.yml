@@ -1,70 +1,40 @@
-name: Continous Integration (CI)
+name: Continuous Integration
 
 on:
   pull_request:
 
 jobs:
-  lint:
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest]
-        architecture: ['x64']
-        python-version: ['3.8', '3.9', '3.10', '3.11']
-    runs-on: ${{ matrix.os }}
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python-version }}
-          architecture: ${{ matrix.architecture }}
-
-      - name: Install dependencies
-        run: make install
-
-      - name: Lint
-        run: make lint
-
-  unit:
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest]
-        architecture: ['x64']
-        python-version: ['3.8', '3.9', '3.10', '3.11']
-    runs-on: ${{ matrix.os }}
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python-version }}
-          architecture: ${{ matrix.architecture }}
-
-      - name: Install dependencies
-        run: make install
-
-      - name: Run unit tests
-        run: make unit
-        env:
-          MIN_VALID_EVENTS: "10"
-          GOOGLE_APPLICATION_CREDENTIALS: tests/unit/fixtures/fake_credentials.json
-
-      - name: Run coverage report
-        run: make coverage
-
-  audit:
+  ci:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v4
         with:
-          python-version: "3.9"  # same as Dockerfile
-
-      - name: Install dependencies
-        run: make install
-
-      - name: Audit for CVEs
-        run: make audit
+          python-version: |
+            3.8
+            3.9
+            3.10
+            3.11
+      - name: Set up pip cache
+        if: runner.os == 'Linux'
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('pyproject.toml') }}
+          restore-keys: ${{ runner.os }}-pip- 
+      - name: Install Hatch
+        run: pipx install hatch
+      - name: Run unit tests with coverage
+        run: hatch run test:unit-cov
+        env:
+          MIN_VALID_EVENTS: 10
+          GOOGLE_APPLICATION_CREDENTIALS: tests/unit/fixtures/fake_credentials.json
+      - name: Lint
+        run: hatch run lint:all
+      - name: Audit
+        run: hatch run audit:all
+      - name: Build
+        run: hatch build
 
   docker:
     runs-on: ubuntu-latest
