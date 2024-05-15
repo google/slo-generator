@@ -12,6 +12,9 @@ requires-python = ">=3.7, <4"
 authors = [
     { name = "Google Inc.", email = "olivier.cervello@gmail.com" },
 ]
+maintainers = [
+    { name = "Laurent Vaylet", email = "laurent.vaylet@gmail.com" }
+]
 keywords = [
     "gcp",
     "generator",
