@@ -8,7 +8,7 @@ version = "2.6.0"
 description = "SLO Generator"
 readme = "README.md"
 license = "Apache-2.0"
-requires-python = ">=3.7, <4"
+requires-python = ">=3.8, <4"
 authors = [
     { name = "Google Inc.", email = "olivier.cervello@gmail.com" },
 ]
@@ -28,10 +28,10 @@ classifiers = [
     "Intended Audience :: System Administrators",
     "License :: OSI Approved :: Apache Software License",
     "Programming Language :: Python",
-    "Programming Language :: Python :: 3.7",
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
     "Topic :: Software Development :: Build Tools",
     "Topic :: System :: Monitoring",
 ]
