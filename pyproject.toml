@@ -36,7 +36,7 @@ classifiers = [
     "Topic :: System :: Monitoring",
 ]
 dependencies = [
-    "certifi >=2023.07.22",
+    "certifi>=2023.07.22", # avoid CVE-2023-37920 (reported by `safety check`)
     "click",
     "python-dateutil",
     "pyyaml",
@@ -76,9 +76,9 @@ datadog = [
 ]
 dev = [
     "bandit",
-    "black >=24.3.0",
+    "black >=24.3.0", # avoid CVE-2024-21503 (reported by `safety check`)
     "flake8",
-    "GitPython >=3.1.35",
+    "GitPython >=3.1.35", # avoid CVE-2023-41040, CVE-2023-40267 and CVE-2023-40590 (reported by `safety check`)
     "isort",
     "mock",
     "mypy",
