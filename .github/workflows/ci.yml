@@ -24,6 +24,8 @@ jobs:
           restore-keys: ${{ runner.os }}-pip- 
       - name: Install Hatch
         run: pipx install hatch
+      - name: List Hatch environments
+        run: hatch env show
       - name: Run unit tests with coverage
         run: hatch run test:unit-cov
         env:
