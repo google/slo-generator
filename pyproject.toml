@@ -74,29 +74,7 @@ datadog = [
     "datadog",
     "retrying==1.3.4",
 ]
-dev = [
-    "bandit",
-    "black >=24.3.0", # avoid CVE-2024-21503 (reported by `safety check`)
-    "flake8",
-    "GitPython >=3.1.35", # avoid CVE-2023-41040, CVE-2023-40267 and CVE-2023-40590 (reported by `safety check`)
-    "isort",
-    "mock",
-    "mypy",
-    "pip >=23.3",
-    "pre-commit",
-    "pylint",
-    "pytest",
-    "pytest-cov",
-    "pytype",
-    "safety >=3",
-    "types-mock",
-    "types-protobuf",
-    "types-python-dateutil",
-    "types-PyYAML",
-    "types-requests",
-    "types-setuptools",
-    "wheel",
-]
+
 dynatrace = [
     "requests",
 ]

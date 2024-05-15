@@ -1,0 +1,69 @@
+[envs.test]
+dependencies = [
+  "coverage[toml]>=6.5",
+  "mock",
+  "pytest",
+  "pytest-cov",
+]
+# Install all optional dependencies.
+features = [
+    "api",
+    "bigquery",
+    "cloud_monitoring",
+    "cloud_service_monitoring",
+    "cloud_storage",
+    "cloudevent",
+    "datadog",
+    "dynatrace",
+    "elasticsearch",
+    "opensearch",
+    "prometheus",
+    "pubsub",
+    "splunk",
+]
+[envs.test.scripts]
+unit = "pytest {args:tests} -p no:warnings"
+unit-cov = "coverage run -m pytest {args:tests} -p no:warnings"
+[[envs.test.matrix]]
+python = ["3.8", "3.9", "3.10", "3.11"]
+
+[envs.lint]
+detached = true
+dependencies = [
+  "black>=24.3.0", # avoid CVE-2024-21503 (reported by `safety check`)
+  "mypy",
+  "ruff",
+]
+[envs.lint.scripts]
+typing = "mypy --install-types --non-interactive {args:src/slo_generator}"
+style = [
+  "ruff check {args:.}",
+  "black --check --diff {args:.}",
+]
+fmt = [
+  "black {args:.}",
+  "ruff check --fix {args:.}",
+  "style",
+]
+all = [
+  "style",
+  "typing",
+]
+[[envs.lint.matrix]]
+python = ["3.8", "3.9", "3.10", "3.11"]
+
+[envs.audit]
+detached = true
+dependencies = [
+    "bandit",
+    "safety",
+]
+[envs.audit.scripts]
+all = [
+    "bandit -c pyproject.toml -r .",
+    # Ignore CVE-2018-20225 with Vulnerability ID 67599.
+    # We do not use the `--extra-index-url` option, and the behavior is intended anyway.
+    "safety check --ignore 67599",
+]
+[[envs.audit.matrix]]
+python = ["3.8", "3.9", "3.10", "3.11"]
