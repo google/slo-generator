@@ -123,6 +123,8 @@ slo-generator = "slo_generator.cli:main"
 
 [project.urls]
 Homepage = "https://github.com/google/slo-generator"
+Issues = "https://github.com/google/slo-generator/issues"
+Source = "https://github.com/google/slo-generator"
 
 [tool.hatch.build.targets.sdist]
 include = [
