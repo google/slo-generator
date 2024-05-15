@@ -126,8 +126,10 @@ Homepage = "https://github.com/google/slo-generator"
 path = "slo_generator/__init__.py"
 
 [tool.hatch.build.targets.sdist]
-include = [
-    "/slo_generator",
+exclude = [
+    "/.github",
+    "/docs",
+    "/tests",
 ]
 
 [tool.mypy]
