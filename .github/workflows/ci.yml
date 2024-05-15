@@ -42,7 +42,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: docker-practice/actions-setup-docker@master
-
+      - uses: docker/build-push-action@v5
       - name: Build Docker image
         run: make docker_build
