@@ -141,7 +141,9 @@ exclude = [
 disable_error_code = "import-untyped"
 
 [tool.pytype]
-inputs = ['slo_generator']
+inputs = [
+    "src/slo_generator",
+]
 
 [tool.ruff.lint]
 # https://docs.astral.sh/ruff/linter/#rule-selection
