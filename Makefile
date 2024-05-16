@@ -68,6 +68,8 @@ install: clean
 uninstall: clean
 	$(HATCH) env prune
 
+##############
+
 #TODO: How to handle pre-commit with Hatch environments? 
 develop: install
 	pre-commit install
@@ -76,6 +78,8 @@ develop: install
 
 format:
 	$(HATCH) fmt
+
+##############
 
 #FIXME: Are all dependencies and features requested for all these targets?
 test: install unit lint audit
