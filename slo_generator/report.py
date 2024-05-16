@@ -23,6 +23,9 @@ from typing import List
 from slo_generator import utils
 from slo_generator.constants import COLORED_OUTPUT, MIN_VALID_EVENTS, NO_DATA, Colors
 
+#patch 0.3 importing random lib
+import random,time
+
 LOGGER = logging.getLogger(__name__)
 
 
@@ -90,6 +93,18 @@ class SLOReport:
     # Data validation
     errors: List[str] = field(default_factory=list)
 
+    def get_assumption_empty_sli(self, config):
+        if "assumption_empty_sli" in config["spec"] and config["spec"]["method"] == "good_bad_ratio":
+            if 0 <= float(config["spec"]["assumption_empty_sli"]) <= 100:
+                assumption_empty_sli = float(config["spec"]["assumption_empty_sli"])
+                LOGGER.debug(f"{self.info} | Found assumption_empty_sli config, It will to be used the value {str(assumption_empty_sli)}% when not exists increase in metrics")
+                return assumption_empty_sli
+            else:
+                LOGGER.error("Value to assumption_empty_sli is not between 0 and 100. Received: " + str(config['spec']['assumption_empty_sli']) + '.')
+        else:
+            LOGGER.debug("assumption_empty_sli is not in labels, skipping")
+        return -1
+
     # pylint: disable=too-many-arguments
     def __init__(self, config, backend, step, timestamp, client=None, delete=False):
         # Init dataclass fields from SLO config and Error Budget Policy
@@ -114,20 +129,34 @@ class SLOReport:
         self.valid = True
         self.errors = []
 
+        # Get Assumption of Empty SLI value in slo-config
+        #assumption_empty_sli = self.get_assumption_empty_sli(config)
+        assumption_empty_sli = 100
+
         # Get backend results
-        data = self.run_backend(config, backend, client=client, delete=delete)
-        if not self._validate(data):
+        # Patch globo-0.3 for three retries
+        RETRIES=3
+        while RETRIES > 0:
+            data = self.run_backend(config, backend, client=client, delete=delete)
+            LOGGER.debug(f'patch globo-0.3 | After get data in backend({str(data)}).')
+            if not self._validate(data, assumption_empty_sli):
+                RETRIES -= 1
+                rWAIT = random.randint(2, 5)
+                LOGGER.debug(f'patch globo-0.3 | Waiting {rWAIT} before next try. ({RETRIES} retries remaining)')
+                time.sleep(rWAIT)
+            else:
+                RETRIES = 0
+        if not self._validate(data, assumption_empty_sli):
+            LOGGER.error('patch globo-0.3 | an error occurs in last validation of retrieved data from backend...')
             self.valid = False
             return
-
         # Build SLO report
-        self.build(step, data)
-
+        self.build(step, data, assumption_empty_sli)
         # Post validation
         if not self._post_validate():
             self.valid = False
 
-    def build(self, step, data):
+    def build(self, step, data, assumption_empty_sli=-1):
         """Compute all data necessary to build the SLO report.
 
         Args:
@@ -140,7 +169,12 @@ class SLOReport:
         LOGGER.debug(f"{self.info} | SLO report starting ...")
 
         # SLI, Good count, Bad count, Gap from backend results
-        sli, good_count, bad_count = self.get_sli(data)
+        sli, good_count, bad_count = self.get_sli(data, assumption_empty_sli)
+        #patch globo-0.3 additional condition to good events empty or NODATA
+        LOGGER.debug(f"SLI={sli}, GOOD={good_count}, BAD={bad_count}")
+        if good_count == 'EMPTY':
+            LOGGER.error("Good events found is 0, terminating...")
+            exit(-1)
         gap = sli - self.goal
 
         # Error Budget calculations
@@ -232,7 +266,7 @@ class SLOReport:
             return None
         return data
 
-    def get_sli(self, data):
+    def get_sli(self, data, assumption_empty_sli=-1):
         """Compute SLI value and good / bad counts from the backend result.
 
         Some backends (e.g: Prometheus) are computing and returning the SLI
@@ -254,11 +288,18 @@ class SLOReport:
         if isinstance(data, tuple):  # good, bad count
             good_count, bad_count = data
             if good_count == NO_DATA:
-                good_count = 0
+                #patch globo-0.3, terminate if not exists good events
+                good_count = 'EMPTY'
+                sli_measurement = None
+                return sli_measurement, good_count, bad_count
             if bad_count == NO_DATA:
                 bad_count = 0
             LOGGER.debug(f"{self.info} | Good: {good_count} | Bad: {bad_count}")
-            sli_measurement = round(good_count / (good_count + bad_count), 6)
+            if good_count == 0 and bad_count == 0 and assumption_empty_sli != -1:
+                sli_measurement = round(assumption_empty_sli / 100, 5)
+                LOGGER.warning(f"{self.info} | Setting sli_measurement to {float(assumption_empty_sli)}% because sli increase in time is 0.")
+            else:
+                sli_measurement = round(good_count / (good_count + bad_count), 6)
         else:  # sli value
             sli_measurement = round(data, 6)
             good_count, bad_count = NO_DATA, NO_DATA
@@ -277,7 +318,7 @@ class SLOReport:
         return asdict(self)
 
     # pylint: disable=too-many-return-statements
-    def _validate(self, data) -> bool:
+    def _validate(self, data, assumption_empty_sli=-1) -> bool:
         """Validate backend results. Invalid data will result in SLO report not
         being built.
 
@@ -345,11 +386,17 @@ class SLOReport:
             # Tuple should not have elements where the sum is inferior to our
             # minimum valid events threshold
             if (good + bad) < MIN_VALID_EVENTS:
-                error = (
-                    f"Not enough valid events ({good + bad}) found. Minimum "
-                    f"valid events: {MIN_VALID_EVENTS}."
-                )
-                self.errors.append(error)
+                if good == 0 and bad == 0 and assumption_empty_sli > -1:
+                    LOGGER.debug(f"good={good}, bad={bad}, assumption_empty_sli={assumption_empty_sli}, setting SLI to {assumption_empty_sli}")
+                else:
+                    error = (
+                        f"Not enough valid events ({good + bad}) found. Minimum "
+                        f"valid events: {MIN_VALID_EVENTS}.")
+                    self.errors.append(error)
+                    return False
+            # Patch globo-0.3 for good events less than 0
+            if good <= 0 and bad > 0:
+                LOGGER.debug("Good less than 0, skipping SLO calculation by patch globo-0.3")
                 return False
 
         # Check backend float / int value
