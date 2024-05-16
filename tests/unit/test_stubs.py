@@ -134,7 +134,9 @@ class MultiCallableStub:
 class ChannelStub:
     """Stub for the grpc.Channel interface."""
 
-    def __init__(self, responses=[]):
+    def __init__(self, responses=None):
+        if responses is None:
+            responses = []
         self.responses = responses
         self.requests = []
 
@@ -259,7 +261,7 @@ def mock_dt_errors(*args, **kwargs):
     elif args[0] == "get" and args[1] == "metrics/query":
         return load_fixture("dt_timeseries_get.json")
 
-    elif args[0] == "post" and args[1] == "entity/infrastructure/custom":
+    elif args[0] == "post" and args[1] == "entity/infrastructure/custom":  # noqa: SIM114
         return load_fixture("dt_error_rate.json")
 
     elif args[0] == "put" and args[1] == "timeseries":
@@ -401,7 +403,9 @@ def load_slo_samples(folder_path, ctx=os.environ):
 
 
 # Add custom backends / exporters for testing purposes
-DUMMY_BACKEND_CODE = open(get_fixture_path("dummy_backend.py")).read()
-FAIL_EXPORTER_CODE = open(get_fixture_path("fail_exporter.py")).read()
+with open(get_fixture_path("dummy_backend.py")) as f:
+    DUMMY_BACKEND_CODE = f.read()
+with open(get_fixture_path("fail_exporter.py")) as fail:
+    FAIL_EXPORTER_CODE = f.read()
 add_dynamic("dummy", DUMMY_BACKEND_CODE, "backends")
 add_dynamic("fail", FAIL_EXPORTER_CODE, "exporters")

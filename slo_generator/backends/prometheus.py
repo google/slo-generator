@@ -145,8 +145,8 @@ class PrometheusBackend:
         filter: str,
         window: int,
         timestamp: Optional[int] = None,
-        operators: list = None,
-        labels: dict = None,
+        operators: list | None = None,
+        labels: dict | None = None,
     ) -> dict:
         """Query Prometheus server.
 
@@ -193,8 +193,8 @@ class PrometheusBackend:
     def _fmt_query(
         query: str,
         window: int,
-        operators: List[str] = None,
-        labels: Dict[str, str] = None,
+        operators: List[str] | None = None,
+        labels: Dict[str, str] | None = None,
     ) -> str:
         """Format Prometheus query:
 

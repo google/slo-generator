@@ -316,6 +316,7 @@ class CloudServiceMonitoringBackend:
                 "It will be removed in version 3.0, please use MeshIstio "
                 "instead",
                 FutureWarning,
+                stacklevel=2,
             )
             if "zone" in cluster_istio:
                 cluster_istio["suffix"] = "zone"
