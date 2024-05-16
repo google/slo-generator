@@ -1,4 +1,4 @@
-#!/usr/bin/make
+#!/usr/bin/env make
 # WARN: gmake syntax
 ########################################################
 # Makefile for $(NAME)
@@ -12,24 +12,28 @@
 #	make audit -- run CVE scan separately
 #	make integration -- run integration tests
 ########################################################
-# variable section
+
+# Variables
 
 NAME = slo_generator
 
+HATCH = hatch
 PIP = pip3
 PYTHON = python3
-TWINE = twine
 COVERAGE = coverage
-SITELIB = $(shell $(PYTHON) -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")
 
-VERSION ?= $(shell grep "version = " setup.cfg | cut -d ' ' -f 3)
+VERSION ?= $(shell grep "version = " pyproject.toml | cut -d ' ' -f 3)
 
 ########################################################
 
 all: clean install test
 
+##############
+
 info:
 	@echo "slo-generator version: ${VERSION}"
+
+##############
 
 clean:
 	@echo "Cleaning up distutils stuff"
@@ -46,43 +50,63 @@ clean:
 	@echo "Cleaning up test reports"
 	rm -rf report/*
 
+##############
+
 build: clean
-	$(PYTHON) setup.py sdist bdist_wheel
+	$(HATCH) build
 
-deploy: clean install_twine build
-	$(TWINE) upload dist/*
+deploy: build
+	$(HATCH) publish
 
-install_twine:
-	$(PIP) install twine
+##############
 
 #TODO: Replace with Hatch.
 install: clean
 	$(PIP) install -e ."[api, datadog, prometheus, elasticsearch, opensearch, splunk, pubsub, cloud_monitoring, bigquery, dev]"
 
 uninstall: clean
+	$(HATCH) env prune
+
+##############
+
 #TODO: How to handle pre-commit with Hatch environments? 
-#FIXME: Are all dependencies and features requested for all these targets?
+develop: install
+	pre-commit install
 
-unit: clean
-	pytest --cov=$(NAME) tests -p no:warnings
-
-coverage:
-	$(COVERAGE) report --rcfile=".coveragerc"
+##############
 
 format:
-	ruff format
+	$(HATCH) fmt
+
+##############
+
+#FIXME: Are all dependencies and features requested for all these targets?
+test: install unit lint audit
+
+##############
+
+unit: clean
+	$(HATCH) run test:unit
+
+coverage:
+	$(HATCH) run test:cov
+
+##############
 
 lint: ruff pytype mypy
 
 ruff:
-	ruff format --check
-	ruff check
+	$(HATCH) fmt
 
 pytype:
-	pytype
+	$(HATCH) run lint:pytype
 
 mypy:
-	mypy --show-error-codes $(NAME)
+	$(HATCH) run lint:mypy
+
+##############
+
+audit: bandit safety
 
 audit: bandit safety
 
@@ -93,6 +117,8 @@ safety:
 	# Ignore CVE-2018-20225 with Vulnerability ID 67599.
 	# We do not use the `--extra-index-url` option, and the behavior is intended anyway.
 	safety check --ignore 67599
+
+##############
 
 integration: int_cm int_csm int_custom int_dd int_dt int_es int_prom int_sp int_os
 
@@ -122,6 +148,8 @@ int_sp:
 
 int_os:
 	slo-generator compute -f samples/opensearch -c samples/config.yaml
+
+##############
 
 # Run API locally
 run_api:
