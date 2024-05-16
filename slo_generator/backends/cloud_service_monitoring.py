@@ -15,6 +15,7 @@
 `cloud_service_monitoring.py`
 Cloud Service Monitoring exporter class.
 """
+
 import difflib
 import json
 import logging

@@ -15,6 +15,7 @@
 `cloud_monitoring.py`
 Cloud Monitoring exporter class.
 """
+
 import logging
 
 from google.cloud import monitoring_v3

@@ -15,6 +15,7 @@
 `bigquery.py`
 BigQuery exporter class.
 """
+
 import io
 import json
 import logging

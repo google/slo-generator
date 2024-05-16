@@ -15,6 +15,7 @@
 `cloud_monitoring.py`
 Cloud Monitoring backend implementation.
 """
+
 import logging
 import pprint
 import warnings

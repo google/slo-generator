@@ -15,6 +15,7 @@
 `prometheus_self.py`
 Prometheus Self exporter class.
 """
+
 import logging
 
 from flask import current_app, make_response
