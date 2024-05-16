@@ -14,9 +14,9 @@
 
 import os
 import unittest
+from unittest.mock import patch
 
 from click.testing import CliRunner
-from mock import patch
 
 from slo_generator.cli import main
 from slo_generator.utils import load_config

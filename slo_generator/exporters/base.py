@@ -15,6 +15,7 @@
 `base.py`
 Base exporter abstract classes.
 """
+
 import logging
 import warnings
 from abc import ABCMeta, abstractmethod
@@ -189,6 +190,7 @@ class MetricsExporter:  # pytype: disable=ignored-metaclass
                 "`metric_type` will be deprecated in favor of `metrics` "
                 "in version 2.0.0, ",
                 FutureWarning,
+                stacklevel=2,
             )
         if old_metric_labels:
             metric["labels"] = old_metric_labels
@@ -196,12 +198,14 @@ class MetricsExporter:  # pytype: disable=ignored-metaclass
                 "`metric_labels` will be deprecated in favor of `metrics` "
                 "in version 2.0.0, ",
                 FutureWarning,
+                stacklevel=2,
             )
         if old_metric_description:
             warnings.warn(
                 "`metric_description` will be deprecated in favor of `metrics` "
                 "in version 2.0.0, ",
                 FutureWarning,
+                stacklevel=2,
             )
             metric["description"] = old_metric_description
         return metric

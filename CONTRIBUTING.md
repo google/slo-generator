@@ -49,14 +49,31 @@ This project follows [Google's Open Source Community Guidelines](https://opensou
     fix end of files.........................................................Passed
     check yaml...............................................................Passed
     check for added large files..............................................Passed
-    autoflake................................................................Passed
-    flake8...................................................................Passed
-    black....................................................................Passed
-    isort....................................................................Passed
-    pylint...................................................................Passed
+    ruff.....................................................................Passed
+    ruff-format..............................................................Passed
     ```
 
-    If any error is reported, your commit gets canceled and you can start working on fixing the issues. If a formatting error gets reported, run `make format` to automatically organize the imports and reformat the code with [`isort`](https://github.com/PyCQA/isort) and [`black`](https://github.com/psf/black). Also make sure to fix any errors returned by linters or static analyzers such as [`flake8`](https://flake8.pycqa.org/en/latest/), [`pylint`](https://pylint.pycqa.org/en/latest/), [`mypy`](http://mypy-lang.org/) or [`pytype`](https://github.com/google/pytype). Then try `git commit`-ting your changes again.
+    Errors (and/or skipped files) show up like:
+
+    ```sh
+    $ pre-commit run
+    trim trailing whitespace.................................................Passed
+    fix end of files.........................................................Passed
+    check yaml...........................................(no files to check)Skipped
+    check for added large files..............................................Passed
+    ruff.....................................................................Failed
+    - hook id: ruff
+    - exit code: 1
+
+    slo_generator/backends/prometheus.py:194:57: B006 Do not use mutable data structures for argument defaults
+    slo_generator/backends/prometheus.py:194:86: B006 Do not use mutable data structures for argument defaults
+    Found 2 errors.
+    No fixes available (2 hidden fixes can be enabled with the `--unsafe-fixes` option).
+
+    ruff-format..............................................................Passed
+    ```
+
+    If any error is reported, your commit gets canceled and you can start working on fixing the issues. If a formatting error gets reported, run `make format` to automatically organize the imports and reformat the code with [`Ruff`](https://docs.astral.sh/ruff/). Also make sure to fix any errors returned by linters or static analyzers such as [`Ruff`](https://docs.astral.sh/ruff/) (again!), [`mypy`](http://mypy-lang.org/) or [`pytype`](https://github.com/google/pytype). Then try `git commit`-ting your changes again.
 
     Ignoring these pre-commit warnings is not recommended. The Continuous Integration (CI) pipelines will run the exact same checks (and more!) when your commits get pushed. The checks will fail there and prevent you from merging your changes to the `master` branch anyway. So fail fast, fail early, fail often and fix as many errors as possible on your local development machine. Code reviews will be more enjoyable for everyone!
 
@@ -66,15 +83,16 @@ This project follows [Google's Open Source Community Guidelines](https://opensou
 
 ***Notes:***
 
-- IDEs such as Visual Studio Code and PyCharm can help with linting and reformatting. For example, Visual Studio Code can be configured to run `isort` and `black` automatically on every file save. Just add these lines to your `settings.json` file, as documented in [this article](https://cereblanco.medium.com/setup-black-and-isort-in-vscode-514804590bf9):
+- IDEs such as Visual Studio Code and PyCharm can help with linting and reformatting. For example, Visual Studio Code can be configured to run `ruff` automatically on every file save. Just add these lines to your `settings.json` file, as documented on the [official Ruff extension for Visual Studio Code page](https://marketplace.visualstudio.com/items?itemName=charliermarsh.ruff):
 
   ```json
-      "editor.formatOnSave": true,
-      "python.formatting.provider": "black",
       "[python]": {
-          "editor.codeActionsOnSave": {
-              "source.organizeImports": true  // isort
-          }
+        "editor.formatOnSave": true,
+        "editor.codeActionsOnSave": {
+          "source.fixAll": "explicit",
+          "source.organizeImports": "explicit",
+        },
+        "editor.defaultFormatter": "charliermarsh.ruff",
       },
   ```
 
@@ -90,12 +108,14 @@ You can also select which test to run, and do other things:
 
 ```sh
 make unit          # run unit tests only
-make lint          # lint code only (with flake8, pylint, mypy and pytype)
-make format        # format code only (with isort and black)
+make lint          # lint code only (with ruff, mypy and pytype)
+make format        # format code only (with ruff)
 make docker_test   # build Docker image and run tests within Docker container
 make docker_build  # build Docker image only
 make info          # see current slo-generator version
 ```
+
+Inspect `Makefile` for more targets and more details on how they are implemented.
 
 ### Adding support for a new backend or exporter
 

@@ -14,11 +14,11 @@
 
 import unittest
 import warnings
+from unittest.mock import MagicMock, patch
 
 from datadog.api import Metric, ServiceLevelObjective
 from elasticsearch import Elasticsearch
 from google.auth._default import _CLOUD_SDK_CREDENTIALS_WARNING
-from mock import MagicMock, patch
 from opensearchpy import OpenSearch
 from prometheus_http_client import Prometheus
 from splunklib import client as Splunk

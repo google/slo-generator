@@ -15,6 +15,7 @@
 `cloud_monitoring.py`
 Cloud Monitoring backend implementation.
 """
+
 import logging
 import pprint
 import warnings
@@ -169,6 +170,7 @@ class CloudMonitoringBackend:
             "exponential_distribution_cut will be deprecated in version 2.0, "
             "please use distribution_cut instead",
             FutureWarning,
+            stacklevel=2,
         )
         return self.distribution_cut(*args, **kwargs)
 

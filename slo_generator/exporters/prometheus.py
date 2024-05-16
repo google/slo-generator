@@ -15,6 +15,7 @@
 `stackdriver.py`
 Stackdriver Monitoring exporter class.
 """
+
 import logging
 
 from prometheus_client import CollectorRegistry, Gauge, pushadd_to_gateway

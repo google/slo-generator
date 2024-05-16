@@ -15,6 +15,7 @@
 
 Init test environment variables.
 """
+
 import os
 
 os.environ["MIN_VALID_EVENTS"] = "10"

@@ -15,6 +15,7 @@
 `bigquery.py`
 BigQuery exporter class.
 """
+
 import io
 import json
 import logging
@@ -155,7 +156,7 @@ class BigqueryExporter:
         return self.client.create_table(table)
 
     # pylint: disable=dangerous-default-value
-    def update_schema(self, table_ref, keep=[]):
+    def update_schema(self, table_ref, keep=None):
         """Updates a BigQuery table schema if needed.
 
         Args:
@@ -165,6 +166,8 @@ class BigqueryExporter:
         Returns:
             obj: BigQuery table object.
         """
+        if keep is None:
+            keep = []
         table = self.client.get_table(table=table_ref)
         iostream = io.StringIO("")
         self.client.schema_to_json(table.schema, iostream)

@@ -15,6 +15,7 @@
 `cloudevents.py`
 CloudEvents exporter class.
 """
+
 import logging
 
 import google.auth.transport.requests

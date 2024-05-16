@@ -150,10 +150,7 @@ class SLOReport:
         eb_target_minutes = self.window * eb_target / 60
         eb_minutes = self.window * eb_value / 60
         eb_ratio = eb_value * 100 / eb_target if eb_target > 0 else 0
-        if eb_target == 0:
-            eb_burn_rate = 0
-        else:
-            eb_burn_rate = round(eb_value / eb_target, 1)
+        eb_burn_rate = 0 if eb_target == 0 else round(eb_value / eb_target, 1)
 
         # Alert boolean on burn rate excessive speed.
         alert = eb_burn_rate > self.error_budget_burn_rate_threshold
@@ -372,7 +369,7 @@ class SLOReport:
         return True
 
     # pylint: disable=dangerous-default-value
-    def __set_fields(self, lambdas={}, **kwargs):
+    def __set_fields(self, lambdas=None, **kwargs):
         """Set all fields in dataclasses from configs passed and apply function
         on values whose key match one in the dictionaries.
 
@@ -380,6 +377,8 @@ class SLOReport:
             lambdas (dict): Dict {key: function} to apply a function on certain
             kwargs (dict): Dict of key / values to set in dataclass.
         """
+        if lambdas is None:
+            lambdas = {}
         names = set(f.name for f in fields(self))
         for name in names:
             if name not in kwargs:

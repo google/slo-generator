@@ -73,23 +73,13 @@ coverage:
 	$(COVERAGE) report --rcfile=".coveragerc"
 
 format:
-	isort .
-	black .
+	ruff format
 
-lint: black isort flake8 pylint pytype mypy
+lint: ruff pytype mypy
 
-black:
-	black . --check
-
-isort:
-	isort . --check-only
-
-flake8:
-	flake8 $(NAME)/
-	flake8 tests/
-
-pylint:
-	find ./$(NAME) ./tests -type f -name "*.py" | xargs pylint
+ruff:
+	ruff format --check
+	ruff check
 
 pytype:
 	pytype
