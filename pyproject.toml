@@ -134,7 +134,8 @@ disable = [
 
 [tool.mypy]
 # https://mypy.readthedocs.io/en/stable/config_file.html#using-a-pyproject-toml-file
-ignore_missing_imports = true
+# https://mypy.readthedocs.io/en/stable/running_mypy.html#missing-library-stubs-or-py-typed-marker
+disable_error_code = "import-untyped"
 
 [tool.pytype]
 inputs = ['slo_generator']
