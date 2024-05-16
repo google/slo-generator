@@ -405,7 +405,7 @@ def load_slo_samples(folder_path, ctx=os.environ):
 # Add custom backends / exporters for testing purposes
 with open(get_fixture_path("dummy_backend.py")) as f:
     DUMMY_BACKEND_CODE = f.read()
-with open(get_fixture_path("fail_exporter.py")) as fail:
+with open(get_fixture_path("fail_exporter.py")) as f:
     FAIL_EXPORTER_CODE = f.read()
 add_dynamic("dummy", DUMMY_BACKEND_CODE, "backends")
 add_dynamic("fail", FAIL_EXPORTER_CODE, "exporters")
