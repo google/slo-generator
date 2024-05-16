@@ -62,6 +62,7 @@ deploy: build
 
 #TODO: Replace with Hatch.
 install: clean
+#FIXME: Are all dependencies and features requested for all these targets?
 	$(PIP) install -e ."[api, datadog, prometheus, elasticsearch, opensearch, splunk, pubsub, cloud_monitoring, bigquery, dev]"
 
 uninstall: clean
