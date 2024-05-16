@@ -90,6 +90,9 @@ class SLOReport:
     # Data validation
     errors: List[str] = field(default_factory=list)
 
+    # Global (from error budget policy)
+    offset: int = 0
+
     # pylint: disable=too-many-arguments
     def __init__(self, config, backend, step, timestamp, client=None, delete=False):
         # Init dataclass fields from SLO config and Error Budget Policy
@@ -222,6 +225,14 @@ class SLOReport:
         if delete and hasattr(instance, "delete"):
             method = instance.delete
             LOGGER.info(f"{self.info} | Delete mode enabled.")
+
+        # Set offset from class attribute if it exists in the class, otherwise
+        # keep the value defined in config.
+        self.offset = max(cls.__dict__.get("DEFAULT_OFFSET", 0), self.offset)
+        LOGGER.debug(f"{self.info} | Running with offset {self.offset}s")
+
+        # Substract offset from start timestamp
+        self.timestamp = self.timestamp - self.offset
 
         # Run backend method and return results.
         try:
