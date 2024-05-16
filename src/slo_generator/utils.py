@@ -210,7 +210,7 @@ def get_human_time(timestamp: int, timezone: Optional[str] = None) -> str:
         str: Formatted human-readable date in ISO format.
 
     Example:
-        >>> get_human_time(1702660513.987654, timezone='Europe/Paris')
+        >>> get_human_time(1702660513.987654, timezone="Europe/Paris")
         >>> 2023-12-15T18:15:13.987654+01:00
         which corresponds to the timestamp in ISO format
     """
