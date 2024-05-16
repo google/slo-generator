@@ -1,5 +1,5 @@
-#!/usr/bin/make
-# WARN: gmake syntax
+#!/usr/bin/env make
+
 ########################################################
 # Makefile for $(NAME)
 #
@@ -12,17 +12,12 @@
 #	make audit -- run CVE scan separately
 #	make integration -- run integration tests
 ########################################################
-# variable section
+
+# Variables
 
 NAME = slo_generator
-
-PIP = pip3
-PYTHON = python3
-TWINE = twine
-COVERAGE = coverage
-SITELIB = $(shell $(PYTHON) -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")
-
-VERSION ?= $(shell grep "version = " setup.cfg | cut -d ' ' -f 3)
+RYE = rye
+VERSION ?= $(shell grep "version = " pyproject.toml | cut -d ' ' -f 3)
 
 ########################################################
 
@@ -47,55 +42,48 @@ clean:
 	rm -rf report/*
 
 build: clean
-	$(PYTHON) setup.py sdist bdist_wheel
+	$(RYE) build
 
-deploy: clean install_twine build
-	$(TWINE) upload dist/*
-
-install_twine:
-	$(PIP) install twine
+deploy: clean build
+	$(RYE) publish
 
 develop: install
-	pre-commit install
+	$(RYE) run pre-commit install
 
 install: clean
-	$(PIP) install -e ."[api, datadog, prometheus, elasticsearch, opensearch, splunk, pubsub, cloud_monitoring, bigquery, dev]"
+	$(RYE) sync --all-features
 
-uninstall: clean
-	$(PIP) freeze --exclude-editable | xargs $(PIP) uninstall -y
+format:
+	$(RYE) fmt
 
 test: install unit lint audit
 
 unit: clean
-	pytest --cov=$(NAME) tests -p no:warnings
-
-coverage:
-	$(COVERAGE) report --rcfile=".coveragerc"
-
-format:
-	ruff format
+	$(RYE) run pytest --cov=$(NAME) tests -p no:warnings
 
 lint: ruff pytype mypy
 
 ruff:
-	ruff format --check
-	ruff check
+	$(RYE) run ruff check
+	$(RYE) run ruff format
 
 pytype:
-	pytype
+	$(RYE) run pytype
 
 mypy:
-	mypy --show-error-codes $(NAME)
+	$(RYE) run mypy --show-error-codes $(NAME)
+
+audit: bandit safety
 
 audit: bandit safety
 
 bandit:
-	bandit -r $(NAME)
+	$(RYE) run bandit .
 
 safety:
 	# Ignore CVE-2018-20225 with Vulnerability ID 67599.
 	# We do not use the `--extra-index-url` option, and the behavior is intended anyway.
-	safety check --ignore 67599
+	$(RYE) run safety check --ignore 67599
 
 integration: int_cm int_csm int_custom int_dd int_dt int_es int_prom int_sp int_os
 
