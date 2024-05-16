@@ -6,10 +6,11 @@
 # useful targets:
 #	make clean -- clean distutils
 #	make coverage -- code coverage report
-#	make test -- run lint + unit tests
-#	make lint -- run lint tests separately
-#	make unit -- runs unit tests separately
-#   make integration -- runs integration tests
+#	make test -- run linting + unit tests + audit CVEs
+#	make lint -- run linting separately
+#	make unit -- run unit tests separately
+#	make audit -- run CVE scan separately
+#	make integration -- run integration tests
 ########################################################
 # variable section
 
@@ -63,7 +64,7 @@ install: clean
 uninstall: clean
 	$(PIP) freeze --exclude-editable | xargs $(PIP) uninstall -y
 
-test: install unit lint
+test: install unit lint audit
 
 unit: clean
 	pytest --cov=$(NAME) tests -p no:warnings
@@ -75,7 +76,7 @@ format:
 	isort .
 	black .
 
-lint: black isort flake8 pylint pytype mypy bandit safety
+lint: black isort flake8 pylint pytype mypy
 
 black:
 	black . --check
@@ -96,8 +97,10 @@ pytype:
 mypy:
 	mypy --show-error-codes $(NAME)
 
+audit: bandit safety
+
 bandit:
-	bandit .
+	bandit -r $(NAME)
 
 safety:
 	# Ignore CVE-2018-20225 with Vulnerability ID 67599.
