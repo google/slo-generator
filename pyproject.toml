@@ -39,6 +39,7 @@ dependencies = [
     "click",
     "python-dateutil",
     "pyyaml",
+    "retrying",
     "ruamel.yaml",
 ]
 
