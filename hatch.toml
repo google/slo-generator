@@ -22,8 +22,9 @@ features = [
     "splunk",
 ]
 [envs.test.scripts]
-unit = "pytest {args:tests} -p no:warnings"
-unit-cov = "coverage run -m pytest {args:tests} -p no:warnings"
+#TODO: Check what coverage does exactly, and if there is a more modern approach, for example with `py-cov`.
+unit = "pytest --cov=coverage {args:tests} -p no:warnings"
+cov = "coverage report --rcfile='.coveragerc'"
 
 [envs.lint]
 detached = true
@@ -40,7 +41,7 @@ style = [
 ]
 fmt = [
   "black {args:.}",
-  "ruff check --fix {args:.}",
+  #FIXME Configure `mypy` from `pyproject.toml`, like `pytype`. 
   "style",
 ]
 all = [

@@ -55,16 +55,13 @@ deploy: clean install_twine build
 install_twine:
 	$(PIP) install twine
 
-develop: install
-	pre-commit install
-
+#TODO: Replace with Hatch.
 install: clean
 	$(PIP) install -e ."[api, datadog, prometheus, elasticsearch, opensearch, splunk, pubsub, cloud_monitoring, bigquery, dev]"
 
 uninstall: clean
-	$(PIP) freeze --exclude-editable | xargs $(PIP) uninstall -y
-
-test: install unit lint audit
+#TODO: How to handle pre-commit with Hatch environments? 
+#FIXME: Are all dependencies and features requested for all these targets?
 
 unit: clean
 	pytest --cov=$(NAME) tests -p no:warnings
