@@ -10,7 +10,7 @@
 #	make lint -- run linting separately
 #	make unit -- run unit tests separately
 #	make audit -- run CVE scan separately
-#   make integration -- run integration tests
+#	make integration -- run integration tests
 ########################################################
 # variable section
 
