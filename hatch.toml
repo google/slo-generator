@@ -1,4 +1,24 @@
+[envs.default]
+python = "3.10"
+# Install all optional dependencies.
+features = [
+    "api",
+    "bigquery",
+    "cloud_monitoring",
+    "cloud_service_monitoring",
+    "cloud_storage",
+    "cloudevent",
+    "datadog",
+    "dynatrace",
+    "elasticsearch",
+    "opensearch",
+    "prometheus",
+    "pubsub",
+    "splunk",
+]
+
 [envs.test]
+python = "3.10"
 dependencies = [
   "coverage[toml]>=6.5",
   "mock",
@@ -27,22 +47,37 @@ unit = "pytest --cov=coverage {args:tests} -p no:warnings"
 cov = "coverage report --rcfile='.coveragerc'"
 
 [envs.lint]
+python="3.10"
 detached = true
 dependencies = [
-  "black>=24.3.0", # avoid CVE-2024-21503 (reported by `safety check`)
   "mypy",
+  "pytype",
   "ruff",
 ]
-[envs.lint.scripts]
-typing = "mypy --install-types --non-interactive {args:src/slo_generator}"
-style = [
-  "ruff check {args:.}",
-  "black --check --diff {args:.}",
+# Install all optional dependencies.
+features = [
+    "api",
+    "bigquery",
+    "cloud_monitoring",
+    "cloud_service_monitoring",
+    "cloud_storage",
+    "cloudevent",
+    "datadog",
+    "dynatrace",
+    "elasticsearch",
+    "opensearch",
+    "prometheus",
+    "pubsub",
+    "splunk",
 ]
-fmt = [
-  "black {args:.}",
+[envs.lint.scripts]
+style = [
+  "ruff {args:.}",
+]
+typing = [
+  "pytype",
   #FIXME Configure `mypy` from `pyproject.toml`, like `pytype`. 
-  "style",
+  "mypy --install-types --show-error-codes --disable-error-code=import-untyped --non-interactive {args:src/slo_generator}",
 ]
 all = [
   "style",
@@ -50,6 +85,7 @@ all = [
 ]
 
 [envs.audit]
+python = "3.10"
 detached = true
 dependencies = [
     "bandit",
