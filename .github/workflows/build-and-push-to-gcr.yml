@@ -44,6 +44,7 @@ jobs:
           GCR_PROJECT_ID: ${{ secrets.GCR_PROJECT_ID }}
           CLOUDBUILD_PROJECT_ID: ${{ secrets.CLOUDBUILD_PROJECT_ID }}
           VERSION: ${{ steps.check-tag.outputs.match == 'true' && steps.check-tag.outputs.version ||  github.event.pull_request.head.sha || github.sha }}
+          # TODO: Pass the Python version too, for the `PYTHON_VERSION` build argument of the Dockerfile.
 
       - name: Build Docker container and publish on GCR [latest]
         run: make cloud_build || true
@@ -52,3 +53,4 @@ jobs:
           GCR_PROJECT_ID: ${{ secrets.GCR_PROJECT_ID }}
           CLOUDBUILD_PROJECT_ID: ${{ secrets.CLOUDBUILD_PROJECT_ID }}
           VERSION: latest
+          # TODO: Pass the Python version too, for the `PYTHON_VERSION` build argument of the Dockerfile.
