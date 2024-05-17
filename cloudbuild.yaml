@@ -18,6 +18,7 @@ steps:
   script: |
     docker build \
       -t gcr.io/$_GCR_PROJECT_ID/slo-generator:${_VERSION} \
+      --build-arg PYTHON_VERSION=3.9 \
       .
 
 substitutions:
