@@ -139,42 +139,39 @@ docker_build:
 		.
 
 # Build Docker image with Cloud Build
-cloudbuild: gcloud_alpha
-	gcloud alpha builds submit \
-	--config=cloudbuild.yaml \
-	--project=${CLOUDBUILD_PROJECT_ID} \
-	--substitutions=_GCR_PROJECT_ID=${GCR_PROJECT_ID},_VERSION=${VERSION}
+cloudbuild:
+	gcloud builds submit \
+		--config=cloudbuild.yaml \
+		--project=${CLOUDBUILD_PROJECT_ID} \
+		--substitutions=_GCR_PROJECT_ID=${GCR_PROJECT_ID},_VERSION=${VERSION}
 
-# Cloudrun
+# Cloud Run
 cloudrun:
 	gcloud run deploy slo-generator \
-	--image gcr.io/${GCR_PROJECT_ID}/slo-generator:${VERSION} \
-	--region=${REGION} \
-	--platform managed \
-	--set-env-vars CONFIG_PATH=${CONFIG_URL} \
-	--service-account=${SERVICE_ACCOUNT} \
-	--project=${CLOUDRUN_PROJECT_ID} \
-	--command="slo-generator" \
-	--args=api \
-	--args=--signature-type="${SIGNATURE_TYPE}" \
-	--min-instances 1 \
-	--allow-unauthenticated
+		--image gcr.io/${GCR_PROJECT_ID}/slo-generator:${VERSION} \
+		--region=${REGION} \
+		--platform managed \
+		--set-env-vars CONFIG_PATH=${CONFIG_URL} \
+		--service-account=${SERVICE_ACCOUNT} \
+		--project=${CLOUDRUN_PROJECT_ID} \
+		--command="slo-generator" \
+		--args=api \
+		--args=--signature-type="${SIGNATURE_TYPE}" \
+		--min-instances 1 \
+		--allow-unauthenticated
 
-# Cloudrun - export mode only
+# Cloud Run - Export Mode Only
 cloudrun_export_only:
 	gcloud run deploy slo-generator-export \
-	--image gcr.io/${GCR_PROJECT_ID}/slo-generator:${VERSION} \
-	--region=${REGION} \
-	--platform managed \
-	--set-env-vars CONFIG_PATH=${CONFIG_URL} \
-	--service-account=${SERVICE_ACCOUNT} \
-	--project=${CLOUDRUN_PROJECT_ID} \
-	--command="slo-generator" \
-	--args=api \
-	--args=--signature-type="cloudevent" \
-	--args=--target="run_export" \
-	--min-instances 1 \
-	--allow-unauthenticated
-
-gcloud_alpha:
-	gcloud components install alpha --quiet
+		--image gcr.io/${GCR_PROJECT_ID}/slo-generator:${VERSION} \
+		--region=${REGION} \
+		--platform managed \
+		--set-env-vars CONFIG_PATH=${CONFIG_URL} \
+		--service-account=${SERVICE_ACCOUNT} \
+		--project=${CLOUDRUN_PROJECT_ID} \
+		--command="slo-generator" \
+		--args=api \
+		--args=--signature-type="cloudevent" \
+		--args=--target="run_export" \
+		--min-instances 1 \
+		--allow-unauthenticated
