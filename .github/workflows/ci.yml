@@ -1,4 +1,4 @@
-name: test
+name: Continous Integration (CI)
 
 on:
   pull_request:
