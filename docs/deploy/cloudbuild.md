@@ -14,7 +14,7 @@ git clone https://github.com/google/slo-generator
 cd slo-generator/
 export CLOUDBUILD_PROJECT_ID=<CLOUDBUILD_PROJECT_ID>
 export GCR_PROJECT_ID=<GCR_PROJECT_ID>
-make cloudbuild
+make cloud_build
 ```
 
 ## Run `slo-generator` as a build step

@@ -139,14 +139,14 @@ docker_build:
 		.
 
 # Build Docker image with Cloud Build
-cloudbuild:
+cloud_build:
 	gcloud builds submit \
 		--config=cloudbuild.yaml \
 		--project=${CLOUDBUILD_PROJECT_ID} \
 		--substitutions=_GCR_PROJECT_ID=${GCR_PROJECT_ID},_VERSION=${VERSION}
 
 # Cloud Run
-cloudrun:
+cloud_run:
 	gcloud run deploy slo-generator \
 		--image gcr.io/${GCR_PROJECT_ID}/slo-generator:${VERSION} \
 		--region=${REGION} \
@@ -161,7 +161,7 @@ cloudrun:
 		--allow-unauthenticated
 
 # Cloud Run - Export Mode Only
-cloudrun_export_only:
+cloud_run_export_only:
 	gcloud run deploy slo-generator-export \
 		--image gcr.io/${GCR_PROJECT_ID}/slo-generator:${VERSION} \
 		--region=${REGION} \
