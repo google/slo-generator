@@ -135,7 +135,6 @@ docker_build:
 	DOCKER_BUILDKIT=1
 	docker build \
 		-t slo-generator:latest \
-		--build-arg PYTHON_VERSION=3.9 \
 		.
 
 # Build Docker image with Cloud Build
@@ -143,7 +142,7 @@ cloud_build:
 	gcloud builds submit \
 		--config=cloudbuild.yaml \
 		--project=${CLOUDBUILD_PROJECT_ID} \
-		--substitutions=_GCR_PROJECT_ID=${GCR_PROJECT_ID},_VERSION=${VERSION}
+		--substitutions=_GCR_PROJECT_ID=${GCR_PROJECT_ID},_VERSION=${VERSION},_PYTHON_VERSION=${PYTHON_VERSION}
 
 # Cloud Run
 cloud_run:
