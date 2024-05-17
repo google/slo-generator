@@ -16,7 +16,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
-          python-version: '3.9'
+          python-version: '${{ vars.PYTHON_VERSION }}'
           architecture: 'x64'
 
       - name: Check release version
@@ -44,7 +44,7 @@ jobs:
           GCR_PROJECT_ID: ${{ secrets.GCR_PROJECT_ID }}
           CLOUDBUILD_PROJECT_ID: ${{ secrets.CLOUDBUILD_PROJECT_ID }}
           VERSION: ${{ steps.check-tag.outputs.match == 'true' && steps.check-tag.outputs.version ||  github.event.pull_request.head.sha || github.sha }}
-          # TODO: Pass the Python version too, for the `PYTHON_VERSION` build argument of the Dockerfile.
+          PYTHON_VERSION: ${{ vars.PYTHON_VERSION }}
 
       - name: Build Docker container and publish on GCR [latest]
         run: make cloud_build || true
@@ -53,4 +53,4 @@ jobs:
           GCR_PROJECT_ID: ${{ secrets.GCR_PROJECT_ID }}
           CLOUDBUILD_PROJECT_ID: ${{ secrets.CLOUDBUILD_PROJECT_ID }}
           VERSION: latest
-          # TODO: Pass the Python version too, for the `PYTHON_VERSION` build argument of the Dockerfile.
+          PYTHON_VERSION: ${{ vars.PYTHON_VERSION }}
