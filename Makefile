@@ -133,12 +133,18 @@ run_api:
 # Local Docker build / push
 docker_build:
 	DOCKER_BUILDKIT=1
-	docker build -t slo-generator:latest .
+	docker build \
+		-t slo-generator:latest \
+		--build-arg PYTHON_VERSION=3.9 \
+		.
 
 docker_test: docker_build
-	docker run --entrypoint "make" \
+	docker run \
+		--entrypoint "make" \
+		-e MINVALID_EVENTS=10 \
 		-e GOOGLE_APPLICATION_CREDENTIALS=tests/unit/fixtures/fake_credentials.json \
-		slo-generator test
+		slo-generator:latest \
+		test
 
 # Cloudbuild
 cloudbuild: gcloud_alpha

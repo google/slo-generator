@@ -12,16 +12,40 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM python:3.9-slim
-RUN apt-get update && \
-    apt-get install -y \
-    build-essential \
-    make \
-    gcc \
-    locales
-ADD . /app
+ARG PYTHON_VERSION
+
+FROM python:${PYTHON_VERSION}-slim
+
 WORKDIR /app
-RUN pip install -U setuptools
-RUN pip install ."[api, datadog, dynatrace, prometheus, elasticsearch, opensearch, splunk, pubsub, cloud_monitoring, cloud_service_monitoring, cloud_storage, bigquery, cloudevent, dev]"
+
+COPY . ./
+
+# TODO: Is `make` required if we decide not to run tests from the Docker image?
+RUN apt-get update \
+ && apt-get install --no-install-recommends -y \
+        make \
+ && apt-get autoremove -y \
+ && apt-get clean -y \
+ && rm -rf /var/lib/apt/lists/*
+
+# TODO: Is `dev` required if we decide not to run tests from the Docker image?
+RUN pip install ."[ \
+        api, \
+        bigquery, \
+        cloud_monitoring, \
+        cloud_service_monitoring, \
+        cloud_storage, \
+        cloudevent, \
+        datadog, \
+        dynatrace, \
+        elasticsearch, \
+        opensearch, \
+        prometheus, \
+        pubsub, \
+        splunk, \
+        dev \
+    ]"
+
 ENTRYPOINT [ "slo-generator" ]
-CMD ["-v"]
+
+CMD [ "-v" ]
