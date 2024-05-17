@@ -12,7 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-ARG PYTHON_VERSION=3.9
+# Define the default Python version used in production.
+# This is usually the most recent supported version at https://devguide.python.org/versions/.
+# !! Make sure to propagate any new value to the `PYTHON_VERSION` variable in:
+# GitHub > Settings > Secrets and variables > Actions > Variables > Repository variables
+ARG PYTHON_VERSION=3.11
 
 FROM python:${PYTHON_VERSION}-alpine
 
