@@ -21,7 +21,7 @@ WORKDIR /app
 COPY . ./
 
 # TODO: Is `dev` required if we decide not to run tests from the Docker image?
-RUN pip install ."[ \
+RUN pip install --no-cache-dir ."[ \
         api, \
         bigquery, \
         cloud_monitoring, \
