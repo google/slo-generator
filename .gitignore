@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# FIXME: Clean up unused entries and sort by categories
 __pycache__/
 *.py[cod]
 *$py.class
@@ -50,4 +51,4 @@ reports/
 .pytest_cache/
 .pytype/
 .pip-wheel-metadata/
-.ruff_cache
+.ruff_cache/

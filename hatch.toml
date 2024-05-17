@@ -1,0 +1,100 @@
+[envs.default]
+python = "3.10"
+# Install all optional dependencies.
+features = [
+    "api",
+    "bigquery",
+    "cloud_monitoring",
+    "cloud_service_monitoring",
+    "cloud_storage",
+    "cloudevent",
+    "datadog",
+    "dynatrace",
+    "elasticsearch",
+    "opensearch",
+    "prometheus",
+    "pubsub",
+    "splunk",
+]
+
+[envs.test]
+python = "3.10"
+dependencies = [
+  "coverage[toml]>=6.5",
+  "mock",
+  "pytest",
+  "pytest-cov",
+]
+# Install all optional dependencies.
+features = [
+    "api",
+    "bigquery",
+    "cloud_monitoring",
+    "cloud_service_monitoring",
+    "cloud_storage",
+    "cloudevent",
+    "datadog",
+    "dynatrace",
+    "elasticsearch",
+    "opensearch",
+    "prometheus",
+    "pubsub",
+    "splunk",
+]
+[envs.test.scripts]
+#TODO: Check what coverage does exactly, and if there is a more modern approach, for example with `py-cov`.
+unit = "pytest --cov=coverage {args:tests} -p no:warnings"
+cov = "coverage report --rcfile='.coveragerc'"
+
+[envs.lint]
+python="3.10"
+detached = true
+dependencies = [
+  "mypy",
+  "pytype",
+  "ruff",
+]
+# Install all optional dependencies.
+features = [
+    "api",
+    "bigquery",
+    "cloud_monitoring",
+    "cloud_service_monitoring",
+    "cloud_storage",
+    "cloudevent",
+    "datadog",
+    "dynatrace",
+    "elasticsearch",
+    "opensearch",
+    "prometheus",
+    "pubsub",
+    "splunk",
+]
+[envs.lint.scripts]
+style = [
+  "ruff {args:.}",
+]
+typing = [
+  "pytype",
+  #FIXME Configure `mypy` from `pyproject.toml`, like `pytype`. 
+  "mypy --install-types --show-error-codes --disable-error-code=import-untyped --non-interactive {args:src/slo_generator}",
+]
+all = [
+  "style",
+  "typing",
+]
+
+[envs.audit]
+python = "3.10"
+detached = true
+dependencies = [
+    "bandit",
+    "safety",
+]
+[envs.audit.scripts]
+all = [
+    "bandit -c pyproject.toml -r .",
+    # Ignore CVE-2018-20225 with Vulnerability ID 67599.
+    # We do not use the `--extra-index-url` option, and the behavior is intended anyway.
+    "safety check --ignore 67599",
+]

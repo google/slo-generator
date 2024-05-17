@@ -1,76 +1,116 @@
-name: Continous Integration (CI)
+name: Continuous Integration
 
 on:
   pull_request:
 
 jobs:
-  lint:
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest]
-        architecture: ['x64']
-        python-version: ['3.8', '3.9', '3.10', '3.11']
-    runs-on: ${{ matrix.os }}
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python-version }}
-          architecture: ${{ matrix.architecture }}
-
-      - name: Install dependencies
-        run: make install
-
-      - name: Lint
-        run: make lint
-
   unit:
+    runs-on: ubuntu-latest
     strategy:
-      fail-fast: false
       matrix:
-        os: [ubuntu-latest]
-        architecture: ['x64']
-        python-version: ['3.8', '3.9', '3.10', '3.11']
-    runs-on: ${{ matrix.os }}
+        # TODO: Test Hatch matrices again.
+        # They could be as fast as concurrent GitHub jobs thanks to caching of dependencies and type check results.
+        # Then it is always possible to target a specific version of Python, for example with +py3.9 in the Dockerfile.
+        # Hatch matrices also vastly reduce the size of this workflow, with a single step for lint, test and audit.
+        python-version: ["3.8", "3.9", "3.10", "3.11"]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-          architecture: ${{ matrix.architecture }}
-
-      - name: Install dependencies
-        run: make install
-
-      - name: Run unit tests
-        run: make unit
+      - name: Set up pip cache
+        if: runner.os == 'Linux'
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('pyproject.toml') }}
+          restore-keys: ${{ runner.os }}-pip-
+      - name: Install Hatch
+        run: pipx install hatch
+      - name: List Hatch environments
+        run: hatch env show --ascii
+      - name: Run unit tests with coverage
+        run: hatch run test:unit-cov
         env:
-          MIN_VALID_EVENTS: "10"
+          MIN_VALID_EVENTS: 10
           GOOGLE_APPLICATION_CREDENTIALS: tests/unit/fixtures/fake_credentials.json
 
-      - name: Run coverage report
-        run: make coverage
+  lint:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.8", "3.9", "3.10", "3.11"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Set up pip cache
+        if: runner.os == 'Linux'
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('pyproject.toml') }}
+          restore-keys: ${{ runner.os }}-pip-
+      - name: Install Hatch
+        run: pipx install hatch
+      - name: List Hatch environments
+        run: hatch env show --ascii
+      - name: Lint
+        run: hatch run lint:all
 
   audit:
     runs-on: ubuntu-latest
+    # TODO: Not sure `audit` is required to run on multiple versions of Python.
+    strategy:
+      matrix:
+        python-version: ["3.8", "3.9", "3.10", "3.11"]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.9"  # same as Dockerfile
+          python-version: ${{ matrix.python-version }}
+      - name: Set up pip cache
+        if: runner.os == 'Linux'
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('pyproject.toml') }}
+          restore-keys: ${{ runner.os }}-pip-
+      - name: Install Hatch
+        run: pipx install hatch
+      - name: List Hatch environments
+        run: hatch env show --ascii
+      - name: Audit
+        run: hatch run audit:all
 
-      - name: Install dependencies
-        run: make install
-
-      - name: Audit for CVEs
-        run: make audit
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.8", "3.9", "3.10", "3.11"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Set up pip cache
+        if: runner.os == 'Linux'
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('pyproject.toml') }}
+          restore-keys: ${{ runner.os }}-pip-
+      - name: Install Hatch
+        run: pipx install hatch
+      - name: List Hatch environments
+        run: hatch env show --ascii
+      - name: Build
+        run: hatch build
 
   docker:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: docker-practice/actions-setup-docker@master
-
+      - uses: docker/build-push-action@v5
       - name: Build Docker image
         run: make docker_build

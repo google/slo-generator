@@ -31,7 +31,7 @@ class TestCLI(unittest.TestCase):
     def setUp(self):
         for key, value in CTX.items():
             os.environ[key] = value
-        slo_config = f"{root}/samples/cloud_monitoring/slo_gae_app_availability.yaml"  # noqa: E501
+        slo_config = f"{root}/samples/cloud_monitoring/slo_gae_app_availability.yaml"
         config = f"{root}/samples/config.yaml"
         self.slo_config = slo_config
         self.slo_metadata_name = load_config(slo_config, ctx=CTX)["metadata"]["name"]

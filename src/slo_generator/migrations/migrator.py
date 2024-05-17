@@ -30,7 +30,7 @@ from pathlib import Path
 from typing import Optional
 
 import click
-from ruamel import yaml
+from ruamel import yaml  # type: ignore
 
 from slo_generator import utils
 from slo_generator.constants import (
