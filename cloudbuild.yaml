@@ -23,6 +23,8 @@ steps:
 
 substitutions:
   _VERSION: latest
+options:
+  automapSubstitutions: true
 
 images:
 - gcr.io/$_GCR_PROJECT_ID/slo-generator:${_VERSION}
