@@ -74,6 +74,3 @@ jobs:
 
       - name: Build Docker image
         run: make docker_build
-
-      - name: Run Docker tests
-        run: make docker_test

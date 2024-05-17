@@ -20,14 +20,6 @@ WORKDIR /app
 
 COPY . ./
 
-# TODO: Is `make` required if we decide not to run tests from the Docker image?
-RUN apt-get update \
- && apt-get install --no-install-recommends -y \
-        make \
- && apt-get autoremove -y \
- && apt-get clean -y \
- && rm -rf /var/lib/apt/lists/*
-
 # TODO: Is `dev` required if we decide not to run tests from the Docker image?
 RUN pip install ."[ \
         api, \
@@ -42,8 +34,7 @@ RUN pip install ."[ \
         opensearch, \
         prometheus, \
         pubsub, \
-        splunk, \
-        dev \
+        splunk \
     ]"
 
 ENTRYPOINT [ "slo-generator" ]

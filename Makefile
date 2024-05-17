@@ -130,7 +130,7 @@ int_os:
 run_api:
 	slo-generator api --target=run_compute --signature-type=http -c samples/config.yaml
 
-# Local Docker build / push
+# Build Docker image locally
 docker_build:
 	DOCKER_BUILDKIT=1
 	docker build \
@@ -138,15 +138,7 @@ docker_build:
 		--build-arg PYTHON_VERSION=3.9 \
 		.
 
-docker_test: docker_build
-	docker run \
-		--entrypoint "make" \
-		-e MINVALID_EVENTS=10 \
-		-e GOOGLE_APPLICATION_CREDENTIALS=tests/unit/fixtures/fake_credentials.json \
-		slo-generator:latest \
-		test
-
-# Cloudbuild
+# Build Docker image with Cloud Build
 cloudbuild: gcloud_alpha
 	gcloud alpha builds submit \
 	--config=cloudbuild.yaml \
