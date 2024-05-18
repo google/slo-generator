@@ -20,15 +20,10 @@ jobs:
           architecture: ${{ matrix.architecture }}
       - uses: eifinger/setup-rye@v3
         id: setup-rye
-        with:
-          enable-cache: true
-          cache-prefix: ${{ matrix.python-version }}
       - name: Pin python-version ${{ matrix.python-version }}
-        if: steps.setup-rye.outputs.cache-hit != 'true'
         run: |
           rye pin ${{ matrix.python-version }}
       - name: Install dependencies
-        if: steps.setup-rye.outputs.cache-hit != 'true'
         run: |
           make install
       - name: Lint
