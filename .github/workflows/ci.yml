@@ -19,6 +19,9 @@ jobs:
           python-version: ${{ matrix.python-version }}
           architecture: ${{ matrix.architecture }}
 
+      - name: Install rye
+        run: curl -sSf https://rye-up.com/get | bash
+
       - name: Install dependencies
         run: make install
 
@@ -40,6 +43,9 @@ jobs:
           python-version: ${{ matrix.python-version }}
           architecture: ${{ matrix.architecture }}
 
+      - name: Install rye
+        run: curl -sSf https://rye-up.com/get | bash
+
       - name: Install dependencies
         run: make install
 
@@ -60,6 +66,9 @@ jobs:
         with:
           python-version: '${{ vars.PYTHON_VERSION }}'
 
+      - name: Install rye
+        run: curl -sSf https://rye-up.com/get | bash
+
       - name: Install dependencies
         run: make install
 
@@ -71,6 +80,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: docker-practice/actions-setup-docker@master
+
+      - name: Install rye
+        run: curl -sSf https://rye-up.com/get | bash
+
+      - name: Build wheel target
+        run: make build
 
       - name: Build Docker image
         run: make docker_build
