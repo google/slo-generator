@@ -29,7 +29,7 @@ clean:
 	rm -f .coverage
 
 install: clean
-	$(RYE) sync --all-features
+	$(RYE) sync --all-features --no-lock
 
 develop: install
 	$(RYE) run pre-commit install
