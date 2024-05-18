@@ -19,12 +19,21 @@ jobs:
           python-version: ${{ matrix.python-version }}
           architecture: ${{ matrix.architecture }}
       - uses: eifinger/setup-rye@v3
-
+        id: setup-rye
+        with:
+          enable-cache: true
+          cache-prefix: ${{ matrix.python-version }}
+      - name: Pin python-version ${{ matrix.python-version }}
+        if: steps.setup-rye.outputs.cache-hit != 'true'
+        run: |
+          rye pin ${{ matrix.python-version }}
       - name: Install dependencies
-        run: make install
-
+        if: steps.setup-rye.outputs.cache-hit != 'true'
+        run: |
+          make install
       - name: Lint
-        run: make lint
+        run: |
+          make lint
 
   unit:
     strategy:
@@ -50,9 +59,6 @@ jobs:
         env:
           MIN_VALID_EVENTS: "10"
           GOOGLE_APPLICATION_CREDENTIALS: tests/unit/fixtures/fake_credentials.json
-
-      - name: Run coverage report
-        run: make coverage
 
   audit:
     runs-on: ubuntu-latest
