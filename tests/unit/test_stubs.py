@@ -23,7 +23,6 @@ import time
 from types import ModuleType
 
 from google.cloud import monitoring_v3
-
 from slo_generator.utils import load_config, load_configs
 
 TEST_DIR = os.path.dirname(os.path.abspath(__file__))

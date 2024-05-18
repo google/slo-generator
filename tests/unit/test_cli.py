@@ -17,7 +17,6 @@ import unittest
 from unittest.mock import patch
 
 from click.testing import CliRunner
-
 from slo_generator.cli import main
 from slo_generator.utils import load_config
 
