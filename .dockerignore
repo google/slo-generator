@@ -13,7 +13,6 @@ Dockerfile
 **/*.py[cod]
 
 build/
-dist/
 
 # Testing / Linting
 .mypy_cache/
