@@ -1,6 +1,6 @@
 [project]
 name = "slo-generator"
-#TODO: Use dynamic version, stored in `src/slo_generator/__init__.py` as `__version__ = "2.6.0"`?
+# TODO Use dynamic version, stored in `src/slo_generator/__init__.py` as `__version__ = "2.6.0"`?
 # Then use with `from . import __version__`.
 # Is it compatible with release-please?
 version = "2.6.0"
@@ -45,6 +45,7 @@ dependencies = [
 
 [tool.rye]
 dev-dependencies = [
+    # Develop / Inner Loop
     "pre-commit",
     # Test
     "mock",
@@ -62,7 +63,7 @@ dev-dependencies = [
     "ruff>=0.4.4",
     # Audit
     "bandit",
-    "safety",
+    "safety", # TODO: Pin to >=3 after allowing prereleases
 ]
 
 [project.optional-dependencies]
@@ -135,26 +136,46 @@ build-backend = "hatchling.build"
 [tool.hatch.build.targets.sdist]
 exclude = [
     "/.github",
+    "/contrib",
     "/docs",
     "/tests",
 ]
 
 [tool.hatch.build.targets.wheel]
 packages = [
-    "slo_generator",
+    "src/slo_generator",
 ]
 
 ### Tools ########################
 
-[tool.ruff]
-line-length = 88
+[tool.bandit]
+# https://bandit.readthedocs.io/en/latest/config.html
+targets = [
+    "src/slo_generator",
+]
 
 [tool.mypy]
 # https://mypy.readthedocs.io/en/stable/config_file.html#using-a-pyproject-toml-file
 ignore_missing_imports = true
 
+[tool.pytest.ini_options]
+# https://docs.pytest.org/en/latest/reference/customize.html
+addopts = [
+    # Generate a coverage report with `pytest-cov` and `--cov`
+    "--cov=slo_generator",
+    # Disable warning capture entirely.
+    # https://docs.pytest.org/en/latest/how-to/capture-warnings.html#disabling-warning-capture-entirely
+    "-p no:warnings",
+]
+testpaths = [
+    "tests",
+]
+
 [tool.pytype]
-inputs = ['slo_generator']
+# https://github.com/google/pytype/blob/main/docs/index.md#quickstart
+inputs = [
+    "src/slo_generator"
+]
 
 [tool.ruff.lint]
 # https://docs.astral.sh/ruff/linter/#rule-selection
