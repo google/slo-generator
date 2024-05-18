@@ -178,7 +178,8 @@ inputs = [
 ]
 
 [tool.ruff.lint]
-# https://docs.astral.sh/ruff/linter/#rule-selection
+# Some of the most popular rules, without being too pedantic: https://docs.astral.sh/ruff/linter/#rule-selection
+# Supported rules: https://docs.astral.sh/ruff/rules/
 select = [
     # pycodestyle
     "E",
@@ -192,4 +193,6 @@ select = [
     "SIM",
     # isort
     "I",
+    # Warning
+    "W",
 ]
