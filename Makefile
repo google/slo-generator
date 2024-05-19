@@ -31,6 +31,9 @@ clean:
 install: clean
 	$(RYE) sync --all-features --no-lock
 
+install_nodev: clean
+	$(RYE) sync --all-features --no-lock --no-dev
+
 develop: install
 	$(RYE) run pre-commit install
 
@@ -101,13 +104,18 @@ run_api:
 build: clean
 	$(RYE) build
 
+# Build the wheel target only.
+build_wheel: clean
+	$(RYE) build --wheel
+
 deploy: clean build
 	$(RYE) publish
 
 # Build Docker image locally
-docker_build: build
+docker_build:
 	docker build \
-		-t slo-generator:latest \
+		--tag slo-generator:latest \
+		--build-arg PYTHON_VERSION=$(shell cat .python-version) \
 		.
 
 # Build Docker image with Cloud Build

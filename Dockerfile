@@ -12,31 +12,96 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# As the SLO Generator is an installable package, let's build it locally then install it
-# inside the Docker image. This way, the image behaves exactly like a user installation.
-# As an added benefit, this method does not use any `COPY` statement for the source code
-# itself before `pip install`. As a result, there is no need to write and maintain a
-# `.dockerignore` file, and the image ends up as small as possible.
+# As the SLO Generator is an installable package, let's build it then install it in a
+# multi-stage Docker image. This way, the image has a small size and behaves exactly
+# like a user installation.
 #
 # Usage:
-#   rye build --wheel --clean
-#   docker build . --tag slo-generator:latest
-#   docker run slo-generator
-# Source:
-#   https://rye-up.com/guide/docker/#container-from-a-python-package
+#   docker build . --tag slo-generator:latest --build-arg PYTHON_VERSION=$(cat .python-version)
+#   docker run slo-generator:latest
+#
+# References:
+# - https://rye-up.com/guide/docker/#container-from-a-python-package
+# - https://testdriven.io/blog/docker-best-practices/
+# - https://rye-up.com/guide/publish/#build
+# - https://sogo.dev/posts/2023/11/rye-with-docker
 
 # Define the default Python version used in production.
 # This is usually the latest supported version at https://devguide.python.org/versions/.
+# When using `rye`, it is usually set to the contents of `.python-version`, for example
+# with `docker build --build-arg PYTHON_VERSION=$(cat .python-version) <...>`.
 # !! Make sure to propagate any new value to the `PYTHON_VERSION` variable in:
 # GitHub > Settings > Secrets and variables > Actions > Variables > Repository variables
-ARG PYTHON_VERSION=3.11
+# FIXME Reuse the contents of `.python-version` in CI too, for a single source of truth.
+ARG PYTHON_VERSION
+
+FROM python:${PYTHON_VERSION}-slim-bookworm AS wheel_builder
+
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends \
+        curl \
+        make \
+        build-essential \
+ && apt-get clean \
+ && rm -rf /var/lib/apt/lists/*
+
+# Run container processes with a non-root user.
+RUN useradd wheel --create-home
+USER wheel
+WORKDIR /home/wheel/app
+
+# Install Rye.
+ENV RYE_HOME /home/wheel/.rye
+ENV PATH ${RYE_HOME}/shims:${PATH}
+RUN curl -sSf https://rye-up.com/get | RYE_NO_AUTO_INSTALL=1 RYE_INSTALL_OPTION="--yes" bash
+
+# Leverage Docker's caching by only copying the minimum files required for `rye sync`.
+COPY --chown=wheel:wheel \
+     pyproject.toml \
+     requirements.lock \
+     requirements-dev.lock \
+     .python-version \
+     README.md \
+     Makefile \
+     ./
+
+# Prevent Python from writing `.pyc` files.
+ENV PYTHONDONTWRITEBYTECODE=1
+# Keep Python from buffering `stdout` and `stderr` to avoid situations where the
+# application crashes without emitting any logs due to buffering.
+ENV PYTHONUNBUFFERED=1
+
+# Install dependencies in virtual environment (except dev dependencies).
+RUN make install_nodev
+
+# Copy the remaining files.
+COPY --chown=wheel:wheel src ./src
+
+# Build the wheel target in `./dist/`.
+RUN make build_wheel
+
+###########################################################
 
 FROM python:${PYTHON_VERSION}-alpine
 
-# For the next command to work, the `dist/` folder must NOT be in `.dockerignore`.
-RUN --mount=source=dist,destination=/dist \
-    PYTHONDONTWRITEBYTECODE=1 \
-    pip install --no-cache-dir "$(dist/*.whl)[ \
+# Run container processes with a non-root user.
+RUN adduser -D app
+USER app
+WORKDIR /home/app
+
+# FIXME How to get the right name automatically, or guess it? Use globs? Or read version with a `make` target?
+COPY --from=wheel_builder \
+     /home/wheel/app/dist/slo_generator-2.7.0-py3-none-any.whl \
+     .
+
+# Preemptively add `~/.local/bin` to PATH to avoid warnings during `pip install --user`.
+ENV PATH /home/app/.local/bin:${PATH}
+
+RUN PYTHONDONTWRITEBYTECODE=1 \
+    pip install \
+    --user \
+    --no-cache-dir \
+    "slo_generator-2.7.0-py3-none-any.whl[ \
         api, \
         bigquery, \
         cloud_monitoring, \
@@ -52,6 +117,6 @@ RUN --mount=source=dist,destination=/dist \
         splunk \
     ]"
 
-ENTRYPOINT [ "slo-generator"]
+ENTRYPOINT [ "slo-generator" ]
 
-CMD [ "-v"]
+CMD [ "-v" ]
