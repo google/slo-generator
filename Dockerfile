@@ -89,9 +89,8 @@ RUN adduser -D app
 USER app
 WORKDIR /home/app
 
-# FIXME How to get the right name automatically, or guess it? Use globs? Or read version with a `make` target?
 COPY --from=wheel_builder \
-     /home/wheel/app/dist/slo_generator-2.7.0-py3-none-any.whl \
+     /home/wheel/app/dist/slo_generator-*-py3-none-any.whl \
      .
 
 # Preemptively add `~/.local/bin` to PATH to avoid warnings during `pip install --user`.
@@ -101,7 +100,7 @@ RUN PYTHONDONTWRITEBYTECODE=1 \
     pip install \
     --user \
     --no-cache-dir \
-    "slo_generator-2.7.0-py3-none-any.whl[ \
+    "$(ls slo_generator-*-py3-none-any.whl)[ \
         api, \
         bigquery, \
         cloud_monitoring, \
