@@ -92,24 +92,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: docker-practice/actions-setup-docker@master # TODO Is it the best GitHub Action for Docker builds?
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '${{ vars.PYTHON_VERSION }}'
-      - uses: eifinger/setup-rye@v3
-        id: setup-rye
-        with:
-          enable-cache: true
-          cache-prefix: ${{ vars.PYTHON_VERSION }}
-      - name: Pin python-version ${{ vars.PYTHON_VERSION }}
-        if: steps.setup-rye.outputs.cache-hit != 'true'
-        run: rye pin ${{ vars.PYTHON_VERSION }}
-      - name: Install dependencies
-        if: steps.setup-rye.outputs.cache-hit != 'true'
-        run: |
-          make install
-      - name: Build wheel target
-        run: |
-          make build
       - name: Build Docker image
         run: |
           make docker_build
+      - name: Confirm the image runs as expected
+        run: |
+          docker run slo-generator:latest
