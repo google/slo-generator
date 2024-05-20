@@ -29,7 +29,8 @@ clean:
 	rm -f .coverage
 
 install: clean
-	$(RYE) sync --all-features --no-lock
+	$(RYE) sync --all-features
+#	$(RYE) sync --all-features --no-lock
 
 install_nodev: clean
 	$(RYE) sync --all-features --no-lock --no-dev
