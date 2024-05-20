@@ -28,13 +28,15 @@ clean:
 	rm -rf report/*
 	rm -f .coverage
 
+# Update lockfiles and virtual environment.
+# IMPORTANT: Do not use `--no-lock`, as different versions of Python (for example in CI,
+# with matrix strategies) might require different packages and/or package versions.
+# Reference: https://rye-up.com/guide/sync/
 install: clean
 	$(RYE) sync --all-features
-#	$(RYE) sync --all-features --no-lock
 
-install_nodev: clean
-	$(RYE) sync --all-features --no-lock --no-dev
-
+# Install tools and utilities for the inner loop on the development machine.
+# For example `pre-commit`, configured from `pre-commit-config.yaml`.
 develop: install
 	$(RYE) run pre-commit install
 
@@ -104,10 +106,6 @@ run_api:
 # Build both the sdist and wheel targets in the `dist` directory.
 build: clean
 	$(RYE) build
-
-# Build the wheel target only.
-build_wheel: clean
-	$(RYE) build --wheel
 
 deploy: clean build
 	$(RYE) publish
