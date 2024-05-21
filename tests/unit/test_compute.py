@@ -21,13 +21,12 @@ from elasticsearch import Elasticsearch
 from google.auth._default import _CLOUD_SDK_CREDENTIALS_WARNING
 from opensearchpy import OpenSearch
 from prometheus_http_client import Prometheus
-from splunklib import client as Splunk
-from splunklib.client import Jobs
-
 from slo_generator.backends.dynatrace import DynatraceClient
 from slo_generator.compute import compute, export
 from slo_generator.exporters.base import MetricsExporter
 from slo_generator.exporters.bigquery import BigQueryError
+from splunklib import client as Splunk
+from splunklib.client import Jobs
 
 from .test_stubs import (
     CTX,

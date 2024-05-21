@@ -1,16 +1,185 @@
+[project]
+name = "slo-generator"
+# TODO Use dynamic version, stored in `src/slo_generator/__init__.py` as `__version__ = "2.6.0"`?
+# Then use with `from . import __version__`.
+# Is it compatible with release-please?
+version = "2.6.0"
+description = "SLO Generator"
+readme = "README.md"
+license = "Apache-2.0"
+requires-python = ">=3.8, <4"
+authors = [
+    { name = "Google Inc.", email = "olivier.cervello@gmail.com" },
+]
+maintainers = [
+    { name = "Laurent Vaylet", email = "laurent.vaylet@gmail.com" }
+]
+keywords = [
+    "gcp",
+    "generator",
+    "sli",
+    "slo",
+]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "Intended Audience :: System Administrators",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Software Development :: Build Tools",
+    "Topic :: System :: Monitoring",
+]
+dependencies = [
+    "certifi>=2023.07.22", # avoid CVE-2023-37920 (reported by `safety check`)
+    "click",
+    "python-dateutil",
+    "pyyaml",
+    "retrying",
+    "ruamel.yaml",
+]
+
+[tool.rye]
+dev-dependencies = [
+    # Develop / Inner Loop
+    "pre-commit",
+    # Test
+    "mock",
+    "pytest",
+    "pytest-cov",
+    # Lint
+    "pytype",
+    "mypy",
+    "types-mock",
+    "types-PyYAML",
+    "types-python-dateutil",
+    "types-setuptools",
+    "types-requests",
+    "types-protobuf",
+    "ruff>=0.4.4",
+    # Audit
+    "bandit",
+    "safety", # TODO: Pin to >=3 after allowing prereleases
+]
+
+[project.optional-dependencies]
+api = [
+    "cloudevents",
+    "Flask",
+    "functions-framework",
+    "gunicorn",
+    "requests",
+]
+bigquery = [
+    "google-api-python-client",
+    "google-cloud-bigquery",
+]
+cloud_monitoring = [
+    "google-api-python-client",
+    "google-cloud-monitoring",
+]
+cloud_service_monitoring = [
+    "google-api-python-client",
+    "google-cloud-monitoring",
+]
+cloud_storage = [
+    "google-api-python-client",
+    "google-cloud-storage",
+]
+cloudevent = [
+    "cloudevents",
+]
+datadog = [
+    "datadog",
+]
+dynatrace = [
+    "requests",
+]
+elasticsearch = [
+    "elasticsearch",
+]
+opensearch = [
+    "opensearch-py",
+]
+prometheus = [
+    "prometheus-client",
+    "prometheus-http-client",
+]
+pubsub = [
+    "google-api-python-client",
+    "google-cloud-pubsub",
+]
+splunk = [
+    "splunk-sdk",
+]
+
+[project.scripts]
+slo-generator = "slo_generator.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/google/slo-generator"
+Issues = "https://github.com/google/slo-generator/issues"
+Source = "https://github.com/google/slo-generator"
+
+### Build ########################
+
 [build-system]
-requires = ["setuptools>=42", "wheel"]   # PEP 508 specifications.
-build-backend = "setuptools.build_meta"
+requires = [
+    "hatchling",
+]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.sdist]
+exclude = [
+    "/.github",
+    "/contrib",
+    "/docs",
+    "/tests",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = [
+    "src/slo_generator",
+]
+
+### Tools ########################
+
+[tool.bandit]
+# https://bandit.readthedocs.io/en/latest/config.html
+targets = [
+    "src/slo_generator",
+]
 
 [tool.mypy]
 # https://mypy.readthedocs.io/en/stable/config_file.html#using-a-pyproject-toml-file
 ignore_missing_imports = true
 
+[tool.pytest.ini_options]
+# https://docs.pytest.org/en/latest/reference/customize.html
+addopts = [
+    # Generate a coverage report with `pytest-cov` and `--cov`
+    "--cov=slo_generator",
+    # Disable warning capture entirely.
+    # https://docs.pytest.org/en/latest/how-to/capture-warnings.html#disabling-warning-capture-entirely
+    "-p no:warnings",
+]
+testpaths = [
+    "tests",
+]
+
 [tool.pytype]
-inputs = ['slo_generator']
+# https://github.com/google/pytype/blob/main/docs/index.md#quickstart
+inputs = [
+    "src/slo_generator"
+]
 
 [tool.ruff.lint]
-# https://docs.astral.sh/ruff/linter/#rule-selection
+# Some of the most popular rules, without being too pedantic: https://docs.astral.sh/ruff/linter/#rule-selection
+# Supported rules: https://docs.astral.sh/ruff/rules/
 select = [
     # pycodestyle
     "E",
@@ -24,4 +193,6 @@ select = [
     "SIM",
     # isort
     "I",
+    # Warning
+    "W",
 ]

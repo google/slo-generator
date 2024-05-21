@@ -9,8 +9,8 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest]
-        architecture: ['x64']
-        python-version: ['3.8', '3.9', '3.10', '3.11']
+        architecture: ["x64"]
+        python-version: ["3.8", "3.9", "3.10", "3.11"]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
@@ -18,20 +18,25 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           architecture: ${{ matrix.architecture }}
-
+      - uses: eifinger/setup-rye@v3
+        id: setup-rye
+      - name: Pin python-version ${{ matrix.python-version }}
+        run: |
+          rye pin ${{ matrix.python-version }}
       - name: Install dependencies
-        run: make install
-
+        run: |
+          make install
       - name: Lint
-        run: make lint
+        run: |
+          make lint
 
   unit:
     strategy:
       fail-fast: false
       matrix:
         os: [ubuntu-latest]
-        architecture: ['x64']
-        python-version: ['3.8', '3.9', '3.10', '3.11']
+        architecture: ["x64"]
+        python-version: ["3.8", "3.9", "3.10", "3.11"]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
@@ -39,18 +44,20 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           architecture: ${{ matrix.architecture }}
-
+      - uses: eifinger/setup-rye@v3
+        id: setup-rye
+      - name: Pin python-version ${{ matrix.python-version }}
+        run: |
+          rye pin ${{ matrix.python-version }}
       - name: Install dependencies
-        run: make install
-
+        run: |
+          make install
       - name: Run unit tests
-        run: make unit
         env:
           MIN_VALID_EVENTS: "10"
           GOOGLE_APPLICATION_CREDENTIALS: tests/unit/fixtures/fake_credentials.json
-
-      - name: Run coverage report
-        run: make coverage
+        run: |
+          make unit
 
   audit:
     runs-on: ubuntu-latest
@@ -58,19 +65,26 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
-          python-version: '${{ vars.PYTHON_VERSION }}'
-
+          python-version: "${{ vars.PYTHON_VERSION }}"
+      - uses: eifinger/setup-rye@v3
+        id: setup-rye
+      - name: Pin python-version ${{ vars.PYTHON_VERSION }}
+        run: rye pin ${{ vars.PYTHON_VERSION }}
       - name: Install dependencies
-        run: make install
-
+        run: |
+          make install
       - name: Audit for CVEs
-        run: make audit
+        run: |
+          make audit
 
   docker:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: docker-practice/actions-setup-docker@master
-
+      - uses: docker-practice/actions-setup-docker@master # TODO Is it the best GitHub Action for Docker builds?
       - name: Build Docker image
-        run: make docker_build
+        run: |
+          make docker_build
+      - name: Confirm the image runs as expected
+        run: |
+          docker run slo-generator:latest
