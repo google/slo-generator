@@ -11,8 +11,8 @@ updates:
       interval: daily
     rebase-strategy: disabled
     commit-message:
-      prefix: fix  # production dependency group
-      prefix-development: chore  # development dependency group
+      prefix: fix # production dependency group
+      prefix-development: chore # development dependency group
       include: scope
   - package-ecosystem: github-actions
     directory: /
