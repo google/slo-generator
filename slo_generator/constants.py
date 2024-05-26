@@ -15,6 +15,7 @@
 `constants.py`
 Constants and environment variables used in `slo-generator`.
 """
+
 import os
 from typing import Dict, List, Tuple
 

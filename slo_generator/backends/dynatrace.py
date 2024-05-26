@@ -15,6 +15,7 @@
 `dynatrace.py`
 Datadog backend implementation.
 """
+
 import json
 import logging
 import pprint

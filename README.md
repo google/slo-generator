@@ -44,7 +44,7 @@ The **Error Budget Burn Rate** is often used for [**alerting on SLOs**](https://
 
 ### Requirements
 
-- `python3.7` and above
+- `python3.8` and above
 - `pip3`
 
 ### Installation

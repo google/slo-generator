@@ -20,7 +20,7 @@ import json
 import logging
 import os
 import pprint
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple, Union
 
 from prometheus_http_client import Prometheus
 
@@ -145,8 +145,8 @@ class PrometheusBackend:
         filter: str,
         window: int,
         timestamp: Optional[int] = None,
-        operators: list = [],
-        labels: dict = {},
+        operators: Union[list, None] = None,
+        labels: Union[dict, None] = None,
     ) -> dict:
         """Query Prometheus server.
 
@@ -160,6 +160,10 @@ class PrometheusBackend:
         Returns:
             dict: Response.
         """
+        if operators is None:
+            operators = []
+        if labels is None:
+            labels = {}
         filter = PrometheusBackend._fmt_query(filter, window, operators, labels)
         LOGGER.debug(f"Query: {filter}")
         response = self.client.query(metric=filter)
@@ -187,7 +191,10 @@ class PrometheusBackend:
     @staticmethod
     # pylint: disable=dangerous-default-value
     def _fmt_query(
-        query: str, window: int, operators: List[str] = [], labels: Dict[str, str] = {}
+        query: str,
+        window: int,
+        operators: Union[List[str], None] = None,
+        labels: Union[Dict[str, str], None] = None,
     ) -> str:
         """Format Prometheus query:
 
@@ -208,6 +215,10 @@ class PrometheusBackend:
         Returns:
             str: Formatted query.
         """
+        if operators is None:
+            operators = []
+        if labels is None:
+            labels = {}
         query = query.strip()
         if "[window" in query:
             query = query.replace("[window", f"[{window}s")

@@ -1,4 +1,4 @@
-name: test
+name: Continous Integration (CI)
 
 on:
   pull_request:
@@ -52,6 +52,20 @@ jobs:
       - name: Run coverage report
         run: make coverage
 
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '${{ vars.PYTHON_VERSION }}'
+
+      - name: Install dependencies
+        run: make install
+
+      - name: Audit for CVEs
+        run: make audit
+
   docker:
     runs-on: ubuntu-latest
     steps:
@@ -60,6 +74,3 @@ jobs:
 
       - name: Build Docker image
         run: make docker_build
-
-      - name: Run Docker tests
-        run: make docker_test

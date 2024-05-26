@@ -12,16 +12,34 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM python:3.9-slim
-RUN apt-get update && \
-    apt-get install -y \
-    build-essential \
-    make \
-    gcc \
-    locales
-ADD . /app
+# Define the default Python version used in production.
+# This is usually the most recent supported version at https://devguide.python.org/versions/.
+# !! Make sure to propagate any new value to the `PYTHON_VERSION` variable in:
+# GitHub > Settings > Secrets and variables > Actions > Variables > Repository variables
+ARG PYTHON_VERSION=3.11
+
+FROM python:${PYTHON_VERSION}-alpine
+
 WORKDIR /app
-RUN pip install -U setuptools
-RUN pip install ."[api, datadog, dynatrace, prometheus, elasticsearch, opensearch, splunk, pubsub, cloud_monitoring, cloud_service_monitoring, cloud_storage, bigquery, cloudevent, dev]"
+
+COPY . ./
+
+RUN pip install --no-cache-dir ."[ \
+        api, \
+        bigquery, \
+        cloud_monitoring, \
+        cloud_service_monitoring, \
+        cloud_storage, \
+        cloudevent, \
+        datadog, \
+        dynatrace, \
+        elasticsearch, \
+        opensearch, \
+        prometheus, \
+        pubsub, \
+        splunk \
+    ]"
+
 ENTRYPOINT [ "slo-generator" ]
-CMD ["-v"]
+
+CMD [ "-v" ]

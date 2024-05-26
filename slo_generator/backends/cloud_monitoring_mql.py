@@ -15,6 +15,7 @@
 `cloud_monitoring_mql.py`
 Cloud Monitoring backend implementation with MQL (Monitoring Query Language).
 """
+
 import logging
 import pprint
 import typing
@@ -170,6 +171,7 @@ class CloudMonitoringMqlBackend:
             "exponential_distribution_cut will be deprecated in version 2.0, "
             "please use distribution_cut instead",
             FutureWarning,
+            stacklevel=2,
         )
         return self.distribution_cut(*args, **kwargs)
 

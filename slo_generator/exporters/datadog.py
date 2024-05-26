@@ -15,6 +15,7 @@
 `datadog.py`
 Datadog exporter class.
 """
+
 import logging
 
 import datadog

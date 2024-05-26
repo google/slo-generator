@@ -9,14 +9,14 @@ on:
       - v*.*.*
 
 jobs:
-  cloudbuild:
+  cloud-build:
     runs-on: ubuntu-latest
     environment: prod
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
-          python-version: '3.9'
+          python-version: '${{ vars.PYTHON_VERSION }}'
           architecture: 'x64'
 
       - name: Check release version
@@ -39,16 +39,18 @@ jobs:
           project_id: ${{ secrets.PROJECT_ID }}
 
       - name: Build Docker container and publish on GCR
-        run: make cloudbuild || true
+        run: make cloud_build || true
         env:
           GCR_PROJECT_ID: ${{ secrets.GCR_PROJECT_ID }}
           CLOUDBUILD_PROJECT_ID: ${{ secrets.CLOUDBUILD_PROJECT_ID }}
           VERSION: ${{ steps.check-tag.outputs.match == 'true' && steps.check-tag.outputs.version ||  github.event.pull_request.head.sha || github.sha }}
+          PYTHON_VERSION: ${{ vars.PYTHON_VERSION }}
 
       - name: Build Docker container and publish on GCR [latest]
-        run: make cloudbuild || true
+        run: make cloud_build || true
         if: ${{ steps.check-tag.outputs.match == 'true' }}
         env:
           GCR_PROJECT_ID: ${{ secrets.GCR_PROJECT_ID }}
           CLOUDBUILD_PROJECT_ID: ${{ secrets.CLOUDBUILD_PROJECT_ID }}
           VERSION: latest
+          PYTHON_VERSION: ${{ vars.PYTHON_VERSION }}

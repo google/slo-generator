@@ -50,3 +50,4 @@ reports/
 .pytest_cache/
 .pytype/
 .pip-wheel-metadata/
+.ruff_cache

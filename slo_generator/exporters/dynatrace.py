@@ -15,6 +15,7 @@
 `dynatrace.py`
 Dynatrace exporter implementation.
 """
+
 import logging
 import time
 

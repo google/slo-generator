@@ -2,36 +2,26 @@
 requires = ["setuptools>=42", "wheel"]   # PEP 508 specifications.
 build-backend = "setuptools.build_meta"
 
-[tool.black]
-# Using Black with other tools
-# https://black.readthedocs.io/en/stable/guides/using_black_with_other_tools.html#using-black-with-other-tools
-line-length = 88  # default: 88
-
-[tool.isort]
-# Make it compatible with black
-profile = "black"
-extend_skip = [
-    ".pytype",
-]
-extend_skip_glob = [
-    "?venv*",  # e.g. venv, .venv, venv3.11, .venv3.11
-]
-
-[tool.pylint]
-ignore-patterns = [
-    "test_.*?py",
-]
-
-[tool.pylint.messages_control]
-max-line-length = 88
-disable = [
-    "logging-fstring-interpolation",
-    "import-error",
-]
-
 [tool.mypy]
 # https://mypy.readthedocs.io/en/stable/config_file.html#using-a-pyproject-toml-file
 ignore_missing_imports = true
 
 [tool.pytype]
 inputs = ['slo_generator']
+
+[tool.ruff.lint]
+# https://docs.astral.sh/ruff/linter/#rule-selection
+select = [
+    # pycodestyle
+    "E",
+    # Pyflakes
+    "F",
+    # pyupgrade
+    "UP",
+    # flake8-bugbear
+    "B",
+    # flake8-simplify
+    "SIM",
+    # isort
+    "I",
+]

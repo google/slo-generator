@@ -1,0 +1,40 @@
+# Git
+.git
+.gitignore
+.gitattributes
+.github
+
+# Docker
+Dockerfile
+.dockerignore
+
+# Byte-compiled / optimized / DLL files
+**/__pycache__/
+**/*.py[cod]
+
+build/
+dist/
+
+# Testing / Linting
+.mypy_cache/
+.pytest_cache/
+.pytype/
+.ruff_cache/
+.coverage
+tests/
+
+# Documentation
+docs/
+
+# Configuration
+.env
+
+# Virtual Environments
+.venv/
+venv/
+
+# VS Code
+.vscode/
+
+# Cloud Build
+cloudbuild.yaml

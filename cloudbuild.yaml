@@ -13,20 +13,16 @@
 # limitations under the License.
 ---
 steps:
-
 - name: gcr.io/cloud-builders/docker
-  id:   Build SLO generator
-  args: ['build', '-t', 'gcr.io/$_GCR_PROJECT_ID/slo-generator:${_VERSION}', '.']
-
-- name: gcr.io/$_GCR_PROJECT_ID/slo-generator:${_VERSION}
-  id: Run all tests
-  entrypoint: make
-  env:
-    - 'MIN_VALID_EVENTS=10'
-  args: []
-
-substitutions:
-  _VERSION: latest
+  id:   Build SLO Generator Docker Image
+  script: |
+    docker build \
+      -t gcr.io/$_GCR_PROJECT_ID/slo-generator:${_VERSION} \
+      --build-arg PYTHON_VERSION=${_PYTHON_VERSION} \
+      .
 
 images:
-- 'gcr.io/$_GCR_PROJECT_ID/slo-generator:${_VERSION}'
+- gcr.io/$_GCR_PROJECT_ID/slo-generator:${_VERSION}
+
+options:
+  automapSubstitutions: true

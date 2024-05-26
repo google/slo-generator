@@ -1,4 +1,4 @@
-name: deploy
+name: Deploy to Cloud Run
 
 on:
   push:
@@ -9,7 +9,7 @@ on:
       - v*.*.*
 
 jobs:
-  cloudrun:
+  cloud-run:
     runs-on: ubuntu-latest
     environment: prod
     concurrency: prod
@@ -40,7 +40,7 @@ jobs:
         id: wait-build
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          checkName: cloudbuild
+          checkName: cloud-build
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
           intervalSeconds: 10
           timeoutSeconds: 900 # 15m
@@ -58,7 +58,7 @@ jobs:
         run: echo Timeout && false # fail if build time out
 
       - name: Deploy Docker container to Cloud Run
-        run: make cloudrun
+        run: make cloud_run
         env:
           GCR_PROJECT_ID: ${{ secrets.GCR_PROJECT_ID }}
           CLOUDBUILD_PROJECT_ID: ${{ secrets.CLOUDBUILD_PROJECT_ID }}

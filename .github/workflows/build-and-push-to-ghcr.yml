@@ -22,7 +22,6 @@ jobs:
     permissions:
       contents: read
       packages: write
-      # 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -54,3 +53,5 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            PYTHON_VERSION=${{ vars.PYTHON_VERSION }}

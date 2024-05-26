@@ -15,6 +15,7 @@
 `custom_exporter.py`
 Dummy sample of a custom exporter.
 """
+
 import logging
 
 from slo_generator.exporters.base import MetricsExporter

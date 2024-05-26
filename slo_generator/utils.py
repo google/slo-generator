@@ -15,6 +15,7 @@
 `utils.py`
 Utility functions.
 """
+
 import argparse
 import errno
 import importlib
@@ -90,6 +91,7 @@ def load_config(
                     "installed. Please install it using pip by running "
                     "`pip install google-cloud-storage`",
                     ImportWarning,
+                    stacklevel=2,
                 )
                 sys.exit(1)
             config = parse_config(content=download_gcs_file(str(path)), ctx=ctx)
@@ -216,10 +218,7 @@ def get_human_time(timestamp: int, timezone: Optional[str] = None) -> str:
         >>> 2023-12-15T18:15:13.987654+01:00
         which corresponds to the timestamp in ISO format
     """
-    if timezone is not None:  # get timezone from arg
-        to_zone = tz.gettz(timezone)
-    else:  # auto-detect locale
-        to_zone = tz.tzlocal()
+    to_zone = tz.gettz(timezone) if timezone is not None else tz.tzlocal()
 
     # NB: as we set tz, dt_tz is an "aware" datetime
     # see: https://docs.python.org/3/library/datetime.html#aware-and-naive-objects
@@ -243,7 +242,7 @@ def get_exporters(config: dict, spec: dict) -> list:
     spec_exporters = spec.get("exporters", [])
     exporters = []
     for exporter in spec_exporters:
-        if exporter not in all_exporters.keys():
+        if exporter not in all_exporters:
             LOGGER.error(f'Exporter "{exporter}" not found in config.')
             continue
         exporter_data = all_exporters[exporter]
@@ -269,7 +268,7 @@ def get_backend(config: dict, spec: dict):
     all_backends = config.get("backends", {})
     spec_backend = spec["backend"]
     backend_data = {}
-    if spec_backend not in all_backends.keys():
+    if spec_backend not in all_backends:
         LOGGER.error(f'Backend "{spec_backend}" not found in config. Exiting.')
         sys.exit(0)
     backend_data = all_backends[spec_backend]
@@ -293,7 +292,7 @@ def get_error_budget_policy(config: dict, spec: dict):
     """
     all_ebp = config.get("error_budget_policies", {})
     spec_ebp = spec.get("error_budget_policy", "default")
-    if spec_ebp not in all_ebp.keys():
+    if spec_ebp not in all_ebp:
         LOGGER.error(f'Error budget policy "{spec_ebp}" not found in config. Exiting.')
         sys.exit(0)
     return all_ebp[spec_ebp]
@@ -371,6 +370,7 @@ def import_dynamic(package: str, name: str, prefix: str = "class"):
             f'locally with "pip install slo-generator[{dep}]" or remotely '
             f'by adding "slo-generator[{dep}]" to your requirements.txt.',
             ImportWarning,
+            stacklevel=2,
         )
         if DEBUG:
             LOGGER.debug(exception, exc_info=True)
@@ -387,7 +387,7 @@ def capitalize(word: str) -> str:
     Returns:
         str: Input string with first letter capitalized.
     """
-    return re.sub("([a-zA-Z])", lambda x: x.groups()[0].upper(), word, 1)
+    return re.sub("([a-zA-Z])", lambda x: x.groups()[0].upper(), word, count=1)
 
 
 def snake_to_caml(word: str) -> str:
@@ -494,7 +494,7 @@ def decode_gcs_url(url: str) -> tuple:
 
 
 # pylint: disable=dangerous-default-value
-def get_files(source, extensions=["yaml", "yml", "json"]) -> list:
+def get_files(source, extensions=None) -> list:
     """Get all files matching extensions.
 
     Args:
@@ -503,6 +503,8 @@ def get_files(source, extensions=["yaml", "yml", "json"]) -> list:
     Returns:
         list: List of all files matching extensions relative to source folder.
     """
+    if extensions is None:
+        extensions = ["yaml", "yml", "json"]
     all_files: list = []
     for ext in extensions:
         all_files.extend(Path(source).rglob(f"*.{ext}"))
