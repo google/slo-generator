@@ -89,8 +89,7 @@ class PrometheusExporter(MetricsExporter):
             handler=handler,
         )
 
-    # pylint: disable=too-many-arguments
-    def auth_handler(self, url, method, timeout, headers, data):
+    def auth_handler(self, url, method, timeout, headers, data):  # noqa: PLR0913
         """Handles authentication for pushing to Prometheus gateway.
 
         Args:

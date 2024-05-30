@@ -45,7 +45,6 @@ class DatadogBackend:
             datadog.initialize(**options)
             self.client = datadog.api
 
-    # pylint: disable=too-many-locals
     def good_bad_ratio(self, timestamp, window, slo_config):
         """Query SLI value from good and valid queries.
 

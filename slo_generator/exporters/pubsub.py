@@ -24,7 +24,7 @@ from google.cloud import pubsub_v1  # type: ignore[attr-defined]
 LOGGER = logging.getLogger(__name__)
 
 
-class PubsubExporter:  # pylint: disable=too-few-public-methods
+class PubsubExporter:
     """Pubsub exporter class."""
 
     def __init__(self):
@@ -44,7 +44,7 @@ class PubsubExporter:  # pylint: disable=too-few-public-methods
         """
         project_id = config["project_id"]
         topic_name = config["topic_name"]
-        # pylint: disable=no-member
+
         topic_path = self.publisher.topic_path(project_id, topic_name)
         data = json.dumps(data, indent=4).encode("utf-8")
         return self.publisher.publish(topic_path, data=data).result()

@@ -28,8 +28,7 @@ from slo_generator.report import SLOReport
 LOGGER = logging.getLogger(__name__)
 
 
-# pylint: disable=too-many-arguments,too-many-locals
-def compute(
+def compute(  # noqa: PLR0913
     slo_config: dict,
     config: dict,
     timestamp: Optional[float] = None,
@@ -140,7 +139,7 @@ def export(data: dict, exporters: list, raise_on_error: bool = False) -> list:
             response = instance().export(json_data, **exporter)
             LOGGER.info(f'{info} | SLO report sent to "{name}" exporter successfully.')
             LOGGER.debug(f"{info} | {response}")
-        except Exception as exc:  # pylint: disable=broad-except
+        except Exception as exc:
             if raise_on_error:
                 raise exc
             tbk = utils.fmt_traceback(exc)

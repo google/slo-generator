@@ -46,7 +46,6 @@ SID_CLUSTER_ISTIO: str = (
 SID_MESH_ISTIO: str = "ist:{mesh_uid}-{service_namespace}-{service_name}"
 
 
-# pylint: disable=too-many-public-methods
 class CloudServiceMonitoringBackend:
     """Cloud Service Monitoring backend class.
 
@@ -119,7 +118,6 @@ class CloudServiceMonitoringBackend:
         """
         return self.retrieve_slo(timestamp, window, slo_config)
 
-    # pylint: disable=unused-argument
     def delete(self, timestamp: int, window: int, slo_config: dict) -> Optional[dict]:
         """Delete method.
 
@@ -159,7 +157,7 @@ class CloudServiceMonitoringBackend:
         # Now that we have our SLO, retrieve the TimeSeries from Cloud
         # Monitoring API for that particular SLO id.
         metric_filter = self.build_slo_id(window, slo_config, full=True)
-        # pylint: disable=redefined-builtin
+
         filter = f'select_slo_counts("{metric_filter}")'
 
         # Query SLO timeseries
@@ -374,10 +372,8 @@ class CloudServiceMonitoringBackend:
         )
         return SSM.to_json(slo)
 
-    # pylint: disable=R0912,R0915
     @staticmethod
-    # pylint: disable=R0912,R0915,too-many-locals
-    def build_slo(window: int, slo_config: dict) -> dict:
+    def build_slo(window: int, slo_config: dict) -> dict:  # noqa: PLR0912, PLR0915
         """Get SLO JSON representation in Cloud Service Monitoring API from SLO
         configuration.
 
@@ -459,7 +455,6 @@ class CloudServiceMonitoringBackend:
                 sli["distribution_cut"]["range"]["min"] = float(range_min)
 
         elif method == "windows":
-            # pylint: disable=redefined-builtin
             filter = measurement.get("filter")
             # threshold = conf.get('threshold')
             # mean_in_range = conf.get('filter')
@@ -728,7 +723,7 @@ class CloudServiceMonitoringBackend:
         Returns:
             dict: Response object serialized as JSON.
         """
-        # pylint: disable=protected-access
+
         return json.loads(MessageToJson(response._pb))
 
 

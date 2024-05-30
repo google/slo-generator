@@ -26,7 +26,6 @@ from slo_generator.constants import COLORED_OUTPUT, MIN_VALID_EVENTS, NO_DATA, C
 LOGGER = logging.getLogger(__name__)
 
 
-# pylint: disable=too-many-arguments,too-many-locals
 @dataclass(init=False)
 class SLOReport:
     """SLO report dataclass. Compute an SLO report out of an SLO config and an
@@ -40,8 +39,6 @@ class SLOReport:
         client (obj): Existing backend client.
         delete (bool): Backend delete action.
     """
-
-    # pylint: disable=too-many-instance-attributes
 
     # SLO
     name: str
@@ -90,8 +87,7 @@ class SLOReport:
     # Data validation
     errors: List[str] = field(default_factory=list)
 
-    # pylint: disable=too-many-arguments
-    def __init__(self, config, backend, step, timestamp, client=None, delete=False):
+    def __init__(self, config, backend, step, timestamp, client=None, delete=False):  # noqa: PLR0913
         # Init dataclass fields from SLO config and Error Budget Policy
         spec = config["spec"]
         self.exporters = []
@@ -224,7 +220,7 @@ class SLOReport:
         try:
             data = method(self.timestamp, self.window, config)
             LOGGER.debug(f"{self.info} | Backend response: {data}")
-        except Exception as exc:  # pylint:disable=broad-except
+        except Exception as exc:
             self.errors.append(utils.fmt_traceback(exc))
             return None
         return data
@@ -273,8 +269,7 @@ class SLOReport:
             }
         return asdict(self)
 
-    # pylint: disable=too-many-return-statements
-    def _validate(self, data) -> bool:
+    def _validate(self, data) -> bool:  # noqa: PLR0911
         """Validate backend results. Invalid data will result in SLO report not
         being built.
 
@@ -303,7 +298,8 @@ class SLOReport:
         # Good / Bad tuple
         if isinstance(data, tuple):
             # Tuple length should be 2
-            if len(data) != 2:
+            EXPECTED_LENGTH = 2
+            if len(data) != EXPECTED_LENGTH:
                 error = (
                     f"Backend method returned a tuple with {len(data)} items."
                     f"Expected 2 items."
@@ -368,7 +364,6 @@ class SLOReport:
 
         return True
 
-    # pylint: disable=dangerous-default-value
     def __set_fields(self, lambdas=None, **kwargs):
         """Set all fields in dataclasses from configs passed and apply function
         on values whose key match one in the dictionaries.

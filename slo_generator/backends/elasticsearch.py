@@ -59,7 +59,6 @@ class ElasticsearchBackend:
             # Note: Either `hosts` or `cloud_id` must be specified in v8.x.x
             self.client = Elasticsearch(**conf)
 
-    # pylint: disable=unused-argument,too-many-locals
     def good_bad_ratio(self, timestamp, window, slo_config):
         """Query two timeseries, one containing 'good' events, one containing
         'bad' events.

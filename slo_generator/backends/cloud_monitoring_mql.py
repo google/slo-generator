@@ -98,7 +98,6 @@ class CloudMonitoringMqlBackend:
 
         return good_event_count, bad_event_count
 
-    # pylint: disable=too-many-locals,disable=unused-argument
     def distribution_cut(
         self,
         timestamp: int,
@@ -177,7 +176,7 @@ class CloudMonitoringMqlBackend:
 
     def query_sli(
         self,
-        timestamp: int,  # pylint: disable=unused-argument
+        timestamp: int,
         window: int,
         slo_config: dict,
     ) -> float:

@@ -117,8 +117,7 @@ class DynatraceBackend:
             response, threshold, good_below_threshold
         )
 
-    # pylint: disable=too-many-arguments
-    def query(
+    def query(  # noqa: PLR0913
         self,
         start,
         end,
@@ -270,8 +269,7 @@ class DynatraceClient:
         wait_exponential_max=10000,
         stop_max_delay=10000,
     )
-    # pylint: disable=too-many-arguments,too-many-locals
-    def request(
+    def request(  # noqa: PLR0913
         self,
         method,
         endpoint,
