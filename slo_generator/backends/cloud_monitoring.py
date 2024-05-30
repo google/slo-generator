@@ -22,10 +22,13 @@ import warnings
 from collections import OrderedDict
 
 from google.cloud import monitoring_v3
+from opentelemetry import trace
 
 from slo_generator.constants import NO_DATA
 
 LOGGER = logging.getLogger(__name__)
+
+tracer = trace.get_tracer(__name__)
 
 
 class CloudMonitoringBackend:
@@ -38,12 +41,15 @@ class CloudMonitoringBackend:
             if omitted.
     """
 
+    @tracer.start_as_current_span("CloudMonitoringBackend")
     def __init__(self, project_id, client=None):
-        self.client = client
-        if client is None:
-            self.client = monitoring_v3.MetricServiceClient()
+        with tracer.start_as_current_span("Instantiate client"):
+            self.client = client
+            if client is None:
+                self.client = monitoring_v3.MetricServiceClient()
         self.parent = self.client.common_project_path(project_id)
 
+    @tracer.start_as_current_span("good_bad_ratio")
     def good_bad_ratio(self, timestamp, window, slo_config):
         """Query two timeseries, one containing 'good' events, one containing
         'bad' events.
@@ -94,8 +100,17 @@ class CloudMonitoringBackend:
             f"Good events: {good_event_count} | " f"Bad events: {bad_event_count}"
         )
 
+        trace.get_current_span().add_event(
+            "count",
+            {
+                "good": good_event_count,
+                "bad": bad_event_count,
+            },
+        )
+
         return good_event_count, bad_event_count
 
+    @tracer.start_as_current_span("distribution_cut")
     def distribution_cut(self, timestamp, window, slo_config):
         """Query one timeseries of type 'exponential'.
 
@@ -158,8 +173,16 @@ class CloudMonitoringBackend:
             good_event_count = upper_events_count
             bad_event_count = lower_events_count
 
+        trace.get_current_span().add_event(
+            "count",
+            {
+                "good": good_event_count,
+                "bad": bad_event_count,
+            },
+        )
         return good_event_count, bad_event_count
 
+    @tracer.start_as_current_span("exponential_distribution_cut")
     def exponential_distribution_cut(self, *args, **kwargs):
         """Alias for `distribution_cut` method to allow for backwards
         compatibility.
@@ -172,6 +195,7 @@ class CloudMonitoringBackend:
         )
         return self.distribution_cut(*args, **kwargs)
 
+    @tracer.start_as_current_span("query")
     def query(  # noqa: PLR0913
         self,
         timestamp,

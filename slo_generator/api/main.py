@@ -26,6 +26,7 @@ import pprint
 
 import requests
 from flask import jsonify, make_response
+from opentelemetry import trace
 
 from slo_generator.compute import compute, export
 from slo_generator.utils import get_exporters, load_config, setup_logging
@@ -36,7 +37,10 @@ TIME_FORMAT = "%Y-%m-%dT%H:%M:%SZ"
 API_SIGNATURE_TYPE = os.environ["GOOGLE_FUNCTION_SIGNATURE_TYPE"]
 setup_logging()
 
+tracer = trace.get_tracer(__name__)
 
+
+@tracer.start_as_current_span("run_compute")
 def run_compute(request):
     """Run slo-generator compute function. Can be configured to export data as
     well, using the `exporters` key of the SLO config.
@@ -79,6 +83,7 @@ def run_compute(request):
     return reports
 
 
+@tracer.start_as_current_span("run_export")
 def run_export(request):
     """Run slo-generator export function. Get the SLO report data from a request
     object.
@@ -142,6 +147,7 @@ def run_export(request):
     return errors
 
 
+@tracer.start_as_current_span("process_req")
 def process_req(request):
     """Process incoming request.
 

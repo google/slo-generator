@@ -21,13 +21,17 @@ import pprint
 import time
 from typing import Optional
 
+from opentelemetry import trace
+
 from slo_generator import constants, utils
 from slo_generator.migrations.migrator import report_v2tov1
 from slo_generator.report import SLOReport
 
 LOGGER = logging.getLogger(__name__)
 
+tracer = trace.get_tracer(__name__)
 
+@tracer.start_as_current_span("compute")
 def compute(  # noqa: PLR0913
     slo_config: dict,
     config: dict,
@@ -95,6 +99,7 @@ def compute(  # noqa: PLR0913
     return reports
 
 
+@tracer.start_as_current_span("export")
 def export(data: dict, exporters: list, raise_on_error: bool = False) -> list:
     """Export data using selected exporters.
 
