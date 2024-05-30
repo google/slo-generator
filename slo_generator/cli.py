@@ -127,7 +127,6 @@ def compute(slo_config, config, export, delete, timestamp):
     return all_reports
 
 
-# pylint: disable=import-error,import-outside-toplevel
 @main.command()
 @click.pass_context
 @click.option(
@@ -164,8 +163,7 @@ def compute(slo_config, config, export, delete, timestamp):
     default=8080,
     help="HTTP port",
 )
-# pylint: disable=too-many-arguments
-def api(ctx, config, exporters, signature_type, target, port):
+def api(ctx, config, exporters, signature_type, target, port):  # noqa: PLR0913
     """Run an API that can receive requests (supports both 'http' and
     'cloudevents' signature types)."""
     from functions_framework._cli import _cli

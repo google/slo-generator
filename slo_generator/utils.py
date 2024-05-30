@@ -46,7 +46,6 @@ except ImportError:
 LOGGER = logging.getLogger(__name__)
 
 
-# pylint: disable=dangerous-default-value
 def load_configs(
     path: str, ctx: os._Environ = os.environ, kind: Optional[str] = None
 ) -> list:
@@ -67,7 +66,6 @@ def load_configs(
     return [cfg for cfg in configs if cfg]
 
 
-# pylint: disable=dangerous-default-value
 def load_config(
     path: str, ctx: os._Environ = os.environ, kind: Optional[str] = None
 ) -> Optional[dict]:
@@ -112,7 +110,6 @@ def load_config(
         raise
 
 
-# pylint: disable=dangerous-default-value
 def parse_config(
     path: Optional[str] = None, content=None, ctx: os._Environ = os.environ
 ):
@@ -191,7 +188,6 @@ def setup_logging():
 
     # Ignore Cloud SDK warning when using a user instead of service account
     try:
-        # pylint: disable=import-outside-toplevel
         from google.auth._default import _CLOUD_SDK_CREDENTIALS_WARNING
 
         warnings.filterwarnings("ignore", message=_CLOUD_SDK_CREDENTIALS_WARNING)
@@ -357,7 +353,7 @@ def import_dynamic(package: str, name: str, prefix: str = "class"):
     """
     try:
         return getattr(importlib.import_module(package), name)
-    except Exception as exception:  # pylint: disable=W0703
+    except Exception as exception:
         dep = package.split(".")[-1]
         warnings.warn(
             f'{prefix} "{package}.{name}" not found.\nPlease ensure that:\n'
@@ -489,7 +485,6 @@ def decode_gcs_url(url: str) -> tuple:
     return (bucket_name, file_path)
 
 
-# pylint: disable=dangerous-default-value
 def get_files(source, extensions=None) -> list:
     """Get all files matching extensions.
 

@@ -198,7 +198,8 @@ class TestCompute(unittest.TestCase):
     def test_export_dynatrace_error(self, mock):
         responses = export(SLO_REPORT, EXPORTERS[5])
         codes = [r[0]["response"]["error"]["code"] for r in responses]
-        self.assertTrue(all(code == 429 for code in codes))
+        TOO_MANY_RETRIES = 429
+        self.assertTrue(all(code == TOO_MANY_RETRIES for code in codes))
 
     def test_metrics_exporter_build_data_labels(self):
         exporter = MetricsExporter()

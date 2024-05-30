@@ -13,7 +13,6 @@ from slo_generator.constants import NO_DATA
 LOGGER = logging.getLogger(__name__)
 
 
-# pylint: disable=duplicate-code
 class OpenSearchBackend:
     """Backend for querying metrics from OpenSearch.
 
@@ -38,7 +37,6 @@ class OpenSearchBackend:
 
             self.client = OpenSearch(**conf)
 
-    # pylint: disable=unused-argument
     def good_bad_ratio(self, timestamp, window, slo_config):
         """Query two timeseries, one containing 'good' events, one containing
         'bad' events.

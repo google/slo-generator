@@ -24,4 +24,6 @@ select = [
     "SIM",
     # isort
     "I",
+    # Pylint
+    "PL",
 ]

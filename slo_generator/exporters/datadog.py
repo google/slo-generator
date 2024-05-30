@@ -28,7 +28,6 @@ logging.getLogger("datadog.api").setLevel(logging.ERROR)
 DEFAULT_API_HOST = "https://api.datadoghq.com"
 
 
-# pylint: disable=too-few-public-methods
 class DatadogExporter(MetricsExporter):
     """Datadog exporter class.
 

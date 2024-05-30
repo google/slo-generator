@@ -55,7 +55,8 @@ class DynatraceExporter(MetricsExporter):
         self.client = DynatraceClient(api_url, api_token)
         metric = self.get_custom_metric(data)
         code = int(metric.get("error", {}).get("code", "200"))
-        if code == 404:
+        NOT_FOUND = 404
+        if code == NOT_FOUND:
             LOGGER.warning("Custom metric doesn't exist. Creating it.")
             metric = self.create_custom_metric(data)
         response = self.create_timeseries(data)

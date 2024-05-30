@@ -106,7 +106,7 @@ def run_export(request):
     # Construct exporters block
     spec = {}
     # pytype: disable=attribute-error
-    # pylint: disable=fixme
+
     # FIXME `load_config()` returns `Optional[dict]` so `config` can be `None`
     default_exporters = config.get("default_exporters", [])
     # pytype: enable=attribute-error
@@ -211,10 +211,10 @@ def process_batch_req(request, data, config):
     for url in urls:
         if "pubsub_batch_handler" in config:
             LOGGER.info(f"Sending {url} to pubsub batch handler.")
-            from google.cloud import pubsub_v1  # pylint: disable=C0415
+            from google.cloud import pubsub_v1
 
             # pytype: disable=attribute-error
-            # pylint: disable=fixme
+
             # FIXME `load_config()` returns `Optional[dict]` so `config` can be `None`
             #   so `config` can be `None`
             exporter_conf = config.get("pubsub_batch_handler")
@@ -222,7 +222,7 @@ def process_batch_req(request, data, config):
             client = pubsub_v1.PublisherClient()
             project_id = exporter_conf["project_id"]
             topic_name = exporter_conf["topic_name"]
-            # pylint: disable=no-member
+
             topic_path = client.topic_path(project_id, topic_name)
             data = url.encode("utf-8")
             client.publish(topic_path, data=data).result()

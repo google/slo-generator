@@ -97,7 +97,6 @@ class PrometheusBackend:
 
         return (good_count, bad_count)
 
-    # pylint: disable=unused-argument
     def distribution_cut(
         self, timestamp: int, window: int, slo_config: dict
     ) -> Tuple[float, float]:
@@ -138,9 +137,7 @@ class PrometheusBackend:
         LOGGER.debug(f"Good events: {good_count} | " f"Bad events: {bad_count}")
         return (good_count, bad_count)
 
-    # pylint: disable=unused-argument,redefined-builtin,dangerous-default-value
-    # pylint: disable=too-many-arguments
-    def query(
+    def query(  # noqa: PLR0913
         self,
         filter: str,
         window: int,
@@ -189,7 +186,6 @@ class PrometheusBackend:
             return NO_DATA  # no events in timeseries
 
     @staticmethod
-    # pylint: disable=dangerous-default-value
     def _fmt_query(
         query: str,
         window: int,

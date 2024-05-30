@@ -16,7 +16,6 @@
 Migrate utilities for migrating slo-generator configs from v1 to v2.
 """
 
-# pylint: disable=line-too-long, too-many-statements, too-many-ancestors, too-many-locals, too-many-nested-blocks, unused-argument
 # flake8: noqa
 # pytype: skip-file
 import copy
@@ -54,7 +53,6 @@ yaml.default_flow_style = None  # type: ignore[attr-defined]
 yaml.preserve_quotes = True  # type: ignore[attr-defined]
 
 
-# pylint: disable=too-many-arguments
 def do_migrate(
     source,
     target,
@@ -233,7 +231,6 @@ def do_migrate(
     # 3.3 - Replace `error_budget_policy.yaml` local variable to `config.yaml`
 
 
-# pylint: disable=dangerous-default-value
 def exporters_v1tov2(
     exporters_paths: list, shared_config: dict = {}, quiet: bool = False
 ) -> list:
@@ -250,7 +247,6 @@ def exporters_v1tov2(
     exp_keys = []
     for exp_path in exporters_paths:
         with open(exp_path, encoding="utf-8") as conf:
-            # pylint: disable=E1111
             content = yaml.load(conf, Loader=yaml.SafeLoader)
         exporters = content
 
@@ -271,7 +267,6 @@ def exporters_v1tov2(
     return exp_keys
 
 
-# pylint: disable=dangerous-default-value
 def ebp_v1tov2(ebp_paths: list, shared_config: dict = {}, quiet: bool = False) -> list:
     """Translate error budget policies to v2 and put into shared config
 
@@ -286,9 +281,8 @@ def ebp_v1tov2(ebp_paths: list, shared_config: dict = {}, quiet: bool = False) -
     ebp_keys = []
     for ebp_path in ebp_paths:
         with open(ebp_path, encoding="utf-8") as conf:
-            # pylint: disable=E1111
             error_budget_policy = yaml.load(conf, Loader=yaml.SafeLoader)
-        # pylint: disable=E1133
+
         for step in error_budget_policy:
             step["name"] = step.pop("error_budget_policy_step_name")
             step["burn_rate_threshold"] = step.pop("alerting_burn_rate_threshold")
@@ -313,7 +307,6 @@ def ebp_v1tov2(ebp_paths: list, shared_config: dict = {}, quiet: bool = False) -
     return ebp_keys
 
 
-# pylint: disable=dangerous-default-value
 def slo_config_v1tov2(
     slo_config: dict,
     shared_config: dict = {},
@@ -575,7 +568,6 @@ def peek(iterable):
     return first, itertools.chain([first], iterable)
 
 
-# pylint: disable=too-few-public-methods
 class CustomDumper(yaml.RoundTripDumper):
     """Dedicated YAML dumper to insert lines between top-level objects.
 
@@ -585,7 +577,7 @@ class CustomDumper(yaml.RoundTripDumper):
 
     # HACK: insert blank lines between top-level objects
     # inspired by https://stackoverflow.com/a/44284819/3786245
-    # pylint: disable=missing-function-docstring
+
     def write_line_break(self, data: Optional[str] = None):
         super().write_line_break(data)
 
