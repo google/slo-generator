@@ -31,6 +31,7 @@ LOGGER = logging.getLogger(__name__)
 
 tracer = trace.get_tracer(__name__)
 
+
 @tracer.start_as_current_span("compute")
 def compute(  # noqa: PLR0913
     slo_config: dict,

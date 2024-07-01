@@ -48,6 +48,7 @@ LOGGER = logging.getLogger(__name__)
 
 tracer = trace.get_tracer(__name__)
 
+
 @tracer.start_as_current_span("load_configs")
 def load_configs(
     path: str, ctx: os._Environ = os.environ, kind: Optional[str] = None
