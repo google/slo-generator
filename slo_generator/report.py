@@ -20,10 +20,14 @@ import logging
 from dataclasses import asdict, dataclass, field, fields
 from typing import List
 
+from opentelemetry import trace
+
 from slo_generator import utils
 from slo_generator.constants import COLORED_OUTPUT, MIN_VALID_EVENTS, NO_DATA, Colors
 
 LOGGER = logging.getLogger(__name__)
+
+tracer = trace.get_tracer(__name__)
 
 
 @dataclass(init=False)
@@ -87,6 +91,7 @@ class SLOReport:
     # Data validation
     errors: List[str] = field(default_factory=list)
 
+    @tracer.start_as_current_span("SLOReport")
     def __init__(self, config, backend, step, timestamp, client=None, delete=False):  # noqa: PLR0913
         # Init dataclass fields from SLO config and Error Budget Policy
         spec = config["spec"]
@@ -123,6 +128,7 @@ class SLOReport:
         if not self._post_validate():
             self.valid = False
 
+    @tracer.start_as_current_span("build")
     def build(self, step, data):
         """Compute all data necessary to build the SLO report.
 
@@ -179,6 +185,7 @@ class SLOReport:
             consequence_message=consequence_message,
         )
 
+    @tracer.start_as_current_span("run_backend")
     def run_backend(self, config, backend, client=None, delete=False):
         """Get appropriate backend method from SLO configuration and run it on
         current SLO config and Error Budget Policy step.
@@ -193,23 +200,25 @@ class SLOReport:
         Returns:
             obj: Backend data.
         """
-        # Grab backend class and method dynamically.
-        cls_name = backend.get("class")
-        method = config["spec"]["method"]
-        excluded_keys = ["class", "service_level_indicator", "name"]
-        backend_cfg = {k: v for k, v in backend.items() if k not in excluded_keys}
-        cls = utils.get_backend_cls(cls_name)
-        if not cls:
-            LOGGER.warning(f"{self.info} | Backend {cls_name} not loaded.")
-            self.valid = False
-            return None
-        instance = cls(client=client, **backend_cfg)
-        method = getattr(instance, method)
-        LOGGER.debug(
-            f"{self.info} | "
-            f"Using backend {cls_name}.{method.__name__} (from "
-            f"SLO config file)."
-        )
+        with tracer.start_as_current_span("Get backend class and method"):
+            # Grab backend class and method dynamically.
+            cls_name = backend.get("class")
+            method = config["spec"]["method"]
+            excluded_keys = ["class", "service_level_indicator", "name"]
+            backend_cfg = {k: v for k, v in backend.items() if k not in excluded_keys}
+            cls = utils.get_backend_cls(cls_name)
+            if not cls:
+                LOGGER.warning(f"{self.info} | Backend {cls_name} not loaded.")
+                self.valid = False
+                return None
+        with tracer.start_as_current_span("Get instance and method"):
+            instance = cls(client=client, **backend_cfg)
+            method = getattr(instance, method)
+            LOGGER.debug(
+                f"{self.info} | "
+                f"Using backend {cls_name}.{method.__name__} (from "
+                f"SLO config file)."
+            )
 
         # Delete mode activation.
         if delete and hasattr(instance, "delete"):
@@ -218,13 +227,15 @@ class SLOReport:
 
         # Run backend method and return results.
         try:
-            data = method(self.timestamp, self.window, config)
-            LOGGER.debug(f"{self.info} | Backend response: {data}")
+            with tracer.start_as_current_span("Call method"):
+                data = method(self.timestamp, self.window, config)
+                LOGGER.debug(f"{self.info} | Backend response: {data}")
         except Exception as exc:
             self.errors.append(utils.fmt_traceback(exc))
             return None
         return data
 
+    @tracer.start_as_current_span("get_sli")
     def get_sli(self, data):
         """Compute SLI value and good / bad counts from the backend result.
 
@@ -269,6 +280,7 @@ class SLOReport:
             }
         return asdict(self)
 
+    @tracer.start_as_current_span("_validate")
     def _validate(self, data) -> bool:  # noqa: PLR0911
         """Validate backend results. Invalid data will result in SLO report not
         being built.
@@ -353,6 +365,7 @@ class SLOReport:
 
         return True
 
+    @tracer.start_as_current_span("_post_validate")
     def _post_validate(self) -> bool:
         """Validate report after build."""
 
