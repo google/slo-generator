@@ -155,7 +155,6 @@ class BigqueryExporter:
         )
         return self.client.create_table(table)
 
-    # pylint: disable=dangerous-default-value
     def update_schema(self, table_ref, keep=None):
         """Updates a BigQuery table schema if needed.
 

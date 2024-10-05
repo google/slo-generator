@@ -107,7 +107,6 @@ def mock_slo_report(key):
     }
 
 
-# pylint: disable=too-few-public-methods
 class MultiCallableStub:
     """Stub for the grpc.UnaryUnaryMultiCallable interface."""
 
@@ -115,7 +114,6 @@ class MultiCallableStub:
         self.method = method
         self.channel_stub = channel_stub
 
-    # pylint: disable=inconsistent-return-statements
     def __call__(self, request, timeout=None, metadata=None, credentials=None):
         self.channel_stub.requests.append((self.method, request))
 
@@ -130,7 +128,6 @@ class MultiCallableStub:
             return response
 
 
-# pylint: disable=R0903
 class ChannelStub:
     """Stub for the grpc.Channel interface."""
 
@@ -140,7 +137,6 @@ class ChannelStub:
         self.responses = responses
         self.requests = []
 
-    # pylint: disable=C0116,W0613
     def unary_unary(self, method, request_serializer=None, response_deserializer=None):
         return MultiCallableStub(method, self)
 
@@ -178,7 +174,6 @@ def mock_sd(nresp=1):
     )
 
 
-# pylint: disable=W0613,R1721
 def mock_prom(self, metric):
     """Fake Prometheus query response.
 
@@ -201,7 +196,6 @@ def mock_prom(self, metric):
     return json.dumps(data)
 
 
-# pylint: disable=W0613
 def mock_es(self, index, body):
     """Fake ElasticSearch response.
 

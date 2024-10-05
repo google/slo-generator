@@ -79,7 +79,8 @@ METRIC_METADATA_LABELS_TOP_COMPAT: List[str] = [
 
 
 # Colors / Status
-# pylint: disable=too-few-public-methods
+
+
 class Colors:
     """Colors for console output."""
 

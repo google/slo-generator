@@ -84,14 +84,14 @@ class MetricsExporter:  # pytype: disable=ignored-metaclass
         LOGGER.debug(f"Exporting {len(metrics)} metrics with {self.__class__.__name__}")
         for metric_cfg in metrics:
             if isinstance(metric_cfg, str):  # short form
-                metric_cfg = {
+                metric_cfg = {  # noqa: PLW2901
                     "name": metric_cfg,
                     "alias": metric_cfg,
                     "description": "",
                     "labels": DEFAULT_METRIC_LABELS,
                 }
             if metric_cfg["name"] == "error_budget_burn_rate":
-                metric_cfg = MetricsExporter.use_deprecated_fields(
+                metric_cfg = MetricsExporter.use_deprecated_fields(  # noqa: PLW2901
                     config=config, metric=metric_cfg
                 )
             metric = metric_cfg.copy()

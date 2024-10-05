@@ -4,8 +4,6 @@ from slo_generator.backends.open_search import OpenSearchBackend
 
 
 class TestOpenSearchBackend(unittest.TestCase):
-    assert 1 == 1
-
     def test_build_query_with_empty_query(self):
         assert OpenSearchBackend.build_query(None, 3600, "date") is None
 

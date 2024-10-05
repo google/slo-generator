@@ -42,11 +42,9 @@ class CustomMetricExporter(MetricsExporter):
         }
 
 
-# pylint: disable=too-few-public-methods
 class CustomSLOExporter:
     """Custom exporter for SLO data."""
 
-    # pylint: disable=unused-argument
     def export(self, data, **config):
         """Export data to custom destination.
 

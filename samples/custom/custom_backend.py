@@ -27,7 +27,6 @@ class CustomBackend:
     def __init__(self, client=None, **kwargs):
         pass
 
-    # pylint: disable=unused-argument
     def good_bad_ratio(self, timestamp, window, slo_config):
         """Good bad ratio method.
 
@@ -41,6 +40,5 @@ class CustomBackend:
         """
         return 100000, 100
 
-    # pylint: disable=unused-argument,missing-function-docstring
     def query_sli(self, timestamp, window, slo_config):
         return 0.999
