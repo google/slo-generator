@@ -160,9 +160,10 @@ class PrometheusBackend:
         Returns:
             dict: Response.
         """
+        offset_timestamp = timestamp - 30
         filter = PrometheusBackend._fmt_query(filter, window, operators, labels)
         LOGGER.debug(f"Query: {filter}")
-        response = self.client.query(metric=filter)
+        response = self.client.query(metric=filter, time=offset_timestamp)
         response = json.loads(response)
         LOGGER.debug(pprint.pformat(response))
         return response

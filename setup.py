@@ -30,15 +30,16 @@ here = path.abspath(path.dirname(__file__))
 # Package metadata.
 name = "slo-generator"
 description = "SLO Generator"
-version = "2.0.1"
+version = "2.6.0"
 # Should be one of:
 # 'Development Status :: 3 - Alpha'
 # 'Development Status :: 4 - Beta'
 # 'Development Status :: 5 - Production/Stable'
 release_status = "Development Status :: 3 - Alpha"
-dependencies = ['pyyaml', 'ruamel.yaml', 'python-dateutil', 'click < 8.0']
+#dependencies = ['pyyaml', 'ruamel.yaml', 'python-dateutil', 'click < 8.0']
+dependencies = ['pyyaml', 'ruamel.yaml', 'python-dateutil', 'click']
 extras = {
-    'api': ['Flask', 'gunicorn', 'cloudevents', 'functions-framework'],
+    'api': ['Flask==3.0.3', 'gunicorn', 'cloudevents', 'functions-framework'],
     'prometheus': ['prometheus-client', 'prometheus-http-client'],
     'prometheus_remote_write': ['requests', 'python-snappy', 'protobuf'],
     'datadog': ['datadog', 'retrying==1.3.3'],

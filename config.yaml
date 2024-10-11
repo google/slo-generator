@@ -1,0 +1,67 @@
+backends:
+  prometheus:
+    url: "http://192.168.25.200:9090"
+
+exporters:
+  prometheus_remote_write:
+    url: "http://192.168.25.200:9090/api/v1/write"
+    metrics:
+    - "error_budget_burn_rate"
+    - "error_budget_target"
+    - "alerting_burn_rate_threshold"
+    - "events_count"
+    - "sli_measurement"
+    - "slo_target"
+    - "alert"
+    - "error_minutes"
+    - "error_budget_minutes"
+    - "bad_events_count"
+    - "error_budget_remaining_minutes"
+    - "gap"
+    - "good_events_count"
+
+error_budget_policies:
+  default:
+    steps:
+    - name: 5 min
+      burn_rate_threshold: 14.4
+      alert: true
+      message_alert: Page to defend the SLO
+      message_ok: Last hour on track
+      window: 300
+    - name: 1 hour
+      burn_rate_threshold: 14.4
+      alert: true
+      message_alert: Page to defend the SLO
+      message_ok: Last hour on track
+      window: 3600
+    - name: 30 min
+      burn_rate_threshold: 6
+      alert: true
+      message_alert: Page to defend the SLO
+      message_ok: Last 12 hours on track
+      window: 1800
+    - name: 6 hours short
+      burn_rate_threshold: 6
+      alert: false
+      message_alert: Dev team dedicates 25% of engineers to the reliability backlog
+      message_ok: Last week on track
+      window: 21600
+    - name: 6 hours long
+      burn_rate_threshold: 1
+      alert: false
+      message_alert: Dev team dedicates 25% of engineers to the reliability backlog
+      message_ok: Last week on track
+      window: 21600
+    - name: 3 days
+      burn_rate_threshold: 1
+      alert: false
+      message_alert: Dev team dedicates 25% of engineers to the reliability backlog
+      message_ok: Last week on track
+      window: 259200
+    - name: 28 days
+      burn_rate_threshold: 1
+      alert: false
+      message_alert: Freeze release, unless related to reliability or security
+      message_ok: Unfreeze release, per the agreed roll-out policy
+      window: 2419200
