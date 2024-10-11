@@ -6,6 +6,15 @@
 [![PyPI version](https://badge.fury.io/py/slo-generator.svg)](https://badge.fury.io/py/slo-generator)
 [![Downloads](https://static.pepy.tech/personalized-badge/slo-generator?period=total&units=international_system&left_color=grey&right_color=orange&left_text=pypi%20downloads)](https://pepy.tech/project/slo-generator)
 
+This a a fork from the `Google ([slo-generator](https://github.com/google/slo-generator))`
+This forks adds:
+
+* support to prometheus_remote_write tks to ([slo-generator oktocat](https://github.com/oktocat/slo-generator/tree/prometheus-remotewrite-exporter))
+* support to build in arm architecture
+* upgrade python to 3.12.7
+
+
+
 `slo-generator` is a tool to compute and export **Service Level Objectives** ([SLOs](https://landing.google.com/sre/sre-book/chapters/service-level-objectives/)), **Error Budgets** and **Burn Rates**, using configurations written in YAML (or JSON) format.
 
 ***IMPORTANT NOTE: the following content is the `slo-generator` v2 documentation. The v1 documentation is available [here](https://github.com/google/slo-generator/tree/v1.5.1), and instructions to migrate to v2 are available [here](https://github.com/google/slo-generator/blob/master/docs/shared/migration.md).***
