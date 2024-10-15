@@ -32,13 +32,13 @@ INF = float("inf")
 SLI_CALCULATION_COUNT = Counter(
     name='sli_calculation_count',
     documentation='Application Request Count',
-    labelnames=['window', 'http_status']
+    labelnames=['window', 'http_status','backend']
 )
 
 SLI_CALCULATION_SECONDS = Histogram(
     name='sli_calculation_seconds',
     documentation='Application Request Latency',
-    labelnames=['window'],
+    labelnames=['window','backend'],
     buckets=(1, 5, 10, 20, 30, 40, 50, INF)
 )
 
@@ -154,8 +154,8 @@ class SLOReport:
             # Get backend results
             data = self.run_backend(config, backend, client=client, delete=delete)
 
-        SLI_CALCULATION_SECONDS.labels(self.error_budget_policy_step_name).observe(time.time() - start_time)
-        SLI_CALCULATION_COUNT.labels(self.error_budget_policy_step_name, 'total').inc()
+        SLI_CALCULATION_SECONDS.labels(self.error_budget_policy_step_name, backend['name']).observe(time.time() - start_time)
+        SLI_CALCULATION_COUNT.labels(self.error_budget_policy_step_name, 'total', backend['name']).inc()
 
         # save data for next window check
         self.lastdata = data
@@ -171,7 +171,7 @@ class SLOReport:
         if not self._post_validate():
             self.valid = False
 
-        SLI_CALCULATION_COUNT.labels(self.error_budget_policy_step_name,'200').inc()
+        SLI_CALCULATION_COUNT.labels(self.error_budget_policy_step_name,'200',backend['name']).inc()
 
     def build(self, step, data):
         """Compute all data necessary to build the SLO report.
