@@ -25,10 +25,20 @@ import os
 import pprint
 
 import requests
-from flask import jsonify, make_response
+from flask import jsonify, make_response, Response
 
 from slo_generator.compute import compute, export
 from slo_generator.utils import get_exporters, load_config, setup_logging
+
+from prometheus_client import generate_latest
+
+CONTENT_TYPE_LATEST = str('text/plain; version=0.0.4; charset=utf-8')
+
+#h = Histogram('sli_canclulation_seconds', 'Time it takes to calculate a SLI')
+#SLO_CALCULATION_METRIC = Counter('sli_canclulation', 'SLO calculation requests', ['method', 'http_status_code'])
+
+# METRICA_X_NEOSON= Counter('metrica_x_neoson', 'description', ['label1', 'label2'])
+# METRICA_X_NEOSON.labels("label1 value", "label2 value").inc()
 
 CONFIG_PATH = os.environ["CONFIG_PATH"]
 LOGGER = logging.getLogger(__name__)
@@ -36,7 +46,7 @@ TIME_FORMAT = "%Y-%m-%dT%H:%M:%SZ"
 API_SIGNATURE_TYPE = os.environ["GOOGLE_FUNCTION_SIGNATURE_TYPE"]
 setup_logging()
 
-
+#@h.time()
 def run_compute(request):
     """Run slo-generator compute function. Can be configured to export data as
     well, using the `exporters` key of the SLO config.
@@ -53,6 +63,12 @@ def run_compute(request):
 
     # Process request
     data = process_req(request)
+    if request.path ==  "/metrics":
+        return Response(generate_latest(), mimetype=CONTENT_TYPE_LATEST)
+        #return generate_latest().decode("utf-8").replace('\n', '<br>')
+    #else:
+    #    SLO_CALCULATION_METRIC.labels(request.method, "200").inc()
+
     batch_mode = request.args.get("batch", False)
     if batch_mode:
         if not API_SIGNATURE_TYPE == "http":
@@ -106,7 +122,7 @@ def run_export(request):
     # Construct exporters block
     spec = {}
     # pytype: disable=attribute-error
-    # pylint: disable=fixme
+
     # FIXME `load_config()` returns `Optional[dict]` so `config` can be `None`
     default_exporters = config.get("default_exporters", [])
     # pytype: enable=attribute-error
@@ -211,10 +227,10 @@ def process_batch_req(request, data, config):
     for url in urls:
         if "pubsub_batch_handler" in config:
             LOGGER.info(f"Sending {url} to pubsub batch handler.")
-            from google.cloud import pubsub_v1  # pylint: disable=C0415
+            from google.cloud import pubsub_v1
 
             # pytype: disable=attribute-error
-            # pylint: disable=fixme
+
             # FIXME `load_config()` returns `Optional[dict]` so `config` can be `None`
             #   so `config` can be `None`
             exporter_conf = config.get("pubsub_batch_handler")
@@ -222,7 +238,7 @@ def process_batch_req(request, data, config):
             client = pubsub_v1.PublisherClient()
             project_id = exporter_conf["project_id"]
             topic_name = exporter_conf["topic_name"]
-            # pylint: disable=no-member
+
             topic_path = client.topic_path(project_id, topic_name)
             data = url.encode("utf-8")
             client.publish(topic_path, data=data).result()

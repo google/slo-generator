@@ -19,9 +19,28 @@ Report utilities.
 import logging
 from dataclasses import asdict, dataclass, field, fields
 from typing import List
+import time
 
 from slo_generator import utils
 from slo_generator.constants import COLORED_OUTPUT, MIN_VALID_EVENTS, NO_DATA, Colors
+
+from prometheus_client import Counter, Histogram
+import math
+
+INF = float("inf")
+
+SLI_CALCULATION_COUNT = Counter(
+    name='sli_calculation_count',
+    documentation='Application Request Count',
+    labelnames=['window', 'http_status']
+)
+
+SLI_CALCULATION_SECONDS = Histogram(
+    name='sli_calculation_seconds',
+    documentation='Application Request Latency',
+    labelnames=['window'],
+    buckets=(1, 5, 10, 20, 30, 40, 50, INF)
+)
 
 LOGGER = logging.getLogger(__name__)
 
@@ -126,6 +145,7 @@ class SLOReport:
         self.valid = True
         self.errors = []
 
+        start_time = time.time()
         # if last window same as before, reuse data
         if lastwindow == step["window"]:
             data = lastdata
@@ -133,6 +153,9 @@ class SLOReport:
         else:
             # Get backend results
             data = self.run_backend(config, backend, client=client, delete=delete)
+
+        SLI_CALCULATION_SECONDS.labels(self.error_budget_policy_step_name).observe(time.time() - start_time)
+        SLI_CALCULATION_COUNT.labels(self.error_budget_policy_step_name, 'total').inc()
 
         # save data for next window check
         self.lastdata = data
@@ -147,6 +170,8 @@ class SLOReport:
         # Post validation
         if not self._post_validate():
             self.valid = False
+
+        SLI_CALCULATION_COUNT.labels(self.error_budget_policy_step_name,'200').inc()
 
     def build(self, step, data):
         """Compute all data necessary to build the SLO report.
