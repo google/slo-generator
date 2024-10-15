@@ -12,7 +12,7 @@ This forks adds:
 * support to prometheus_remote_write tks to ([slo-generator oktocat](https://github.com/oktocat/slo-generator/tree/prometheus-remotewrite-exporter))
 * support to build in arm architecture
 * upgrade python to 3.12.7
-* SLO-Generator is instrumented, tks to ([Carlos for](https://github.com/casmssm)) the help
+* SLO-Generator is instrumented, tks to ([Carlos Martins](https://github.com/casmssm)) for the help
 
 
 `slo-generator` is a tool to compute and export **Service Level Objectives** ([SLOs](https://landing.google.com/sre/sre-book/chapters/service-level-objectives/)), **Error Budgets** and **Burn Rates**, using configurations written in YAML (or JSON) format.
