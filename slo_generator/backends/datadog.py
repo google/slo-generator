@@ -19,7 +19,7 @@ Datadog backend implementation.
 import logging, os, time
 import pprint
 from slo_generator import utils
-from datadog_api_client.v1 import Configuration, ApiClient, ApiException
+from datadog_api_client.v1 import Configuration, ApiClient
 from datadog_api_client.v1.api.service_level_objectives_api import ServiceLevelObjectivesApi
 from datadog_api_client.v1.api.metrics_api import MetricsApi
 from datadog_api_client.v1.api.authentication_api import AuthenticationApi
