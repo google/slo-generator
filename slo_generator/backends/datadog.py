@@ -16,29 +16,38 @@
 Datadog backend implementation.
 """
 
-import logging, os, time
+import logging
+import os
 import pprint
-from slo_generator import utils
-from datadog_api_client.v1 import Configuration, ApiClient
-from datadog_api_client.v1.api.service_level_objectives_api import ServiceLevelObjectivesApi
-from datadog_api_client.v1.api.metrics_api import MetricsApi
+
+from datadog_api_client.v1 import ApiClient, ApiException, Configuration
 from datadog_api_client.v1.api.authentication_api import AuthenticationApi
+from datadog_api_client.v1.api.metrics_api import MetricsApi
+from datadog_api_client.v1.api.service_level_objectives_api import (
+    ServiceLevelObjectivesApi,
+)
 
 # Configure logging
-logging.basicConfig(
-    level=os.environ.get('LOGLEVEL', 'ERROR').upper(), force=True
-)
+logging.basicConfig(level=os.environ.get("LOGLEVEL", "ERROR").upper(), force=True)
 logger = logging.getLogger(__name__)
+
 
 class DatadogClient:
     def __init__(self, api_key=None, app_key=None, api_host=None, **kwargs):
-        configuration = Configuration(host=api_host, **kwargs)
-        configuration.api_key['apiKeyAuth'] = api_key
-        configuration.api_key['appKeyAuth'] = app_key
+        configuration = Configuration(
+            host=api_host,
+            enable_retry=True,
+            retry_backoff_factor=2,
+            max_retries=5,
+            **kwargs,
+        )
+        configuration.api_key["apiKeyAuth"] = api_key
+        configuration.api_key["appKeyAuth"] = app_key
         self.api_client = ApiClient(configuration)
         AuthenticationApi(self.api_client).validate()
         self.slo_api_client = ServiceLevelObjectivesApi(self.api_client)
         self.metrics_api_client = MetricsApi(self.api_client)
+
 
 class DatadogBackend:
     """Backend for querying metrics from Datadog.
@@ -50,10 +59,14 @@ class DatadogBackend:
         kwargs (dict): Extra arguments to pass to initialize function.
     """
 
-    def __init__(self, client=None, api_key=None, app_key=None, api_host=None, **kwargs):
+    def __init__(
+        self, client=None, api_key=None, app_key=None, api_host=None, **kwargs
+    ):
         self.client = client
         if not self.client:
-            self.client = DatadogClient(api_key=api_key, app_key=app_key, api_host=api_host, **kwargs)
+            self.client = DatadogClient(
+                api_key=api_key, app_key=app_key, api_host=api_host, **kwargs
+            )
 
     def good_bad_ratio(self, timestamp, window, slo_config):
         """Query SLI value from good and valid queries.
@@ -109,7 +122,9 @@ class DatadogBackend:
         if measurement.get("query_valid"):
             event_count = event_count - good_event_count
 
-        logging.debug(f"Good events: {good_event_count} | " f"Bad events: {event_count}")
+        logging.debug(
+            f"Good events: {good_event_count} | " f"Bad events: {event_count}"
+        )
 
         return good_event_count, event_count
 
@@ -127,7 +142,9 @@ class DatadogBackend:
         end = timestamp
         query = measurement["query"]
         query = self._fmt_query(query, window)
-        response = self.client.metrics_api_client.query_metrics(_from=int(start), to=int(end), query=query)
+        response = self.client.metrics_api_client.query_metrics(
+            _from=int(start), to=int(end), query=query
+        )
         logging.debug(f"Result valid: {pprint.pformat(response)}")
         return DatadogBackend.count(response, average=True)
 
@@ -145,7 +162,9 @@ class DatadogBackend:
 
         try:
             # Retrieve the SLO history
-            data = self.client.slo_api_client.get_slo_history(slo_id, from_ts=int(from_ts), to_ts=int(timestamp))
+            data = self.client.slo_api_client.get_slo_history(
+                slo_id, from_ts=int(from_ts), to_ts=int(timestamp)
+            )
             logging.info(f"SLO history: {data}")
         except ApiException as e:
             logging.error(f"Error retrieving SLO history: {e}")
@@ -156,8 +175,18 @@ class DatadogBackend:
             logging.debug(f"Timeseries data: {slo_id} | Result: {pprint.pformat(data)}")
 
             # Check if necessary keys exist before accessing them
-            good_event_count = data.get("data", {}).get("series", {}).get("numerator", {}).get("sum", 0)
-            valid_event_count = data.get("data", {}).get("series", {}).get("denominator", {}).get("sum", 0)
+            good_event_count = (
+                data.get("data", {})
+                .get("series", {})
+                .get("numerator", {})
+                .get("sum", 0)
+            )
+            valid_event_count = (
+                data.get("data", {})
+                .get("series", {})
+                .get("denominator", {})
+                .get("sum", 0)
+            )
 
             if good_event_count is not None and valid_event_count is not None:
                 bad_event_count = valid_event_count - good_event_count
@@ -166,12 +195,16 @@ class DatadogBackend:
         except KeyError as exception:  # Monitor-based SLI case
             logging.debug(f"KeyError exception: {exception}")
             # Retrieve the SLI value if it's a monitor-based SLI
-            sli_value = data.get("data", {}).get("overall", {}).get("sli_value", 0) / 100
-            return sli_value, None  # Return None for bad_event_count if it's not a standard SLO
+            sli_value = (
+                data.get("data", {}).get("overall", {}).get("sli_value", 0) / 100
+            )
+            return (
+                sli_value,
+                None,
+            )  # Return None for bad_event_count if it's not a standard SLO
 
         # If the data is invalid or there's an issue, return None for both counts
         return None, None
-
 
     @staticmethod
     def _fmt_query(query, window, operator=None, operator_suffix=None):
@@ -211,7 +244,7 @@ class DatadogBackend:
             values = []
             pointlist = response["series"][0]["pointlist"]
             for point in pointlist:
-                value = point['value'][1]
+                value = point["value"][1]
                 if value is None:
                     continue
                 values.append(value)
