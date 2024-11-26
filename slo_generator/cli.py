@@ -155,6 +155,7 @@ def compute(slo_config, config, export, delete, timestamp):
     "--target",
     envvar="GOOGLE_FUNCTION_TARGET",
     default="run_compute",
+    type=click.Choice(["run_compute", "run_export"]),
     help="Target function name",
 )
 @click.option(
