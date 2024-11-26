@@ -24,8 +24,7 @@ import logging
 import os
 import pprint
 
-import requests
-from flask import jsonify, make_response
+from flask import Request, jsonify, make_response
 
 from slo_generator.compute import compute, export
 from slo_generator.utils import get_exporters, load_config, setup_logging
@@ -34,6 +33,7 @@ CONFIG_PATH = os.environ["CONFIG_PATH"]
 LOGGER = logging.getLogger(__name__)
 TIME_FORMAT = "%Y-%m-%dT%H:%M:%SZ"
 API_SIGNATURE_TYPE = os.environ["GOOGLE_FUNCTION_SIGNATURE_TYPE"]
+BATCH_REQUEST_PARAMETER = "batch"
 setup_logging()
 
 
@@ -53,7 +53,7 @@ def run_compute(request):
 
     # Process request
     data = process_req(request)
-    batch_mode = request.args.get("batch", False)
+    batch_mode = request.args.get(BATCH_REQUEST_PARAMETER, False)
     if batch_mode:
         if not API_SIGNATURE_TYPE == "http":
             raise ValueError(
@@ -203,11 +203,6 @@ def process_batch_req(request, data, config):
         "requests separately."
     )
     urls = data.split(";")
-    service_url = request.base_url
-    headers = {"User-Agent": "slo-generator"}
-    if "Authorization" in request.headers:
-        headers["Authorization"] = request.headers["Authorization"]
-        service_url = service_url.replace("http:", "https:")  # force HTTPS auth
     for url in urls:
         if "pubsub_batch_handler" in config:
             LOGGER.info(f"Sending {url} to pubsub batch handler.")
@@ -228,4 +223,8 @@ def process_batch_req(request, data, config):
             client.publish(topic_path, data=data).result()
         else:  # http
             LOGGER.info(f"Sending {url} to HTTP batch handler.")
-            requests.post(service_url, headers=headers, data=url, timeout=10)
+            args = request.args.copy()
+            args[BATCH_REQUEST_PARAMETER] = False
+            req = Request.from_values(data=url)
+            req.args = args
+            run_compute(req)
