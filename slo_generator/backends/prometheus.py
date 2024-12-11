@@ -20,7 +20,7 @@ import json
 import logging
 import os
 import pprint
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Optional, Union
 
 from prometheus_http_client import Prometheus
 
@@ -99,7 +99,7 @@ class PrometheusBackend:
 
     def distribution_cut(
         self, timestamp: int, window: int, slo_config: dict
-    ) -> Tuple[float, float]:
+    ) -> tuple[float, float]:
         """Query events for distributions (histograms).
 
         Args:
@@ -189,8 +189,8 @@ class PrometheusBackend:
     def _fmt_query(
         query: str,
         window: int,
-        operators: Union[List[str], None] = None,
-        labels: Union[Dict[str, str], None] = None,
+        operators: Union[list[str], None] = None,
+        labels: Union[dict[str, str], None] = None,
     ) -> str:
         """Format Prometheus query:
 
