@@ -22,7 +22,7 @@ import typing
 import warnings
 from collections import OrderedDict
 from datetime import datetime, timezone
-from typing import List, Optional, Tuple
+from typing import Optional
 
 from google.api.distribution_pb2 import Distribution
 from google.cloud.monitoring_v3 import QueryTimeSeriesRequest
@@ -60,7 +60,7 @@ class CloudMonitoringMqlBackend:
         timestamp: int,
         window: int,
         slo_config: dict,
-    ) -> Tuple[int, int]:
+    ) -> tuple[int, int]:
         """Query two timeseries, one containing 'good' events, one containing
         'bad' events.
 
@@ -78,16 +78,16 @@ class CloudMonitoringMqlBackend:
         filter_valid: Optional[str] = measurement.get("filter_valid")
 
         # Query 'good events' timeseries
-        good_ts: List[TimeSeries] = self.query(timestamp, window, filter_good)
+        good_ts: list[TimeSeries] = self.query(timestamp, window, filter_good)
         good_event_count: int = CM.count(good_ts)
 
         # Query 'bad events' timeseries
         bad_event_count: int
         if filter_bad:
-            bad_ts: List[TimeSeries] = self.query(timestamp, window, filter_bad)
+            bad_ts: list[TimeSeries] = self.query(timestamp, window, filter_bad)
             bad_event_count = CM.count(bad_ts)
         elif filter_valid:
-            valid_ts: List[TimeSeries] = self.query(timestamp, window, filter_valid)
+            valid_ts: list[TimeSeries] = self.query(timestamp, window, filter_valid)
             bad_event_count = CM.count(valid_ts) - good_event_count
         else:
             raise ValueError("One of `filter_bad` or `filter_valid` is required.")
@@ -103,7 +103,7 @@ class CloudMonitoringMqlBackend:
         timestamp: int,
         window: int,
         slo_config: dict,
-    ) -> Tuple[int, int]:
+    ) -> tuple[int, int]:
         """Query one timeseries of type 'exponential'.
 
         Args:
@@ -162,7 +162,7 @@ class CloudMonitoringMqlBackend:
 
         return good_event_count, bad_event_count
 
-    def exponential_distribution_cut(self, *args, **kwargs) -> Tuple[int, int]:
+    def exponential_distribution_cut(self, *args, **kwargs) -> tuple[int, int]:
         """Alias for `distribution_cut` method to allow for backwards
         compatibility.
         """
@@ -192,12 +192,12 @@ class CloudMonitoringMqlBackend:
         """
         measurement: dict = slo_config["spec"]["service_level_indicator"]
         query: str = measurement["query"]
-        series: List[TimeSeries] = self.query(timestamp, window, query)
+        series: list[TimeSeries] = self.query(timestamp, window, query)
         sli_value: float = series[0].point_data[0].values[0].double_value
         LOGGER.debug(f"SLI value: {sli_value}")
         return sli_value
 
-    def query(self, timestamp: float, window: int, query: str) -> List[TimeSeries]:
+    def query(self, timestamp: float, window: int, query: str) -> list[TimeSeries]:
         """Query timeseries from Cloud Monitoring using MQL.
 
         Args:
@@ -219,7 +219,7 @@ class CloudMonitoringMqlBackend:
             self.client.query_time_series(request)  # type: ignore[union-attr]
         )
         # fmt: on
-        timeseries: List[TimeSeries] = list(timeseries_pager)
+        timeseries: list[TimeSeries] = list(timeseries_pager)
         LOGGER.debug(pprint.pformat(timeseries))
         return timeseries
 
@@ -251,7 +251,7 @@ class CloudMonitoringMqlBackend:
         return query_with_time_horizon_and_period
 
     @staticmethod
-    def count(timeseries: List[TimeSeries]) -> int:
+    def count(timeseries: list[TimeSeries]) -> int:
         """Count events in time series assuming it was aligned with ALIGN_SUM
         and reduced with REDUCE_SUM (default).
 

@@ -17,7 +17,6 @@ Constants and environment variables used in `slo-generator`.
 """
 
 import os
-from typing import Dict, List, Tuple
 
 # Compute
 NO_DATA: int = -1
@@ -33,7 +32,7 @@ SEND_TRACES_TO_OTLP_EXPORTER: bool = bool(
 )
 
 # Exporters supporting v2 SLO report format
-V2_EXPORTERS: Tuple[str, ...] = ("Pubsub", "Cloudevent")
+V2_EXPORTERS: tuple[str, ...] = ("Pubsub", "Cloudevent")
 
 # Config skeletons
 CONFIG_SCHEMA: dict = {
@@ -56,7 +55,7 @@ SLO_CONFIG_SCHEMA: dict = {
 
 # Providers that have changed with v2 YAML config format. This mapping helps
 # migrate them to their updated names.
-PROVIDERS_COMPAT: Dict[str, str] = {
+PROVIDERS_COMPAT: dict[str, str] = {
     "Stackdriver": "CloudMonitoring",
     "StackdriverServiceMonitoring": "CloudServiceMonitoring",
 }
@@ -64,7 +63,7 @@ PROVIDERS_COMPAT: Dict[str, str] = {
 # Fields that have changed name with v2 YAML config format. This mapping helps
 # migrate them back to their former name, so that exporters are backward-
 # compatible with v1.
-METRIC_LABELS_COMPAT: Dict[str, str] = {
+METRIC_LABELS_COMPAT: dict[str, str] = {
     "goal": "slo_target",
     "description": "slo_description",
     "error_budget_burn_rate_threshold": "alerting_burn_rate_threshold",
@@ -73,7 +72,7 @@ METRIC_LABELS_COMPAT: Dict[str, str] = {
 # Fields that used to be specified in top-level of YAML config are now specified
 # in metadata fields. This mapping helps migrate them back to the top level when
 # exporting reports, so that exporters are backward-compatible with v1.
-METRIC_METADATA_LABELS_TOP_COMPAT: List[str] = [
+METRIC_METADATA_LABELS_TOP_COMPAT: list[str] = [
     "service_name",
     "feature_name",
     "slo_name",

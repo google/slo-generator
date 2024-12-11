@@ -18,7 +18,6 @@ Report utilities.
 
 import logging
 from dataclasses import asdict, dataclass, field, fields
-from typing import List
 
 from opentelemetry import trace
 
@@ -89,7 +88,7 @@ class SLOReport:
     metadata: dict = field(default_factory=dict)
 
     # Data validation
-    errors: List[str] = field(default_factory=list)
+    errors: list[str] = field(default_factory=list)
 
     @tracer.start_as_current_span("SLOReport")
     def __init__(self, config, backend, step, timestamp, client=None, delete=False):  # noqa: PLR0913
