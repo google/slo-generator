@@ -18,7 +18,6 @@ Report utilities.
 
 import logging
 from dataclasses import asdict, dataclass, field, fields
-from typing import List
 
 from slo_generator import utils
 from slo_generator.constants import COLORED_OUTPUT, MIN_VALID_EVENTS, NO_DATA, Colors
@@ -85,7 +84,7 @@ class SLOReport:
     metadata: dict = field(default_factory=dict)
 
     # Data validation
-    errors: List[str] = field(default_factory=list)
+    errors: list[str] = field(default_factory=list)
 
     def __init__(self, config, backend, step, timestamp, client=None, delete=False):  # noqa: PLR0913
         # Init dataclass fields from SLO config and Error Budget Policy
