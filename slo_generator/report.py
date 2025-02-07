@@ -385,7 +385,7 @@ class SLOReport:
     @property
     def info(self) -> str:
         """Step information."""
-        return f"{self.name :<32} | {self.error_budget_policy_step_name :<8}"
+        return f"{self.name:<32} | {self.error_budget_policy_step_name:<8}"
 
     def __str__(self) -> str:
         report = self.to_json()
@@ -399,7 +399,7 @@ class SLOReport:
         if gap >= 0:
             gap_str = f"+{gap}"
 
-        sli_str = f"SLI: {sli_per:<7} % | SLO: {goal_per} % | " f"Gap: {gap_str:<6}%"
+        sli_str = f"SLI: {sli_per:<7} % | SLO: {goal_per} % | Gap: {gap_str:<6}%"
         result_str = (
             "BR: {error_budget_burn_rate:<2} / "
             "{error_budget_burn_rate_threshold} | "
