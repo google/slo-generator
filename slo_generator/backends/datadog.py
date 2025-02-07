@@ -101,7 +101,7 @@ class DatadogBackend:
         if measurement.get("query_valid"):
             event_count = event_count - good_event_count
 
-        LOGGER.debug(f"Good events: {good_event_count} | " f"Bad events: {event_count}")
+        LOGGER.debug(f"Good events: {good_event_count} | Bad events: {event_count}")
 
         return good_event_count, event_count
 
