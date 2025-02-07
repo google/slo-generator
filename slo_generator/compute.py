@@ -109,7 +109,7 @@ def export(data: dict, exporters: list, raise_on_error: bool = False) -> list:
     LOGGER.debug(f"Data: {pprint.pformat(data)}")
     name = data["metadata"]["name"]
     ebp_step = data["error_budget_policy_step_name"]
-    info = f"{name :<32} | {ebp_step :<8}"
+    info = f"{name:<32} | {ebp_step:<8}"
     errors = []
 
     # Passing one exporter as a dict will work for convenience
