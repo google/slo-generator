@@ -575,8 +575,7 @@ class CloudServiceMonitoringBackend:
             )
         except google.api_core.exceptions.NotFound:
             LOGGER.warning(
-                f'SLO "{slo_path}" does not exist in Service Monitoring API. '
-                f"Skipping."
+                f'SLO "{slo_path}" does not exist in Service Monitoring API. Skipping.'
             )
             return None
 

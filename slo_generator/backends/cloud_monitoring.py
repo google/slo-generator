@@ -90,9 +90,7 @@ class CloudMonitoringBackend:
         else:
             raise ValueError("One of `filter_bad` or `filter_valid` is required.")
 
-        LOGGER.debug(
-            f"Good events: {good_event_count} | " f"Bad events: {bad_event_count}"
-        )
+        LOGGER.debug(f"Good events: {good_event_count} | Bad events: {bad_event_count}")
 
         return good_event_count, bad_event_count
 

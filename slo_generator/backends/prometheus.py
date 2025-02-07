@@ -93,7 +93,7 @@ class PrometheusBackend:
         else:
             raise ValueError("`filter_bad` or `filter_valid` is required.")
 
-        LOGGER.debug(f"Good events: {good_count} | " f"Bad events: {bad_count}")
+        LOGGER.debug(f"Good events: {good_count} | Bad events: {bad_count}")
 
         return (good_count, bad_count)
 
@@ -134,7 +134,7 @@ class PrometheusBackend:
         )
         valid_count = PrometheusBackend.count(res_valid)
         bad_count = valid_count - good_count
-        LOGGER.debug(f"Good events: {good_count} | " f"Bad events: {bad_count}")
+        LOGGER.debug(f"Good events: {good_count} | Bad events: {bad_count}")
         return (good_count, bad_count)
 
     def query(  # noqa: PLR0913
