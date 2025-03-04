@@ -33,8 +33,7 @@ class TestOpenSearchBackend(unittest.TestCase):
                         },
                     },
                 },
-            },
-            "track_total_hits": True,
+            }
         }
 
         assert OpenSearchBackend.build_query(query, 3600, "date") == enriched_query
@@ -77,8 +76,7 @@ class TestOpenSearchBackend(unittest.TestCase):
                         },
                     ],
                 },
-            },
-            "track_total_hits": True,
+            }
         }
 
         assert OpenSearchBackend.build_query(query, 3600, "date") == enriched_query
@@ -119,8 +117,7 @@ class TestOpenSearchBackend(unittest.TestCase):
                         }
                     ],
                 },
-            },
-            "track_total_hits": True,
+            }
         }
 
         assert OpenSearchBackend.build_query(query, 3600, "date") == enriched_query
@@ -167,8 +164,7 @@ class TestOpenSearchBackend(unittest.TestCase):
                         },
                     ],
                 },
-            },
-            "track_total_hits": True,
+            }
         }
 
         assert OpenSearchBackend.build_query(query, 3600, "date") == enriched_query
