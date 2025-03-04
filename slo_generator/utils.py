@@ -32,6 +32,7 @@ from typing import Optional
 
 import yaml
 from dateutil import tz
+from opentelemetry import trace
 
 from slo_generator.constants import DEBUG
 
@@ -45,7 +46,10 @@ except ImportError:
 
 LOGGER = logging.getLogger(__name__)
 
+tracer = trace.get_tracer(__name__)
 
+
+@tracer.start_as_current_span("load_configs")
 def load_configs(
     path: str, ctx: os._Environ = os.environ, kind: Optional[str] = None
 ) -> list:
@@ -66,6 +70,7 @@ def load_configs(
     return [cfg for cfg in configs if cfg]
 
 
+@tracer.start_as_current_span("load_config")
 def load_config(
     path: str, ctx: os._Environ = os.environ, kind: Optional[str] = None
 ) -> Optional[dict]:
@@ -80,6 +85,8 @@ def load_config(
     Returns:
         dict: Config downloaded and parsed.
     """
+    trace.get_current_span().set_attribute("path", path)
+
     abspath = Path(path)
     try:
         if path.startswith("gs://"):
@@ -110,6 +117,7 @@ def load_config(
         raise
 
 
+@tracer.start_as_current_span("parse_config")
 def parse_config(
     path: Optional[str] = None, content=None, ctx: os._Environ = os.environ
 ):
@@ -124,6 +132,8 @@ def parse_config(
     Returns:
         dict: Parsed YAML dictionary.
     """
+    trace.get_current_span().set_attribute("path", path)
+
     pattern = re.compile(r".*?\${(\w+)}.*?")
 
     def replace_env_vars(content, ctx) -> str:
@@ -220,6 +230,7 @@ def get_human_time(timestamp: int, timezone: Optional[str] = None) -> str:
     return date_str
 
 
+@tracer.start_as_current_span("get_exporters")
 def get_exporters(config: dict, spec: dict) -> list:
     """Get SLO exporters configs from spec and global config.
 
@@ -247,6 +258,7 @@ def get_exporters(config: dict, spec: dict) -> list:
     return exporters
 
 
+@tracer.start_as_current_span("get_backend")
 def get_backend(config: dict, spec: dict):
     """Get SLO backend config from spec and global config.
 
@@ -272,6 +284,7 @@ def get_backend(config: dict, spec: dict):
     return backend_data
 
 
+@tracer.start_as_current_span("get_error_budget_policy")
 def get_error_budget_policy(config: dict, spec: dict):
     """Get error budget policy from spec and global config.
 
@@ -290,6 +303,7 @@ def get_error_budget_policy(config: dict, spec: dict):
     return all_ebp[spec_ebp]
 
 
+@tracer.start_as_current_span("get_backend_cls")
 def get_backend_cls(backend: str):
     """Get backend class.
 
@@ -303,6 +317,7 @@ def get_backend_cls(backend: str):
     return import_cls(backend, expected_type)
 
 
+@tracer.start_as_current_span("get_exporter_cls")
 def get_exporter_cls(exporter: str):
     """Get exporter class.
 
@@ -316,6 +331,7 @@ def get_exporter_cls(exporter: str):
     return import_cls(exporter, expected_type)
 
 
+@tracer.start_as_current_span("import_cls")
 def import_cls(cls_name, expected_type):
     """Import class or method dynamically from full name.
     If `cls_name` is not part of the core, try import from local path (plugins).
@@ -341,6 +357,7 @@ def import_cls(cls_name, expected_type):
     )
 
 
+@tracer.start_as_current_span("import_dynamic")
 def import_dynamic(package: str, name: str, prefix: str = "class"):
     """Import class or method dynamically from package and name.
 
@@ -454,6 +471,7 @@ def str2bool(string: str) -> bool:
     raise argparse.ArgumentTypeError("Boolean value expected.")
 
 
+@tracer.start_as_current_span("download_gcs_file")
 def download_gcs_file(url: str) -> dict:
     """Download config from GCS.
 
@@ -463,6 +481,7 @@ def download_gcs_file(url: str) -> dict:
     Returns:
         dict: Loaded configuration.
     """
+    trace.get_current_span().set_attribute("url", url)
     client = storage.Client()
     bucket, filepath = decode_gcs_url(url)
     bucket = client.get_bucket(bucket)
