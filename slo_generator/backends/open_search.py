@@ -87,7 +87,7 @@ class OpenSearchBackend:
         Returns:
             dict: Response.
         """
-        return self.client.search(index=index, body=body)
+        return self.client.count(index=index, body=body)
 
     @staticmethod
     def count(response):
@@ -100,7 +100,7 @@ class OpenSearchBackend:
             int: Event count.
         """
         try:
-            return response["hits"]["total"]["value"]
+            return response["count"]
         except KeyError as exception:
             LOGGER.warning("Couldn't find any values in timeseries response")
             LOGGER.debug(exception, exc_info=True)
@@ -123,7 +123,7 @@ class OpenSearchBackend:
         """
         if query is None:
             return None
-        body = {"query": {"bool": query}, "track_total_hits": True}
+        body = {"query": {"bool": query}}
         range_query = {
             f"{date_field}": {
                 "gte": f"now-{window}s/s",
