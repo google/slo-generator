@@ -1,7 +1,6 @@
 # SLO Generator
 
 ![test](https://github.com/google/slo-generator/workflows/test/badge.svg)
-![build](https://github.com/google/slo-generator/workflows/build/badge.svg)
 ![deploy](https://github.com/google/slo-generator/workflows/deploy/badge.svg)
 [![PyPI version](https://badge.fury.io/py/slo-generator.svg)](https://badge.fury.io/py/slo-generator)
 [![Downloads](https://static.pepy.tech/personalized-badge/slo-generator?period=total&units=international_system&left_color=grey&right_color=orange&left_text=pypi%20downloads)](https://pepy.tech/project/slo-generator)
