@@ -19,10 +19,13 @@ Cloud Monitoring exporter class.
 import logging
 
 from google.cloud import monitoring_v3
+from opentelemetry import trace
 
 from .base import MetricsExporter
 
 LOGGER = logging.getLogger(__name__)
+
+tracer = trace.get_tracer(__name__)
 
 
 class CloudMonitoringExporter(MetricsExporter):
@@ -31,9 +34,11 @@ class CloudMonitoringExporter(MetricsExporter):
     METRIC_PREFIX = "custom.googleapis.com/"
     REQUIRED_FIELDS = ["project_id"]
 
+    @tracer.start_as_current_span("CloudMonitoringExporter")
     def __init__(self):
         self.client = monitoring_v3.MetricServiceClient()
 
+    @tracer.start_as_current_span("export_metric")
     def export_metric(self, data: dict):
         """Export metric to Cloud Monitoring.
 
@@ -45,6 +50,7 @@ class CloudMonitoringExporter(MetricsExporter):
         """
         self.create_timeseries(data)
 
+    @tracer.start_as_current_span("create_timeseries")
     def create_timeseries(self, data: dict):
         """Create Cloud Monitoring timeseries.
 

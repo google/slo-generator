@@ -27,6 +27,9 @@ LATEST_MAJOR_VERSION: str = "v2"
 COLORED_OUTPUT: int = int(os.environ.get("COLORED_OUTPUT", "0"))
 DRY_RUN: bool = bool(int(os.environ.get("DRY_RUN", "0")))
 DEBUG: int = int(os.environ.get("DEBUG", "0"))
+SEND_TRACES_TO_OTLP_EXPORTER: bool = bool(
+    int(os.environ.get("SEND_TRACES_TO_OTLP_EXPORTER", "0"))
+)
 
 # Exporters supporting v2 SLO report format
 V2_EXPORTERS: tuple[str, ...] = ("Pubsub", "Cloudevent")
