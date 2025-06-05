@@ -29,6 +29,7 @@ DEFAULT_METRIC_LABELS = [
     "feature_name",
     "slo_name",
     "metadata",
+    "error_budget_minutes",
 ]
 
 # Default metrics that are exported by metrics exporters.
@@ -55,6 +56,11 @@ DEFAULT_METRICS = [
     },
     {
         "name": "slo_target",
+        "description": "Service Level Objective target.",
+        "labels": DEFAULT_METRIC_LABELS,
+    },
+    {
+        "name": "error_budget_minutes",
         "description": "Service Level Objective target.",
         "labels": DEFAULT_METRIC_LABELS,
     },
