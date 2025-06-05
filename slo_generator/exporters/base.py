@@ -20,7 +20,11 @@ import logging
 import warnings
 from abc import ABCMeta, abstractmethod
 
+from opentelemetry import trace
+
 LOGGER = logging.getLogger(__name__)
+
+tracer = trace.get_tracer(__name__)
 
 # Default metric labels exported by all metrics exporters
 DEFAULT_METRIC_LABELS = [
@@ -67,6 +71,7 @@ class MetricsExporter:  # pytype: disable=ignored-metaclass
 
     __metaclass__ = ABCMeta  # pytype: disable=ignored-metaclass
 
+    @tracer.start_as_current_span("export")
     def export(self, data, **config):
         """Export metric data. Loops through metrics config and calls the child
         class `export_metric` method.
@@ -104,6 +109,7 @@ class MetricsExporter:  # pytype: disable=ignored-metaclass
             metric = self.build_metric(data, metric)
             self.export_metric(metric)
 
+    @tracer.start_as_current_span("build_metric")
     def build_metric(self, data, metric):
         """Build a metric from current data and metric configuration.
         Set the metric value labels and eventual alias.
@@ -140,6 +146,7 @@ class MetricsExporter:  # pytype: disable=ignored-metaclass
         metric["description"] = metric.get("description", "")
         return metric
 
+    @tracer.start_as_current_span("build_data_labels")
     @staticmethod
     def build_data_labels(data, labels):
         """Build data labels. Also handle nested labels (depth=1).

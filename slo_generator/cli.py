@@ -23,16 +23,42 @@ import time
 from pathlib import Path
 
 import click
+from opentelemetry import trace
+from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
+from opentelemetry.sdk.resources import Resource
+from opentelemetry.sdk.trace import TracerProvider
+from opentelemetry.sdk.trace.export import BatchSpanProcessor
 from pkg_resources import get_distribution
 
 from slo_generator import utils
 from slo_generator.compute import compute as _compute
-from slo_generator.constants import LATEST_MAJOR_VERSION
+from slo_generator.constants import LATEST_MAJOR_VERSION, SEND_TRACES_TO_OTLP_EXPORTER
 from slo_generator.migrations import migrator
 
 sys.path.append(os.getcwd())  # dynamic backend loading
 
+# logging.basicConfig(level=logging.INFO)
 LOGGER = logging.getLogger(__name__)
+
+# Set up Tracing with OpenTelemetry.
+# TODO Refactor to `utils.setup_tracing()`, similar to `utils.setup_logging()`?
+# ---
+# Set the resource name that will show up in the traces.
+resource = Resource(
+    attributes={
+        "service.name": "slo-generator",
+    }
+)
+# Create a new tracer provider.
+provider = TracerProvider(resource=resource)
+# Batch ended spans and push them to the OTLP exporter if requested by the user.
+if SEND_TRACES_TO_OTLP_EXPORTER:
+    processor = BatchSpanProcessor(
+        OTLPSpanExporter(endpoint="http://localhost:4317", insecure=True)
+    )
+    provider.add_span_processor(processor)
+# Set the global default tracer provider.
+trace.set_tracer_provider(provider)
 
 
 @click.group(invoke_without_command=True)
