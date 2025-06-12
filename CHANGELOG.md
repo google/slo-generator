@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.7.0](https://github.com/google/slo-generator/compare/v2.6.0...v2.7.0) (2025-06-12)
+
+
+### Features
+
+* **opensearch:** use `count` endpoint instead of `search` endpoint to optimize performance ([#555](https://github.com/google/slo-generator/issues/555)) ([84266b6](https://github.com/google/slo-generator/commit/84266b6209fd2a91ba74177b45e6c06b09791603))
+
 ## [2.6.0](https://github.com/google/slo-generator/compare/v2.5.2...v2.6.0) (2024-02-16)
 
 
