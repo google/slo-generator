@@ -122,8 +122,6 @@ In Cloud Monitoring, there are three different ways to specify bucket boundaries
   ```yaml
   backend: cloud_monitoring_mql
   method: distribution_cut
-  exporters:
-  - cloud_monitoring
   service_level_indicator:
     filter_valid: >
       fetch https_lb_rule
