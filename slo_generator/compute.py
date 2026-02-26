@@ -15,6 +15,7 @@
 `compute.py`
 Compute utilities.
 """
+# ruff: noqa: UP045
 
 import logging
 import pprint

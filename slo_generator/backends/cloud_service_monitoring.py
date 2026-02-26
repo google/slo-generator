@@ -15,6 +15,7 @@
 `cloud_service_monitoring.py`
 Cloud Service Monitoring exporter class.
 """
+# ruff: noqa: UP045,UP007
 
 import difflib
 import json

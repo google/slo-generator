@@ -211,7 +211,7 @@ def process_batch_req(request, data, config):
     for url in urls:
         if "pubsub_batch_handler" in config:
             LOGGER.info(f"Sending {url} to pubsub batch handler.")
-            from google.cloud import pubsub_v1
+            from google.cloud import pubsub_v1  # noqa: PLC0415
 
             # pytype: disable=attribute-error
 

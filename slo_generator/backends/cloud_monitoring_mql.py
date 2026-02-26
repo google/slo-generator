@@ -15,6 +15,7 @@
 `cloud_monitoring_mql.py`
 Cloud Monitoring backend implementation with MQL (Monitoring Query Language).
 """
+# ruff: noqa: UP045
 
 import logging
 import pprint

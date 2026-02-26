@@ -15,6 +15,7 @@
 `utils.py`
 Utility functions.
 """
+# ruff: noqa: UP045
 
 import argparse
 import errno
@@ -188,7 +189,7 @@ def setup_logging():
 
     # Ignore Cloud SDK warning when using a user instead of service account
     try:
-        from google.auth._default import _CLOUD_SDK_CREDENTIALS_WARNING
+        from google.auth._default import _CLOUD_SDK_CREDENTIALS_WARNING  # noqa: PLC0415
 
         warnings.filterwarnings("ignore", message=_CLOUD_SDK_CREDENTIALS_WARNING)
     except ImportError:
