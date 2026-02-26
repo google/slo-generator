@@ -52,6 +52,11 @@ exporters:
   pubsub:
     project_id: ${PUBSUB_PROJECT_ID}
     topic_name: ${PUBSUB_TOPIC_NAME}
+  opentelemetry:
+    endpoint: ${OTLP_ENDPOINT}
+    headers:
+      Authorization: Bearer ${OTLP_TOKEN}
+    insecure: false
   prometheus_self: { }
 
 error_budget_policies:

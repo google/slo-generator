@@ -44,4 +44,8 @@
           - good_events_count
           - bad_events_count
 
+  - class:      OpenTelemetry
+    endpoint:   localhost:4317
+    insecure:   true
+
   - class: PrometheusSelf

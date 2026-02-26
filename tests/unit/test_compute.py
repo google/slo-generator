@@ -184,11 +184,18 @@ class TestCompute(unittest.TestCase):
         export(SLO_REPORT, EXPORTERS[3])
 
     def test_export_prometheus_self(self):
-        export(SLO_REPORT, EXPORTERS[7])
+        export(SLO_REPORT, EXPORTERS[8])
 
     @patch.object(Metric, "send", mock_dd_metric_send)
     def test_export_datadog(self):
         export(SLO_REPORT, EXPORTERS[4])
+
+    @patch(
+        "slo_generator.exporters.opentelemetry.OTLPMetricExporter",
+        return_value=MagicMock(),
+    )
+    def test_export_opentelemetry(self, mock):
+        export(SLO_REPORT, EXPORTERS[7])
 
     @patch.object(DynatraceClient, "request", side_effect=mock_dt)
     def test_export_dynatrace(self, mock):

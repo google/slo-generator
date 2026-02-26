@@ -63,6 +63,8 @@ CTX = {
     "SPLUNK_USER": "fake",
     "SPLUNK_PWD": "fake",
     "OPENSEARCH_URL": "http://localhost:9201",
+    "OTLP_ENDPOINT": "localhost:4317",
+    "OTLP_TOKEN": "fake",
 }
 
 
