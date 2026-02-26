@@ -404,7 +404,8 @@ class SLOReport:
             "BR: {error_budget_burn_rate:<2} / "
             "{error_budget_burn_rate_threshold} | "
             "Alert: {alert:<1} | Good: {good_events_count:<8} | "
-            "Bad: {bad_events_count:<8}"
+            "Bad: {bad_events_count:<8} | "
+            "Remaining Minutes:{error_budget_remaining_minutes:<8} | Error Minutes : {error_minutes:<8} | "
         ).format_map(report)
         full_str = f"{self.info} | {sli_str} | {result_str}"
         if COLORED_OUTPUT == 1:
