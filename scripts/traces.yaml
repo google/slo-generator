@@ -1,0 +1,26 @@
+receivers:
+  otlp:
+    protocols:
+      grpc:
+      http:
+
+processors:
+  resourcedetection:
+    detectors: [env, gcp]
+    timeout: 2s
+    override: false
+
+exporters:
+  googlecloud:
+    project: ${env:OTEL_BACKEND_PROJECT_ID}
+
+extensions:
+  health_check:
+
+service:
+  extensions: [health_check]
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [resourcedetection]
+      exporters: [googlecloud]
