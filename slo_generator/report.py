@@ -250,7 +250,12 @@ class SLOReport:
             if bad_count == NO_DATA:
                 bad_count = 0
             LOGGER.debug(f"{self.info} | Good: {good_count} | Bad: {bad_count}")
-            sli_measurement = round(good_count / (good_count + bad_count), 6)
+            total = good_count + bad_count
+            if total == 0:
+                LOGGER.warning("No events found, setting SLI to 0")
+                sli_measurement = 0
+            else:
+                sli_measurement = round(good_count / total, 6)    
         else:  # sli value
             sli_measurement = round(data, 6)
             good_count, bad_count = NO_DATA, NO_DATA
