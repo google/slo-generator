@@ -14,13 +14,13 @@ To set up the `slo-generator` with Terraform, please look at the [terraform-goog
 Create the GCS bucket that will hold our SLO configurations:
 
 ```
-gsutil mb -p ${PROJECT_ID} gs://${BUCKET_NAME}
+gcloud storage buckets create gs://${BUCKET_NAME} --project=${PROJECT_ID}
 ```
 
 Upload the slo-generator configuration to the GCS bucket:
 
 ```
-gsutil cp config.yaml gs://${BUCKET_NAME}/
+gcloud storage cp config.yaml gs://${BUCKET_NAME}/
 ```
 
 See sample [config.yaml](../../samples/config.yaml)
@@ -55,7 +55,7 @@ See sample [slo.yaml](../../samples/cloud_monitoring/slo_gae_app_availability.ya
 
 Upload your SLO config to the GCS bucket:
 ```
-gsutil cp slo.yaml gs://${BUCKET_NAME}/
+gcloud storage cp slo.yaml gs://${BUCKET_NAME}/
 ```
 
 Create a Cloud Scheduler job that will hit the service with the SLO config URL:
@@ -73,7 +73,7 @@ can deploy an export-only API to Cloud Run:
 
 Upload the slo-generator export config to the GCS bucket:
 ```
-gsutil cp config_export.yaml gs://${BUCKET_NAME}/config_export.yaml
+gcloud storage cp config_export.yaml gs://${BUCKET_NAME}/config_export.yaml
 ```
 
 Deploy the `slo-generator` with `--signature-type=cloudevent` and `--target=run_export`:
