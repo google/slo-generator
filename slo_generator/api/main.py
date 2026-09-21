@@ -63,7 +63,9 @@ def run_compute(request):
         return jsonify([])
 
     # Load SLO config
-    slo_config = load_config(data)
+    # Request data is untrusted. Do not resolve placeholders from the service
+    # environment, which can contain credentials and other deployment secrets.
+    slo_config = load_config(data, ctx={})
 
     # Compute SLO report
     LOGGER.debug(f"Config: {pprint.pformat(config)}")
@@ -91,7 +93,9 @@ def run_export(request):
     """
     # Get export data
     data = process_req(request)
-    slo_report = load_config(data)
+    # Request data is untrusted. Do not resolve placeholders from the service
+    # environment, which can contain credentials and other deployment secrets.
+    slo_report = load_config(data, ctx={})
     if not slo_report:
         return make_response(
             {
