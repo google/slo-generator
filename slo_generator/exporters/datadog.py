@@ -20,12 +20,12 @@ import logging
 
 import datadog
 
+from slo_generator.datadog_utils import DEFAULT_API_HOST, validate_api_host
+
 from .base import MetricsExporter
 
 LOGGER = logging.getLogger(__name__)
 logging.getLogger("datadog.api").setLevel(logging.ERROR)
-
-DEFAULT_API_HOST = "https://api.datadoghq.com"
 
 
 class DatadogExporter(MetricsExporter):
@@ -35,7 +35,7 @@ class DatadogExporter(MetricsExporter):
         client (obj, optional): Existing Datadog client to pass.
         api_key (str): Datadog API key.
         app_key (str): Datadog APP key.
-        kwargs (dict): Extra arguments to pass to initialize function.
+        api_host (str): Official HTTPS Datadog API endpoint.
     """
 
     REQUIRED_FIELDS = ["api_key", "app_key"]
@@ -53,7 +53,7 @@ class DatadogExporter(MetricsExporter):
         options = {
             "api_key": data["api_key"],
             "app_key": data["app_key"],
-            "api_host": data.get("api_host", DEFAULT_API_HOST),
+            "api_host": validate_api_host(data.get("api_host", DEFAULT_API_HOST)),
         }
         datadog.initialize(**options)
         client = datadog.api

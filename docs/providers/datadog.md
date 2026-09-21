@@ -17,7 +17,10 @@ The following methods are available to compute SLOs with the `datadog` backend:
 * `query_sli` for computing SLIs directly with Datadog.
 * `query_slo` for getting SLO value from Datadog SLO endpoint.
 
-Optional arguments to configure Datadog are documented in the Datadog `initialize` method [here](https://github.com/DataDog/datadogpy/blob/058114cc3d65483466684c96a5c23e36c3aa052e/datadog/__init__.py#L33). You can pass them in the `backend` section, such as specifying `api_host: api.datadoghq.eu` in order to use the EU site.
+The optional `api_host` argument selects another official Datadog site. It must
+use HTTPS, for example `api_host: https://api.datadoghq.eu` for the EU site.
+Arbitrary endpoints and additional `datadog.initialize` options are rejected so
+that configuration cannot redirect Datadog credentials.
 
 ### Good / bad ratio
 
@@ -87,7 +90,10 @@ exporters:
    app_key: ${DATADOG_APP_KEY}
 ```
 
-Optional arguments to configure Datadog are documented in the Datadog `initialize` method [here](https://github.com/DataDog/datadogpy/blob/058114cc3d65483466684c96a5c23e36c3aa052e/datadog/__init__.py#L33). You can pass them in the `backend` section, such as specifying `api_host: api.datadoghq.eu` in order to use the EU site.
+The optional `api_host` argument selects another official Datadog site. It must
+use HTTPS, for example `api_host: https://api.datadoghq.eu` for the EU site.
+Arbitrary endpoints are rejected so that configuration cannot redirect Datadog
+credentials.
 
 Optional fields:
 
