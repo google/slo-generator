@@ -22,6 +22,7 @@ import pprint
 import datadog
 
 from slo_generator import utils
+from slo_generator.datadog_utils import DEFAULT_API_HOST, validate_api_host
 
 LOGGER = logging.getLogger(__name__)
 logging.getLogger("datadog.api").setLevel(logging.ERROR)
@@ -34,14 +35,23 @@ class DatadogBackend:
         client (obj, optional): Existing Datadog client to pass.
         api_key (str): Datadog API key.
         app_key (str): Datadog APP key.
-        kwargs (dict): Extra arguments to pass to initialize function.
+        api_host (str): Official HTTPS Datadog API endpoint.
     """
 
-    def __init__(self, client=None, api_key=None, app_key=None, **kwargs):
+    def __init__(
+        self,
+        client=None,
+        api_key=None,
+        app_key=None,
+        api_host=DEFAULT_API_HOST,
+    ):
         self.client = client
         if not self.client:
-            options = {"api_key": api_key, "app_key": app_key}
-            options.update(kwargs)
+            options = {
+                "api_key": api_key,
+                "app_key": app_key,
+                "api_host": validate_api_host(api_host),
+            }
             datadog.initialize(**options)
             self.client = datadog.api
 
