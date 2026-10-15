@@ -32,6 +32,7 @@ from google.cloud.monitoring_v3.services.query_service.pagers import (
 )
 from google.cloud.monitoring_v3.types.metric import TimeSeries
 
+from slo_generator.backends.cloud_monitoring import get_threshold_bucket
 from slo_generator.constants import NO_DATA
 
 LOGGER = logging.getLogger(__name__)
@@ -114,7 +115,8 @@ class CloudMonitoringMqlBackend:
         """
         measurement: dict = slo_config["spec"]["service_level_indicator"]
         filter_valid: str = measurement["filter_valid"]
-        threshold_bucket: int = int(measurement["threshold_bucket"])
+        raw_threshold_bucket = measurement.get("threshold_bucket")
+        threshold_value = measurement.get("threshold_value", measurement.get("value"))
         good_below_threshold: typing.Optional[bool] = measurement.get(
             "good_below_threshold", True
         )
@@ -127,6 +129,9 @@ class CloudMonitoringMqlBackend:
 
         distribution_value: Distribution = (
             series[0].point_data[0].values[0].distribution_value
+        )
+        threshold_bucket: int = get_threshold_bucket(
+            raw_threshold_bucket, threshold_value, distribution_value.bucket_options
         )
         bucket_counts: list = distribution_value.bucket_counts
         valid_events_count: int = distribution_value.count

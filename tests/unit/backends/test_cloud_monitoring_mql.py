@@ -15,7 +15,9 @@
 # flake8: noqa
 
 import unittest
+from types import SimpleNamespace
 
+from slo_generator.backends.cloud_monitoring import infer_threshold_bucket
 from slo_generator.backends.cloud_monitoring_mql import CloudMonitoringMqlBackend
 
 
@@ -45,3 +47,38 @@ class TestCloudMonitoringMqlBackend(unittest.TestCase):
             )
             == enriched_query
         )
+
+    def test_infer_threshold_bucket_from_value(self):
+        exp_opts = SimpleNamespace(
+            exponential_buckets=SimpleNamespace(
+                growth_factor=1.4142135623730951,
+                num_finite_buckets=64,
+                scale=1.0,
+            ),
+            linear_buckets=None,
+            explicit_buckets=None,
+        )
+        self.assertEqual(infer_threshold_bucket(exp_opts, 8.0), 6)
+        self.assertEqual(infer_threshold_bucket(exp_opts, 9.0), 7)
+        self.assertEqual(infer_threshold_bucket(exp_opts, 128.0), 14)
+        self.assertEqual(infer_threshold_bucket(exp_opts, 724.0), 19)
+        self.assertEqual(infer_threshold_bucket(exp_opts, 1e12), 65)
+
+        lin_opts = SimpleNamespace(
+            exponential_buckets=None,
+            linear_buckets=SimpleNamespace(
+                offset=0.0, width=10.0, num_finite_buckets=20
+            ),
+            explicit_buckets=None,
+        )
+        self.assertEqual(infer_threshold_bucket(lin_opts, 44.0), 5)
+        self.assertEqual(infer_threshold_bucket(lin_opts, 50.0), 5)
+        self.assertEqual(infer_threshold_bucket(lin_opts, 500.0), 21)
+
+        explicit_opts = SimpleNamespace(
+            exponential_buckets=None,
+            linear_buckets=None,
+            explicit_buckets=SimpleNamespace(bounds=[10.0, 25.0, 100.0, 500.0]),
+        )
+        self.assertEqual(infer_threshold_bucket(explicit_opts, 25.0), 1)
+        self.assertEqual(infer_threshold_bucket(explicit_opts, 30.0), 2)
