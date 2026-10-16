@@ -17,6 +17,7 @@ Cloud Monitoring backend implementation.
 """
 
 import logging
+import math
 import pprint
 import warnings
 from collections import OrderedDict
@@ -26,6 +27,63 @@ from google.cloud import monitoring_v3
 from slo_generator.constants import NO_DATA
 
 LOGGER = logging.getLogger(__name__)
+
+
+def infer_threshold_bucket(bucket_options, threshold_value: float) -> int:
+    """Infer the distribution bucket index corresponding to `threshold_value`."""
+    target = float(threshold_value)
+    exp = getattr(bucket_options, "exponential_buckets", None)
+    if exp and getattr(exp, "growth_factor", 0) > 1 and getattr(exp, "scale", 0) > 0:
+        if target <= 0:
+            return 0
+        val = math.log(target / exp.scale, exp.growth_factor)
+        rounded = round(val)
+        is_close = math.isclose(val, rounded, rel_tol=1e-9, abs_tol=1e-9)
+        bucket_idx = rounded if is_close else math.ceil(val)
+        num_finite = getattr(exp, "num_finite_buckets", None)
+        max_bucket = int(num_finite) + 1 if num_finite is not None else bucket_idx
+        return max(0, min(bucket_idx, max_bucket))
+
+    lin = getattr(bucket_options, "linear_buckets", None)
+    if lin and getattr(lin, "width", 0) > 0:
+        offset = float(getattr(lin, "offset", 0.0))
+        width = float(lin.width)
+        if target < offset:
+            return 0
+        val = (target - offset) / width
+        rounded = round(val)
+        is_close = math.isclose(val, rounded, rel_tol=1e-9, abs_tol=1e-9)
+        bucket_idx = rounded if is_close else math.ceil(val)
+        num_finite = getattr(lin, "num_finite_buckets", None)
+        max_bucket = int(num_finite) + 1 if num_finite is not None else bucket_idx
+        return max(0, min(bucket_idx, max_bucket))
+
+    explicit = getattr(bucket_options, "explicit_buckets", None)
+    bounds = getattr(explicit, "bounds", None) if explicit else None
+    if bounds:
+        for idx, bound in enumerate(bounds):
+            is_close = math.isclose(bound, target, rel_tol=1e-9, abs_tol=1e-9)
+            if bound >= target or is_close:
+                return idx
+        return len(bounds)
+
+    raise ValueError(
+        "Unable to infer threshold_bucket from distribution bucket_options"
+    )
+
+
+def get_threshold_bucket(raw_threshold_bucket, threshold_value, bucket_options) -> int:
+    """Get threshold bucket index from raw threshold_bucket or threshold_value."""
+    if raw_threshold_bucket is not None:
+        if threshold_value is not None:
+            LOGGER.warning(
+                "Both `threshold_bucket` and `threshold_value` / `value` are "
+                "provided. Using `threshold_bucket`."
+            )
+        return int(raw_threshold_bucket)
+    if threshold_value is not None:
+        return infer_threshold_bucket(bucket_options, float(threshold_value))
+    raise ValueError("Either `threshold_bucket` or `threshold_value` is required.")
 
 
 class CloudMonitoringBackend:
@@ -107,7 +165,8 @@ class CloudMonitoringBackend:
         """
         measurement = slo_config["spec"]["service_level_indicator"]
         filter_valid = measurement["filter_valid"]
-        threshold_bucket = int(measurement["threshold_bucket"])
+        raw_threshold_bucket = measurement.get("threshold_bucket")
+        threshold_value = measurement.get("threshold_value", measurement.get("value"))
         good_below_threshold = measurement.get("good_below_threshold", True)
 
         # Query 'valid' events
@@ -122,11 +181,11 @@ class CloudMonitoringBackend:
             return NO_DATA, NO_DATA  # no timeseries
 
         distribution_value = series[0].points[0].value.distribution_value
-        # bucket_options = distribution_value.bucket_options
+        threshold_bucket = get_threshold_bucket(
+            raw_threshold_bucket, threshold_value, distribution_value.bucket_options
+        )
         bucket_counts = distribution_value.bucket_counts
         valid_events_count = distribution_value.count
-        # growth_factor = bucket_options.exponential_buckets.growth_factor
-        # scale = bucket_options.exponential_buckets.scale
 
         # Explicit the exponential distribution result
         count_sum = 0
